@@ -228,9 +228,11 @@ export const addSellerProduct = async (req, res) => {
     const colorImages = [];
     let allImages = [];
 
+    const hostUrl = `${req.protocol}://${req.get('host')}`;
+
     colors.forEach(color => {
       const colorFiles = req.files.filter(f => f.fieldname === `colorMedia_${color}`);
-      const urls = colorFiles.map(file => `http://localhost:5000/uploads/products/${file.filename}`);
+      const urls = colorFiles.map(file => `${hostUrl}/uploads/products/${file.filename}`);
       
       if (urls.length > 0) {
         colorImages.push({ color, images: urls });
@@ -363,10 +365,11 @@ export const updateSellerProduct = async (req, res) => {
       let allImages = [];
 
       const currentColors = product.colors || [];
+      const hostUrl = `${req.protocol}://${req.get('host')}`;
       currentColors.forEach(color => {
         // Check for new uploads for this color
         const colorFiles = req.files ? req.files.filter(f => f.fieldname === `colorMedia_${color}`) : [];
-        const newUrls = colorFiles.map(file => `http://localhost:5000/uploads/products/${file.filename}`);
+        const newUrls = colorFiles.map(file => `${hostUrl}/uploads/products/${file.filename}`);
         
         // Check for existing images for this color
         const existingVariant = product.colorImages?.find(ci => ci.color === color);

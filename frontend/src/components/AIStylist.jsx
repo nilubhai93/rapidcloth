@@ -62,7 +62,7 @@ export default function AIStylist() {
   // Socket.io initialization
   useEffect(() => {
     const socketUrl = import.meta.env.VITE_API_URL
-      ? import.meta.env.VITE_API_URL.replace('/api', '')
+      ? import.meta.env.VITE_API_URL.replace(/\/api\/?$/, '')
       : 'http://localhost:5000';
 
     const s = io(socketUrl, {
