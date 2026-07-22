@@ -39,12 +39,11 @@ export default function Products() {
   }, [searchParams]);
 
   // Build clean parameters for the query
-  const params = {};
-  Object.entries(filters).forEach(([k, v]) => { if (v) params[k] = v; });
+  const params = { limit: 1000 };
+  Object.entries(filters).forEach(([k, v]) => { if (v && k !== 'page') params[k] = v; });
 
   const { data, isFetching } = useGetProductsQuery(params);
   const products = data?.products || [];
-  const pagination = data?.pagination || { page: 1, pages: 1, total: 0 };
 
   // Fetch recommendations only when search returns empty list and not loading
   const showRecommendations = !isFetching && products.length === 0;
@@ -55,11 +54,11 @@ export default function Products() {
   const loading = isFetching;
 
   const updateFilter = (key, value) => {
-    setFilters(prev => ({ ...prev, [key]: value, page: 1 }));
+    setFilters(prev => ({ ...prev, [key]: value }));
   };
 
   const clearFilters = () => {
-    setFilters({ category: '', gender: '', minPrice: '', maxPrice: '', tags: '', occasion: '', search: '', sort: '-createdAt', page: 1 });
+    setFilters({ category: '', gender: '', minPrice: '', maxPrice: '', tags: '', occasion: '', search: '', sort: '-createdAt' });
     setSearchParams({});
   };
 
@@ -172,7 +171,7 @@ export default function Products() {
       ) : products.length > 0 ? (
         <div className="product-grid">
           {products.map((p, i) => (
-            <ProductCard key={p._id} product={p} index={i} />
+            <ProductCard key={p._id} product={p} index={i} showButtons={false} />
           ))}
         </div>
       ) : (
@@ -189,34 +188,13 @@ export default function Products() {
           {recommendations.length > 0 && (
             <div className="product-grid">
               {recommendations.map((p, i) => (
-                <ProductCard key={p._id} product={p} index={i} />
+                <ProductCard key={p._id} product={p} index={i} showButtons={false} />
               ))}
             </div>
           )}
         </div>
       )}
 
-      {/* Pagination */}
-      {pagination.pages > 1 && (
-        <div style={{
-          display: 'flex', justifyContent: 'center', gap: '8px',
-          marginTop: '48px'
-        }}>
-          {Array.from({ length: pagination.pages }, (_, i) => i + 1).map(p => (
-            <button
-              key={p}
-              onClick={() => setFilters(prev => ({ ...prev, page: p }))}
-              style={{
-                width: '40px', height: '40px', borderRadius: 'var(--radius-md)',
-                background: p === pagination.page ? 'var(--gradient-primary)' : 'var(--bg-card)',
-                color: p === pagination.page ? 'white' : 'var(--text-muted)',
-                border: `1px solid ${p === pagination.page ? 'transparent' : 'var(--border)'}`,
-                fontSize: 'clamp(13px, 2.5vw, 16px)', fontWeight: 600, cursor: 'pointer'
-              }}
-            >{p}</button>
-          ))}
-        </div>
-      )}
     </div>
   );
 }

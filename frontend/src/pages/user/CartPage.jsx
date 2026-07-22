@@ -229,7 +229,7 @@ export default function CartPage() {
               <span style={{ fontSize: '18px', fontWeight: '800', color: '#111827' }}>₹{Math.round(total + 5).toLocaleString()}</span>
             </div>
 
-            <button onClick={() => navigate(isAuthenticated ? '/checkout' : '/login')}
+            <button onClick={() => navigate(isAuthenticated ? '/checkout' : '/register?redirect=/checkout')}
               style={{ width: '100%', padding: '13px', borderRadius: '8px', background: 'var(--gradient-primary)', border: 'none', color: '#ffffff', fontSize: '16px', fontWeight: '700', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: '20px', cursor: 'pointer', transition: 'transform 0.2s, box-shadow 0.2s', boxShadow: '0 4px 14px var(--accent-glow)' }}>
               Proceed to Checkout <span style={{ fontWeight: '400' }}>→</span>
             </button>

@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { authAPI } from '../api';
+import { authAPI, cartAPI } from '../api';
 import {
   authStart,
   authSuccess,
@@ -15,6 +15,20 @@ import {
 } from '../store/authSlice';
 
 const AuthContext = createContext(null);
+
+const checkAndMergeGuestCart = async () => {
+  try {
+    const raw = localStorage.getItem('guest_cart');
+    if (!raw) return;
+    const guestItems = JSON.parse(raw);
+    if (guestItems && guestItems.length > 0) {
+      await cartAPI.merge({ items: guestItems });
+      localStorage.removeItem('guest_cart');
+    }
+  } catch (err) {
+    console.error('Failed to merge guest cart on auth:', err);
+  }
+};
 
 export function AuthProvider({ children }) {
   const dispatch = useDispatch();
@@ -51,6 +65,7 @@ export function AuthProvider({ children }) {
       const res = await authAPI.login(email, password);
       localStorage.setItem('token', res.data.token);
       localStorage.setItem('user', JSON.stringify(res.data.user));
+      await checkAndMergeGuestCart();
       dispatch(authSuccess({ user: res.data.user, token: res.data.token }));
       return res.data;
     } catch (e) {
@@ -65,6 +80,7 @@ export function AuthProvider({ children }) {
       const res = await authAPI.register(name, email, password, role, extraData);
       localStorage.setItem('token', res.data.token);
       localStorage.setItem('user', JSON.stringify(res.data.user));
+      await checkAndMergeGuestCart();
       dispatch(authSuccess({ user: res.data.user, token: res.data.token }));
       return res.data;
     } catch (e) {
@@ -90,6 +106,7 @@ export function AuthProvider({ children }) {
       const res = await authAPI.verifyOtp(email, otp);
       localStorage.setItem('token', res.data.token);
       localStorage.setItem('user', JSON.stringify(res.data.user));
+      await checkAndMergeGuestCart();
       dispatch(authSuccess({ user: res.data.user, token: res.data.token }));
       return res.data;
     } catch (e) {

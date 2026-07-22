@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import api from '../../api';
+import axios from 'axios';
 import PeopleIcon from '@mui/icons-material/PeopleRounded';
 import StorefrontIcon from '@mui/icons-material/StorefrontRounded';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCartRounded';
@@ -27,7 +27,10 @@ export default function AdminOverview() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const res = await api.get('/admin/stats');
+        const token = localStorage.getItem('token');
+        const res = await axios.get('http://localhost:5000/api/admin/stats', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
         setStats(res.data.stats);
         setRecentActivity(res.data.recentActivity);
       } catch (error) {

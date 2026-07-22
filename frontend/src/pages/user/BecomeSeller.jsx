@@ -101,7 +101,7 @@ export default function BecomeSeller() {
     textSecondary: '#5a5550',
     textMuted: '#8a8580',
     border: '#e8e4df',
-    fontDisplay: '"Playfair Display", serif',
+    fontDisplay: '"Inter", sans-serif',
     fontSans: '"Inter", sans-serif'
   };
 

@@ -9,11 +9,16 @@ import CloseIcon from '@mui/icons-material/CloseRounded';
 export default function Login() {
   const { login, isAuthenticated, user, sendOtp, verifyOtp } = useAuth();
   const navigate = useNavigate();
-  const [email, setEmail] = useState('');
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const role = queryParams.get('role');
+  const redirect = queryParams.get('redirect');
+
+  const [email, setEmail] = useState(queryParams.get('email') || '');
   const [password, setPassword] = useState('');
   const [otp, setOtp] = useState('');
   const [showPw, setShowPw] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState(queryParams.get('conflict') ? 'Email already registered. Please sign in.' : '');
   const [loading, setLoading] = useState(false);
   const [loginMethod, setLoginMethod] = useState('password'); // 'password' or 'otp'
   const [otpSent, setOtpSent] = useState(false);
@@ -22,13 +27,9 @@ export default function Login() {
     if (isAuthenticated && user) {
       if (user.role === 'admin') navigate('/admin');
       else if (user.role === 'delivery') navigate('/delivery');
-      else navigate('/shop');
+      else navigate(redirect || '/');
     }
-  }, [isAuthenticated, user, navigate]);
-
-  const location = useLocation();
-  const queryParams = new URLSearchParams(location.search);
-  const role = queryParams.get('role');
+  }, [isAuthenticated, user, navigate, redirect]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -57,7 +58,7 @@ export default function Login() {
   const navigateByRole = (userRole) => {
     if (userRole === 'admin') navigate('/admin');
     else if (userRole === 'delivery') navigate('/delivery');
-    else navigate('/shop');
+    else navigate(redirect || '/');
   };
 
   const handleSendOtp = async () => {
@@ -91,37 +92,6 @@ export default function Login() {
           position: 'relative'
         }}>
 
-        {/* Close button */}
-        <motion.button
-          whileHover={{ scale: 1.15, rotate: 90 }}
-          whileTap={{ scale: 0.9 }}
-          onClick={() => navigate('/')}
-          aria-label="Close login"
-          style={{
-            position: 'absolute', top: '16px', right: '16px',
-            width: '36px', height: '36px', borderRadius: '50%',
-            background: 'rgba(255,255,255,0.06)',
-            border: '1px solid rgba(255,255,255,0.1)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            cursor: 'pointer', color: 'var(--text-muted)',
-            transition: 'all 0.2s ease',
-            backdropFilter: 'blur(8px)',
-            zIndex: 10
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.background = 'rgba(239,68,68,0.15)';
-            e.currentTarget.style.borderColor = 'rgba(239,68,68,0.3)';
-            e.currentTarget.style.color = '#f87171';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background = 'rgba(255,255,255,0.06)';
-            e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)';
-            e.currentTarget.style.color = 'var(--text-muted)';
-          }}
-        >
-          <CloseIcon sx={{ fontSize: 'clamp(18px, 4vw, 20px)' }} />
-        </motion.button>
-
         <div style={{ textAlign: 'center', marginBottom: '36px' }}>
           <div style={{
             width: '56px', height: '56px', borderRadius: '16px',
@@ -129,7 +99,7 @@ export default function Login() {
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             fontSize: '24px', fontWeight: 800, color: 'white'
           }}>F</div>
-          <h1 style={{ fontSize: '32px', fontWeight: 700, fontFamily: 'var(--font-display)', marginBottom: '8px' }}>Welcome Back</h1>
+          <h1 style={{ fontSize: '32px', fontWeight: 700, fontFamily: 'var(--font-display)', marginBottom: '8px' }}>Welcome Back User</h1>
           <p style={{ color: 'var(--text-muted)', fontSize: '15px' }}>
             {loginMethod === 'password' ? 'Sign in to your account' : (otpSent ? 'Enter the code sent to your email' : 'Sign in with a one-time code')}
           </p>
@@ -230,7 +200,7 @@ export default function Login() {
         </div>
 
         <p style={{ textAlign: 'center', marginTop: '32px', fontSize: '14px', color: 'var(--text-muted)' }}>
-          Don't have an account? <Link to={role ? `/register?role=${role}` : `/register`} style={{ color: 'var(--accent-light)', fontWeight: 600 }}>Create account</Link>
+          Don't have an account? <Link to={role ? `/register?role=${role}${redirect ? `&redirect=${encodeURIComponent(redirect)}` : ''}` : `/register${redirect ? `?redirect=${encodeURIComponent(redirect)}` : ''}`} style={{ color: 'var(--accent-light)', fontWeight: 600 }}>Create account</Link>
         </p>
       </motion.div>
     </div>

@@ -8,7 +8,7 @@ import FavoriteBorderIcon from '@mui/icons-material/FavoriteRounded';
 import StarIcon from '@mui/icons-material/StarRounded';
 import LocalShippingOutlinedIcon from '@mui/icons-material/LocalShippingRounded';
 
-export default function ProductCard({ product, index = 0 }) {
+export default function ProductCard({ product, index = 0, showButtons = true }) {
   const { addToCart, items, updateItem, removeItem } = useCart();
   const { isAuthenticated } = useAuth();
   const [selectedSize, setSelectedSize] = useState('');
@@ -22,18 +22,11 @@ export default function ProductCard({ product, index = 0 }) {
   const handleAddToCart = async (e) => {
     e.preventDefault();
     e.stopPropagation();
-    if (!selectedSize) {
-      const availableSize = product.sizes?.find(s => s.stock > 0);
-      if (availableSize) setSelectedSize(availableSize.size);
-      else return;
-    }
-    if (!isAuthenticated) {
-      window.location.href = '/login';
-      return;
-    }
+    const sizeToUse = selectedSize || product.sizes?.find(s => s.stock > 0)?.size || product.sizes?.[0]?.size;
+    if (!sizeToUse) return;
     setAdding(true);
     try {
-      await addToCart(product._id, selectedSize || product.sizes?.[0]?.size, product.colors?.[0]);
+      await addToCart(product._id, sizeToUse, product.colors?.[0], 1, false, 0, product);
     } catch (err) {
       console.error('Add to cart failed:', err);
     } finally {
@@ -195,114 +188,112 @@ export default function ProductCard({ product, index = 0 }) {
       </Link>
 
       {/* Add to Cart & Buy Now */}
-      <div style={{ padding: '0 16px 16px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-        {qtyInCart > 0 ? (
-          <div style={{
-            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-            background: 'linear-gradient(135deg, rgba(20,50,122,0.08), rgba(201,169,110,0.08))', borderRadius: 'var(--radius-md)',
-            padding: '4px', border: '1px solid rgba(20,50,122,0.3)'
-          }}>
-            <button
-              onClick={(e) => {
-                e.preventDefault(); e.stopPropagation();
-                if (qtyInCart > 1) updateItem(cartItem._id, qtyInCart - 1);
-                else removeItem(cartItem._id);
-              }}
+      {showButtons && (
+        <div style={{ padding: '0 16px 16px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          {qtyInCart > 0 ? (
+            <div style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              background: 'linear-gradient(135deg, rgba(20,50,122,0.08), rgba(201,169,110,0.08))', borderRadius: 'var(--radius-md)',
+              padding: '4px', border: '1px solid rgba(20,50,122,0.3)'
+            }}>
+              <button
+                onClick={(e) => {
+                  e.preventDefault(); e.stopPropagation();
+                  if (qtyInCart > 1) updateItem(cartItem._id, qtyInCart - 1);
+                  else removeItem(cartItem._id);
+                }}
+                style={{
+                  width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  background: 'white', color: '#111',
+                  border: 'none', borderRadius: 'var(--radius-sm)', cursor: 'pointer',
+                  fontSize: '16px', fontWeight: 'bold'
+                }}
+              >-</button>
+              <span style={{ fontWeight: 800, color: '#111', fontSize: '13px' }}>
+                {qtyInCart} in {product.isAvailableForRent ? 'Rental' : 'Bag'}
+              </span>
+              <button
+                onClick={(e) => {
+                  e.preventDefault(); e.stopPropagation();
+                  updateItem(cartItem._id, qtyInCart + 1);
+                }}
+                style={{
+                  width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  background: 'white', color: '#111',
+                  border: 'none', borderRadius: 'var(--radius-sm)', cursor: 'pointer',
+                  fontSize: '16px', fontWeight: 'bold'
+                }}
+              >+</button>
+            </div>
+          ) : (
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={handleAddToCart}
+              disabled={adding}
               style={{
-                width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                background: 'white', color: '#111',
-                border: 'none', borderRadius: 'var(--radius-sm)', cursor: 'pointer',
-                fontSize: '16px', fontWeight: 'bold'
+                width: '100%', padding: '12px',
+                borderRadius: '8px',
+                background: adding ? '#22c55e' : 'linear-gradient(135deg, #14327a 0%, #c9a96e 100%)',
+                color: 'white',
+                fontSize: '14px', fontWeight: 700,
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+                border: 'none',
+                cursor: adding ? 'not-allowed' : 'pointer',
+                boxShadow: '0 4px 10px rgba(20, 50, 122, 0.4)'
               }}
-            >-</button>
-            <span style={{ fontWeight: 800, color: '#111', fontSize: '13px' }}>
-              {qtyInCart} in {product.isAvailableForRent ? 'Rental' : 'Bag'}
-            </span>
-            <button
-              onClick={(e) => {
-                e.preventDefault(); e.stopPropagation();
-                updateItem(cartItem._id, qtyInCart + 1);
-              }}
+            >
+              <ShoppingBagOutlinedIcon sx={{ fontSize: 18 }} />
+              {adding ? 'Added!' : (product.isAvailableForRent ? 'Add to Rental' : 'Add to Bag')}
+            </motion.button>
+          )}
+
+          {qtyInCart > 0 && (
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); window.location.href = '/cart'; }}
               style={{
-                width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                background: 'white', color: '#111',
-                border: 'none', borderRadius: 'var(--radius-sm)', cursor: 'pointer',
-                fontSize: '16px', fontWeight: 'bold'
+                width: '100%', padding: '12px',
+                borderRadius: '8px',
+                background: 'rgba(34, 197, 94, 0.1)',
+                color: '#22c55e',
+                fontSize: '14px', fontWeight: 700,
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+                border: '1px solid #22c55e',
+                cursor: 'pointer'
               }}
-            >+</button>
-          </div>
-        ) : (
+            >
+              Go to Cart
+            </motion.button>
+          )}
+
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            onClick={handleAddToCart}
-            disabled={adding}
+            onClick={async (e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              if (qtyInCart === 0) {
+                await handleAddToCart(e);
+              }
+              window.location.href = '/checkout';
+            }}
             style={{
               width: '100%', padding: '12px',
               borderRadius: '8px',
-              background: adding ? '#22c55e' : 'linear-gradient(135deg, #14327a 0%, #c9a96e 100%)',
+              background: 'var(--buy-now)',
               color: 'white',
               fontSize: '14px', fontWeight: 700,
-              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
-              border: 'none',
-              cursor: adding ? 'not-allowed' : 'pointer',
-              boxShadow: '0 4px 10px rgba(20, 50, 122, 0.4)'
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              border: 'none', cursor: 'pointer',
+              boxShadow: '0 4px 10px var(--buy-now-shadow)'
             }}
           >
-            <ShoppingBagOutlinedIcon sx={{ fontSize: 18 }} />
-            {adding ? 'Added!' : (product.isAvailableForRent ? 'Add to Rental' : 'Add to Bag')}
+            {product.isAvailableForRent ? 'Rent Now' : 'Buy Now'}
           </motion.button>
-        )}
-
-        {qtyInCart > 0 && (
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={(e) => { e.preventDefault(); e.stopPropagation(); window.location.href = '/cart'; }}
-            style={{
-              width: '100%', padding: '12px',
-              borderRadius: '8px',
-              background: 'rgba(34, 197, 94, 0.1)',
-              color: '#22c55e',
-              fontSize: '14px', fontWeight: 700,
-              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
-              border: '1px solid #22c55e',
-              cursor: 'pointer'
-            }}
-          >
-            Go to Cart
-          </motion.button>
-        )}
-
-        <motion.button
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-          onClick={async (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            if (!isAuthenticated) {
-              window.location.href = '/login';
-              return;
-            }
-            if (qtyInCart === 0) {
-              await handleAddToCart(e);
-            }
-            window.location.href = '/checkout';
-          }}
-          style={{
-            width: '100%', padding: '12px',
-            borderRadius: '8px',
-            background: 'var(--buy-now)',
-            color: 'white',
-            fontSize: '14px', fontWeight: 700,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            border: 'none', cursor: 'pointer',
-            boxShadow: '0 4px 10px var(--buy-now-shadow)'
-          }}
-        >
-          {product.isAvailableForRent ? 'Rent Now' : 'Buy Now'}
-        </motion.button>
-      </div>
+        </div>
+      )}
     </motion.div>
   );
 }

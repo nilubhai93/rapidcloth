@@ -21,15 +21,15 @@ export default function Footer() {
   const tabs = [
     {
       id: 'home',
-      label: t('navbar.home'),
-      path: '/shop',
+      label: t('footer.home'),
+      path: '/',
       icon: HomeOutlinedIcon,
       activeIcon: HomeIcon,
-      match: (p) => p === '/shop'
+      match: (p) => p === '/' || p === '/shop'
     },
     {
       id: 'buyagain',
-      label: t('navbar.buyAgain'),
+      label: t('footer.buyAgain'),
       path: '/orders',
       icon: ReplayIcon,
       activeIcon: ReplayIcon,
@@ -37,7 +37,7 @@ export default function Footer() {
     },
     {
       id: 'bucket',
-      label: t('navbar.bucket'),
+      label: t('footer.bucket'),
       path: '/cart',
       icon: ShoppingBagOutlinedIcon,
       activeIcon: ShoppingBagIcon,
@@ -46,7 +46,7 @@ export default function Footer() {
     },
     {
       id: 'categories',
-      label: t('navbar.categories'),
+      label: t('footer.categories'),
       path: '/products',
       icon: CategoryOutlinedIcon,
       activeIcon: CategoryIcon,
@@ -54,7 +54,7 @@ export default function Footer() {
     },
     {
       id: 'rent',
-      label: t('navbar.rent'),
+      label: t('footer.rent'),
       path: '/rent',
       icon: DiamondOutlinedIcon,
       activeIcon: DiamondIcon,
@@ -66,9 +66,8 @@ export default function Footer() {
   const isActive = (tab) => tab.match(location.pathname);
 
   const isAuthPage = location.pathname === '/login' || location.pathname === '/register';
-  const isLandingPage = location.pathname === '/';
 
-  if (isLandingPage || isAuthPage) return null;
+  if (isAuthPage) return null;
 
   return (
     <>

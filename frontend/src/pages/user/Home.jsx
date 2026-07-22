@@ -27,9 +27,9 @@ const CarouselCard = ({ item }) => {
     e.preventDefault();
     e.stopPropagation();
     if (!isAuthenticated) {
-      navigate('/login?redirect=' + encodeURIComponent(window.location.pathname));
-      return;
-    }
+       navigate('/register?redirect=' + encodeURIComponent(window.location.pathname));
+       return;
+     }
     setAdding(true);
     const size = item.sizes?.find(s => s.stock > 0)?.size || 'One Size';
     try {
@@ -75,7 +75,7 @@ const CarouselCard = ({ item }) => {
               <div style={{ fontSize: '11px', color: '#E47911', display: 'flex', alignItems: 'center', fontWeight: 600, gap: '2px', background: '#FFF6ED', padding: '2px 6px', borderRadius: '4px' }}>
                 <LocalShippingOutlinedIcon sx={{ fontSize: 12 }} /> 10 Min
               </div>
-              
+
               {cartItem ? (
                 <motion.div
                   whileHover={{ scale: 1.05 }}
@@ -94,7 +94,7 @@ const CarouselCard = ({ item }) => {
                   Go to Cart
                 </motion.div>
               ) : (
-                <motion.div 
+                <motion.div
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
                   onClick={handleQuickAdd}
@@ -360,7 +360,7 @@ export default function Home() {
       '--accent-bg': 'rgba(30, 77, 183, 0.1)',
       '--gradient-primary': 'linear-gradient(135deg, #14327a 0%, #c9a96e 50%, #14327a 100%)',
       '--font-sans': '"Inter", sans-serif',
-      '--font-display': '"Playfair Display", serif',
+      '--font-display': '"Inter", sans-serif',
       backgroundColor: 'var(--bg-primary)',
       color: 'var(--text-primary)',
       fontFamily: 'var(--font-sans)',
@@ -421,19 +421,19 @@ export default function Home() {
                       </div>
                     </div>
 
-                      {/* Countdown timers visual */}
-                      {(slide.badge.toLowerCase().includes('time') || slide.badge.toLowerCase().includes('only')) && (
-                        <div className="promo-banner-countdown-wrapper">
-                          <div className="promo-timer-box">
-                            <div className="timer-val">09</div>
-                            <div className="timer-label">MIN</div>
-                          </div>
-                          <div className="promo-timer-box">
-                            <div className="timer-val">42</div>
-                            <div className="timer-label">SEC</div>
-                          </div>
+                    {/* Countdown timers visual */}
+                    {(slide.badge.toLowerCase().includes('time') || slide.badge.toLowerCase().includes('only')) && (
+                      <div className="promo-banner-countdown-wrapper">
+                        <div className="promo-timer-box">
+                          <div className="timer-val">09</div>
+                          <div className="timer-label">MIN</div>
                         </div>
-                      )}
+                        <div className="promo-timer-box">
+                          <div className="timer-val">42</div>
+                          <div className="timer-label">SEC</div>
+                        </div>
+                      </div>
+                    )}
 
                     {/* Decorative elements or background imagery */}
                     <div className="promo-banner-images">
@@ -612,7 +612,7 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Card 3: 50% Off (Amazon Style Grid) */}
+          {/* Card 3: 50% Off  */}
           <div className="promo-card" style={{
             background: 'var(--bg-elevated)', borderRadius: '12px', padding: '20px',
             display: 'flex', flexDirection: 'column', minHeight: '380px',
@@ -691,7 +691,7 @@ export default function Home() {
       </section>
 
       {/* Personalized Offers Section */}
-      <section style={{ padding: '20px 0 60px', backgroundColor: 'var(--bg-primary)' }}>
+      <section style={{ padding: '40px 0 20px', backgroundColor: 'var(--bg-primary)' }}>
         <div className="container" style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
@@ -780,7 +780,7 @@ export default function Home() {
             <Link to="/products" style={{ color: '#007185', fontWeight: 500, fontSize: '13px', marginTop: '16px', textDecoration: 'none' }}>Explore top collection</Link>
           </div>
         </div>
-      </section>
+      </section> 
 
       {/* Trending Now Section */}
       <section style={{ padding: '40px 0 20px' }}>
@@ -789,7 +789,7 @@ export default function Home() {
 
           <div className="trending-container" style={{
             position: 'relative', display: 'flex', alignItems: 'center',
-            backgroundColor: '#fff', borderRadius: '8px', border: '1px solid #ddd'
+            backgroundColor: '#fff', borderRadius: '8px', border: '1px solid #ddd', padding: '10px 0px'
           }}>
             {/* Left Arrow */}
             <button
@@ -833,13 +833,13 @@ export default function Home() {
       </section>
 
       {/* New Arrivals Section */}
-      <section style={{ padding: '20px 0 40px', overflowX: 'hidden' }}>
+      <section style={{ padding: '20px 0 20px', overflowX: 'hidden' }}>
         <div className="container" style={{ maxWidth: '1440px', margin: '0 auto', padding: '0 24px', overflowX: 'hidden' }}>
           <h2 style={{ fontSize: '20px', fontWeight: 700, marginBottom: '20px', color: '#0F1111', fontFamily: 'var(--font-sans)' }}>New Arrivals</h2>
 
           <div style={{
             position: 'relative', display: 'flex', alignItems: 'center',
-            backgroundColor: '#fff', borderRadius: '8px', border: '1px solid #ddd', padding: '20px'
+            backgroundColor: '#fff', borderRadius: '8px', border: '1px solid #ddd', padding: '10px 0px'
           }}>
             {/* Left Arrow */}
             <button
@@ -857,7 +857,7 @@ export default function Home() {
             <div
               id="arrival-scroll"
               style={{
-                display: 'flex', gap: '20px', overflowX: 'auto', scrollbarWidth: 'none', padding: '10px 0',
+                display: 'flex', gap: '20px', overflowX: 'auto', scrollbarWidth: 'none',
                 scrollSnapType: 'x mandatory'
               }}
             >
@@ -883,7 +883,7 @@ export default function Home() {
       </section>
 
       {/* New Promotional Grid Row */}
-      <section style={{ padding: '20px 0 40px', overflowX: 'hidden' }}>
+      <section style={{ padding: '20px 0 20px', overflowX: 'hidden' }}>
         <div className="container" style={{ maxWidth: '1440px', margin: '0 auto', padding: '0 24px', overflowX: 'hidden' }}>
           <div style={{
             display: 'grid',
@@ -895,7 +895,7 @@ export default function Home() {
               <h2 style={{ fontSize: '18px', fontWeight: 700, marginBottom: '12px', color: '#0F1111', fontFamily: 'var(--font-sans)' }}>{t('home.bestSellersKids')}</h2>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', flexGrow: 1 }}>
                 {getCardProducts(p => p.gender === 'kids' || p.category === 'kids').map(p => (
-                   <Link key={p._id} to={`/products/${p._id}`} style={{ textDecoration: 'none' }}>
+                  <Link key={p._id} to={`/products/${p._id}`} style={{ textDecoration: 'none' }}>
                     <div style={{ background: '#f8f8f8', borderRadius: '4px', overflow: 'hidden', height: '110px' }}>
                       <img src={p.images?.[0] || '/images/placeholder.png'} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={p.name} />
                     </div>
@@ -953,13 +953,13 @@ export default function Home() {
         </div>
       </section>
       {/* Quick Picks Section */}
-      <section style={{ padding: '20px 0 40px', overflowX: 'hidden' }}>
+      <section style={{ padding: '20px 0 20px', overflowX: 'hidden' }}>
         <div className="container" style={{ maxWidth: '1440px', margin: '0 auto', padding: '0 24px', overflowX: 'hidden' }}>
           <h2 style={{ fontSize: '20px', fontWeight: 700, marginBottom: '20px', color: '#0F1111', fontFamily: 'var(--font-sans)' }}>{t('home.quickPicks')}</h2>
 
           <div style={{
             position: 'relative', display: 'flex', alignItems: 'center',
-            backgroundColor: '#fff', borderRadius: '8px', border: '1px solid #ddd', padding: '20px'
+            backgroundColor: '#fff', borderRadius: '8px', border: '1px solid #ddd', padding: '10px 0px'
           }}>
             {/* Left Arrow */}
             <button
@@ -977,7 +977,7 @@ export default function Home() {
             <div
               id="quick-scroll"
               style={{
-                display: 'flex', gap: '20px', overflowX: 'auto', scrollbarWidth: 'none', padding: '10px 0',
+                display: 'flex', gap: '20px', overflowX: 'auto', scrollbarWidth: 'none',
                 scrollSnapType: 'x mandatory'
               }}
             >
@@ -1003,13 +1003,13 @@ export default function Home() {
       </section>
 
       {/* Starting price at 199 | Men's T-shirts Section */}
-      <section style={{ padding: '20px 0 40px', overflowX: 'hidden' }}>
+      <section style={{ padding: '20px 0 20px', overflowX: 'hidden' }}>
         <div className="container" style={{ maxWidth: '1440px', margin: '0 auto', padding: '0 24px', overflowX: 'hidden' }}>
           <h2 style={{ fontSize: '20px', fontWeight: 700, marginBottom: '20px', color: '#0F1111', fontFamily: 'var(--font-sans)' }}>Starting price at 199 | Men's T-shirts</h2>
 
           <div style={{
             position: 'relative', display: 'flex', alignItems: 'center',
-            backgroundColor: '#fff', borderRadius: '8px', border: '1px solid #ddd', padding: '20px'
+            backgroundColor: '#fff', borderRadius: '8px', border: '1px solid #ddd', padding: '10px 0px'
           }}>
             {/* Left Arrow */}
             <button
@@ -1027,7 +1027,7 @@ export default function Home() {
             <div
               id="tshirt-scroll"
               style={{
-                display: 'flex', gap: '20px', overflowX: 'auto', scrollbarWidth: 'none', padding: '10px 0',
+                display: 'flex', gap: '20px', overflowX: 'auto', scrollbarWidth: 'none',
                 scrollSnapType: 'x mandatory'
               }}
             >
@@ -1053,7 +1053,7 @@ export default function Home() {
       </section>
 
       {/* Lifestyle Promotional Grid Row */}
-      <section style={{ padding: '20px 0 40px' }}>
+      <section style={{ padding: '20px 0 20px' }}>
         <div className="container" style={{ maxWidth: '1440px', margin: '0 auto', padding: '0 24px' }}>
           <div style={{
             display: 'grid',
@@ -1124,13 +1124,13 @@ export default function Home() {
       </section>
 
       {/* Up to 80% off | Kids dresses Section */}
-      <section style={{ padding: '20px 0 40px' }}>
+      <section style={{ padding: '20px 0 20px' }}>
         <div className="container" style={{ maxWidth: '1440px', margin: '0 auto', padding: '0 24px' }}>
           <h2 style={{ fontSize: '20px', fontWeight: 700, marginBottom: '20px', color: '#0F1111', fontFamily: 'var(--font-sans)' }}>Up to 80% off | Kids dresses</h2>
 
           <div style={{
             position: 'relative', display: 'flex', alignItems: 'center',
-            backgroundColor: '#fff', borderRadius: '8px', border: '1px solid #ddd', padding: '20px'
+            backgroundColor: '#fff', borderRadius: '8px', border: '1px solid #ddd', padding: '10px 0px'
           }}>
             {/* Left Arrow */}
             <button
@@ -1148,7 +1148,7 @@ export default function Home() {
             <div
               id="kids-scroll"
               style={{
-                display: 'flex', gap: '20px', overflowX: 'auto', scrollbarWidth: 'none', padding: '10px 0',
+                display: 'flex', gap: '20px', overflowX: 'auto', scrollbarWidth: 'none', 
                 scrollSnapType: 'x mandatory'
               }}
             >
@@ -1174,7 +1174,7 @@ export default function Home() {
       </section>
 
       {/* Brand Promotional Grid Row */}
-      <section style={{ padding: '20px 0 40px' }}>
+      <section style={{ padding: '20px 0 20px' }}>
         <div className="container" style={{ maxWidth: '1440px', margin: '0 auto', padding: '0 24px' }}>
           <div style={{
             display: 'grid',

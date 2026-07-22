@@ -33,6 +33,12 @@ export default function Checkout() {
   const { user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate('/register?redirect=/checkout');
+    }
+  }, [isAuthenticated, navigate]);
+
   const [step, setStep] = useState(1); // 1=address, 2=payment, 3=confirm
   const [loading, setLoading] = useState(false);
   const [orderResult, setOrderResult] = useState(null);
@@ -198,7 +204,6 @@ export default function Checkout() {
   };
 
   if (!isAuthenticated) {
-    navigate('/login');
     return null;
   }
 

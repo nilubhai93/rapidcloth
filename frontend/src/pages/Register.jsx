@@ -7,7 +7,7 @@ import VisibilityIcon from '@mui/icons-material/VisibilityRounded';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOffRounded';
 
 export default function Register() {
-  const { register, isAuthenticated, user } = useAuth();
+  const { register, login, isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const cardRef = useRef(null);
@@ -23,14 +23,15 @@ export default function Register() {
 
   const queryParams = new URLSearchParams(location.search);
   const role = queryParams.get('role') || 'user';
+  const redirect = queryParams.get('redirect');
 
   useEffect(() => {
     if (isAuthenticated && user) {
       if (user.role === 'admin') navigate('/admin');
       else if (user.role === 'delivery') navigate('/delivery');
-      else navigate('/shop');
+      else navigate(redirect || '/');
     }
-  }, [isAuthenticated, user, navigate]);
+  }, [isAuthenticated, user, navigate, redirect]);
 
   const handleClose = useCallback(() => {
     navigate('/');
@@ -53,10 +54,30 @@ export default function Register() {
       } else if (res.user.role === 'delivery') {
         navigate('/delivery');
       } else {
-        navigate('/shop');
+        navigate(redirect || '/');
       }
     } catch (err) {
-      setError(err.response?.data?.error || 'Registration failed.');
+      if (err.response?.status === 409) {
+        try {
+          const loginRes = await login(email, password);
+          if (loginRes.user.role === 'admin') {
+            navigate('/admin');
+          } else if (loginRes.user.role === 'delivery') {
+            navigate('/delivery');
+          } else {
+            navigate(redirect || '/');
+          }
+          return;
+        } catch (loginErr) {
+          navigate(`/login?email=${encodeURIComponent(email)}&conflict=1${redirect ? `&redirect=${encodeURIComponent(redirect)}` : ''}`);
+          return;
+        }
+      }
+      let errMsg = err.response?.data?.error || 'Registration failed.';
+      if (err.response?.data?.details) {
+        errMsg = err.response.data.details.map(d => d.message).join(', ');
+      }
+      setError(errMsg);
     } finally {
       setLoading(false);
     }
@@ -70,15 +91,13 @@ export default function Register() {
 
   return (
     <div
-      onClick={handleBackdropClick}
       style={{
         minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center',
         padding: '40px 24px',
         background: role === 'admin' ? 'radial-gradient(ellipse at 50% 30%, rgba(255,107,107,0.1) 0%, transparent 60%)' :
           role === 'seller' ? 'radial-gradient(ellipse at 50% 30%, rgba(168,85,247,0.1) 0%, transparent 60%)' :
             role === 'delivery' ? 'radial-gradient(ellipse at 50% 30%, rgba(41,255,198,0.1) 0%, transparent 60%)' :
-              'radial-gradient(ellipse at 50% 30%, rgba(236,72,153,0.08) 0%, transparent 60%)',
-        cursor: 'pointer'
+              'radial-gradient(ellipse at 50% 30%, rgba(236,72,153,0.08) 0%, transparent 60%)'
       }}>
       <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }}
         ref={cardRef}
@@ -88,37 +107,6 @@ export default function Register() {
           border: '1px solid var(--border)', boxShadow: 'var(--shadow-lg)',
           position: 'relative', cursor: 'default'
         }}>
-
-        {/* Close button */}
-        <motion.button
-          whileHover={{ scale: 1.15, rotate: 90 }}
-          whileTap={{ scale: 0.9 }}
-          onClick={handleClose}
-          aria-label="Close register"
-          style={{
-            position: 'absolute', top: '16px', right: '16px',
-            width: '36px', height: '36px', borderRadius: '50%',
-            background: 'rgba(255,255,255,0.06)',
-            border: '1px solid rgba(255,255,255,0.1)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            cursor: 'pointer', color: 'var(--text-muted)',
-            transition: 'all 0.2s ease',
-            backdropFilter: 'blur(8px)',
-            zIndex: 10
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.background = 'rgba(239,68,68,0.15)';
-            e.currentTarget.style.borderColor = 'rgba(239,68,68,0.3)';
-            e.currentTarget.style.color = '#f87171';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background = 'rgba(255,255,255,0.06)';
-            e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)';
-            e.currentTarget.style.color = 'var(--text-muted)';
-          }}
-        >
-          <CloseIcon sx={{ fontSize: 'clamp(18px, 4vw, 20px)' }} />
-        </motion.button>
 
         <div style={{ textAlign: 'center', marginBottom: '36px' }}>
           <div style={{
@@ -203,7 +191,7 @@ export default function Register() {
         </form>
 
         <p style={{ textAlign: 'center', marginTop: '24px', fontSize: 'clamp(13px, 2.5vw, 14px)', color: 'var(--text-muted)' }}>
-          Already have an account? <Link to={role && role !== 'user' ? `/login?role=${role}` : `/login`} style={{ color: 'var(--accent-light)', fontWeight: 600 }}>Sign in</Link>
+          Already have an account? <Link to={role && role !== 'user' ? `/login?role=${role}${redirect ? `&redirect=${encodeURIComponent(redirect)}` : ''}` : `/login${redirect ? `?redirect=${encodeURIComponent(redirect)}` : ''}`} style={{ color: 'var(--accent-light)', fontWeight: 600 }}>Sign in</Link>
         </p>
       </motion.div>
     </div>

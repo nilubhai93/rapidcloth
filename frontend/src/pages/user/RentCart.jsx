@@ -42,7 +42,7 @@ export default function RentCart() {
 
     const handleCheckout = () => {
         if (!isAuthenticated) {
-            navigate('/login?redirect=/rent/cart');
+            navigate('/register?redirect=/rent/cart');
         } else {
             navigate('/checkout?type=rent');
         }

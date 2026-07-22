@@ -782,7 +782,7 @@ export default function Rent() {
               whileTap={{ cursor: 'grabbing' }}
             >
               <img
-                src={adSlides[currentSlide].image}
+                src={adSlides[currentSlide]?.image || ''}
                 alt="Ad"
                 className="w-full h-full object-cover object-top"
                 draggable="false"
@@ -797,13 +797,13 @@ export default function Rent() {
 
               <div style={{ position: 'absolute', top: '40px', left: '40px', color: '#fff', maxWidth: '50%', pointerEvents: 'none' }}>
                 <div style={{ background: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(10px)', padding: '6px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: 800, letterSpacing: '1px', display: 'inline-block', marginBottom: '16px' }}>
-                  {adSlides[currentSlide].title}
+                  {adSlides[currentSlide]?.title || ''}
                 </div>
                 <h2 style={{ fontSize: '36px', fontWeight: 900, marginBottom: '8px', lineHeight: 1.1 }}>
-                  {adSlides[currentSlide].headline}
+                  {adSlides[currentSlide]?.headline || ''}
                 </h2>
                 <p style={{ fontSize: '16px', color: 'rgba(255,255,255,0.8)', fontWeight: 500 }}>
-                  {adSlides[currentSlide].subtitle}
+                  {adSlides[currentSlide]?.subtitle || ''}
                 </p>
                 <button
                   style={{

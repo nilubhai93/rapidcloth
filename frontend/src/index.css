@@ -46,7 +46,7 @@
   --shadow-glow: 0 0 30px var(--accent-glow);
 
   --font-sans: "Inter", system-ui, -apple-system, sans-serif;
-  --font-display: "Playfair Display", system-ui, -apple-system, serif;
+  --font-display: "Inter", system-ui, -apple-system, sans-serif;
 
   --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
   --transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
@@ -638,8 +638,7 @@ img {
 }
 
 .product-image-gallery {
-  position: sticky;
-  top: 120px;
+  position: relative;
   align-self: start;
 }
 

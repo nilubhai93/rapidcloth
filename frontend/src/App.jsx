@@ -3,7 +3,6 @@ import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 import Navbar from './components/Navbar';
-import Landing from './pages/Landing';
 import Home from './pages/user/Home';
 import Products from './pages/user/Products';
 import ProductDetail from './pages/user/ProductDetail';
@@ -62,7 +61,6 @@ import AdminNotifications from './pages/admin/AdminNotifications';
 import AdminProfile from './pages/admin/AdminProfile';
 import AdminDelivery from './pages/admin/AdminDelivery';
 
-
 import AIStylist from './components/AIStylist';
 import Footer from './components/Footer';
 import { Toaster } from 'react-hot-toast';
@@ -74,6 +72,7 @@ function AppContent() {
     location.pathname.startsWith('/admin') ||
     location.pathname.startsWith('/delivery');
   const isRentSubPage = location.pathname === '/rent/cart' || location.pathname === '/rent/profile' || location.pathname === '/rent/category' || location.pathname.startsWith('/rent/product');
+  const isAuthPage = location.pathname === '/login' || location.pathname === '/register';
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -81,10 +80,10 @@ function AppContent() {
 
   return (
     <>
-      {!isRentSubPage && <Navbar />}
+      {!isRentSubPage && !isDashboard && <Navbar />}
       <main className="app-main" style={{ flex: 1 }}>
         <Routes>
-          <Route path="/" element={<Landing />} />
+          <Route path="/" element={<Home />} />
           <Route path="/shop" element={<Home />} />
           <Route path="/products" element={<Products />} />
           <Route path="/products/:id" element={<ProductDetail />} />
@@ -153,7 +152,7 @@ function AppContent() {
         </Routes>
       </main>
       {!isDashboard && <Footer />}
-      {!isDashboard && <AIStylist />}
+      {!isDashboard && !isAuthPage && <AIStylist />}
       <Toaster position="top-right" toastOptions={{
         style: {
           background: 'var(--bg-card)',

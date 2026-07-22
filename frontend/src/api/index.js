@@ -22,8 +22,11 @@ api.interceptors.response.use(
     if (err.response?.status === 401) {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
-      if (!window.location.pathname.includes('/login')) {
-        window.location.href = '/login';
+      const protectedPaths = ['/checkout', '/orders', '/profile', '/addresses', '/seller', '/admin'];
+      const currentPath = window.location.pathname;
+      const isProtected = protectedPaths.some(p => currentPath.startsWith(p));
+      if (isProtected && !currentPath.includes('/login') && !currentPath.includes('/register')) {
+        window.location.href = `/register?redirect=${encodeURIComponent(currentPath)}`;
       }
     }
     return Promise.reject(err);
@@ -72,6 +75,7 @@ export const tryOnAPI = {
 export const cartAPI = {
   get: () => api.get('/cart'),
   add: (data) => api.post('/cart/add', data),
+  merge: (data) => api.post('/cart/merge', data),
   update: (itemId, data) => api.put(`/cart/item/${itemId}`, data),
   remove: (itemId) => api.delete(`/cart/item/${itemId}`),
   clear: () => api.delete('/cart/clear'),

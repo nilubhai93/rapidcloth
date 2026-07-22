@@ -54,10 +54,9 @@ export default function AdminDashboard() {
   };
 
   const getFileUrl = (path) => {
+    // Convert backslashes to forward slashes for URLs, just in case
     const safePath = path.replace(/\\/g, '/');
-    const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-    const origin = apiBase.replace(/\/api\/?$/, '');
-    return `${origin}/${safePath}`;
+    return `http://localhost:5000/${safePath}`;
   };
 
   if (isLoading) {

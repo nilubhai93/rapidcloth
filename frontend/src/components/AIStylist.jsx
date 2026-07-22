@@ -62,7 +62,7 @@ export default function AIStylist() {
   // Socket.io initialization
   useEffect(() => {
     const socketUrl = import.meta.env.VITE_API_URL
-      ? import.meta.env.VITE_API_URL.replace(/\/api\/?$/, '')
+      ? import.meta.env.VITE_API_URL.replace('/api', '')
       : 'http://localhost:5000';
 
     const s = io(socketUrl, {
@@ -170,11 +170,10 @@ export default function AIStylist() {
   }, [messages]);
 
   useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    if (params.get('ai') === 'true') {
-      setOpen(true);
-    }
-  }, [location.search]);
+    const handleOpenAI = () => setOpen(true);
+    window.addEventListener('open-ai-stylist', handleOpenAI);
+    return () => window.removeEventListener('open-ai-stylist', handleOpenAI);
+  }, []);
 
   // Chat message submission
   const sendMessage = async () => {
@@ -327,7 +326,6 @@ export default function AIStylist() {
     ];
   };
 
-  if (location.pathname === '/') return null;
 
   return (
     <>

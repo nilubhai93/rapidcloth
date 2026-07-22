@@ -17,6 +17,18 @@ import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import HistoryIcon from '@mui/icons-material/HistoryRounded';
 import AccessTimeIcon from '@mui/icons-material/AccessTimeRounded';
 
+const SEARCH_PLACEHOLDERS = [
+  "Search rapidCloth.in",
+  "Search for 'Wedding Guest' outfits...",
+  "Looking for 'Party Night' dresses?",
+  "Find the perfect 'Office Wear'...",
+  "Search for 'Date Night' looks...",
+  "Need something for a 'Beach Day'?",
+  "Search sportswear & gym gear...",
+  "Find 'Festival' and traditional outfits...",
+  "Explore formal wear for 'Graduation'..."
+];
+
 export default function Navbar() {
   const { isAuthenticated, user, logout } = useAuth();
   const { itemCount } = useCart();
@@ -39,6 +51,14 @@ export default function Navbar() {
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [loadingSuggestions, setLoadingSuggestions] = useState(false);
+  const [placeholderIndex, setPlaceholderIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setPlaceholderIndex((prev) => (prev + 1) % SEARCH_PLACEHOLDERS.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, []);
   const profileRef = useRef(null);
   const langRef = useRef(null);
   const addressRef = useRef(null);
@@ -116,7 +136,7 @@ export default function Navbar() {
 
   const isAuthPage = location.pathname === '/login' || location.pathname === '/register';
   const isProductPage = location.pathname.startsWith('/products/') && location.pathname !== '/products';
-  if (location.pathname === '/' || isAuthPage || location.pathname.startsWith('/delivery') || location.pathname.startsWith('/admin') || location.pathname.startsWith('/seller') || location.pathname === '/rent') return null;
+  if (isAuthPage || location.pathname.startsWith('/delivery') || location.pathname.startsWith('/admin') || location.pathname.startsWith('/seller') || location.pathname === '/rent') return null;
 
   return (
     <>
@@ -263,7 +283,7 @@ export default function Navbar() {
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onFocus={() => searchQuery.trim() && setShowSuggestions(true)}
                 onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-                placeholder="Search rapidCloth.in"
+                placeholder={SEARCH_PLACEHOLDERS[placeholderIndex]}
                 style={{ width: '100%' }}
               />
 
@@ -390,14 +410,16 @@ export default function Navbar() {
           <div className="right-actions-container" style={{ display: 'flex', alignItems: 'center', height: '100%', gap: '5px' }}>
 
             {/* AI Stylist */}
-            <Link
-              to={`${location.pathname}?ai=true`}
+            <div
+              onClick={() => {
+                window.dispatchEvent(new CustomEvent('open-ai-stylist'));
+              }}
               className="nav-belt-item desktop-only ai-stylist-container"
-              style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '6px', padding: '0 10px' }}
+              style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '6px', padding: '0 10px', cursor: 'pointer' }}
             >
               <AutoAwesomeIcon style={{ fontSize: '20px', color: '#c084fc' }} />
               <span style={{ fontSize: '14px', fontWeight: 700, whiteSpace: 'nowrap' }}>AI Stylist</span>
-            </Link>
+            </div>
 
             {/* Language Selector */}
             <div className="nav-belt-item desktop-only lang-container" ref={langRef} onClick={(e) => { e.stopPropagation(); setLangOpen(!langOpen); }} style={{ position: 'relative', cursor: 'pointer' }}>
@@ -740,7 +762,7 @@ export default function Navbar() {
               <input
                 type="text"
                 className="amazon-search-input"
-                placeholder="Search rapidCloth"
+                placeholder={SEARCH_PLACEHOLDERS[placeholderIndex]}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 autoFocus
