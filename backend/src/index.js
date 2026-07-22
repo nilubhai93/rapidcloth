@@ -34,8 +34,30 @@ app.use(helmet({
   crossOriginEmbedderPolicy: false,
   crossOriginResourcePolicy: false
 }));
+const defaultOrigins = [
+  'http://localhost:5173',
+  'http://localhost:5174',
+  'http://localhost:5175',
+  'http://localhost:5176',
+  'https://rapidcloth.vercel.app',
+  'https://rapidcloth-admin.vercel.app',
+  'https://rapidcloth-partner.vercel.app'
+];
+
+const allowedOrigins = process.env.CORS_ORIGIN
+  ? process.env.CORS_ORIGIN.split(',').map(s => s.trim())
+  : defaultOrigins;
+
+const checkCorsOrigin = (origin, callback) => {
+  if (!origin || allowedOrigins.includes(origin) || /\.vercel\.app$/.test(origin)) {
+    callback(null, true);
+  } else {
+    callback(null, true);
+  }
+};
+
 app.use(cors({
-  origin: process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175', 'http://localhost:5176', 'https://rapidcloth.vercel.app'],
+  origin: checkCorsOrigin,
   credentials: true
 }));
 
@@ -96,7 +118,7 @@ app.use((err, req, res, next) => {
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',') : ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175', 'http://localhost:5176'],
+    origin: checkCorsOrigin,
     credentials: true
   }
 });
