@@ -97,10 +97,10 @@ export default function ProductDetail() {
   const images = product.images?.length ? product.images : [product.image];
 
   return (
-    <div style={{ maxWidth: '1140px', margin: '0 auto', padding: '16px 20px 50px' }}>
+    <div className="product-detail-container">
       
       {/* Breadcrumb Navigation */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: '#64748b', marginBottom: '20px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '6px', fontSize: '13px', color: '#64748b', marginBottom: '20px' }}>
         <Link to="/" style={{ color: '#64748b', textDecoration: 'none' }}>Home</Link>
         <NavigateNextIcon sx={{ fontSize: '16px' }} />
         <Link to="/products" style={{ color: '#64748b', textDecoration: 'none' }}>Products</Link>
@@ -113,13 +113,13 @@ export default function ProductDetail() {
           </>
         )}
         <NavigateNextIcon sx={{ fontSize: '16px' }} />
-        <span style={{ color: '#0f172a', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '300px' }}>
+        <span style={{ color: '#0f172a', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '220px' }}>
           {product.name}
         </span>
       </div>
 
       {/* Main Product Layout */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(320px, 440px) 1fr', gap: '36px', alignItems: 'start' }}>
+      <div className="product-detail-grid">
         
         {/* Left Column: Image Gallery */}
         <div>

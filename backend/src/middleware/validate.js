@@ -26,9 +26,9 @@ export const loginValidation = [
 
 export const productQueryValidation = [
   query('page').optional().isInt({ min: 1 }).toInt(),
-  query('limit').optional().isInt({ min: 1, max: 50 }).toInt(),
+  query('limit').optional().isInt({ min: 1, max: 10000 }).toInt(),
   query('category').optional().trim(),
-  query('gender').optional().isIn(['men', 'women', 'unisex']),
+  query('gender').optional().isIn(['men', 'women', 'unisex', 'kids']),
   query('minPrice').optional().isFloat({ min: 0 }).toFloat(),
   query('maxPrice').optional().isFloat({ min: 0 }).toFloat(),
   query('search').optional().trim(),

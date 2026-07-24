@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, memo } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
@@ -8,7 +8,7 @@ import FavoriteBorderIcon from '@mui/icons-material/FavoriteRounded';
 import StarIcon from '@mui/icons-material/StarRounded';
 import LocalShippingOutlinedIcon from '@mui/icons-material/LocalShippingRounded';
 
-export default function ProductCard({ product, index = 0, showButtons = true }) {
+const ProductCard = memo(function ProductCard({ product, index = 0, showButtons = true }) {
   const { addToCart, items, updateItem, removeItem } = useCart();
   const { isAuthenticated } = useAuth();
   const [selectedSize, setSelectedSize] = useState('');
@@ -296,4 +296,6 @@ export default function ProductCard({ product, index = 0, showButtons = true }) 
       )}
     </motion.div>
   );
-}
+});
+
+export default ProductCard;

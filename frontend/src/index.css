@@ -694,3 +694,46 @@ img {
     border-radius: 12px !important;
   }
 }
+
+/* Hide scrollbar for smooth horizontal touch sliding */
+div::-webkit-scrollbar {
+  display: none;
+}
+
+/* GPU Acceleration & Performance Optimizations for 60fps Smooth Scroll */
+html {
+  scroll-behavior: smooth;
+}
+
+.product-grid {
+  contain: layout style paint;
+}
+
+.app-main {
+  contain: content;
+}
+
+/* Product Detail Page Mobile Responsiveness */
+.product-detail-container {
+  max-width: 1140px;
+  margin: 0 auto;
+  padding: 16px 20px 60px;
+}
+
+.product-detail-grid {
+  display: grid;
+  grid-template-columns: minmax(300px, 440px) 1fr;
+  gap: 36px;
+  align-items: start;
+}
+
+@media (max-width: 768px) {
+  .product-detail-container {
+    padding: 12px 12px 60px !important;
+  }
+  .product-detail-grid {
+    grid-template-columns: 1fr !important;
+    gap: 20px !important;
+  }
+}
+

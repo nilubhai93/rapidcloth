@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, memo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { productAPI } from '../../api';
@@ -15,7 +15,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 import { useLanguage } from '../../context/LanguageContext';
 
-const CarouselCard = ({ item }) => {
+const CarouselCard = memo(({ item }) => {
   const { addToCart, items } = useCart();
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
@@ -55,7 +55,7 @@ const CarouselCard = ({ item }) => {
             <AccessTimeIcon sx={{ fontSize: 12 }} /> 10 Min
           </div>
           <div style={{ height: '140px', background: '#f0f0f0', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '10px' }}>
-            <img src={item.images?.[0] || '/images/placeholder.png'} alt={item.name} style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', mixBlendMode: 'multiply' }} />
+            <img src={item.images?.[0] || '/images/placeholder.png'} alt={item.name} loading="lazy" decoding="async" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', mixBlendMode: 'multiply' }} />
           </div>
           <div style={{ padding: '8px', flexGrow: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
             <div style={{ fontSize: '13px', fontWeight: 600, color: '#0F1111', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
@@ -118,7 +118,7 @@ const CarouselCard = ({ item }) => {
       </Link>
     </div>
   );
-};
+});
 
 const adSlides = [
   {
@@ -234,6 +234,7 @@ export default function Home() {
 
   useEffect(() => {
     const aiTimer = setInterval(() => {
+      if (document.hidden) return;
       setCurrentAiSentence((prev) => (prev + 1) % aiData.length);
     }, 4000);
     return () => clearInterval(aiTimer);
@@ -241,6 +242,7 @@ export default function Home() {
 
   useEffect(() => {
     const policyTimer = setInterval(() => {
+      if (document.hidden) return;
       setPolicyIndex((prev) => (prev + 1) % 3);
     }, 5000);
     return () => clearInterval(policyTimer);
@@ -263,7 +265,10 @@ export default function Home() {
 
   // Auto-play ad carousel
   useEffect(() => {
-    timerRef.current = setInterval(nextSlide, 5000);
+    timerRef.current = setInterval(() => {
+      if (document.hidden) return;
+      nextSlide();
+    }, 5000);
     return () => clearInterval(timerRef.current);
   }, [nextSlide]);
 
@@ -273,6 +278,7 @@ export default function Home() {
     if (!scrollContainer) return;
 
     const scrollInterval = setInterval(() => {
+      if (document.hidden) return;
       if (scrollContainer.scrollLeft + scrollContainer.clientWidth >= scrollContainer.scrollWidth - 10) {
         scrollContainer.scrollTo({ left: 0, behavior: 'smooth' });
       } else {

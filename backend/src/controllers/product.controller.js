@@ -64,32 +64,102 @@ export const getProducts = async (req, res) => {
     }
 
     if (search) {
-      const keywords = search.trim().split(/\s+/).filter(k => k.length > 0);
-      if (keywords.length > 0) {
+      const rawKeywords = search.trim().split(/\s+/).filter(k => k.length > 0);
+      if (rawKeywords.length > 0) {
         if (!filter.$and) filter.$and = [];
-        keywords.forEach(word => {
+
+        rawKeywords.forEach(rawWord => {
+          let wordVariants = [rawWord];
+          const lower = rawWord.toLowerCase();
+
+          // Dynamic stemming for plurals
+          if (lower.endsWith('s') && lower.length > 3) {
+            wordVariants.push(lower.slice(0, -1));
+          }
+          if (lower.endsWith('es') && lower.length > 4) {
+            wordVariants.push(lower.slice(0, -2));
+          }
+          if (lower.endsWith('ies') && lower.length > 4) {
+            wordVariants.push(lower.slice(0, -3) + 'y');
+          }
+
+          const uniqueVariants = Array.from(new Set(wordVariants));
+          const pattern = uniqueVariants.map(w => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|');
+          const regex = new RegExp(pattern, 'i');
+
           filter.$and.push({
             $or: [
-              { name: { $regex: word, $options: 'i' } },
-              { description: { $regex: word, $options: 'i' } },
-              { brand: { $regex: word, $options: 'i' } },
-              { category: { $regex: word, $options: 'i' } }
+              { name: regex },
+              { description: regex },
+              { brand: regex },
+              { category: regex },
+              { tags: regex },
+              { occasion: regex },
+              { gender: regex }
             ]
           });
         });
       }
     }
 
+    let sortObj = '-createdAt';
+    if (sort) {
+      if (typeof sort === 'string' && sort.includes(':')) {
+        const [field, order] = sort.split(':');
+        sortObj = { [field]: parseInt(order) || 1 };
+      } else {
+        sortObj = sort;
+      }
+    }
+
     const skip = (parseInt(page) - 1) * parseInt(limit);
 
-    const [products, total] = await Promise.all([
+    let [products, total] = await Promise.all([
       Product.find(filter)
-        .sort(sort)
+        .sort(sortObj)
         .skip(skip)
         .limit(parseInt(limit))
         .select('-styleEmbedding'),
       Product.countDocuments(filter)
     ]);
+
+    // Fallback: If strict filtered search returned 0 items but search query was provided, try search-only query
+    if (products.length === 0 && search) {
+      const searchOnlyFilter = {};
+      const rawKeywords = search.trim().split(/\s+/).filter(k => k.length > 0);
+      if (rawKeywords.length > 0) {
+        searchOnlyFilter.$and = [];
+        rawKeywords.forEach(rawWord => {
+          let wordVariants = [rawWord];
+          const lower = rawWord.toLowerCase();
+          if (lower.endsWith('s') && lower.length > 3) wordVariants.push(lower.slice(0, -1));
+          if (lower.endsWith('es') && lower.length > 4) wordVariants.push(lower.slice(0, -2));
+          const uniqueVariants = Array.from(new Set(wordVariants));
+          const pattern = uniqueVariants.map(w => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|');
+          const regex = new RegExp(pattern, 'i');
+          searchOnlyFilter.$and.push({
+            $or: [
+              { name: regex },
+              { description: regex },
+              { brand: regex },
+              { category: regex },
+              { tags: regex },
+              { occasion: regex },
+              { gender: regex }
+            ]
+          });
+        });
+
+        const [fallbackProducts, fallbackTotal] = await Promise.all([
+          Product.find(searchOnlyFilter).sort(sortObj).skip(skip).limit(parseInt(limit)).select('-styleEmbedding'),
+          Product.countDocuments(searchOnlyFilter)
+        ]);
+        if (fallbackProducts.length > 0) {
+          products = fallbackProducts;
+          total = fallbackTotal;
+        }
+      }
+    }
 
     // Diagnostic logging to file
     try {
