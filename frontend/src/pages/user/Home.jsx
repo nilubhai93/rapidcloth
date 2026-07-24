@@ -26,10 +26,6 @@ const CarouselCard = ({ item }) => {
   const handleQuickAdd = async (e) => {
     e.preventDefault();
     e.stopPropagation();
-    if (!isAuthenticated) {
-       navigate('/register?redirect=' + encodeURIComponent(window.location.pathname));
-       return;
-     }
     setAdding(true);
     const size = item.sizes?.find(s => s.stock > 0)?.size || 'One Size';
     try {
@@ -286,12 +282,6 @@ export default function Home() {
 
     return () => clearInterval(scrollInterval);
   }, []);
-
-  useEffect(() => {
-    if (!authLoading && !user) {
-      navigate('/register');
-    }
-  }, [user, authLoading, navigate]);
 
   useEffect(() => {
     const load = async () => {
