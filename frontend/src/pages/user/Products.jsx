@@ -114,7 +114,7 @@ export default function Products() {
   const activeFilterCount = Object.entries(filters).filter(([k, v]) => v && k !== 'sort' && k !== 'page').length;
 
   return (
-    <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '12px 16px 60px' }}>
+    <div className="products-page-container" style={{ maxWidth: '1280px', margin: '0 auto' }}>
       
       {/* 1. TOP SINGLE HORIZONTAL SLIDING FILTER & SORT BAR (Filter Options + Sort Items) */}
       <div style={{
@@ -469,30 +469,42 @@ export default function Products() {
           ))}
         </div>
       ) : (
-        /* Empty Search Matches Handler */
-        <div style={{ textAlign: 'center', padding: '36px 20px', background: '#ffffff', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
-          <div style={{ fontSize: '36px', marginBottom: '10px' }}>🔍</div>
-          <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#0f172a', marginBottom: '6px' }}>
-            We couldn't find exact matches for "{filters.search || 'your search'}"
-          </h3>
-          <p style={{ color: '#64748b', fontSize: '13px', marginBottom: '20px' }}>
-            Try checking spelling, clearing active filters, or check out these trending items below:
-          </p>
-          
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginBottom: '28px', flexWrap: 'wrap' }}>
-            <button onClick={clearFilters} style={{ padding: '8px 16px', borderRadius: '8px', background: '#14327a', color: '#ffffff', border: 'none', fontWeight: 700, cursor: 'pointer', fontSize: '13px' }}>
-              Clear All Filters
-            </button>
-            <button onClick={() => updateFilter('sort', '-createdAt')} style={{ padding: '8px 16px', borderRadius: '8px', background: '#f1f5f9', color: '#0f172a', border: '1px solid #cbd5e1', fontWeight: 700, cursor: 'pointer', fontSize: '13px' }}>
-              View Latest Trends
-            </button>
+        /* Empty Search Matches Handler - Two Separate Divs */
+        <>
+          {/* DIV 1: Empty Search Alert Card */}
+          <div style={{
+            textAlign: 'center',
+            padding: '32px 20px',
+            background: '#ffffff',
+            borderRadius: '16px',
+            border: '1px solid #e2e8f0',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+            marginBottom: '28px'
+          }}>
+            <div style={{ fontSize: '36px', marginBottom: '10px' }}>🔍</div>
+            <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#0f172a', marginBottom: '6px' }}>
+              We couldn't find exact matches for "{filters.search || filters.category || 'your search'}"
+            </h3>
+            <p style={{ color: '#64748b', fontSize: '13px', marginBottom: '20px' }}>
+              Try checking spelling, clearing active filters, or check out these trending items below:
+            </p>
+            
+            <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', flexWrap: 'wrap' }}>
+              <button onClick={clearFilters} style={{ padding: '10px 18px', borderRadius: '8px', background: '#14327a', color: '#ffffff', border: 'none', fontWeight: 700, cursor: 'pointer', fontSize: '13px' }}>
+                Clear All Filters
+              </button>
+              <button onClick={() => updateFilter('sort', '-createdAt')} style={{ padding: '10px 18px', borderRadius: '8px', background: '#f1f5f9', color: '#0f172a', border: '1px solid #cbd5e1', fontWeight: 700, cursor: 'pointer', fontSize: '13px' }}>
+                View Latest Trends
+              </button>
+            </div>
           </div>
 
+          {/* DIV 2: Featured & Trending Items Section */}
           {recommendations.length > 0 && (
-            <div>
-              <h4 style={{ fontSize: '15px', fontWeight: 800, color: '#0f172a', marginBottom: '14px', textAlign: 'left' }}>
+            <div style={{ marginTop: '8px' }}>
+              <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#0f172a', marginBottom: '16px' }}>
                 Featured & Trending Items
-              </h4>
+              </h3>
               <div className="product-grid">
                 {recommendations.map((p, i) => (
                   <ProductCard key={p._id} product={p} index={i} showButtons={false} />
@@ -500,7 +512,7 @@ export default function Products() {
               </div>
             </div>
           )}
-        </div>
+        </>
       )}
 
     </div>

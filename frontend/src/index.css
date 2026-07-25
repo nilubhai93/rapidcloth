@@ -737,3 +737,37 @@ html {
   }
 }
 
+/* Products Page Container Mobile Padding */
+.products-page-container {
+  padding: 12px 16px 60px;
+}
+
+@media (max-width: 587px) {
+  .products-page-container {
+    padding: 8px 6px 60px !important;
+  }
+}
+
+/* Home Page & Global Container Mobile Side Padding Optimization */
+.home-container, .container {
+  padding-left: 24px;
+  padding-right: 24px;
+}
+
+@media (max-width: 768px) {
+  .home-container, .container {
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+  }
+}
+
+@media (max-width: 587px) {
+  .home-container, .container {
+    padding-left: 6px !important;
+    padding-right: 6px !important;
+  }
+  .promo-card {
+    padding: 12px !important;
+  }
+}
+
