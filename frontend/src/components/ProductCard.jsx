@@ -8,7 +8,7 @@ import FavoriteBorderIcon from '@mui/icons-material/FavoriteRounded';
 import StarIcon from '@mui/icons-material/StarRounded';
 import LocalShippingOutlinedIcon from '@mui/icons-material/LocalShippingRounded';
 
-const ProductCard = memo(function ProductCard({ product, index = 0, showButtons = true }) {
+const ProductCard = memo(function ProductCard({ product, index = 0, showButtons = true, linkTo }) {
   const { addToCart, items, updateItem, removeItem } = useCart();
   const { isAuthenticated } = useAuth();
   const [selectedSize, setSelectedSize] = useState('');
@@ -57,7 +57,7 @@ const ProductCard = memo(function ProductCard({ product, index = 0, showButtons 
       }}
       whileHover={{ y: -4, borderColor: 'rgba(20, 50, 122, 0.5)' }}
     >
-      <Link to={`/products/${product._id}`} style={{ textDecoration: 'none', color: 'inherit', flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
+      <Link to={linkTo || `/products/${product._id}`} style={{ textDecoration: 'none', color: 'inherit', flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
         {/* Image */}
         <div style={{ position: 'relative', aspectRatio: '3/4', overflow: 'hidden' }}>
           <img

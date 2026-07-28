@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef, memo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { productAPI } from '../../api';
 import ProductCard from '../../components/ProductCard';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesomeRounded';
@@ -39,7 +39,7 @@ const CarouselCard = memo(({ item }) => {
 
   return (
     <div style={{ flex: '0 0 160px', scrollSnapAlign: 'start', cursor: 'pointer', paddingBottom: '10px' }}>
-      <Link to={`/products/${item._id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+      <Link to="/products" style={{ textDecoration: 'none', color: 'inherit' }}>
         <div style={{
           position: 'relative',
           background: '#fff',
@@ -120,55 +120,91 @@ const CarouselCard = memo(({ item }) => {
   );
 });
 
-const adSlides = [
+const singleDressSlides = [
   {
-    id: 1,
-    image: '/images/hero_banner_1.png',
-    title: 'Summer Sale',
-    headline: 'Up to 60% Off',
-    subtitle: 'On trending styles & top brands',
-    cta: 'Shop Now',
-    ctaLink: '/products',
-    gradient: 'linear-gradient(to right, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.5) 45%, transparent 100%)',
-    accent: '#c9a96e',
-    badge: 'Limited Time',
+    id: 's1',
+    brandTag: 'ROYAL ETHNIC',
+    partnerTag: 'EXPRESS ⚡',
+    title: 'BANARASI & KANJIVARAM SILK SAREES',
+    subtitle: 'Grand Festive Sale | Flat 65% OFF',
+    desc: 'Handcrafted pure silk sarees with golden zari embroidery. Delivery in 30 mins.',
+    bgGradient: 'linear-gradient(135deg, #7c1d1d 0%, #b91c1c 45%, #c2410c 75%, #ea580c 100%)',
+    themeRgb: '185, 28, 28',
+    image: '/saree.png',
+    link: '/products?category=saree',
+    badgeText: 'FESTIVE SPECIAL',
+    ctaText: 'Shop Collection →'
   },
   {
-    id: 2,
-    image: '/images/hero_banner_2.png',
-    title: 'New Arrivals',
-    headline: 'Premium Collection',
-    subtitle: 'Luxury fashion delivered in 30 minutes',
-    cta: 'Explore',
-    ctaLink: '/products?sort=-createdAt',
-    gradient: 'linear-gradient(to right, rgba(26,26,26,0.9) 0%, rgba(26,26,26,0.5) 45%, transparent 100%)',
-    accent: '#dfc492',
-    badge: 'Just Dropped',
+    id: 's2',
+    brandTag: 'BRIDAL COLLECTION',
+    partnerTag: 'ROYAL ⚡',
+    title: 'DESIGNER WEDDING LEHENGAS',
+    subtitle: 'Exclusive Bridal Sale | Up to 70% OFF',
+    desc: 'Heavy zari embroidery, velvet cholis & royal bridal dupattas.',
+    bgGradient: 'linear-gradient(135deg, #881337 0%, #9f1239 45%, #be123c 75%, #e11d48 100%)',
+    themeRgb: '159, 18, 57',
+    image: '/lehenga_choli.png',
+    link: '/products?category=saree',
+    badgeText: 'BRIDAL EXCLUSIVE',
+    ctaText: 'Explore Lehengas →'
   },
   {
-    id: 3,
-    image: '/images/offer_banner.png',
-    title: 'Flash Deal',
-    headline: 'Buy 2 Get 1 Free',
-    subtitle: 'On all accessories — use code B2G1',
-    cta: 'Grab Deal',
-    ctaLink: '/products?category=accessory',
-    gradient: 'linear-gradient(to right, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 50%, transparent 100%)',
-    accent: '#4ade80',
-    badge: 'Today Only',
+    id: 's3',
+    brandTag: 'FUSION WEAR',
+    partnerTag: 'HOT DEAL ⚡',
+    title: 'TRENDY INDO-WESTERN DRESSES',
+    subtitle: 'Summer Arrivals | Flat 50% OFF',
+    desc: 'Modern fusion gowns, jacket dresses & festive crop top sets.',
+    bgGradient: 'linear-gradient(135deg, #1e1b4b 0%, #3730a3 45%, #4f46e5 75%, #6366f1 100%)',
+    themeRgb: '55, 48, 163',
+    image: '/images/dress_ethnic_ad.png',
+    link: '/products?category=dress',
+    badgeText: 'NEW ARRIVAL',
+    ctaText: 'Shop Fusion →'
   },
   {
-    id: 4,
-    image: '/images/trending_look_1.png',
-    title: 'Trending Now',
-    headline: 'Flat ₹500 Off',
-    subtitle: 'First order? Use code FIRST500',
-    cta: 'Shop Trends',
-    ctaLink: '/products?sort=-rating',
-    gradient: 'linear-gradient(to right, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.5) 45%, transparent 100%)',
-    accent: '#f472b6',
-    badge: 'Exclusive',
+    id: 's4',
+    brandTag: 'PARTY GOWNS',
+    partnerTag: 'PREMIUM ⚡',
+    title: 'LUXURY EVENING & COCKTAIL GOWNS',
+    subtitle: 'Red Carpet Special | Buy 1 Get 1 Free',
+    desc: 'Glamorous sequin ball gowns, bodycon & slit evening dresses.',
+    bgGradient: 'linear-gradient(135deg, #831843 0%, #9d174d 45%, #be185d 75%, #db2777 100%)',
+    themeRgb: '157, 23, 77',
+    image: '/cocktail_dress.png',
+    link: '/products?category=dress',
+    badgeText: 'BUY 1 GET 1',
+    ctaText: 'Shop Gowns →'
   },
+  {
+    id: 's5',
+    brandTag: 'ANARKALI SUITS',
+    partnerTag: 'FLASH DEAL ⚡',
+    title: 'FESTIVE ANARKALI SUIT SETS',
+    subtitle: 'Starting at Only ₹799',
+    desc: 'Pure cotton & georgette 3-piece suit sets with designer dupattas.',
+    bgGradient: 'linear-gradient(135deg, #713f12 0%, #854d0e 45%, #ca8a04 75%, #eab308 100%)',
+    themeRgb: '133, 77, 14',
+    image: '/anarkali_suit.png',
+    link: '/products?category=saree',
+    badgeText: 'FLASH DEAL',
+    ctaText: 'View Suits →'
+  },
+  {
+    id: 's6',
+    brandTag: 'RAPIDCLOTH MEN',
+    partnerTag: 'STYLE ⚡',
+    title: 'RUNWAY BLAZERS & SUITS',
+    subtitle: 'Flat ₹1000 OFF | Premium Tailoring',
+    desc: 'Slim fit velvet jackets, 3-piece formal suits & Bandhgalas.',
+    bgGradient: 'linear-gradient(135deg, #0f172a 0%, #1e293b 45%, #334155 75%, #475569 100%)',
+    themeRgb: '30, 41, 59',
+    image: '/blazer.png',
+    link: '/products?category=jacket',
+    badgeText: 'PREMIUM FIT',
+    ctaText: 'Shop Men →'
+  }
 ];
 
 export default function Home() {
@@ -181,6 +217,18 @@ export default function Home() {
   const [totalProducts, setTotalProducts] = useState(0);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  // Automatic Single Banner Carousel state (Cycles every 3 seconds)
+  const [activeBannerIndex, setActiveBannerIndex] = useState(0);
+  const activeThemeRgb = singleDressSlides[activeBannerIndex]?.themeRgb || '185, 28, 28';
+
+  useEffect(() => {
+    const bannerTimer = setInterval(() => {
+      if (document.hidden) return;
+      setActiveBannerIndex((prev) => (prev + 1) % singleDressSlides.length);
+    }, 3000);
+    return () => clearInterval(bannerTimer);
+  }, []);
 
   // Ad carousel state
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -247,30 +295,6 @@ export default function Home() {
     }, 5000);
     return () => clearInterval(policyTimer);
   }, []);
-
-  const goToSlide = useCallback((index) => {
-    if (isTransitioning) return;
-    setIsTransitioning(true);
-    setCurrentSlide(index);
-    setTimeout(() => setIsTransitioning(false), 600);
-  }, [isTransitioning]);
-
-  const nextSlide = useCallback(() => {
-    goToSlide((currentSlide + 1) % adSlides.length);
-  }, [currentSlide, goToSlide]);
-
-  const prevSlide = useCallback(() => {
-    goToSlide((currentSlide - 1 + adSlides.length) % adSlides.length);
-  }, [currentSlide, goToSlide]);
-
-  // Auto-play ad carousel
-  useEffect(() => {
-    timerRef.current = setInterval(() => {
-      if (document.hidden) return;
-      nextSlide();
-    }, 5000);
-    return () => clearInterval(timerRef.current);
-  }, [nextSlide]);
 
   // Automatic category scroll
   useEffect(() => {
@@ -357,112 +381,189 @@ export default function Home() {
       '--gradient-primary': 'linear-gradient(135deg, #14327a 0%, #c9a96e 50%, #14327a 100%)',
       '--font-sans': '"Inter", sans-serif',
       '--font-display': '"Inter", sans-serif',
-      backgroundColor: 'var(--bg-primary)',
-      color: 'var(--text-primary)',
       fontFamily: 'var(--font-sans)',
       minHeight: '100vh',
       paddingBottom: '40px'
     }}>
-      {/* Quick Access & Promo Banner */}
-      <section style={{ padding: '24px 0 0', backgroundColor: 'var(--bg-primary)', overflowX: 'hidden' }}>
-        <div className="container" style={{ maxWidth: '1440px', margin: '0 auto', padding: '0 24px', overflowX: 'hidden' }}>
+      {/* Root Hero Slider Section with Dynamic Ambient Background Glow */}
+      <section style={{
+        background: `linear-gradient(180deg, rgba(${activeThemeRgb}, 0.28) 0%, rgba(${activeThemeRgb}, 0.08) 55%, rgba(255, 255, 255, 0) 100%)`,
+        transition: 'background 0.8s cubic-bezier(0.4, 0, 0.2, 1)',
+        padding: '16px 24px 10px',
+        overflowX: 'hidden'
+      }}>
 
-          <div className="promo-banner-container">
-            {adSlides.map((slide, idx) => (
+        <div style={{ width: '100%', marginBottom: '12px' }}>
+          {/* Single Full-Width Banner Container Applied Directly to Root Page */}
+          <div style={{ position: 'relative', width: '100%', borderRadius: '24px', overflow: 'hidden' }}>
+            <AnimatePresence mode="popLayout">
               <motion.div
-                key={slide.id}
-                initial={false}
-                animate={{
-                  opacity: idx === currentSlide ? 1 : 0,
-                  x: idx === currentSlide ? '0%' : (idx < currentSlide ? '-100%' : '100%'),
-                  scale: idx === currentSlide ? 1 : 0.95
-                }}
-                drag="x"
-                dragConstraints={{ left: 0, right: 0 }}
-                onDragEnd={(e, { offset, velocity }) => {
-                  const swipe = swipePower(offset.x, velocity.x);
-                  if (swipe < -swipeConfidenceThreshold) {
-                    nextSlide();
-                  } else if (swipe > swipeConfidenceThreshold) {
-                    prevSlide();
-                  }
-                }}
-                transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
+                key={activeBannerIndex}
+                initial={{ x: '100%', opacity: 0.2 }}
+                animate={{ x: '0%', opacity: 1 }}
+                exit={{ x: '-100%', opacity: 0.2 }}
+                transition={{ duration: 0.45, ease: [0.25, 1, 0.5, 1] }}
+                onClick={() => navigate(singleDressSlides[activeBannerIndex].link)}
+                className="hero-single-banner"
                 style={{
-                  position: 'absolute',
-                  inset: 0,
-                  zIndex: idx === currentSlide ? 1 : 0,
-                  pointerEvents: idx === currentSlide ? 'auto' : 'none'
+                  position: 'relative',
+                  borderRadius: '24px',
+                  overflow: 'hidden',
+                  background: singleDressSlides[activeBannerIndex].bgGradient,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justify: 'space-between',
+                  boxShadow: '0 8px 30px rgba(0,0,0,0.18)',
+                  border: '1px solid rgba(255,255,255,0.25)',
+                  cursor: 'pointer',
+                  userSelect: 'none'
                 }}
               >
-                <Link to={slide.ctaLink} style={{ display: 'block', textDecoration: 'none', height: '100%' }}>
-                  <div className="promo-banner-inner" style={{
-                    background: idx % 2 === 0
-                      ? 'linear-gradient(135deg, #0d328a 0%, #1e4db7 40%, #E47911 100%)'
-                      : 'linear-gradient(135deg, #1a1a1a 0%, #333 40%, #c9a96e 100%)',
-                  }}>
-                    <div className="promo-banner-content">
-                      <div className="promo-banner-badge">
-                        {slide.badge.toUpperCase()}! <span style={{ fontSize: '24px' }}>⚡</span> {slide.title.toUpperCase()}
-                      </div>
-                      <h2 className="promo-banner-title">
-                        {slide.headline.split(' ').map((word, i) => (
-                          <span key={i}>
-                            {i === 1 ? <><br />{word}</> : word + ' '}
-                          </span>
-                        ))}
-                      </h2>
-                      <div className="promo-banner-cta">
-                        {slide.cta.toUpperCase()}
-                      </div>
-                    </div>
+                {/* Background Pattern */}
+                <div style={{
+                  position: 'absolute', inset: 0,
+                  backgroundImage: 'repeating-linear-gradient(-45deg, rgba(255,255,255,0.05), rgba(255,255,255,0.05) 20px, transparent 20px, transparent 40px)',
+                  pointerEvents: 'none'
+                }} />
 
-                    {/* Countdown timers visual */}
-                    {(slide.badge.toLowerCase().includes('time') || slide.badge.toLowerCase().includes('only')) && (
-                      <div className="promo-banner-countdown-wrapper">
-                        <div className="promo-timer-box">
-                          <div className="timer-val">09</div>
-                          <div className="timer-label">MIN</div>
-                        </div>
-                        <div className="promo-timer-box">
-                          <div className="timer-val">42</div>
-                          <div className="timer-label">SEC</div>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Decorative elements or background imagery */}
-                    <div className="promo-banner-images">
-                      <div style={{ flex: 1, position: 'relative' }}>
-                        <img src={slide.image} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', borderRadius: '12px', border: '6px solid #fff', boxShadow: '0 8px 24px rgba(0,0,0,0.3)' }} alt="Model 1" />
-                      </div>
-                      <div className="desktop-only" style={{ flex: 1, position: 'relative', top: '80px' }}>
-                        <img src={idx === 0 ? "/images/trending_look_2.png" : slide.image} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', borderRadius: '12px', border: '6px solid #fff', boxShadow: '0 8px 24px rgba(0,0,0,0.3)' }} alt="Model 2" />
-                      </div>
-                    </div>
+                {/* LEFT COLUMN: Content & CTA (60% Width) */}
+                <div style={{
+                  flex: '1 1 60%',
+                  minWidth: 0,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justify: 'center',
+                  zIndex: 3,
+                  paddingRight: '12px'
+                }}>
+                  {/* Brand & Partner Tags */}
+                  <div className="banner-badges-box" style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap', marginBottom: '8px' }}>
+                    <span style={{
+                      background: '#ffffff',
+                      color: '#0f172a',
+                      fontSize: '11px',
+                      fontWeight: 900,
+                      letterSpacing: '0.8px',
+                      padding: '4px 10px',
+                      borderRadius: '6px',
+                      boxShadow: '0 2px 6px rgba(0,0,0,0.15)'
+                    }}>
+                      {singleDressSlides[activeBannerIndex].brandTag}
+                    </span>
+                    <span style={{
+                      background: '#14327a',
+                      color: '#ffd000',
+                      fontSize: '11px',
+                      fontWeight: 800,
+                      padding: '4px 10px',
+                      borderRadius: '6px',
+                      boxShadow: '0 2px 6px rgba(0,0,0,0.15)'
+                    }}>
+                      {singleDressSlides[activeBannerIndex].partnerTag}
+                    </span>
                   </div>
-                </Link>
-              </motion.div>
-            ))}
 
-            {/* Slider Dots */}
-            <div style={{ position: 'absolute', bottom: '20px', right: '40px', display: 'flex', gap: '8px', zIndex: 10 }}>
-              {adSlides.map((_, i) => (
-                <button
-                  key={i}
-                  onClick={() => goToSlide(i)}
+                  {/* Title */}
+                  <h2 className="banner-title-text" style={{
+                    color: '#ffffff',
+                    fontWeight: 900,
+                    letterSpacing: '-0.5px',
+                    textShadow: '0 2px 8px rgba(0,0,0,0.3)'
+                  }}>
+                    {singleDressSlides[activeBannerIndex].title}
+                  </h2>
+
+                  {/* Subtitle */}
+                  <div className="banner-subtitle-text" style={{
+                    color: '#fef08a',
+                    fontWeight: 800,
+                    textShadow: '0 1px 4px rgba(0,0,0,0.2)'
+                  }}>
+                    {singleDressSlides[activeBannerIndex].subtitle}
+                  </div>
+
+                  {/* Description */}
+                  <p className="banner-desc-text" style={{
+                    color: 'rgba(255, 255, 255, 0.9)',
+                    fontWeight: 500,
+                    maxWidth: '520px',
+                    lineHeight: 1.4
+                  }}>
+                    {singleDressSlides[activeBannerIndex].desc}
+                  </p>
+
+                  {/* CTA Button */}
+                  <div>
+                    <button className="banner-cta-button" style={{
+                      background: '#ffffff',
+                      color: '#0f172a',
+                      border: 'none',
+                      borderRadius: '30px',
+                      fontWeight: 800,
+                      cursor: 'pointer',
+                      boxShadow: '0 4px 14px rgba(0,0,0,0.2)',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '6px'
+                    }}>
+                      {singleDressSlides[activeBannerIndex].ctaText}
+                    </button>
+                  </div>
+                </div>
+
+                {/* RIGHT COLUMN: Masked Image Box (40% Width) */}
+                <div className="banner-img-box" style={{
+                  flex: '0 0 40%',
+                  position: 'relative',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justify: 'center',
+                  overflow: 'hidden',
+                  borderRadius: '16px'
+                }}>
+                  <img
+                    src={singleDressSlides[activeBannerIndex].image}
+                    alt={singleDressSlides[activeBannerIndex].title}
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover',
+                      borderRadius: '16px',
+                      maskImage: 'linear-gradient(to right, transparent 0%, black 20%)',
+                      WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 20%)'
+                    }}
+                  />
+                </div>
+              </motion.div>
+            </AnimatePresence>
+          </div>
+
+          {/* Horizontal Indicator Pills Bar (Exactly like Picture 2!) */}
+          <div style={{
+            display: 'flex',
+            justify: 'center',
+            alignItems: 'center',
+            gap: '6px',
+            marginTop: '14px'
+          }}>
+            {singleDressSlides.map((_, dotIdx) => {
+              const isActive = dotIdx === activeBannerIndex;
+              return (
+                <div
+                  key={dotIdx}
+                  onClick={() => setActiveBannerIndex(dotIdx)}
                   style={{
-                    width: i === currentSlide ? '24px' : '8px',
+                    width: isActive ? '32px' : '8px',
                     height: '8px',
-                    borderRadius: '4px',
-                    background: i === currentSlide ? '#E47911' : 'rgba(255,255,255,0.5)',
-                    border: 'none',
+                    borderRadius: isActive ? '6px' : '50%',
+                    background: isActive ? '#0f172a' : '#cbd5e1',
+                    transition: 'all 0.35s cubic-bezier(0.4, 0, 0.2, 1)',
                     cursor: 'pointer',
-                    transition: 'all 0.3s ease'
+                    boxShadow: isActive ? '0 2px 6px rgba(15, 23, 42, 0.3)' : 'none'
                   }}
                 />
-              ))}
-            </div>
+              );
+            })}
           </div>
 
         </div>
@@ -698,85 +799,85 @@ export default function Home() {
         }}>
           {/* Card 5: Already Visited */}
           <div className="promo-card" style={{
-            background: 'var(--bg-elevated)', borderRadius: '12px', padding: '20px',
-            display: 'flex', flexDirection: 'column', minHeight: '380px',
-            boxShadow: '0 4px 20px rgba(0,0,0,0.05)', border: '1px solid var(--border)'
+            background: '#ffffff', borderRadius: '16px', padding: '20px',
+            display: 'flex', flexDirection: 'column', minHeight: '360px',
+            boxShadow: '0 4px 18px rgba(0,0,0,0.04)', border: '1px solid rgba(0,0,0,0.06)'
           }}>
-            <h3 style={{ fontSize: '18px', fontWeight: 700, marginBottom: '16px', color: 'var(--text-primary)', fontFamily: 'var(--font-sans)' }}>view already visit products</h3>
+            <h3 style={{ fontSize: '16px', fontWeight: 700, marginBottom: '14px', color: '#111827', fontFamily: 'var(--font-sans)', minHeight: '44px', display: 'flex', alignItems: 'center' }}>view already visit products</h3>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', flex: 1 }}>
               {visitedProducts.map(p => (
-                <Link key={p._id} to={`/products/${p._id}`} style={{ textDecoration: 'none' }}>
-                  <div style={{ background: '#f8f8f8', borderRadius: '4px', overflow: 'hidden', height: '110px' }}>
+                <Link key={p._id} to="/products" style={{ textDecoration: 'none' }}>
+                  <div style={{ background: '#f3f4f6', borderRadius: '10px', overflow: 'hidden', height: '110px' }}>
                     <img src={p.images?.[0] || '/images/placeholder.png'} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={p.name} />
                   </div>
-                  <p style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '4px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.name}</p>
+                  <p style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '6px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.name}</p>
                 </Link>
               ))}
             </div>
-            <Link to="/products" style={{ color: '#007185', fontWeight: 500, fontSize: '13px', marginTop: '16px', textDecoration: 'none' }}>See your history</Link>
+            <Link to="/products" style={{ color: '#007185', fontWeight: 600, fontSize: '13px', marginTop: '14px', textDecoration: 'none' }}>See your history</Link>
           </div>
 
           {/* Card 6: Pick up where left off */}
           <div className="promo-card" style={{
-            background: 'var(--bg-elevated)', borderRadius: '12px', padding: '20px',
-            display: 'flex', flexDirection: 'column', minHeight: '380px',
-            boxShadow: '0 4px 20px rgba(0,0,0,0.05)', border: '1px solid var(--border)'
+            background: '#ffffff', borderRadius: '16px', padding: '20px',
+            display: 'flex', flexDirection: 'column', minHeight: '360px',
+            boxShadow: '0 4px 18px rgba(0,0,0,0.04)', border: '1px solid rgba(0,0,0,0.06)'
           }}>
-            <h3 style={{ fontSize: '18px', fontWeight: 700, marginBottom: '16px', color: 'var(--text-primary)', fontFamily: 'var(--font-sans)' }}>pick up where you left off</h3>
+            <h3 style={{ fontSize: '16px', fontWeight: 700, marginBottom: '14px', color: '#111827', fontFamily: 'var(--font-sans)', minHeight: '44px', display: 'flex', alignItems: 'center' }}>pick up where you left off</h3>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', flex: 1 }}>
               {leftOffProducts.map(p => (
-                <Link key={p._id} to={`/products/${p._id}`} style={{ textDecoration: 'none' }}>
-                  <div style={{ background: '#f8f8f8', borderRadius: '4px', overflow: 'hidden', height: '110px' }}>
+                <Link key={p._id} to="/products" style={{ textDecoration: 'none' }}>
+                  <div style={{ background: '#f3f4f6', borderRadius: '10px', overflow: 'hidden', height: '110px' }}>
                     <img src={p.images?.[0] || '/images/placeholder.png'} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={p.name} />
                   </div>
-                  <p style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '4px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.name}</p>
+                  <p style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '6px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.name}</p>
                 </Link>
               ))}
             </div>
-            <Link to="/cart" style={{ color: '#007185', fontWeight: 500, fontSize: '13px', marginTop: '16px', textDecoration: 'none' }}>Continue shopping</Link>
+            <Link to="/cart" style={{ color: '#007185', fontWeight: 600, fontSize: '13px', marginTop: '14px', textDecoration: 'none' }}>Continue shopping</Link>
           </div>
 
           {/* Card 7: Under 300 */}
           <div className="promo-card" style={{
-            background: 'var(--bg-elevated)', borderRadius: '12px', padding: '20px',
-            display: 'flex', flexDirection: 'column', minHeight: '380px',
-            boxShadow: '0 4px 20px rgba(0,0,0,0.05)', border: '1px solid var(--border)'
+            background: '#ffffff', borderRadius: '16px', padding: '20px',
+            display: 'flex', flexDirection: 'column', minHeight: '360px',
+            boxShadow: '0 4px 18px rgba(0,0,0,0.04)', border: '1px solid rgba(0,0,0,0.06)'
           }}>
-            <h3 style={{ fontSize: '18px', fontWeight: 700, marginBottom: '16px', color: 'var(--text-primary)', fontFamily: 'var(--font-sans)' }}>under 300 | bestsells of men's dresses.</h3>
+            <h3 style={{ fontSize: '16px', fontWeight: 700, marginBottom: '14px', color: '#111827', fontFamily: 'var(--font-sans)', minHeight: '44px', display: 'flex', alignItems: 'center' }}>under 300 | bestsells of men's dresses.</h3>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', flex: 1 }}>
               {under300Men.map(p => (
-                <Link key={p._id} to={`/products/${p._id}`} style={{ textDecoration: 'none' }}>
-                  <div style={{ background: '#f8f8f8', borderRadius: '4px', overflow: 'hidden', height: '110px' }}>
+                <Link key={p._id} to="/products" style={{ textDecoration: 'none' }}>
+                  <div style={{ background: '#f3f4f6', borderRadius: '10px', overflow: 'hidden', height: '110px' }}>
                     <img src={p.images?.[0] || '/images/placeholder.png'} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={p.name} />
                   </div>
-                  <p style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '4px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.name}</p>
+                  <p style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '6px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.name}</p>
                 </Link>
               ))}
             </div>
-            <Link to="/offers?gender=men&maxPrice=300&sort=-rating" style={{ color: '#007185', fontWeight: 500, fontSize: '13px', marginTop: '16px', textDecoration: 'none' }}>See all bestsellers</Link>
+            <Link to="/offers?gender=men&maxPrice=300&sort=-rating" style={{ color: '#007185', fontWeight: 600, fontSize: '13px', marginTop: '14px', textDecoration: 'none' }}>See all bestsellers</Link>
           </div>
 
           {/* Card 8: Best from Best */}
           <div className="promo-card" style={{
-            background: 'var(--bg-elevated)', borderRadius: '12px', padding: '20px',
-            display: 'flex', flexDirection: 'column', minHeight: '380px',
-            boxShadow: '0 4px 20px rgba(0,0,0,0.05)', border: '1px solid var(--border)'
+            background: '#ffffff', borderRadius: '16px', padding: '20px',
+            display: 'flex', flexDirection: 'column', minHeight: '360px',
+            boxShadow: '0 4px 18px rgba(0,0,0,0.04)', border: '1px solid rgba(0,0,0,0.06)'
           }}>
-            <h3 style={{ fontSize: '18px', fontWeight: 700, marginBottom: '16px', color: 'var(--text-primary)', fontFamily: 'var(--font-sans)' }}>choose your best from best.</h3>
+            <h3 style={{ fontSize: '16px', fontWeight: 700, marginBottom: '14px', color: '#111827', fontFamily: 'var(--font-sans)', minHeight: '44px', display: 'flex', alignItems: 'center' }}>choose your best from best.</h3>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', flex: 1 }}>
               {bestProducts.map(p => (
-                <Link key={p._id} to={`/products/${p._id}`} style={{ textDecoration: 'none' }}>
-                  <div style={{ background: '#f8f8f8', borderRadius: '4px', overflow: 'hidden', height: '110px' }}>
+                <Link key={p._id} to="/products" style={{ textDecoration: 'none' }}>
+                  <div style={{ background: '#f3f4f6', borderRadius: '10px', overflow: 'hidden', height: '110px' }}>
                     <img src={p.images?.[0] || '/images/placeholder.png'} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={p.name} />
                   </div>
-                  <p style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '4px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.name}</p>
+                  <p style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '6px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.name}</p>
                 </Link>
               ))}
             </div>
-            <Link to="/products" style={{ color: '#007185', fontWeight: 500, fontSize: '13px', marginTop: '16px', textDecoration: 'none' }}>Explore top collection</Link>
+            <Link to="/products" style={{ color: '#007185', fontWeight: 600, fontSize: '13px', marginTop: '14px', textDecoration: 'none' }}>Explore top collection</Link>
           </div>
         </div>
-      </section> 
+      </section>
 
       {/* Trending Now Section */}
       <section style={{ padding: '40px 0 20px' }}>
@@ -785,7 +886,7 @@ export default function Home() {
 
           <div className="trending-container" style={{
             position: 'relative', display: 'flex', alignItems: 'center',
-            backgroundColor: '#fff', borderRadius: '8px', border: '1px solid #ddd', padding: '10px 0px'
+            padding: '10px 0px'
           }}>
             {/* Left Arrow */}
             <button
@@ -835,7 +936,7 @@ export default function Home() {
 
           <div style={{
             position: 'relative', display: 'flex', alignItems: 'center',
-            backgroundColor: '#fff', borderRadius: '8px', border: '1px solid #ddd', padding: '10px 0px'
+            padding: '10px 0px'
           }}>
             {/* Left Arrow */}
             <button
@@ -891,7 +992,7 @@ export default function Home() {
               <h2 style={{ fontSize: '18px', fontWeight: 700, marginBottom: '12px', color: '#0F1111', fontFamily: 'var(--font-sans)' }}>{t('home.bestSellersKids')}</h2>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', flexGrow: 1 }}>
                 {getCardProducts(p => p.gender === 'kids' || p.category === 'kids').map(p => (
-                  <Link key={p._id} to={`/products/${p._id}`} style={{ textDecoration: 'none' }}>
+                  <Link key={p._id} to="/products" style={{ textDecoration: 'none' }}>
                     <div style={{ background: '#f8f8f8', borderRadius: '4px', overflow: 'hidden', height: '110px' }}>
                       <img src={p.images?.[0] || '/images/placeholder.png'} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={p.name} />
                     </div>
@@ -906,7 +1007,7 @@ export default function Home() {
               <h2 style={{ fontSize: '18px', fontWeight: 700, marginBottom: '12px', color: '#0F1111', fontFamily: 'var(--font-sans)' }}>{t('home.bestSellersWomen')}</h2>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', flexGrow: 1 }}>
                 {getCardProducts(p => p.gender === 'women').map(p => (
-                  <Link key={p._id} to={`/products/${p._id}`} style={{ textDecoration: 'none' }}>
+                  <Link key={p._id} to="/products" style={{ textDecoration: 'none' }}>
                     <div style={{ background: '#f8f8f8', borderRadius: '4px', overflow: 'hidden', height: '110px' }}>
                       <img src={p.images?.[0] || '/images/placeholder.png'} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={p.name} />
                     </div>
@@ -921,7 +1022,7 @@ export default function Home() {
               <h2 style={{ fontSize: '18px', fontWeight: 700, marginBottom: '12px', color: '#0F1111', fontFamily: 'var(--font-sans)' }}>{t('home.upTo60Kurti')}</h2>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', flexGrow: 1 }}>
                 {getCardProducts(p => p.discountPrice !== null).map(p => (
-                  <Link key={p._id} to={`/products/${p._id}`} style={{ textDecoration: 'none' }}>
+                  <Link key={p._id} to="/products" style={{ textDecoration: 'none' }}>
                     <div style={{ background: '#f8f8f8', borderRadius: '4px', overflow: 'hidden', height: '110px' }}>
                       <img src={p.images?.[0] || '/images/placeholder.png'} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={p.name} />
                     </div>
@@ -936,7 +1037,7 @@ export default function Home() {
               <h2 style={{ fontSize: '18px', fontWeight: 700, marginBottom: '12px', color: '#0F1111', fontFamily: 'var(--font-sans)' }}>{t('home.topDealsMenUnderwear')}</h2>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', flexGrow: 1 }}>
                 {getCardProducts(p => p.gender === 'men' && p.discountPrice !== null).map(p => (
-                  <Link key={p._id} to={`/products/${p._id}`} style={{ textDecoration: 'none' }}>
+                  <Link key={p._id} to="/products" style={{ textDecoration: 'none' }}>
                     <div style={{ background: '#f8f8f8', borderRadius: '4px', overflow: 'hidden', height: '110px' }}>
                       <img src={p.images?.[0] || '/images/placeholder.png'} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={p.name} />
                     </div>
@@ -955,7 +1056,7 @@ export default function Home() {
 
           <div style={{
             position: 'relative', display: 'flex', alignItems: 'center',
-            backgroundColor: '#fff', borderRadius: '8px', border: '1px solid #ddd', padding: '10px 0px'
+            padding: '10px 0px'
           }}>
             {/* Left Arrow */}
             <button
@@ -1005,7 +1106,7 @@ export default function Home() {
 
           <div style={{
             position: 'relative', display: 'flex', alignItems: 'center',
-            backgroundColor: '#fff', borderRadius: '8px', border: '1px solid #ddd', padding: '10px 0px'
+            padding: '10px 0px'
           }}>
             {/* Left Arrow */}
             <button
@@ -1061,7 +1162,7 @@ export default function Home() {
               <h2 style={{ fontSize: '18px', fontWeight: 700, marginBottom: '12px', color: '#0F1111', fontFamily: 'var(--font-sans)' }}>Party Night</h2>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', flexGrow: 1 }}>
                 {getCardProducts(p => p.occasion && p.occasion.includes('party')).map(p => (
-                  <Link key={p._id} to={`/products/${p._id}`} style={{ textDecoration: 'none' }}>
+                  <Link key={p._id} to="/products" style={{ textDecoration: 'none' }}>
                     <div style={{ background: '#f8f8f8', borderRadius: '4px', overflow: 'hidden', height: '110px' }}>
                       <img src={p.images?.[0] || '/images/placeholder.png'} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={p.name} />
                     </div>
@@ -1076,7 +1177,7 @@ export default function Home() {
               <h2 style={{ fontSize: '18px', fontWeight: 700, marginBottom: '12px', color: '#0F1111', fontFamily: 'var(--font-sans)' }}>Office Wear</h2>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', flexGrow: 1 }}>
                 {getCardProducts(p => p.occasion && p.occasion.includes('office')).map(p => (
-                  <Link key={p._id} to={`/products/${p._id}`} style={{ textDecoration: 'none' }}>
+                  <Link key={p._id} to="/products" style={{ textDecoration: 'none' }}>
                     <div style={{ background: '#f8f8f8', borderRadius: '4px', overflow: 'hidden', height: '110px' }}>
                       <img src={p.images?.[0] || '/images/placeholder.png'} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={p.name} />
                     </div>
@@ -1091,7 +1192,7 @@ export default function Home() {
               <h2 style={{ fontSize: '18px', fontWeight: 700, marginBottom: '12px', color: '#0F1111', fontFamily: 'var(--font-sans)' }}>Date Night</h2>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', flexGrow: 1 }}>
                 {getCardProducts(p => p.occasion && p.occasion.includes('date-night')).map(p => (
-                  <Link key={p._id} to={`/products/${p._id}`} style={{ textDecoration: 'none' }}>
+                  <Link key={p._id} to="/products" style={{ textDecoration: 'none' }}>
                     <div style={{ background: '#f8f8f8', borderRadius: '4px', overflow: 'hidden', height: '110px' }}>
                       <img src={p.images?.[0] || '/images/placeholder.png'} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={p.name} />
                     </div>
@@ -1106,7 +1207,7 @@ export default function Home() {
               <h2 style={{ fontSize: '18px', fontWeight: 700, marginBottom: '12px', color: '#0F1111', fontFamily: 'var(--font-sans)' }}>Festival</h2>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', flexGrow: 1 }}>
                 {getCardProducts(p => p.occasion && p.occasion.includes('festival')).map(p => (
-                  <Link key={p._id} to={`/products/${p._id}`} style={{ textDecoration: 'none' }}>
+                  <Link key={p._id} to="/products" style={{ textDecoration: 'none' }}>
                     <div style={{ background: '#f8f8f8', borderRadius: '4px', overflow: 'hidden', height: '110px' }}>
                       <img src={p.images?.[0] || '/images/placeholder.png'} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={p.name} />
                     </div>
@@ -1144,7 +1245,7 @@ export default function Home() {
             <div
               id="kids-scroll"
               style={{
-                display: 'flex', gap: '20px', overflowX: 'auto', scrollbarWidth: 'none', 
+                display: 'flex', gap: '20px', overflowX: 'auto', scrollbarWidth: 'none',
                 scrollSnapType: 'x mandatory'
               }}
             >
@@ -1182,7 +1283,7 @@ export default function Home() {
               <h2 style={{ fontSize: '18px', fontWeight: 700, marginBottom: '12px', color: '#0F1111', fontFamily: 'var(--font-sans)' }}>Zara</h2>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', flexGrow: 1 }}>
                 {getCardProducts(p => p.brand && p.brand.toLowerCase() === 'zara').map(p => (
-                  <Link key={p._id} to={`/products/${p._id}`} style={{ textDecoration: 'none' }}>
+                  <Link key={p._id} to="/products" style={{ textDecoration: 'none' }}>
                     <div style={{ background: '#f8f8f8', borderRadius: '4px', overflow: 'hidden', height: '110px' }}>
                       <img src={p.images?.[0] || '/images/placeholder.png'} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={p.name} />
                     </div>
@@ -1197,7 +1298,7 @@ export default function Home() {
               <h2 style={{ fontSize: '18px', fontWeight: 700, marginBottom: '12px', color: '#0F1111', fontFamily: 'var(--font-sans)' }}>H&M</h2>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', flexGrow: 1 }}>
                 {getCardProducts(p => p.brand && p.brand.toLowerCase() === 'h&m').map(p => (
-                  <Link key={p._id} to={`/products/${p._id}`} style={{ textDecoration: 'none' }}>
+                  <Link key={p._id} to="/products" style={{ textDecoration: 'none' }}>
                     <div style={{ background: '#f8f8f8', borderRadius: '4px', overflow: 'hidden', height: '110px' }}>
                       <img src={p.images?.[0] || '/images/placeholder.png'} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={p.name} />
                     </div>
@@ -1212,7 +1313,7 @@ export default function Home() {
               <h2 style={{ fontSize: '18px', fontWeight: 700, marginBottom: '12px', color: '#0F1111', fontFamily: 'var(--font-sans)' }}>Levi's</h2>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', flexGrow: 1 }}>
                 {getCardProducts(p => p.brand && p.brand.toLowerCase() === "levi's").map(p => (
-                  <Link key={p._id} to={`/products/${p._id}`} style={{ textDecoration: 'none' }}>
+                  <Link key={p._id} to="/products" style={{ textDecoration: 'none' }}>
                     <div style={{ background: '#f8f8f8', borderRadius: '4px', overflow: 'hidden', height: '110px' }}>
                       <img src={p.images?.[0] || '/images/placeholder.png'} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={p.name} />
                     </div>
@@ -1227,7 +1328,7 @@ export default function Home() {
               <h2 style={{ fontSize: '18px', fontWeight: 700, marginBottom: '12px', color: '#0F1111', fontFamily: 'var(--font-sans)' }}>Nike</h2>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', flexGrow: 1 }}>
                 {getCardProducts(p => p.brand && p.brand.toLowerCase() === 'nike').map(p => (
-                  <Link key={p._id} to={`/products/${p._id}`} style={{ textDecoration: 'none' }}>
+                  <Link key={p._id} to="/products" style={{ textDecoration: 'none' }}>
                     <div style={{ background: '#f8f8f8', borderRadius: '4px', overflow: 'hidden', height: '110px' }}>
                       <img src={p.images?.[0] || '/images/placeholder.png'} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={p.name} />
                     </div>
@@ -1356,7 +1457,7 @@ export default function Home() {
             </div>
             <div className="product-grid">
               {deals.slice(0, 4).map((p, i) => (
-                <ProductCard key={p._id} product={p} index={i} />
+                <ProductCard key={p._id} product={p} index={i} linkTo="/products" />
               ))}
             </div>
           </div>
@@ -1566,25 +1667,61 @@ export default function Home() {
         .feature-title { font-size: 14px; }
         .feature-desc { font-size: 12px; }
 
-        /* Sections */
-        .categories-section { padding: 80px 0px; }
-        .featured-section { padding: 0 0 80px; }
-        .ai-banner-section { padding: 80px 0; }
-        .deals-section { padding: 0 0 80px; }
-        .occasions-section { padding: 0 0 80px; }
-        .rent-teaser-section { padding: 80px 0; }
+        /* Hero Single Banner Responsive Architecture & Hardware Acceleration */
+        .hero-single-banner {
+          min-height: 270px;
+          padding: 24px 32px;
+          will-change: transform, opacity;
+          transform: translate3d(0, 0, 0);
+        }
+        .banner-title-text {
+          font-size: clamp(20px, 2.5vw, 32px);
+          line-height: 1.15;
+          margin: 0 0 8px 0;
+          font-weight: 900;
+        }
+        .banner-subtitle-text {
+          font-size: clamp(14px, 1.6vw, 18px);
+          margin: 0 0 8px 0;
+          font-weight: 800;
+        }
+        .banner-desc-text {
+          font-size: 13px;
+          margin: 0 0 16px 0;
+          display: block;
+        }
+        .banner-cta-button {
+          padding: 10px 22px;
+          font-size: 13px;
+          transition: transform 0.25s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.25s ease;
+        }
+        .banner-cta-button:hover {
+          transform: scale(1.04);
+          box-shadow: 0 6px 18px rgba(0,0,0,0.25) !important;
+        }
+        .banner-img-box {
+          height: 240px;
+        }
+
+        /* Sections (Optimized Tight Spacing for Better UI/UX) */
+        .categories-section { padding: 24px 0px; }
+        .featured-section { padding: 0 0 24px; }
+        .ai-banner-section { padding: 28px 0; }
+        .deals-section { padding: 0 0 24px; }
+        .occasions-section { padding: 0 0 24px; }
+        .rent-teaser-section { padding: 28px 0; }
 
         .section-header {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          margin-bottom: 40px;
+          margin-bottom: 20px;
         }
         .section-header-centered {
           justify-content: center;
         }
-        .section-title { font-size: clamp(24px, 4vw, 32px); margin-bottom: 8px; }
-        .section-subtitle { font-size: clamp(13px, 2vw, 15px); }
+        .section-title { font-size: clamp(22px, 3.5vw, 28px); margin-bottom: 6px; }
+        .section-subtitle { font-size: clamp(13px, 1.8vw, 14px); }
 
         /* Categories */
         .categories-scroll-wrapper {

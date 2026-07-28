@@ -79,9 +79,9 @@ function AppContent() {
   }, [location.pathname]);
 
   return (
-    <>
+    <div className="app-page-wrapper" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', width: '100%', overflowX: 'hidden' }}>
       {!isRentSubPage && !isDashboard && <Navbar />}
-      <main className="app-main" style={{ flex: 1 }}>
+      <main className="app-main" style={{ flex: 1, width: '100%' }}>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/shop" element={<Home />} />
@@ -164,7 +164,7 @@ function AppContent() {
           boxShadow: '0 10px 30px rgba(0,0,0,0.1)'
         }
       }} />
-    </>
+    </div>
   );
 }
 

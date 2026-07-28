@@ -146,9 +146,8 @@ export default function Navbar() {
         left: 0,
         right: 0,
         zIndex: 1000,
-        transform: isScrollingDown ? 'translateY(-100%)' : 'translateY(0)',
-        transition: 'transform 0.3s ease-in-out',
-        background: '#131921'
+        background: '#131921',
+        boxShadow: '0 2px 10px rgba(0,0,0,0.3)'
       }}>
         <nav className="navbar-top" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 10px', height: '60px' }}>
 
@@ -469,8 +468,8 @@ export default function Navbar() {
             </div>
 
             {/* Mobile Search Icon */}
-            <div 
-              className="mobile-only mobile-search-toggle" 
+            <div
+              className="mobile-only mobile-search-toggle"
               onClick={() => setMobileSearchOpen(!mobileSearchOpen)}
               style={{ cursor: 'pointer', color: 'white', padding: '0 8px' }}
             >
@@ -478,11 +477,11 @@ export default function Navbar() {
             </div>
 
             {/* Account & Lists */}
-            <div className="nav-belt-item profile-container" ref={profileRef} 
-              onClick={(e) => { 
+            <div className="nav-belt-item profile-container" ref={profileRef}
+              onClick={(e) => {
                 e.stopPropagation();
                 setProfileOpen(!profileOpen);
-              }} 
+              }}
               style={{ position: 'relative', cursor: 'pointer' }}
             >
               <div className="desktop-only" style={{ display: 'flex', flexDirection: 'column' }}>
@@ -532,11 +531,11 @@ export default function Navbar() {
                           </>
                         ) : (
                           <div style={{ padding: '10px 0' }}>
-                            <button 
+                            <button
                               onClick={() => { setProfileOpen(false); navigate('/login'); }}
-                              style={{ 
-                                width: '100%', background: 'var(--gradient-primary)', color: 'white', 
-                                padding: '8px', borderRadius: '4px', fontWeight: 600, marginBottom: '10px' 
+                              style={{
+                                width: '100%', background: 'var(--gradient-primary)', color: 'white',
+                                padding: '8px', borderRadius: '4px', fontWeight: 600, marginBottom: '10px'
                               }}
                             >
                               {t('navbar.signIn')}
@@ -581,23 +580,33 @@ export default function Navbar() {
           </div>
         </nav>
 
-        {/* Sub Navbar */}
-        <nav className="desktop-only" style={{ background: '#3b3b3b', color: 'white', display: 'flex', alignItems: 'center', height: '39px', padding: '0 10px', fontSize: '14px', overflowX: 'auto', whiteSpace: 'nowrap', msOverflowStyle: 'none', scrollbarWidth: 'none' }}>
-          <style>{`nav::-webkit-scrollbar { display: none; }`}</style>
-          <div className="nav-sub-item" onClick={() => setSidebarOpen(true)} style={{ display: 'flex', alignItems: 'center', gap: '4px', fontWeight: 700 }}>
-            <MenuIcon style={{ fontSize: '20px' }} /> {t('navbar.all')}
-          </div>
+        {/* Sub Navbar - Dynamic disappear animation on scroll */}
+        <div style={{
+          maxHeight: isScrollingDown ? '0px' : '40px',
+          opacity: isScrollingDown ? 0 : 1,
+          transform: isScrollingDown ? 'translateY(-8px)' : 'translateY(0)',
+          overflow: 'hidden',
+          transition: 'max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s ease-out, transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+          pointerEvents: isScrollingDown ? 'none' : 'auto',
+          background: '#3b3b3b'
+        }}>
+          <nav className="desktop-only" style={{ background: '#3b3b3b', color: 'white', display: 'flex', alignItems: 'center', height: '39px', padding: '0 10px', fontSize: '14px', overflowX: 'auto', whiteSpace: 'nowrap', msOverflowStyle: 'none', scrollbarWidth: 'none' }}>
+            <style>{`nav::-webkit-scrollbar { display: none; }`}</style>
+            <div className="nav-sub-item" onClick={() => setSidebarOpen(true)} style={{ display: 'flex', alignItems: 'center', gap: '4px', fontWeight: 700 }}>
+              <MenuIcon style={{ fontSize: '20px' }} /> {t('navbar.all')}
+            </div>
 
-          <Link to="/orders" className="nav-sub-item">{t('navbar.buyAgain')}</Link>
-          <Link to="/sell" className="nav-sub-item">{t('navbar.sell')}</Link>
-          <Link to="/gift-cards" className="nav-sub-item">{t('navbar.giftCards')}</Link>
-          <Link to="/browsing-history" className="nav-sub-item" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
-            {t('navbar.browsingHistory')}
-          </Link>
-          <Link to="/rent" className="nav-sub-item" style={{ display: 'flex', alignItems: 'center', gap: '4px', fontWeight: 600 }}>
-            {t('navbar.rent')}
-          </Link>
-        </nav>
+            <Link to="/orders" className="nav-sub-item">{t('navbar.buyAgain')}</Link>
+            <Link to="/sell" className="nav-sub-item">{t('navbar.sell')}</Link>
+            <Link to="/gift-cards" className="nav-sub-item">{t('navbar.giftCards')}</Link>
+            <Link to="/browsing-history" className="nav-sub-item" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+              {t('navbar.browsingHistory')}
+            </Link>
+            <Link to="/rent" className="nav-sub-item" style={{ display: 'flex', alignItems: 'center', gap: '4px', fontWeight: 600 }}>
+              {t('navbar.rent')}
+            </Link>
+          </nav>
+        </div>
       </div>
 
       <div className="spacer-fixed" style={{ height: '99px' }}></div> {/* Spacer for fixed navbars */}
@@ -729,7 +738,7 @@ export default function Navbar() {
                 zIndex: 1999
               }}
             />
-            
+
             <motion.div
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: 'auto', opacity: 1 }}
@@ -746,69 +755,69 @@ export default function Navbar() {
                 overflow: 'hidden'
               }}
             >
-            <form onSubmit={(e) => { handleSearch(e); setMobileSearchOpen(false); }} style={{ display: 'flex', background: 'white', borderRadius: '4px', overflow: 'hidden', height: '45px' }}>
-              <select
-                className="amazon-search-select"
-                value={searchCategory}
-                onChange={(e) => setSearchCategory(e.target.value)}
-                style={{ width: '60px', fontSize: '11px' }}
-              >
-                <option value="All">All</option>
-                <option value="Men">Men</option>
-                <option value="Women">Women</option>
-                <option value="Kids">Kids</option>
-                <option value="Trending">Trending</option>
-              </select>
-              <input
-                type="text"
-                className="amazon-search-input"
-                placeholder={SEARCH_PLACEHOLDERS[placeholderIndex]}
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                autoFocus
-              />
-              <button type="submit" className="amazon-search-button">
-                <SearchIcon style={{ color: '#333' }} />
-              </button>
-            </form>
-            
-            {/* Suggestions in mobile search */}
-            {showSuggestions && suggestions.length > 0 && (
-              <div style={{ background: 'white', marginTop: '2px', borderRadius: '4px', maxHeight: '300px', overflowY: 'auto' }}>
-                {suggestions.map((p) => (
-                  <Link
-                    key={p._id}
-                    to={`/products/${p._id}`}
-                    onClick={() => {
-                      setMobileSearchOpen(false);
-                      setShowSuggestions(false);
-                      setSearchQuery('');
-                    }}
-                    style={{ 
-                      padding: '10px 15px', borderBottom: '1px solid #eee', 
-                      color: '#111', fontSize: '14px', textDecoration: 'none',
-                      display: 'flex', alignItems: 'center', gap: '12px'
-                    }}
-                  >
-                    <img src={p.images?.[0]} alt="" style={{ width: '40px', height: '40px', borderRadius: '4px', objectFit: 'cover' }} />
-                    <div style={{ flex: 1 }}>
-                      <div style={{ fontWeight: 600 }}>{p.name}</div>
-                      <div style={{ fontSize: '11px', color: '#666' }}>{p.brand} in {p.category}</div>
-                    </div>
-                  </Link>
-                ))}
-                <div
-                  onClick={(e) => { handleSearch(e); setMobileSearchOpen(false); }}
-                  style={{ padding: '12px', textAlign: 'center', fontSize: '13px', color: '#007185', fontWeight: 600, cursor: 'pointer', background: '#f8f8f8' }}
+              <form onSubmit={(e) => { handleSearch(e); setMobileSearchOpen(false); }} style={{ display: 'flex', background: 'white', borderRadius: '4px', overflow: 'hidden', height: '45px' }}>
+                <select
+                  className="amazon-search-select"
+                  value={searchCategory}
+                  onChange={(e) => setSearchCategory(e.target.value)}
+                  style={{ width: '60px', fontSize: '11px' }}
                 >
-                  See all results for "{searchQuery}"
+                  <option value="All">All</option>
+                  <option value="Men">Men</option>
+                  <option value="Women">Women</option>
+                  <option value="Kids">Kids</option>
+                  <option value="Trending">Trending</option>
+                </select>
+                <input
+                  type="text"
+                  className="amazon-search-input"
+                  placeholder={SEARCH_PLACEHOLDERS[placeholderIndex]}
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  autoFocus
+                />
+                <button type="submit" className="amazon-search-button">
+                  <SearchIcon style={{ color: '#333' }} />
+                </button>
+              </form>
+
+              {/* Suggestions in mobile search */}
+              {showSuggestions && suggestions.length > 0 && (
+                <div style={{ background: 'white', marginTop: '2px', borderRadius: '4px', maxHeight: '300px', overflowY: 'auto' }}>
+                  {suggestions.map((p) => (
+                    <Link
+                      key={p._id}
+                      to={`/products/${p._id}`}
+                      onClick={() => {
+                        setMobileSearchOpen(false);
+                        setShowSuggestions(false);
+                        setSearchQuery('');
+                      }}
+                      style={{
+                        padding: '10px 15px', borderBottom: '1px solid #eee',
+                        color: '#111', fontSize: '14px', textDecoration: 'none',
+                        display: 'flex', alignItems: 'center', gap: '12px'
+                      }}
+                    >
+                      <img src={p.images?.[0]} alt="" style={{ width: '40px', height: '40px', borderRadius: '4px', objectFit: 'cover' }} />
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontWeight: 600 }}>{p.name}</div>
+                        <div style={{ fontSize: '11px', color: '#666' }}>{p.brand} in {p.category}</div>
+                      </div>
+                    </Link>
+                  ))}
+                  <div
+                    onClick={(e) => { handleSearch(e); setMobileSearchOpen(false); }}
+                    style={{ padding: '12px', textAlign: 'center', fontSize: '13px', color: '#007185', fontWeight: 600, cursor: 'pointer', background: '#f8f8f8' }}
+                  >
+                    See all results for "{searchQuery}"
+                  </div>
                 </div>
-              </div>
-            )}
-          </motion.div>
-        </>
-      )}
-    </AnimatePresence>
+              )}
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </>
 
   );

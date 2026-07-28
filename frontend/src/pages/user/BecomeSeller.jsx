@@ -12,7 +12,7 @@ import { useAuth } from '../../context/AuthContext';
 
 export default function BecomeSeller() {
   const navigate = useNavigate();
-  const { user, loading: authLoading } = useAuth();
+  const { user, setUser, loading: authLoading } = useAuth();
   const fileInputRef = useRef(null);
 
   const [formData, setFormData] = useState({
@@ -204,7 +204,17 @@ export default function BecomeSeller() {
               </p>
 
               <button
-                onClick={() => navigate(isApproved ? '/seller' : '/shop')}
+                onClick={async () => {
+                  if (isApproved) {
+                    try {
+                      const res = await api.get('/auth/profile');
+                      if (res.data?.user && setUser) setUser(res.data.user);
+                    } catch (e) {}
+                    navigate('/seller');
+                  } else {
+                    navigate('/shop');
+                  }
+                }}
                 style={{ 
                   width: '100%', padding: '16px', marginTop: '40px', fontWeight: 800, letterSpacing: '1px',
                   background: theme.accent, color: '#1a1a1a', border: 'none', borderRadius: '100px',

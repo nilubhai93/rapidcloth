@@ -6,6 +6,7 @@ import {
   getSellerProducts,
   getSellerProductById,
   addSellerProduct,
+  bulkAddSellerProducts,
   toggleProductStatus,
   updateSellerProduct,
   deleteSellerProduct,
@@ -33,6 +34,7 @@ router.get('/products/:productId', getSellerProductById);
 
 // Add product (allows dynamic color variants)
 router.post('/products', productUpload.any(), addSellerProduct);
+router.post('/products/bulk', bulkAddSellerProducts);
 
 // Update product
 router.put('/products/:productId', productUpload.any(), updateSellerProduct);

@@ -544,3 +544,58 @@ export const updateSellerSettings = async (req, res) => {
     res.status(500).json({ error: 'Failed to update settings' });
   }
 };
+
+// Bulk Add Products Controller
+export const bulkAddSellerProducts = async (req, res) => {
+  try {
+    const sellerId = req.user._id;
+    const { products } = req.body;
+
+    if (!Array.isArray(products) || products.length === 0) {
+      return res.status(400).json({ error: 'Please provide an array of products.' });
+    }
+
+    const createdProducts = [];
+
+    for (const item of products) {
+      if (!item.name || !item.price) continue;
+
+      const categoryName = (item.category || 'shirt').toLowerCase();
+      const newProduct = new Product({
+        sellerId,
+        name: item.name.trim(),
+        brand: item.brand || req.user.sellerProfile?.storeName || 'Store Brand',
+        category: categoryName,
+        sku: item.sku || `SKU-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+        price: Number(item.price) || 0,
+        discountPrice: item.discountPrice ? Number(item.discountPrice) : null,
+        description: item.description || '',
+        gender: 'unisex',
+        images: [`https://placehold.co/400x500/1a1a25/9a9ab0?text=${encodeURIComponent(item.name)}`],
+        colorImages: [{ color: 'Standard', images: [`https://placehold.co/400x500/1a1a25/9a9ab0?text=${encodeURIComponent(item.name)}`] }],
+        sizes: [{ size: 'Free Size', stock: Number(item.stock) || 10 }],
+        colors: ['Standard'],
+        tags: ['casual'],
+        occasion: ['casual'],
+        weather: ['all-season'],
+        listingType: 'sale',
+        isAvailableForRent: false
+      });
+
+      await newProduct.save();
+      createdProducts.push(newProduct);
+    }
+
+    if (createdProducts.length === 0) {
+      return res.status(400).json({ error: 'No valid products were provided to save.' });
+    }
+
+    res.status(201).json({
+      message: `${createdProducts.length} product(s) published successfully!`,
+      products: createdProducts
+    });
+  } catch (error) {
+    console.error('Error in bulkAddSellerProducts:', error);
+    res.status(500).json({ error: 'Failed to bulk add products' });
+  }
+};

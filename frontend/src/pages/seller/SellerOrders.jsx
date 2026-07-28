@@ -275,11 +275,11 @@ export default function SellerOrders() {
 
   return (
     <>
-    <div style={{ padding: '0 24px 60px' }}>
+    <div style={{ padding: '0 clamp(12px, 3vw, 24px) 60px' }}>
       {/* Header */}
-      <div style={{ marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+      <div style={{ marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '12px' }}>
         <div>
-          <h2 style={{ fontSize: '24px', fontWeight: 800, fontFamily: 'var(--font-display)', marginBottom: '2px' }}>
+          <h2 style={{ fontSize: 'clamp(20px, 4vw, 24px)', fontWeight: 800, fontFamily: 'var(--font-display)', marginBottom: '2px' }}>
             Customer Orders
           </h2>
           <p style={{ color: 'var(--text-muted)', fontSize: '13px' }}>Manage and confirm orders for your products.</p>
@@ -308,7 +308,8 @@ export default function SellerOrders() {
       <div style={{
         display: 'flex', gap: '4px', marginBottom: '16px',
         background: 'var(--bg-card)', borderRadius: 'var(--radius-lg)',
-        border: '1px solid var(--border)', padding: '4px', width: 'fit-content'
+        border: '1px solid var(--border)', padding: '4px', width: '100%',
+        maxWidth: '100%', overflowX: 'auto'
       }}>
         <button
           onClick={() => setActiveTab('current')}

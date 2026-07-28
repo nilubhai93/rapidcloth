@@ -15,13 +15,15 @@ import WalletIcon from '@mui/icons-material/AccountBalanceWalletRounded';
 import MenuIcon from '@mui/icons-material/MenuRounded';
 import CloseIcon from '@mui/icons-material/CloseRounded';
 import { useAuth } from '../context/AuthContext';
+import { authAPI } from '../api';
 
 export default function SellerLayout() {
-  const { user, loading, logout } = useAuth();
+  const { user, setUser, loading, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const [checkingRole, setCheckingRole] = useState(false);
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 1024);
@@ -35,8 +37,25 @@ export default function SellerLayout() {
 
   useEffect(() => {
     if (loading) return;
-    if (!user || (user.role !== 'seller' && user.role !== 'admin')) {
-      navigate(user ? '/shop' : '/login');
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+    if (user.role !== 'seller' && user.role !== 'admin') {
+      setCheckingRole(true);
+      authAPI.getProfile()
+        .then(res => {
+          const freshUser = res.data?.user;
+          if (freshUser && (freshUser.role === 'seller' || freshUser.role === 'admin')) {
+            if (setUser) setUser(freshUser);
+            setCheckingRole(false);
+          } else {
+            navigate('/shop');
+          }
+        })
+        .catch(() => {
+          navigate('/shop');
+        });
     }
   }, [user, loading, navigate]);
 
@@ -50,7 +69,7 @@ export default function SellerLayout() {
     { name: 'Settings', path: '/seller/settings', icon: <SettingsIcon /> },
   ];
 
-  if (loading) {
+  if (loading || checkingRole) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', background: 'var(--bg-secondary)' }}>
         <CircularProgress sx={{ color: 'var(--accent)' }} />

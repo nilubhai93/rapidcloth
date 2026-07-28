@@ -159,7 +159,8 @@ export default function SellerSettings() {
       <div style={{
         display: 'flex', gap: '4px', marginBottom: '16px',
         background: 'var(--bg-card)', borderRadius: 'var(--radius-lg)',
-        border: '1px solid var(--border)', padding: '4px', flexWrap: 'wrap', width: 'fit-content'
+        border: '1px solid var(--border)', padding: '4px', width: '100%',
+        maxWidth: '100%', overflowX: 'auto'
       }}>
         {sections.map(sec => (
           <button
