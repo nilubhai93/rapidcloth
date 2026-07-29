@@ -77,13 +77,6 @@ const ProductCard = memo(function ProductCard({ product, index = 0, showButtons 
             position: 'absolute', top: '12px', left: '12px',
             display: 'flex', flexDirection: 'column', gap: '6px'
           }}>
-            {hasDiscount && (
-              <span style={{
-                padding: '4px 10px', borderRadius: 'var(--radius-full)',
-                background: '#ff6b6b',
-                fontSize: '12px', fontWeight: 800, color: 'white'
-              }}>-{discountPercent}%</span>
-            )}
             {product.isAvailableForRent && (
               <span style={{
                 padding: '4px 10px', borderRadius: 'var(--radius-full)',
@@ -123,38 +116,6 @@ const ProductCard = memo(function ProductCard({ product, index = 0, showButtons 
             overflow: 'hidden'
           }}>{product.description}</p>
 
-          {/* Sizes Chips */}
-          <div style={{ marginBottom: '12px' }}>
-            <div style={{ fontSize: '10px', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '6px', letterSpacing: '0.5px' }}>
-              Select Size: <span style={{ color: 'var(--accent)', fontWeight: 900 }}>{selectedSize}</span>
-            </div>
-            <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
-              {product.sizes?.map(s => (
-                <button
-                  key={s.size}
-                  onClick={(e) => {
-                    e.preventDefault(); e.stopPropagation();
-                    if (s.stock > 0) setSelectedSize(s.size);
-                  }}
-                  disabled={s.stock <= 0}
-                  style={{
-                    minWidth: '30px', height: '24px', padding: '0 4px',
-                    borderRadius: '4px', border: `1px solid ${selectedSize === s.size ? 'var(--accent)' : 'var(--border)'}`,
-                    background: selectedSize === s.size ? 'var(--accent-bg)' : 'white',
-                    color: selectedSize === s.size ? 'var(--accent)' : s.stock > 0 ? 'var(--text-primary)' : '#ccc',
-                    fontSize: '10px', fontWeight: 700,
-                    cursor: s.stock > 0 ? 'pointer' : 'not-allowed',
-                    opacity: s.stock <= 0 ? 0.5 : 1,
-                    transition: 'all 0.2s',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center'
-                  }}
-                >
-                  {s.size}
-                </button>
-              )) || <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Free Size</span>}
-            </div>
-          </div>
-
           <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '4px' }}>
             <LocalShippingOutlinedIcon sx={{ fontSize: 14 }} />
             <span>{fastDelivery ? 'Fast Delivery' : 'Standard Delivery'}</span>
@@ -176,11 +137,6 @@ const ProductCard = memo(function ProductCard({ product, index = 0, showButtons 
             {!product.isAvailableForRent && hasDiscount && (
               <span style={{ fontSize: '14px', color: 'var(--text-muted)', textDecoration: 'line-through' }}>
                 ₹{product.price.toLocaleString()}
-              </span>
-            )}
-            {!product.isAvailableForRent && hasDiscount && (
-              <span style={{ fontSize: '12px', fontWeight: 700, color: '#ff6b6b' }}>
-                ({discountPercent}% OFF)
               </span>
             )}
           </div>
@@ -226,32 +182,29 @@ const ProductCard = memo(function ProductCard({ product, index = 0, showButtons 
               >+</button>
             </div>
           ) : (
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+            <button
               onClick={handleAddToCart}
               disabled={adding}
               style={{
                 width: '100%', padding: '12px',
                 borderRadius: '8px',
-                background: adding ? '#22c55e' : 'linear-gradient(135deg, #14327a 0%, #c9a96e 100%)',
+                background: adding ? '#22c55e' : 'linear-gradient(135deg, #1e4db7 0%, #14327a 100%)',
                 color: 'white',
                 fontSize: '14px', fontWeight: 700,
                 display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
                 border: 'none',
                 cursor: adding ? 'not-allowed' : 'pointer',
-                boxShadow: '0 4px 10px rgba(20, 50, 122, 0.4)'
+                boxShadow: '0 4px 10px rgba(30, 77, 183, 0.3)',
+                transition: 'background 0.2s ease, opacity 0.2s ease'
               }}
             >
               <ShoppingBagOutlinedIcon sx={{ fontSize: 18 }} />
               {adding ? 'Added!' : (product.isAvailableForRent ? 'Add to Rental' : 'Add to Bag')}
-            </motion.button>
+            </button>
           )}
 
           {qtyInCart > 0 && (
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+            <button
               onClick={(e) => { e.preventDefault(); e.stopPropagation(); window.location.href = '/cart'; }}
               style={{
                 width: '100%', padding: '12px',
@@ -261,11 +214,12 @@ const ProductCard = memo(function ProductCard({ product, index = 0, showButtons 
                 fontSize: '14px', fontWeight: 700,
                 display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
                 border: '1px solid #22c55e',
-                cursor: 'pointer'
+                cursor: 'pointer',
+                transition: 'background 0.2s ease, opacity 0.2s ease'
               }}
             >
               Go to Cart
-            </motion.button>
+            </button>
           )}
 
           <motion.button

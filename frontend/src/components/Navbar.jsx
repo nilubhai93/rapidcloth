@@ -14,19 +14,19 @@ import TranslateIcon from '@mui/icons-material/Translate';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMoreRounded';
 import CloseIcon from '@mui/icons-material/CloseRounded';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
-import HistoryIcon from '@mui/icons-material/HistoryRounded';
-import AccessTimeIcon from '@mui/icons-material/AccessTimeRounded';
+import PhotoCameraRoundedIcon from '@mui/icons-material/PhotoCameraRounded';
+import PhotoLibraryRoundedIcon from '@mui/icons-material/PhotoLibraryRounded';
+import MicRoundedIcon from '@mui/icons-material/MicRounded';
 
 const SEARCH_PLACEHOLDERS = [
-  "Search rapidCloth.in",
-  "Search for 'Wedding Guest' outfits...",
-  "Looking for 'Party Night' dresses?",
-  "Find the perfect 'Office Wear'...",
-  "Search for 'Date Night' looks...",
-  "Need something for a 'Beach Day'?",
-  "Search sportswear & gym gear...",
-  "Find 'Festival' and traditional outfits...",
-  "Explore formal wear for 'Graduation'..."
+  "Search Banarasi Silk Sarees...",
+  "Search Designer Sherwanis...",
+  "Search Anarkali Suit Sets...",
+  "Search Tuxedos & Blazers...",
+  "Search Indo-Western Dresses...",
+  "Search Wedding Lehengas...",
+  "Search Evening Cocktail Gowns...",
+  "Search Designer Kurtis & Kurtas..."
 ];
 
 export default function Navbar() {
@@ -53,12 +53,49 @@ export default function Navbar() {
   const [loadingSuggestions, setLoadingSuggestions] = useState(false);
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
 
+  const [cameraSheetOpen, setCameraSheetOpen] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+
   useEffect(() => {
     const interval = setInterval(() => {
       setPlaceholderIndex((prev) => (prev + 1) % SEARCH_PLACEHOLDERS.length);
-    }, 3000);
+    }, 2500);
     return () => clearInterval(interval);
   }, []);
+
+  const handleVoiceSearch = () => {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      alert("Voice search is not supported on this browser.");
+      return;
+    }
+    const recognition = new SpeechRecognition();
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.lang = 'en-US';
+
+    recognition.onstart = () => setIsListening(true);
+    recognition.onend = () => setIsListening(false);
+    recognition.onerror = () => setIsListening(false);
+    recognition.onresult = (event) => {
+      const transcript = event.results[0][0]?.transcript;
+      if (transcript) {
+        setSearchQuery(transcript);
+        setIsListening(false);
+        navigate(`/products?search=${encodeURIComponent(transcript)}`);
+      }
+    };
+
+    recognition.start();
+  };
+
+  const handleImageSelect = (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setCameraSheetOpen(false);
+      navigate(`/products?search=${encodeURIComponent('designer')}`);
+    }
+  };
   const profileRef = useRef(null);
   const langRef = useRef(null);
   const addressRef = useRef(null);
@@ -134,13 +171,14 @@ export default function Navbar() {
     { path: '/offers?sort=-rating', label: 'Deals' },
   ];
 
+  const isCartPage = location.pathname === '/cart' || location.pathname === '/rent/cart';
   const isAuthPage = location.pathname === '/login' || location.pathname === '/register';
   const isProductPage = location.pathname.startsWith('/products/') && location.pathname !== '/products';
   if (isAuthPage || location.pathname.startsWith('/delivery') || location.pathname.startsWith('/admin') || location.pathname.startsWith('/seller') || location.pathname === '/rent') return null;
 
   return (
     <>
-      <div style={{
+      <div className={`navbar-fixed-container ${isCartPage ? 'cart-page-nav' : ''}`} style={{
         position: 'fixed',
         top: 0,
         left: 0,
@@ -155,18 +193,19 @@ export default function Navbar() {
           <Link to="/shop" className="nav-belt-item logo-container" style={{ minWidth: '100px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
               <div style={{ background: 'var(--gradient-primary)', width: '28px', height: '28px', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, color: 'white' }}>R</div>
-              <span style={{ fontWeight: 700, fontSize: '18px', color: 'white' }}>rapidCloth</span>
+              <span style={{ fontWeight: 700, fontSize: '18px', color: 'white' }}>RapidCloth</span>
             </div>
           </Link>
 
 
 
-          {/* Delivery Location */}
-          <div className="nav-belt-item desktop-only address-container" ref={addressRef} onClick={(e) => { e.stopPropagation(); setAddressOpen(!addressOpen); }} style={{ marginLeft: '10px', position: 'relative', cursor: 'pointer' }}>
+          {/* Delivery Location - Hidden on Cart Page */}
+          {!isCartPage && (
+            <div className="nav-belt-item address-container" ref={addressRef} onClick={(e) => { e.stopPropagation(); setAddressOpen(!addressOpen); }} style={{ marginLeft: '10px', position: 'relative', cursor: 'pointer' }}>
             <span className="nav-line-1" style={{ paddingLeft: '20px' }}>
               {t('navbar.deliverTo')} {isAuthenticated && user?.name ? user.name.split(' ')[0] : ''}
             </span>
-            <div className="nav-line-2">
+            <div className="nav-line-2" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
               <div style={{ display: 'flex', alignItems: 'center', padding: '5px', marginLeft: '-25px' }}>
                 <PlaceIcon style={{ fontSize: '18px' }} />
               </div>
@@ -180,29 +219,47 @@ export default function Navbar() {
                   return t('navbar.selectAddress');
                 })()}
               </span>
+
+              {/* Animated Down Arrow Icon */}
+              <motion.div animate={{ rotate: addressOpen ? 180 : 0 }} transition={{ duration: 0.2 }} style={{ display: 'inline-flex', alignItems: 'center', marginLeft: '2px' }}>
+                <ExpandMoreIcon style={{ fontSize: '18px' }} />
+              </motion.div>
             </div>
 
             <AnimatePresence>
               {addressOpen && (
-                <div className="book-container" style={{ left: 0, right: 'auto' }}>
+                <div className="address-picker-overlay">
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    onClick={() => setAddressOpen(false)}
+                    className="address-backdrop-mobile"
+                  />
                   <motion.div
                     onClick={(e) => e.stopPropagation()}
                     initial={{ scaleY: 0, opacity: 0, transformOrigin: 'top center' }}
                     animate={{ scaleY: 1, opacity: 1 }}
                     exit={{ scaleY: 0, opacity: 0 }}
-                    transition={{ duration: 0.3, ease: "easeOut" }}
-                    className="book-popup"
-                    style={{ width: '400px', padding: 0, overflow: 'hidden' }}
+                    transition={{ duration: 0.25, ease: "easeOut" }}
+                    className="book-popup address-popup-modal"
+                    style={{ padding: 0, overflow: 'hidden' }}
                   >
-                    <div style={{ background: '#f0f2f2', padding: '15px 20px', borderBottom: '1px solid #ddd', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <h3 style={{ fontSize: '16px', fontWeight: 700, color: '#111', margin: 0 }}>Choose your location</h3>
-                      <CloseIcon style={{ cursor: 'pointer', fontSize: '20px', color: '#111' }} onClick={() => setAddressOpen(false)} />
+                    {/* Handle Bar (Mobile Only) */}
+                    <div className="mobile-handle-bar" style={{ width: '40px', height: '4px', background: '#cbd5e1', borderRadius: '2px', margin: '10px auto 4px' }} />
+
+                    <div style={{ background: '#f8fafc', padding: '16px 20px', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <h3 style={{ fontSize: '16px', fontWeight: 800, color: '#1e293b', margin: 0 }}>Choose your location</h3>
+                      <CloseIcon style={{ cursor: 'pointer', fontSize: '20px', color: '#64748b' }} onClick={() => setAddressOpen(false)} />
                     </div>
-                    <div style={{ padding: '15px 20px' }}>
-                      <p style={{ fontSize: '12px', color: '#555', marginBottom: '15px', lineHeight: 1.4 }}>
+
+                    <div style={{ padding: '16px 20px', maxHeight: '75vh', overflowY: 'auto' }}>
+                      <p style={{ fontSize: '12px', color: '#64748b', marginBottom: '16px', lineHeight: 1.4 }}>
                         Select a delivery location to see product availability and delivery options
                       </p>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '200px', overflowY: 'auto' }}>
+
+                      {/* Saved Addresses Separated by Thin Lines */}
+                      <div style={{ display: 'flex', flexDirection: 'column' }}>
                         {isAuthenticated && user?.addresses?.length > 0 ? (
                           user.addresses.map((addr, index) => {
                             const isActive = selectedAddress ? selectedAddress._id === addr._id : (addr.isDefault || index === 0);
@@ -210,29 +267,49 @@ export default function Navbar() {
                               <div
                                 key={addr._id || index}
                                 onClick={() => { setSelectedAddress(addr); setAddressOpen(false); }}
-                                style={{ border: `1px solid ${isActive ? '#007185' : '#ddd'}`, borderRadius: '8px', padding: '12px', background: isActive ? '#f3f9fa' : 'white', cursor: 'pointer' }}
+                                style={{
+                                  padding: '14px 8px',
+                                  borderBottom: '1px solid #e2e8f0',
+                                  display: 'flex',
+                                  alignItems: 'flex-start',
+                                  gap: '12px',
+                                  cursor: 'pointer',
+                                  background: isActive ? 'rgba(30, 77, 183, 0.05)' : 'transparent',
+                                  borderRadius: '8px',
+                                  transition: 'all 0.2s ease'
+                                }}
                               >
-                                <p style={{ fontSize: '13px', margin: 0, lineHeight: 1.5 }}>
-                                  <strong>{user.name}</strong> {addr.street}<br />
-                                  {addr.city}, {addr.state} {addr.zip}
-                                </p>
-                                {addr.isDefault && <p style={{ fontSize: '12px', color: '#555', fontWeight: 600, marginTop: '8px', marginBottom: 0 }}>Default address</p>}
+                                <div style={{ marginTop: '2px' }}>
+                                  <PlaceIcon style={{ color: isActive ? '#1e4db7' : '#64748b', fontSize: '18px' }} />
+                                </div>
+                                <div style={{ flex: 1 }}>
+                                  <p style={{ fontSize: '13px', margin: 0, lineHeight: 1.5, color: isActive ? '#1e4db7' : '#1e293b', fontWeight: isActive ? 700 : 500 }}>
+                                    <strong>{user.name}</strong> — {addr.street}, {addr.city}, {addr.state} {addr.zip}
+                                  </p>
+                                  {addr.isDefault && (
+                                    <span style={{ fontSize: '11px', color: '#16a34a', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.4px', display: 'inline-block', marginTop: '4px' }}>
+                                      ✓ Default Address
+                                    </span>
+                                  )}
+                                </div>
                               </div>
                             );
                           })
                         ) : (
-                          <p style={{ fontSize: '13px', color: '#888' }}>No addresses found. Please add one.</p>
+                          <p style={{ fontSize: '13px', color: '#64748b', padding: '12px 0', borderBottom: '1px solid #e2e8f0' }}>No addresses found. Please add one.</p>
                         )}
                       </div>
 
-                      <div style={{ marginTop: '15px' }}>
-                        <Link to="/addresses" onClick={() => setAddressOpen(false)} style={{ color: '#007185', fontSize: '13px', textDecoration: 'none' }}>Add a new address</Link>
+                      <div style={{ marginTop: '16px' }}>
+                        <Link to="/addresses" onClick={() => setAddressOpen(false)} style={{ color: '#1e4db7', fontSize: '13px', fontWeight: 700, textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                          + Add a new address
+                        </Link>
                       </div>
 
                       <div style={{ display: 'flex', alignItems: 'center', margin: '20px 0' }}>
-                        <div style={{ flex: 1, borderTop: '1px solid #e7e7e7' }}></div>
-                        <span style={{ padding: '0 10px', fontSize: '12px', color: '#555' }}>or enter an Indian pincode</span>
-                        <div style={{ flex: 1, borderTop: '1px solid #e7e7e7' }}></div>
+                        <div style={{ flex: 1, borderTop: '1px solid #e2e8f0' }}></div>
+                        <span style={{ padding: '0 10px', fontSize: '11px', color: '#64748b', textTransform: 'uppercase', fontWeight: 600 }}>or enter an Indian pincode</span>
+                        <div style={{ flex: 1, borderTop: '1px solid #e2e8f0' }}></div>
                       </div>
 
                       <div style={{ display: 'flex', gap: '10px' }}>
@@ -241,7 +318,7 @@ export default function Navbar() {
                           value={pincodeInput}
                           onChange={(e) => setPincodeInput(e.target.value)}
                           placeholder="Enter Pincode"
-                          style={{ flex: 1, padding: '8px 10px', border: '1px solid #888', borderRadius: '8px', fontSize: '13px', outline: 'none' }}
+                          style={{ flex: 1, padding: '10px 14px', border: '1px solid #cbd5e1', borderRadius: '10px', fontSize: '13px', outline: 'none' }}
                         />
                         <button
                           onClick={() => {
@@ -250,7 +327,7 @@ export default function Navbar() {
                               setAddressOpen(false);
                             }
                           }}
-                          style={{ background: '#fff', border: '1px solid #d5d9d9', padding: '8px 20px', borderRadius: '8px', fontSize: '13px', cursor: 'pointer', boxShadow: '0 2px 5px rgba(0,0,0,0.05)' }}
+                          style={{ background: '#1e4db7', color: '#ffffff', border: 'none', padding: '10px 20px', borderRadius: '10px', fontSize: '13px', fontWeight: 700, cursor: 'pointer' }}
                         >
                           Apply
                         </button>
@@ -261,6 +338,7 @@ export default function Navbar() {
               )}
             </AnimatePresence>
           </div>
+          )}
 
           <form onSubmit={handleSearch} className="amazon-search-container">
             <select
@@ -275,6 +353,11 @@ export default function Navbar() {
             </select>
 
             <div style={{ flex: 1, position: 'relative', display: 'flex', alignItems: 'center' }}>
+              {/* Left Search Icon (Mobile View) */}
+              <div className="mobile-search-icon-inside" style={{ position: 'absolute', left: '12px', color: '#1e4db7', display: 'flex', alignItems: 'center', pointerEvents: 'none', zIndex: 3 }}>
+                <SearchIcon sx={{ fontSize: 20 }} />
+              </div>
+
               <input
                 type="text"
                 className="amazon-search-input"
@@ -283,8 +366,40 @@ export default function Navbar() {
                 onFocus={() => searchQuery.trim() && setShowSuggestions(true)}
                 onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
                 placeholder={SEARCH_PLACEHOLDERS[placeholderIndex]}
-                style={{ width: '100%' }}
+                style={{ width: '100%', paddingRight: '76px' }}
               />
+
+              {/* Camera & Voice Mic Action Buttons */}
+              <div style={{ position: 'absolute', right: '10px', display: 'flex', alignItems: 'center', gap: '8px', zIndex: 3 }}>
+                <motion.button
+                  type="button"
+                  whileHover={{ scale: 1.15 }}
+                  whileTap={{ scale: 0.9 }}
+                  onClick={() => setCameraSheetOpen(true)}
+                  title="Visual Search by Camera / Gallery"
+                  style={{
+                    background: 'none', border: 'none', cursor: 'pointer', padding: '2px',
+                    color: '#1e4db7', display: 'flex', alignItems: 'center', justifyContent: 'center'
+                  }}
+                >
+                  <PhotoCameraRoundedIcon sx={{ fontSize: 20 }} />
+                </motion.button>
+
+                <motion.button
+                  type="button"
+                  whileHover={{ scale: 1.15 }}
+                  whileTap={{ scale: 0.9 }}
+                  onClick={handleVoiceSearch}
+                  title="Voice Search"
+                  style={{
+                    background: isListening ? 'rgba(239, 68, 68, 0.15)' : 'none',
+                    border: 'none', cursor: 'pointer', padding: '3px', borderRadius: '50%',
+                    color: isListening ? '#ef4444' : '#64748b', display: 'flex', alignItems: 'center', justifyContent: 'center'
+                  }}
+                >
+                  <MicRoundedIcon sx={{ fontSize: 20 }} />
+                </motion.button>
+              </div>
 
               <AnimatePresence>
                 {showSuggestions && (searchQuery.trim().length > 1) && (
@@ -351,35 +466,89 @@ export default function Navbar() {
 
           <style>{`
           .suggestion-item-classic:hover { background: #f3f3f3 !important; }
+          .mobile-search-icon-inside { display: none !important; }
+          .address-backdrop-mobile { display: none !important; }
+          .mobile-handle-bar { display: none !important; }
+          .address-popup-modal {
+            position: absolute !important;
+            top: 100% !important;
+            left: 0 !important;
+            width: 400px !important;
+            background: #ffffff !important;
+            border-radius: 12px !important;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2) !important;
+            z-index: 10002 !important;
+          }
+          @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.15); opacity: 0.7; }
+            100% { transform: scale(1); opacity: 1; }
+          }
           @media (max-width: 768px) {
+            .mobile-search-icon-inside { display: flex !important; }
+
+            .address-picker-overlay {
+              position: fixed !important;
+              inset: 0 !important;
+              z-index: 99999 !important;
+              display: flex !important;
+              align-items: flex-end !important;
+              justify-content: center !important;
+            }
+            .address-backdrop-mobile {
+              display: block !important;
+              position: absolute !important;
+              inset: 0 !important;
+              background: rgba(0, 0, 0, 0.6) !important;
+              backdrop-filter: blur(4px) !important;
+            }
+            .address-popup-modal {
+              position: relative !important;
+              top: auto !important;
+              left: auto !important;
+              width: 100% !important;
+              max-width: 100% !important;
+              border-radius: 24px 24px 0 0 !important;
+              background: #ffffff !important;
+              box-shadow: 0 -10px 40px rgba(0,0,0,0.25) !important;
+              zIndex: 2 !important;
+            }
+            .mobile-handle-bar { display: block !important; }
+
+            .navbar-fixed-container {
+              background: #131921 !important;
+              border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+              box-shadow: 0 4px 16px rgba(0,0,0,0.3) !important;
+            }
             .navbar-top {
-              height: 110px !important;
+              height: auto !important;
               display: grid !important;
-              grid-template-columns: 1fr auto auto;
-              grid-template-rows: 50px 50px;
-              padding: 5px 10px !important;
-              gap: 5px 10px;
-              align-items: center;
+              grid-template-columns: 1fr auto !important;
+              grid-template-rows: auto auto auto !important;
+              padding: 10px 14px 12px !important;
+              gap: 10px !important;
+              align-items: center !important;
             }
+
+            /* Row 1: Logo on Left, Profile on Right */
             .nav-belt-item.logo-container {
-              grid-column: 1 / 2;
-              grid-row: 1;
-              justify-self: start;
+              grid-column: 1 / 2 !important;
+              grid-row: 1 !important;
+              justify-self: start !important;
             }
-            .nav-belt-item.address-container {
-              grid-column: 2 / 4;
-              grid-row: 1;
-              display: flex !important;
-              justify-self: end;
-            }
-            .amazon-search-container {
-              grid-column: 1 / 4; /* Allow search to take full width or partial depending on space */
-              grid-row: 2;
-              display: flex !important;
-              margin: 0 !important;
+            .nav-belt-item.logo-container span {
+              color: #ffffff !important;
+              font-size: 19px !important;
+              font-weight: 800 !important;
             }
             .right-actions-container {
-              display: contents !important;
+              grid-column: 2 / 3 !important;
+              grid-row: 1 !important;
+              display: flex !important;
+              align-items: center !important;
+              gap: 10px !important;
+              justify-self: end !important;
+              height: auto !important;
             }
             .right-actions-container > .ai-stylist-container,
             .right-actions-container > .lang-container,
@@ -387,21 +556,87 @@ export default function Navbar() {
               display: none !important;
             }
             .nav-belt-item.profile-container {
-              grid-column: 2 / 3;
-              grid-row: 2;
               display: flex !important;
+              color: #ffffff !important;
             }
+            .nav-belt-item.profile-container svg {
+              color: #ffffff !important;
+            }
+
+            /* REMOVE CART OPTION FROM ALL MOBILE VIEW NAVBAR (EXCEPT ON CART PAGE) */
             .nav-belt-item.cart-container {
-              grid-column: 3 / 4;
-              grid-row: 2;
+              display: none !important;
+            }
+            .cart-page-nav .nav-belt-item.cart-container {
               display: flex !important;
+              color: #ffffff !important;
             }
+
+            /* Row 2: Pro Designer Address Bar */
+            .nav-belt-item.address-container {
+              grid-column: 1 / 3 !important;
+              grid-row: 2 !important;
+              display: flex !important;
+              align-items: center !important;
+              width: 100% !important;
+              margin: 0 !important;
+              background: rgba(255, 255, 255, 0.08) !important;
+              border: 1px solid rgba(255, 255, 255, 0.15) !important;
+              border-radius: 12px !important;
+              padding: 8px 12px !important;
+              color: #ffffff !important;
+              box-sizing: border-box !important;
+              box-shadow: 0 2px 6px rgba(0,0,0,0.2) !important;
+            }
+            .nav-belt-item.address-container .nav-line-1 {
+              color: #60a5fa !important;
+              font-size: 10px !important;
+              font-weight: 700 !important;
+              letter-spacing: 0.5px !important;
+              text-transform: uppercase !important;
+              padding-left: 20px !important;
+            }
+            .nav-belt-item.address-container .nav-line-2 {
+              color: #ffffff !important;
+              font-size: 13px !important;
+              font-weight: 700 !important;
+            }
+            .nav-belt-item.address-container svg {
+              color: #60a5fa !important;
+            }
+
+            /* Row 3: Pro Designer Search Bar */
+            .amazon-search-container {
+              grid-column: 1 / 3 !important;
+              grid-row: 3 !important;
+              display: flex !important;
+              width: 100% !important;
+              margin: 0 !important;
+              border-radius: 12px !important;
+              overflow: hidden !important;
+              border: 1.5px solid rgba(30, 77, 183, 0.2) !important;
+              box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03) !important;
+              position: relative !important;
+            }
+            .amazon-search-input {
+              height: 42px !important;
+              border: none !important;
+              border-radius: 12px !important;
+              padding: 0 76px 0 38px !important;
+              background: var(--bg-card, #ffffff) !important;
+              color: var(--text-primary, #111111) !important;
+              font-size: 13px !important;
+              font-weight: 500 !important;
+            }
+
+            /* REMOVE EXTERNAL SEARCH BUTTON FROM MOBILE VIEW DIMENSION */
+            .amazon-search-button {
+              display: none !important;
+            }
+
             .spacer-fixed {
-              height: 110px !important;
+              height: 165px !important;
             }
-          }
-          @media (max-width: 480px) {
-            .amazon-search-container { grid-column: 1 / 2; }
           }
         `}</style>
 
@@ -409,164 +644,172 @@ export default function Navbar() {
           <div className="right-actions-container" style={{ display: 'flex', alignItems: 'center', height: '100%', gap: '5px' }}>
 
             {/* AI Stylist */}
-            <div
-              onClick={() => {
-                window.dispatchEvent(new CustomEvent('open-ai-stylist'));
-              }}
-              className="nav-belt-item desktop-only ai-stylist-container"
-              style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '6px', padding: '0 10px', cursor: 'pointer' }}
-            >
-              <AutoAwesomeIcon style={{ fontSize: '20px', color: '#c084fc' }} />
-              <span style={{ fontSize: '14px', fontWeight: 700, whiteSpace: 'nowrap' }}>AI Stylist</span>
-            </div>
+            {!isCartPage && (
+              <div
+                onClick={() => {
+                  window.dispatchEvent(new CustomEvent('open-ai-stylist'));
+                }}
+                className="nav-belt-item desktop-only ai-stylist-container"
+                style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '6px', padding: '0 10px', cursor: 'pointer' }}
+              >
+                <AutoAwesomeIcon style={{ fontSize: '20px', color: '#c084fc' }} />
+                <span style={{ fontSize: '14px', fontWeight: 700, whiteSpace: 'nowrap' }}>AI Stylist</span>
+              </div>
+            )}
 
             {/* Language Selector */}
-            <div className="nav-belt-item desktop-only lang-container" ref={langRef} onClick={(e) => { e.stopPropagation(); setLangOpen(!langOpen); }} style={{ position: 'relative', cursor: 'pointer' }}>
-              <div className="nav-line-2" style={{ marginTop: '10px' }}>
-                <TranslateIcon style={{ fontSize: '20px' }} />
-                <span style={{ fontSize: '14px' }}>{language}</span>
-                <div style={{ display: 'flex', padding: '0 5px' }}>
-                  <motion.div animate={{ rotate: langOpen ? 180 : 0 }} transition={{ duration: 0.2 }} style={{ display: 'flex' }}>
-                    <ExpandMoreIcon style={{ fontSize: '16px', color: '#ccc' }} />
-                  </motion.div>
-                </div>
-              </div>
-
-              <AnimatePresence>
-                {langOpen && (
-                  <div className="book-container">
-                    <motion.div
-                      initial={{ scaleY: 0, opacity: 0, transformOrigin: 'top center' }}
-                      animate={{ scaleY: 1, opacity: 1 }}
-                      exit={{ scaleY: 0, opacity: 0 }}
-                      transition={{ duration: 0.3, ease: "easeOut" }}
-                      className="book-popup"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <h3 style={{ marginBottom: '15px', borderBottom: '1px solid #eee', paddingBottom: '10px', fontSize: '16px' }}>{t('navbar.selectLanguage')}</h3>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                        <div onClick={() => { setLanguage('EN'); setLangOpen(false); }} style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', color: language === 'EN' ? '#111' : '#666' }}>
-                          <input type="radio" checked={language === 'EN'} readOnly style={{ accentColor: '#e47911', cursor: 'pointer' }} /> <span>English - EN</span>
-                        </div>
-                        <div onClick={() => { setLanguage('HI'); setLangOpen(false); }} style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', color: language === 'HI' ? '#111' : '#666' }}>
-                          <input type="radio" checked={language === 'HI'} readOnly style={{ accentColor: '#e47911', cursor: 'pointer' }} /> <span>Hindi - HI</span>
-                        </div>
-                        <div onClick={() => { setLanguage('BN'); setLangOpen(false); }} style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', color: language === 'BN' ? '#111' : '#666' }}>
-                          <input type="radio" checked={language === 'BN'} readOnly style={{ accentColor: '#e47911', cursor: 'pointer' }} /> <span>Bengali - BN</span>
-                        </div>
-                        <div onClick={() => { setLanguage('MR'); setLangOpen(false); }} style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', color: language === 'MR' ? '#111' : '#666' }}>
-                          <input type="radio" checked={language === 'MR'} readOnly style={{ accentColor: '#e47911', cursor: 'pointer' }} /> <span>Marathi - MR</span>
-                        </div>
-                      </div>
-                      <div style={{ marginTop: '20px', fontSize: '12px', color: '#666', borderTop: '1px solid #eee', paddingTop: '10px' }}>
-                        {t('navbar.shoppingOn')}
-                      </div>
-                    </motion.div>
-                  </div>
-                )}
-              </AnimatePresence>
-            </div>
-
-            {/* Mobile Search Icon */}
-            <div
-              className="mobile-only mobile-search-toggle"
-              onClick={() => setMobileSearchOpen(!mobileSearchOpen)}
-              style={{ cursor: 'pointer', color: 'white', padding: '0 8px' }}
-            >
-              {mobileSearchOpen ? <CloseIcon style={{ fontSize: '28px' }} /> : <SearchIcon style={{ fontSize: '28px' }} />}
-            </div>
-
-            {/* Account & Lists */}
-            <div className="nav-belt-item profile-container" ref={profileRef}
-              onClick={(e) => {
-                e.stopPropagation();
-                setProfileOpen(!profileOpen);
-              }}
-              style={{ position: 'relative', cursor: 'pointer' }}
-            >
-              <div className="desktop-only" style={{ display: 'flex', flexDirection: 'column' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  {isAuthenticated && user?.avatar && (
-                    <img src={user.avatar} style={{ width: '22px', height: '22px', borderRadius: '50%', objectFit: 'cover', border: '1px solid rgba(255,255,255,0.2)' }} />
-                  )}
-                  <span className="nav-line-1">{t('navbar.hello')}, {isAuthenticated ? user?.name?.split(' ')[0] : t('navbar.signIn')}</span>
-                </div>
-                <div className="nav-line-2">
-                  <span>{t('navbar.accountAndLists')}</span>
+            {!isCartPage && (
+              <div className="nav-belt-item desktop-only lang-container" ref={langRef} onClick={(e) => { e.stopPropagation(); setLangOpen(!langOpen); }} style={{ position: 'relative', cursor: 'pointer' }}>
+                <div className="nav-line-2" style={{ marginTop: '10px' }}>
+                  <TranslateIcon style={{ fontSize: '20px' }} />
+                  <span style={{ fontSize: '14px' }}>{language}</span>
                   <div style={{ display: 'flex', padding: '0 5px' }}>
-                    <motion.div animate={{ rotate: profileOpen ? 180 : 0 }} transition={{ duration: 0.2 }} style={{ display: 'flex' }}>
+                    <motion.div animate={{ rotate: langOpen ? 180 : 0 }} transition={{ duration: 0.2 }} style={{ display: 'flex' }}>
                       <ExpandMoreIcon style={{ fontSize: '16px', color: '#ccc' }} />
                     </motion.div>
                   </div>
                 </div>
-              </div>
-              <div className="mobile-only" style={{ display: 'flex', alignItems: 'center' }}>
-                {isAuthenticated && user?.avatar ? (
-                  <img src={user.avatar} style={{ width: '28px', height: '28px', borderRadius: '50%', objectFit: 'cover' }} />
-                ) : (
-                  <PersonOutlineIcon style={{ fontSize: '28px' }} />
-                )}
-              </div>
 
-              <AnimatePresence>
-                {profileOpen && (
-                  <div className="book-container">
-                    <motion.div
-                      className="book-popup profile-menu-popup"
-                      onClick={(e) => e.stopPropagation()}
-                      initial={{ scaleY: 0, opacity: 0, transformOrigin: 'top center' }}
-                      animate={{ scaleY: 1, opacity: 1 }}
-                      exit={{ scaleY: 0, opacity: 0 }}
-                      transition={{ duration: 0.3, ease: "easeOut" }}
-                    >
-                      <div className="profile-menu-section main-account">
-                        <h4 style={{ fontSize: '14px', marginBottom: '8px', color: '#333' }}>{t('navbar.yourAccount')}</h4>
-                        {isAuthenticated ? (
-                          <>
-                            <Link to={isRentPage ? '/rent/profile' : '/profile'} onClick={() => setProfileOpen(false)} style={{ display: 'block', padding: '5px 0', color: '#444', textDecoration: 'none', fontSize: '13px' }}>{t('navbar.yourProfile')}</Link>
-                            <Link to="/orders" onClick={() => setProfileOpen(false)} style={{ display: 'block', padding: '5px 0', color: '#444', textDecoration: 'none', fontSize: '13px' }}>{t('navbar.yourOrders')}</Link>
-                            <Link to="/cart" onClick={() => setProfileOpen(false)} style={{ display: 'block', padding: '5px 0', color: '#444', textDecoration: 'none', fontSize: '13px' }}>{t('navbar.yourWishList')}</Link>
-                            <div style={{ borderTop: '1px solid #eee', margin: '10px 0' }} />
-                            <button onClick={() => { setProfileOpen(false); logout(); }} style={{ width: '100%', textAlign: 'left', padding: '5px 0', background: 'none', border: 'none', cursor: 'pointer', color: '#c40000', fontWeight: 600, fontSize: '13px' }}>{t('navbar.signOut')}</button>
-                          </>
-                        ) : (
-                          <div style={{ padding: '10px 0' }}>
-                            <button
-                              onClick={() => { setProfileOpen(false); navigate('/login'); }}
-                              style={{
-                                width: '100%', background: 'var(--gradient-primary)', color: 'white',
-                                padding: '8px', borderRadius: '4px', fontWeight: 600, marginBottom: '10px'
-                              }}
-                            >
-                              {t('navbar.signIn')}
-                            </button>
-                            <p style={{ fontSize: '11px', textAlign: 'center' }}>
-                              {t('navbar.newCustomer')} <Link to="/register" onClick={() => setProfileOpen(false)} style={{ color: '#007185' }}>{t('navbar.startHere')}</Link>
-                            </p>
+                <AnimatePresence>
+                  {langOpen && (
+                    <div className="book-container">
+                      <motion.div
+                        initial={{ scaleY: 0, opacity: 0, transformOrigin: 'top center' }}
+                        animate={{ scaleY: 1, opacity: 1 }}
+                        exit={{ scaleY: 0, opacity: 0 }}
+                        transition={{ duration: 0.3, ease: "easeOut" }}
+                        className="book-popup"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <h3 style={{ marginBottom: '15px', borderBottom: '1px solid #eee', paddingBottom: '10px', fontSize: '16px' }}>{t('navbar.selectLanguage')}</h3>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                          <div onClick={() => { setLanguage('EN'); setLangOpen(false); }} style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', color: language === 'EN' ? '#111' : '#666' }}>
+                            <input type="radio" checked={language === 'EN'} readOnly style={{ accentColor: '#e47911', cursor: 'pointer' }} /> <span>English - EN</span>
                           </div>
-                        )}
-                      </div>
-                      <div className="profile-menu-section seller-account">
-                        <h4 style={{ fontSize: '14px', marginBottom: '8px', color: '#333' }}>{t('navbar.yourSellerAccount')}</h4>
-                        {isAuthenticated ? (
-                          user?.role === 'seller' ? (
+                          <div onClick={() => { setLanguage('HI'); setLangOpen(false); }} style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', color: language === 'HI' ? '#111' : '#666' }}>
+                            <input type="radio" checked={language === 'HI'} readOnly style={{ accentColor: '#e47911', cursor: 'pointer' }} /> <span>Hindi - HI</span>
+                          </div>
+                          <div onClick={() => { setLanguage('BN'); setLangOpen(false); }} style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', color: language === 'BN' ? '#111' : '#666' }}>
+                            <input type="radio" checked={language === 'BN'} readOnly style={{ accentColor: '#e47911', cursor: 'pointer' }} /> <span>Bengali - BN</span>
+                          </div>
+                          <div onClick={() => { setLanguage('MR'); setLangOpen(false); }} style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer', color: language === 'MR' ? '#111' : '#666' }}>
+                            <input type="radio" checked={language === 'MR'} readOnly style={{ accentColor: '#e47911', cursor: 'pointer' }} /> <span>Marathi - MR</span>
+                          </div>
+                        </div>
+                        <div style={{ marginTop: '20px', fontSize: '12px', color: '#666', borderTop: '1px solid #eee', paddingTop: '10px' }}>
+                          {t('navbar.shoppingOn')}
+                        </div>
+                      </motion.div>
+                    </div>
+                  )}
+                </AnimatePresence>
+              </div>
+            )}
+
+            {/* Mobile Search Icon */}
+            {!isCartPage && (
+              <div
+                className="mobile-only mobile-search-toggle"
+                onClick={() => setMobileSearchOpen(!mobileSearchOpen)}
+                style={{ cursor: 'pointer', color: 'white', padding: '0 8px' }}
+              >
+                {mobileSearchOpen ? <CloseIcon style={{ fontSize: '28px' }} /> : <SearchIcon style={{ fontSize: '28px' }} />}
+              </div>
+            )}
+
+            {/* Account & Lists */}
+            {!isCartPage && (
+              <div className="nav-belt-item profile-container" ref={profileRef}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setProfileOpen(!profileOpen);
+                }}
+                style={{ position: 'relative', cursor: 'pointer' }}
+              >
+                <div className="desktop-only" style={{ display: 'flex', flexDirection: 'column' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    {isAuthenticated && user?.avatar && (
+                      <img src={user.avatar} style={{ width: '22px', height: '22px', borderRadius: '50%', objectFit: 'cover', border: '1px solid rgba(255,255,255,0.2)' }} />
+                    )}
+                    <span className="nav-line-1">{t('navbar.hello')}, {isAuthenticated ? user?.name?.split(' ')[0] : t('navbar.signIn')}</span>
+                  </div>
+                  <div className="nav-line-2">
+                    <span>{t('navbar.accountAndLists')}</span>
+                    <div style={{ display: 'flex', padding: '0 5px' }}>
+                      <motion.div animate={{ rotate: profileOpen ? 180 : 0 }} transition={{ duration: 0.2 }} style={{ display: 'flex' }}>
+                        <ExpandMoreIcon style={{ fontSize: '16px', color: '#ccc' }} />
+                      </motion.div>
+                    </div>
+                  </div>
+                </div>
+                <div className="mobile-only" style={{ display: 'flex', alignItems: 'center' }}>
+                  {isAuthenticated && user?.avatar ? (
+                    <img src={user.avatar} style={{ width: '28px', height: '28px', borderRadius: '50%', objectFit: 'cover' }} />
+                  ) : (
+                    <PersonOutlineIcon style={{ fontSize: '28px' }} />
+                  )}
+                </div>
+
+                <AnimatePresence>
+                  {profileOpen && (
+                    <div className="book-container">
+                      <motion.div
+                        className="book-popup profile-menu-popup"
+                        onClick={(e) => e.stopPropagation()}
+                        initial={{ scaleY: 0, opacity: 0, transformOrigin: 'top center' }}
+                        animate={{ scaleY: 1, opacity: 1 }}
+                        exit={{ scaleY: 0, opacity: 0 }}
+                        transition={{ duration: 0.3, ease: "easeOut" }}
+                      >
+                        <div className="profile-menu-section main-account">
+                          <h4 style={{ fontSize: '14px', marginBottom: '8px', color: '#333' }}>{t('navbar.yourAccount')}</h4>
+                          {isAuthenticated ? (
                             <>
-                              <Link to="/seller" onClick={() => setProfileOpen(false)} style={{ display: 'block', padding: '5px 0', color: '#444', textDecoration: 'none', fontSize: '13px' }}>{t('navbar.sellerDashboard')}</Link>
-                              <Link to="/seller/products" onClick={() => setProfileOpen(false)} style={{ display: 'block', padding: '5px 0', color: '#444', textDecoration: 'none', fontSize: '13px' }}>{t('navbar.manageProducts')}</Link>
-                              <Link to="/seller/orders" onClick={() => setProfileOpen(false)} style={{ display: 'block', padding: '5px 0', color: '#444', textDecoration: 'none', fontSize: '13px' }}>{t('navbar.manageOrders')}</Link>
+                              <Link to={isRentPage ? '/rent/profile' : '/profile'} onClick={() => setProfileOpen(false)} style={{ display: 'block', padding: '5px 0', color: '#444', textDecoration: 'none', fontSize: '13px' }}>{t('navbar.yourProfile')}</Link>
+                              <Link to="/orders" onClick={() => setProfileOpen(false)} style={{ display: 'block', padding: '5px 0', color: '#444', textDecoration: 'none', fontSize: '13px' }}>{t('navbar.yourOrders')}</Link>
+                              <Link to="/cart" onClick={() => setProfileOpen(false)} style={{ display: 'block', padding: '5px 0', color: '#444', textDecoration: 'none', fontSize: '13px' }}>{t('navbar.yourWishList')}</Link>
+                              <div style={{ borderTop: '1px solid #eee', margin: '10px 0' }} />
+                              <button onClick={() => { setProfileOpen(false); logout(); }} style={{ width: '100%', textAlign: 'left', padding: '5px 0', background: 'none', border: 'none', cursor: 'pointer', color: '#c40000', fontWeight: 600, fontSize: '13px' }}>{t('navbar.signOut')}</button>
                             </>
                           ) : (
-                            <Link to="/become-seller" onClick={() => setProfileOpen(false)} style={{ display: 'block', padding: '5px 0', color: '#444', textDecoration: 'none', fontSize: '13px' }}>{t('navbar.becomeSeller')}</Link>
-                          )
-                        ) : (
-                          <Link to="/become-seller" onClick={() => setProfileOpen(false)} style={{ display: 'block', padding: '5px 0', color: '#444', textDecoration: 'none', fontSize: '13px' }}>{t('navbar.sellOn')}</Link>
-                        )}
-                      </div>
-                    </motion.div>
-                  </div>
-                )}
-              </AnimatePresence>
-            </div>
+                            <div style={{ padding: '10px 0' }}>
+                              <button
+                                onClick={() => { setProfileOpen(false); navigate('/login'); }}
+                                style={{
+                                  width: '100%', background: 'var(--gradient-primary)', color: 'white',
+                                  padding: '8px', borderRadius: '4px', fontWeight: 600, marginBottom: '10px'
+                                }}
+                              >
+                                {t('navbar.signIn')}
+                              </button>
+                              <p style={{ fontSize: '11px', textAlign: 'center' }}>
+                                {t('navbar.newCustomer')} <Link to="/register" onClick={() => setProfileOpen(false)} style={{ color: '#007185' }}>{t('navbar.startHere')}</Link>
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                        <div className="profile-menu-section seller-account">
+                          <h4 style={{ fontSize: '14px', marginBottom: '8px', color: '#333' }}>{t('navbar.yourSellerAccount')}</h4>
+                          {isAuthenticated ? (
+                            user?.role === 'seller' ? (
+                              <>
+                                <Link to="/seller" onClick={() => setProfileOpen(false)} style={{ display: 'block', padding: '5px 0', color: '#444', textDecoration: 'none', fontSize: '13px' }}>{t('navbar.sellerDashboard')}</Link>
+                                <Link to="/seller/products" onClick={() => setProfileOpen(false)} style={{ display: 'block', padding: '5px 0', color: '#444', textDecoration: 'none', fontSize: '13px' }}>{t('navbar.manageProducts')}</Link>
+                                <Link to="/seller/orders" onClick={() => setProfileOpen(false)} style={{ display: 'block', padding: '5px 0', color: '#444', textDecoration: 'none', fontSize: '13px' }}>{t('navbar.manageOrders')}</Link>
+                              </>
+                            ) : (
+                              <Link to="/become-seller" onClick={() => setProfileOpen(false)} style={{ display: 'block', padding: '5px 0', color: '#444', textDecoration: 'none', fontSize: '13px' }}>{t('navbar.becomeSeller')}</Link>
+                            )
+                          ) : (
+                            <Link to="/become-seller" onClick={() => setProfileOpen(false)} style={{ display: 'block', padding: '5px 0', color: '#444', textDecoration: 'none', fontSize: '13px' }}>{t('navbar.sellOn')}</Link>
+                          )}
+                        </div>
+                      </motion.div>
+                    </div>
+                  )}
+                </AnimatePresence>
+              </div>
+            )}
 
             {/* Cart */}
             <Link to={isRentPage ? '/rent/cart' : '/cart'} className="nav-belt-item cart-container" style={{ position: 'relative', display: 'flex', flexDirection: 'row', alignItems: 'flex-end', gap: '2px', paddingRight: '15px' }}>
@@ -581,35 +824,37 @@ export default function Navbar() {
         </nav>
 
         {/* Sub Navbar - Dynamic disappear animation on scroll */}
-        <div style={{
-          maxHeight: isScrollingDown ? '0px' : '40px',
-          opacity: isScrollingDown ? 0 : 1,
-          transform: isScrollingDown ? 'translateY(-8px)' : 'translateY(0)',
-          overflow: 'hidden',
-          transition: 'max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s ease-out, transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-          pointerEvents: isScrollingDown ? 'none' : 'auto',
-          background: '#3b3b3b'
-        }}>
-          <nav className="desktop-only" style={{ background: '#3b3b3b', color: 'white', display: 'flex', alignItems: 'center', height: '39px', padding: '0 10px', fontSize: '14px', overflowX: 'auto', whiteSpace: 'nowrap', msOverflowStyle: 'none', scrollbarWidth: 'none' }}>
-            <style>{`nav::-webkit-scrollbar { display: none; }`}</style>
-            <div className="nav-sub-item" onClick={() => setSidebarOpen(true)} style={{ display: 'flex', alignItems: 'center', gap: '4px', fontWeight: 700 }}>
-              <MenuIcon style={{ fontSize: '20px' }} /> {t('navbar.all')}
-            </div>
+        {!isCartPage && (
+          <div style={{
+            maxHeight: isScrollingDown ? '0px' : '40px',
+            opacity: isScrollingDown ? 0 : 1,
+            transform: isScrollingDown ? 'translateY(-8px)' : 'translateY(0)',
+            overflow: 'hidden',
+            transition: 'max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s ease-out, transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+            pointerEvents: isScrollingDown ? 'none' : 'auto',
+            background: '#3b3b3b'
+          }}>
+            <nav className="desktop-only" style={{ background: '#3b3b3b', color: 'white', display: 'flex', alignItems: 'center', height: '39px', padding: '0 10px', fontSize: '14px', overflowX: 'auto', whiteSpace: 'nowrap', msOverflowStyle: 'none', scrollbarWidth: 'none' }}>
+              <style>{`nav::-webkit-scrollbar { display: none; }`}</style>
+              <div className="nav-sub-item" onClick={() => setSidebarOpen(true)} style={{ display: 'flex', alignItems: 'center', gap: '4px', fontWeight: 700 }}>
+                <MenuIcon style={{ fontSize: '20px' }} /> {t('navbar.all')}
+              </div>
 
-            <Link to="/orders" className="nav-sub-item">{t('navbar.buyAgain')}</Link>
-            <Link to="/sell" className="nav-sub-item">{t('navbar.sell')}</Link>
-            <Link to="/gift-cards" className="nav-sub-item">{t('navbar.giftCards')}</Link>
-            <Link to="/browsing-history" className="nav-sub-item" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
-              {t('navbar.browsingHistory')}
-            </Link>
-            <Link to="/rent" className="nav-sub-item" style={{ display: 'flex', alignItems: 'center', gap: '4px', fontWeight: 600 }}>
-              {t('navbar.rent')}
-            </Link>
-          </nav>
-        </div>
+              <Link to="/orders" className="nav-sub-item">{t('navbar.buyAgain')}</Link>
+              <Link to="/sell" className="nav-sub-item">{t('navbar.sell')}</Link>
+              <Link to="/gift-cards" className="nav-sub-item">{t('navbar.giftCards')}</Link>
+              <Link to="/browsing-history" className="nav-sub-item" style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+                {t('navbar.browsingHistory')}
+              </Link>
+              <Link to="/rent" className="nav-sub-item" style={{ display: 'flex', alignItems: 'center', gap: '4px', fontWeight: 600 }}>
+                {t('navbar.rent')}
+              </Link>
+            </nav>
+          </div>
+        )}
       </div>
 
-      <div className="spacer-fixed" style={{ height: '99px' }}></div> {/* Spacer for fixed navbars */}
+      <div className="spacer-fixed" style={{ height: isCartPage ? '60px' : '99px' }}></div> {/* Spacer for fixed navbars */}
 
       {/* Sidebar Overlay & Menu */}
       <AnimatePresence>
@@ -818,7 +1063,93 @@ export default function Navbar() {
           </>
         )}
       </AnimatePresence>
-    </>
 
+      {/* Camera Visual Search Bottom Sheet Modal */}
+      <AnimatePresence>
+        {cameraSheetOpen && (
+          <div style={{ position: 'fixed', inset: 0, zIndex: 99999, display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setCameraSheetOpen(false)}
+              style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)' }}
+            />
+
+            <motion.div
+              initial={{ y: '100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 250 }}
+              style={{
+                position: 'relative', width: '100%', maxWidth: '500px',
+                background: 'var(--bg-card, #ffffff)',
+                borderRadius: '24px 24px 0 0',
+                padding: '24px 20px 32px',
+                boxShadow: '0 -10px 40px rgba(0,0,0,0.2)',
+                zIndex: 2
+              }}
+            >
+              <div style={{ width: '40px', height: '4px', background: '#cbd5e1', borderRadius: '2px', margin: '0 auto 16px' }} />
+              <h3 style={{ fontSize: '18px', fontWeight: 800, color: 'var(--text-primary, #111)', margin: '0 0 6px', textAlign: 'center' }}>
+                Visual Search
+              </h3>
+              <p style={{ fontSize: '12px', color: 'var(--text-secondary, #666)', textAlign: 'center', marginBottom: '20px' }}>
+                Upload or capture an outfit photo to find matching items
+              </p>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {/* 1. Choose from Gallery */}
+                <label style={{
+                  display: 'flex', alignItems: 'center', gap: '14px',
+                  padding: '14px 18px', borderRadius: '14px',
+                  background: 'var(--bg-primary, #f8fafc)',
+                  border: '1px solid var(--border, #e2e8f0)',
+                  cursor: 'pointer', transition: 'all 0.2s ease'
+                }}>
+                  <input type="file" accept="image/*" onChange={handleImageSelect} style={{ display: 'none' }} />
+                  <div style={{ width: '42px', height: '42px', borderRadius: '12px', background: 'rgba(30, 77, 183, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#1e4db7' }}>
+                    <PhotoLibraryRoundedIcon sx={{ fontSize: 22 }} />
+                  </div>
+                  <div>
+                    <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-primary, #111)' }}>1. Choose from Gallery</div>
+                    <div style={{ fontSize: '11px', color: 'var(--text-secondary, #666)' }}>Upload an existing photo from your library</div>
+                  </div>
+                </label>
+
+                {/* 2. Click Photo */}
+                <label style={{
+                  display: 'flex', alignItems: 'center', gap: '14px',
+                  padding: '14px 18px', borderRadius: '14px',
+                  background: 'var(--bg-primary, #f8fafc)',
+                  border: '1px solid var(--border, #e2e8f0)',
+                  cursor: 'pointer', transition: 'all 0.2s ease'
+                }}>
+                  <input type="file" accept="image/*" capture="environment" onChange={handleImageSelect} style={{ display: 'none' }} />
+                  <div style={{ width: '42px', height: '42px', borderRadius: '12px', background: 'rgba(22, 163, 74, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#16a34a' }}>
+                    <PhotoCameraRoundedIcon sx={{ fontSize: 22 }} />
+                  </div>
+                  <div>
+                    <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-primary, #111)' }}>2. Click Photo</div>
+                    <div style={{ fontSize: '11px', color: 'var(--text-secondary, #666)' }}>Snap a fresh picture using your camera</div>
+                  </div>
+                </label>
+              </div>
+
+              <button
+                onClick={() => setCameraSheetOpen(false)}
+                style={{
+                  width: '100%', marginTop: '20px', padding: '13px',
+                  borderRadius: '12px', background: '#f1f5f9', color: '#475569',
+                  fontSize: '13px', fontWeight: 700, border: 'none', cursor: 'pointer'
+                }}
+              >
+                Cancel
+              </button>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+    </>
   );
 }

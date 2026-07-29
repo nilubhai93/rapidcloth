@@ -70,7 +70,7 @@ export default function AdminNavbar({ onMenuClick }) {
           </div>
           <div>
             <span style={{ fontWeight: 700, fontSize: '17px', color: '#fff', letterSpacing: '-0.3px' }}>
-              rapidCloth
+              RapidCloth
             </span>
             <span style={{
               marginLeft: '8px',

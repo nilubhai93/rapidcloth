@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef, memo } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo, memo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { productAPI } from '../../api';
@@ -68,49 +68,47 @@ const CarouselCard = memo(({ item }) => {
               </span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '6px' }}>
-              <div style={{ fontSize: '11px', color: '#E47911', display: 'flex', alignItems: 'center', fontWeight: 600, gap: '2px', background: '#FFF6ED', padding: '2px 6px', borderRadius: '4px' }}>
+              <div style={{ fontSize: '11px', color: '#1e4db7', display: 'flex', alignItems: 'center', fontWeight: 600, gap: '2px', background: 'rgba(30, 77, 183, 0.08)', padding: '2px 6px', borderRadius: '4px' }}>
                 <LocalShippingOutlinedIcon sx={{ fontSize: 12 }} /> 10 Min
               </div>
 
               {cartItem ? (
-                <motion.div
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
+                <div
                   onClick={(e) => { e.preventDefault(); e.stopPropagation(); navigate('/cart'); }}
                   style={{
-                    background: '#22c55e',
-                    color: '#fff',
+                    background: 'linear-gradient(135deg, #16a34a 0%, #15803d 100%)',
+                    color: '#ffffff',
                     borderRadius: '6px',
-                    padding: '4px 8px',
+                    padding: '4px 10px',
                     fontSize: '10px',
                     fontWeight: 700,
                     cursor: 'pointer',
-                    boxShadow: '0 1px 3px rgba(34,197,94,0.3)'
+                    boxShadow: '0 2px 6px rgba(22, 163, 74, 0.35)',
+                    transition: 'background 0.2s ease, opacity 0.2s ease'
                   }}>
                   Go to Cart
-                </motion.div>
+                </div>
               ) : (
-                <motion.div
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
+                <div
                   onClick={handleQuickAdd}
                   style={{
-                    background: adding ? '#22c55e' : '#E47911',
-                    color: '#fff',
+                    background: adding ? 'linear-gradient(135deg, #16a34a 0%, #15803d 100%)' : 'linear-gradient(135deg, #1e4db7 0%, #14327a 100%)',
+                    color: '#ffffff',
                     borderRadius: '6px',
-                    width: adding ? 'auto' : '24px',
+                    width: adding ? 'auto' : '26px',
                     padding: adding ? '0 8px' : '0',
-                    height: '24px',
+                    height: '26px',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     fontSize: adding ? '10px' : '18px',
-                    fontWeight: adding ? 700 : 300,
-                    boxShadow: adding ? '0 1px 3px rgba(34,197,94,0.3)' : '0 1px 3px rgba(228,121,17,0.3)',
-                    cursor: 'pointer'
+                    fontWeight: adding ? 700 : 600,
+                    boxShadow: adding ? '0 2px 6px rgba(22, 163, 74, 0.35)' : '0 2px 8px rgba(30, 77, 183, 0.4)',
+                    cursor: 'pointer',
+                    transition: 'background 0.2s ease, opacity 0.2s ease'
                   }}>
                   {adding ? 'Added' : '+'}
-                </motion.div>
+                </div>
               )}
             </div>
           </div>
@@ -207,6 +205,23 @@ const singleDressSlides = [
   }
 ];
 
+const categoryTabs = [
+  { icon: '✨', label: 'For You', link: '/products' },
+  { icon: '👗', label: 'Women', link: '/products?gender=women' },
+  { icon: '👔', label: 'Men', link: '/products?gender=men' },
+  { icon: '👶', label: 'Kids', link: '/products?gender=kids' },
+  { icon: '🥻', label: 'Ethnic', link: '/products?occasion=festival' },
+  { icon: '👘', label: 'Western', link: '/products?category=dress' },
+  { icon: '👟', label: 'Footwear', link: '/products?category=shoes' },
+  { icon: '👜', label: 'Bags', link: '/products?category=bag' },
+  { icon: '💎', label: 'Jewellery', link: '/products?category=jewelry' },
+  { icon: '🏋️', label: 'Sports', link: '/products?occasion=gym' },
+  { icon: '🧥', label: 'Winterwear', link: '/products?category=jacket' },
+  { icon: '⌚', label: 'Accessories', link: '/products?category=accessory' },
+  { icon: '🎉', label: 'Party', link: '/products?occasion=party' },
+  { icon: '💼', label: 'Formal', link: '/products?occasion=office' },
+];
+
 export default function Home() {
   const { user, loading: authLoading } = useAuth();
   const { t } = useLanguage();
@@ -218,19 +233,19 @@ export default function Home() {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Automatic Single Banner Carousel state (Cycles every 3 seconds)
-  const [activeBannerIndex, setActiveBannerIndex] = useState(0);
+  // Automatic Single Banner Carousel state
+  const [displayIndex, setDisplayIndex] = useState(0);
+  const [isResetting, setIsResetting] = useState(false);
+
+  const activeBannerIndex = displayIndex % singleDressSlides.length;
   const activeThemeRgb = singleDressSlides[activeBannerIndex]?.themeRgb || '185, 28, 28';
 
-  useEffect(() => {
-    const bannerTimer = setInterval(() => {
-      if (document.hidden) return;
-      setActiveBannerIndex((prev) => (prev + 1) % singleDressSlides.length);
-    }, 3000);
-    return () => clearInterval(bannerTimer);
-  }, []);
+  const extendedSlides = useMemo(() => [...singleDressSlides, singleDressSlides[0]], []);
 
-  // Ad carousel state
+  const isSwipingRef = useRef(false);
+  const bannerScrollRef = useRef(null);
+
+  // Ad carousel state & video stylist state
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [stylistVideoIndex, setStylistVideoIndex] = useState(0);
@@ -238,6 +253,99 @@ export default function Home() {
   const [currentAiSentence, setCurrentAiSentence] = useState(0);
   const timerRef = useRef(null);
   const categoriesScrollRef = useRef(null);
+
+  useEffect(() => {
+    const videoTimer = setInterval(() => {
+      setStylistVideoIndex((prev) => (prev + 1) % 3);
+    }, 4000);
+    return () => clearInterval(videoTimer);
+  }, []);
+
+  const nextBanner = useCallback(() => {
+    if (isResetting || isSwipingRef.current) return;
+    setDisplayIndex(prev => prev + 1);
+  }, [isResetting]);
+
+  const prevBanner = useCallback(() => {
+    if (isResetting) return;
+    setDisplayIndex(prev => {
+      if (prev === 0) {
+        const track = bannerScrollRef.current;
+        if (track && track.children[singleDressSlides.length]) {
+          track.style.scrollBehavior = 'auto';
+          const card = track.children[singleDressSlides.length];
+          track.scrollLeft = card.offsetLeft;
+        }
+        return singleDressSlides.length - 1;
+      }
+      return prev - 1;
+    });
+  }, [isResetting]);
+
+  useEffect(() => {
+    const bannerTimer = setInterval(() => {
+      if (document.hidden || isSwipingRef.current) return;
+      nextBanner();
+    }, 4000);
+    return () => clearInterval(bannerTimer);
+  }, [nextBanner]);
+
+  const isProgrammaticScrollRef = useRef(false);
+
+  useEffect(() => {
+    const track = bannerScrollRef.current;
+    if (!track || !track.children[displayIndex]) return;
+
+    const card = track.children[displayIndex];
+    const targetScrollLeft = card.offsetLeft;
+
+    isProgrammaticScrollRef.current = true;
+
+    if (displayIndex === singleDressSlides.length) {
+      // Smooth scroll forward to cloned slide
+      track.scrollTo({ left: targetScrollLeft, behavior: 'smooth' });
+      setIsResetting(true);
+
+      const timer = setTimeout(() => {
+        if (track) {
+          track.style.scrollBehavior = 'auto';
+          track.scrollLeft = 0;
+        }
+        setDisplayIndex(0);
+        setIsResetting(false);
+        isProgrammaticScrollRef.current = false;
+      }, 550);
+      return () => clearTimeout(timer);
+    } else {
+      track.scrollTo({ left: targetScrollLeft, behavior: 'smooth' });
+      const timer = setTimeout(() => {
+        isProgrammaticScrollRef.current = false;
+      }, 550);
+      return () => clearTimeout(timer);
+    }
+  }, [displayIndex]);
+
+  const handleTrackScroll = useCallback(() => {
+    if (isProgrammaticScrollRef.current || !isSwipingRef.current) return;
+    const track = bannerScrollRef.current;
+    if (!track || !track.children[0]) return;
+    const cardWidth = track.children[0].offsetWidth + 14;
+    const newIdx = Math.round(track.scrollLeft / cardWidth);
+    if (newIdx >= 0 && newIdx < singleDressSlides.length && newIdx !== activeBannerIndex) {
+      setDisplayIndex(newIdx);
+    }
+  }, [activeBannerIndex]);
+
+  const handleTouchStart = () => {
+    isSwipingRef.current = true;
+  };
+
+  const handleTouchEnd = () => {
+    setTimeout(() => {
+      isSwipingRef.current = false;
+    }, 400);
+  };
+
   const swipeConfidenceThreshold = 10000;
   const swipePower = (offset, velocity) => {
     return Math.abs(offset) * velocity;
@@ -385,189 +493,64 @@ export default function Home() {
       minHeight: '100vh',
       paddingBottom: '40px'
     }}>
-      {/* Root Hero Slider Section with Dynamic Ambient Background Glow */}
-      <section style={{
-        background: `linear-gradient(180deg, rgba(${activeThemeRgb}, 0.28) 0%, rgba(${activeThemeRgb}, 0.08) 55%, rgba(255, 255, 255, 0) 100%)`,
-        transition: 'background 0.8s cubic-bezier(0.4, 0, 0.2, 1)',
-        padding: '16px 24px 10px',
-        overflowX: 'hidden'
-      }}>
 
-        <div style={{ width: '100%', marginBottom: '12px' }}>
-          {/* Single Full-Width Banner Container Applied Directly to Root Page */}
-          <div style={{ position: 'relative', width: '100%', borderRadius: '24px', overflow: 'hidden' }}>
-            <AnimatePresence mode="popLayout">
-              <motion.div
-                key={activeBannerIndex}
-                initial={{ x: '100%', opacity: 0.2 }}
-                animate={{ x: '0%', opacity: 1 }}
-                exit={{ x: '-100%', opacity: 0.2 }}
-                transition={{ duration: 0.45, ease: [0.25, 1, 0.5, 1] }}
-                onClick={() => navigate(singleDressSlides[activeBannerIndex].link)}
-                className="hero-single-banner"
-                style={{
-                  position: 'relative',
-                  borderRadius: '24px',
-                  overflow: 'hidden',
-                  background: singleDressSlides[activeBannerIndex].bgGradient,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justify: 'space-between',
-                  boxShadow: '0 8px 30px rgba(0,0,0,0.18)',
-                  border: '1px solid rgba(255,255,255,0.25)',
-                  cursor: 'pointer',
-                  userSelect: 'none'
-                }}
+      {/* ═══ Multi-Banner Slider ═══ */}
+      <section className="fk-hero-section" style={{
+        background: `linear-gradient(180deg, rgba(${activeThemeRgb}, 0.15) 0%, #f1f3f6 60%, var(--bg-primary) 100%)`,
+        transition: 'background 0.8s cubic-bezier(0.4, 0, 0.2, 1)',
+      }}>
+        <div className="fk-hero-container">
+          <div
+            className="fk-track"
+            ref={bannerScrollRef}
+            onScroll={handleTrackScroll}
+            onTouchStart={handleTouchStart}
+            onTouchEnd={handleTouchEnd}
+          >
+            {extendedSlides.map((slide, idx) => (
+              <div
+                key={`${slide.id}-${idx}`}
+                className="fk-card"
+                onClick={() => navigate(slide.link)}
+                style={{ background: slide.bgGradient }}
               >
-                {/* Background Pattern */}
                 <div style={{
                   position: 'absolute', inset: 0,
-                  backgroundImage: 'repeating-linear-gradient(-45deg, rgba(255,255,255,0.05), rgba(255,255,255,0.05) 20px, transparent 20px, transparent 40px)',
-                  pointerEvents: 'none'
+                  backgroundImage: 'repeating-linear-gradient(-45deg, rgba(255,255,255,0.04), rgba(255,255,255,0.04) 20px, transparent 20px, transparent 40px)',
+                  pointerEvents: 'none', zIndex: 1
                 }} />
-
-                {/* LEFT COLUMN: Content & CTA (60% Width) */}
-                <div style={{
-                  flex: '1 1 60%',
-                  minWidth: 0,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justify: 'center',
-                  zIndex: 3,
-                  paddingRight: '12px'
-                }}>
-                  {/* Brand & Partner Tags */}
-                  <div className="banner-badges-box" style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap', marginBottom: '8px' }}>
-                    <span style={{
-                      background: '#ffffff',
-                      color: '#0f172a',
-                      fontSize: '11px',
-                      fontWeight: 900,
-                      letterSpacing: '0.8px',
-                      padding: '4px 10px',
-                      borderRadius: '6px',
-                      boxShadow: '0 2px 6px rgba(0,0,0,0.15)'
-                    }}>
-                      {singleDressSlides[activeBannerIndex].brandTag}
-                    </span>
-                    <span style={{
-                      background: '#14327a',
-                      color: '#ffd000',
-                      fontSize: '11px',
-                      fontWeight: 800,
-                      padding: '4px 10px',
-                      borderRadius: '6px',
-                      boxShadow: '0 2px 6px rgba(0,0,0,0.15)'
-                    }}>
-                      {singleDressSlides[activeBannerIndex].partnerTag}
-                    </span>
+                <div className="fk-card-content">
+                  <div className="fk-card-tags">
+                    <span className="fk-tag-brand">{slide.brandTag}</span>
+                    <span className="fk-tag-partner">{slide.partnerTag}</span>
                   </div>
-
-                  {/* Title */}
-                  <h2 className="banner-title-text" style={{
-                    color: '#ffffff',
-                    fontWeight: 900,
-                    letterSpacing: '-0.5px',
-                    textShadow: '0 2px 8px rgba(0,0,0,0.3)'
-                  }}>
-                    {singleDressSlides[activeBannerIndex].title}
-                  </h2>
-
-                  {/* Subtitle */}
-                  <div className="banner-subtitle-text" style={{
-                    color: '#fef08a',
-                    fontWeight: 800,
-                    textShadow: '0 1px 4px rgba(0,0,0,0.2)'
-                  }}>
-                    {singleDressSlides[activeBannerIndex].subtitle}
-                  </div>
-
-                  {/* Description */}
-                  <p className="banner-desc-text" style={{
-                    color: 'rgba(255, 255, 255, 0.9)',
-                    fontWeight: 500,
-                    maxWidth: '520px',
-                    lineHeight: 1.4
-                  }}>
-                    {singleDressSlides[activeBannerIndex].desc}
-                  </p>
-
-                  {/* CTA Button */}
-                  <div>
-                    <button className="banner-cta-button" style={{
-                      background: '#ffffff',
-                      color: '#0f172a',
-                      border: 'none',
-                      borderRadius: '30px',
-                      fontWeight: 800,
-                      cursor: 'pointer',
-                      boxShadow: '0 4px 14px rgba(0,0,0,0.2)',
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: '6px'
-                    }}>
-                      {singleDressSlides[activeBannerIndex].ctaText}
-                    </button>
-                  </div>
+                  <h2 className="fk-card-title">{slide.title}</h2>
+                  <p className="fk-card-subtitle">{slide.subtitle}</p>
+                  <p className="fk-card-desc">{slide.desc}</p>
+                  <button className="fk-card-cta" onClick={(e) => { e.stopPropagation(); navigate(slide.link); }}>
+                    {slide.ctaText}
+                  </button>
                 </div>
-
-                {/* RIGHT COLUMN: Masked Image Box (40% Width) */}
-                <div className="banner-img-box" style={{
-                  flex: '0 0 40%',
-                  position: 'relative',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justify: 'center',
-                  overflow: 'hidden',
-                  borderRadius: '16px'
-                }}>
-                  <img
-                    src={singleDressSlides[activeBannerIndex].image}
-                    alt={singleDressSlides[activeBannerIndex].title}
-                    style={{
-                      width: '100%',
-                      height: '100%',
-                      objectFit: 'cover',
-                      borderRadius: '16px',
-                      maskImage: 'linear-gradient(to right, transparent 0%, black 20%)',
-                      WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 20%)'
-                    }}
-                  />
+                <div className="fk-card-img">
+                  <img src={slide.image} alt={slide.title} loading="lazy" />
                 </div>
-              </motion.div>
-            </AnimatePresence>
+                <span className="fk-card-ad">AD</span>
+              </div>
+            ))}
           </div>
+        </div>
 
-          {/* Horizontal Indicator Pills Bar (Exactly like Picture 2!) */}
-          <div style={{
-            display: 'flex',
-            justify: 'center',
-            alignItems: 'center',
-            gap: '6px',
-            marginTop: '14px'
-          }}>
-            {singleDressSlides.map((_, dotIdx) => {
-              const isActive = dotIdx === activeBannerIndex;
-              return (
-                <div
-                  key={dotIdx}
-                  onClick={() => setActiveBannerIndex(dotIdx)}
-                  style={{
-                    width: isActive ? '32px' : '8px',
-                    height: '8px',
-                    borderRadius: isActive ? '6px' : '50%',
-                    background: isActive ? '#0f172a' : '#cbd5e1',
-                    transition: 'all 0.35s cubic-bezier(0.4, 0, 0.2, 1)',
-                    cursor: 'pointer',
-                    boxShadow: isActive ? '0 2px 6px rgba(15, 23, 42, 0.3)' : 'none'
-                  }}
-                />
-              );
-            })}
-          </div>
-
+        <div className="fk-dots">
+          {singleDressSlides.map((_, idx) => (
+            <div
+              key={idx}
+              className={`fk-dot${idx === activeBannerIndex ? ' fk-dot-active' : ''}`}
+              onClick={() => setDisplayIndex(idx)}
+            />
+          ))}
         </div>
       </section>
+
 
       {/* Promo Cards Section */}
       <section style={{ padding: '40px 0 0', backgroundColor: 'var(--bg-primary)', overflowX: 'hidden' }}>
@@ -1520,6 +1503,304 @@ export default function Home() {
           30% { transform: translateY(-50%) scale(0.85); }
           60% { transform: translateY(-50%) scale(1.12); }
           100% { transform: translateY(-50%) scale(1); }
+        }
+
+        /* ══════ FLIPKART STYLE CATEGORY BAR & MULTI-BANNER SLIDER ══════ */
+        .fk-cat-section {
+          background: #ffffff;
+          border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+          position: relative;
+          z-index: 20;
+        }
+        .fk-cat-scroll {
+          display: flex;
+          align-items: center;
+          justify-content: flex-start;
+          gap: clamp(8px, 1.8vw, 24px);
+          overflow-x: auto;
+          scrollbar-width: none;
+          -ms-overflow-style: none;
+          padding: 12px 24px;
+          max-width: 1440px;
+          margin: 0 auto;
+        }
+        .fk-cat-scroll::-webkit-scrollbar { display: none; }
+        .fk-cat-tab {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          text-decoration: none;
+          color: #333333;
+          padding: 4px 8px;
+          border-radius: 8px;
+          transition: all 0.2s ease;
+          flex-shrink: 0;
+          cursor: pointer;
+        }
+        .fk-cat-tab:hover {
+          color: #1e4db7;
+          transform: translateY(-2px);
+        }
+        .fk-cat-tab-active {
+          color: #1e4db7;
+          font-weight: 700;
+          position: relative;
+        }
+        .fk-cat-tab-active::after {
+          content: '';
+          position: absolute;
+          bottom: -12px;
+          left: 10%;
+          width: 80%;
+          height: 3px;
+          background: #1e4db7;
+          border-radius: 3px 3px 0 0;
+        }
+        .fk-cat-icon {
+          font-size: clamp(20px, 2vw, 26px);
+          margin-bottom: 4px;
+          line-height: 1;
+        }
+        .fk-cat-label {
+          font-size: clamp(11px, 1.1vw, 13px);
+          white-space: nowrap;
+          font-weight: 600;
+        }
+
+        /* ── Multi Banner Slider ── */
+        .fk-hero-section {
+          position: relative;
+          padding: 20px 0 24px;
+          overflow: hidden;
+        }
+        .fk-hero-container {
+          position: relative;
+          max-width: 1440px;
+          margin: 0 auto;
+          padding: 0 16px;
+          display: flex;
+          align-items: center;
+        }
+        .fk-track {
+          display: flex;
+          gap: 16px;
+          overflow-x: hidden;
+          scrollbar-width: none;
+          -ms-overflow-style: none;
+          padding: 8px 4px 18px;
+          width: 100%;
+        }
+        .fk-track::-webkit-scrollbar { display: none; }
+        .fk-card {
+          flex: 0 0 clamp(320px, 42vw, 560px);
+          height: clamp(175px, 20vw, 225px);
+          border-radius: 16px;
+          overflow: hidden;
+          position: relative;
+          scroll-snap-align: start;
+          cursor: pointer;
+          box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+          border: 1px solid rgba(255,255,255,0.18);
+          display: flex;
+          justify-content: space-between;
+          transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.3s ease;
+        }
+        .fk-card:hover {
+          transform: translateY(-4px);
+          box-shadow: 0 12px 30px rgba(0,0,0,0.2);
+        }
+        .fk-card-content {
+          flex: 1;
+          padding: clamp(14px, 1.8vw, 22px);
+          color: #ffffff;
+          z-index: 2;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: flex-start;
+        }
+        .fk-card-tags {
+          display: flex;
+          gap: 8px;
+          margin-bottom: 6px;
+          flex-wrap: wrap;
+        }
+        .fk-tag-brand {
+          background: rgba(255,255,255,0.22);
+          padding: 3px 9px;
+          border-radius: 4px;
+          font-size: clamp(9px, 0.9vw, 11px);
+          font-weight: 700;
+          letter-spacing: 0.5px;
+          backdrop-filter: blur(6px);
+          text-transform: uppercase;
+        }
+        .fk-tag-partner {
+          background: #ffd700;
+          color: #000000;
+          padding: 3px 9px;
+          border-radius: 4px;
+          font-size: clamp(9px, 0.9vw, 11px);
+          font-weight: 800;
+          text-transform: uppercase;
+          box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+        }
+        .fk-card-title {
+          font-size: clamp(16px, 2vw, 24px);
+          font-weight: 800;
+          line-height: 1.15;
+          margin: 4px 0;
+          text-shadow: 0 2px 4px rgba(0,0,0,0.25);
+          font-family: var(--font-sans);
+          letter-spacing: -0.2px;
+        }
+        .fk-card-subtitle {
+          font-size: clamp(11px, 1.2vw, 14px);
+          font-weight: 600;
+          margin-bottom: 4px;
+          opacity: 0.95;
+        }
+        .fk-card-desc {
+          font-size: clamp(9px, 0.95vw, 12px);
+          opacity: 0.85;
+          margin-bottom: 10px;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+          line-height: 1.35;
+        }
+        .fk-card-cta {
+          background: #ffffff;
+          color: #111827;
+          border: none;
+          padding: clamp(6px, 0.9vw, 9px) clamp(12px, 1.5vw, 18px);
+          border-radius: 8px;
+          font-weight: 700;
+          font-size: clamp(10px, 0.9vw, 12px);
+          cursor: pointer;
+          box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+          transition: all 0.2s ease;
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+        }
+        .fk-card-cta:hover {
+          transform: scale(1.05);
+          background: #ffffff;
+          box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+        }
+        .fk-card-img {
+          width: 40%;
+          position: relative;
+          height: 100%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 8px;
+          flex-shrink: 0;
+          z-index: 2;
+        }
+        .fk-card-img img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          border-radius: 10px;
+          box-shadow: 0 4px 14px rgba(0,0,0,0.2);
+        }
+        .fk-card-ad {
+          position: absolute;
+          bottom: 10px;
+          right: 10px;
+          background: rgba(0,0,0,0.5);
+          color: #ffffff;
+          padding: 2px 6px;
+          border-radius: 4px;
+          font-size: 8px;
+          font-weight: 700;
+          letter-spacing: 0.5px;
+          zIndex: 3;
+        }
+
+        .fk-dots {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          gap: 7px;
+          margin-top: 10px;
+        }
+        .fk-dot {
+          width: 7px;
+          height: 7px;
+          border-radius: 4px;
+          background: #cbd5e1;
+          cursor: pointer;
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .fk-dot-active {
+          width: 24px;
+          background: #1e4db7;
+          box-shadow: 0 2px 6px rgba(30, 77, 183, 0.3);
+        }
+
+        /* Responsive behavior for mobile */
+        @media (max-width: 768px) {
+          .fk-hero-section {
+            padding: 10px 0 14px;
+          }
+          .fk-hero-container {
+            padding: 0 12px;
+          }
+          .fk-track {
+            gap: 12px;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            touch-action: pan-x;
+            -webkit-overflow-scrolling: touch;
+            padding: 4px 0 12px;
+          }
+          .fk-card {
+            flex: 0 0 85vw;
+            height: clamp(170px, 48vw, 210px);
+            border-radius: 12px;
+          }
+          .fk-card-content {
+            padding: 10px 12px;
+            justify-content: flex-start;
+          }
+          .fk-card-tags {
+            gap: 4px;
+            margin-bottom: 3px;
+          }
+          .fk-tag-brand, .fk-tag-partner {
+            padding: 2px 6px;
+            font-size: 8px;
+          }
+          .fk-card-title {
+            font-size: clamp(13px, 3.8vw, 17px);
+            margin: 2px 0 4px;
+          }
+          .fk-card-subtitle {
+            font-size: 10px;
+            margin-bottom: 2px;
+          }
+          .fk-card-desc {
+            display: none;
+          }
+          .fk-card-cta {
+            padding: 4px 10px;
+            font-size: 10px;
+            margin-top: 6px;
+          }
+          .fk-card-img {
+            width: 36%;
+            padding: 6px;
+          }
+          .fk-dots {
+            margin-top: 6px;
+          }
         }
 
         /* ══════ PROMO HERO BANNER ══════ */

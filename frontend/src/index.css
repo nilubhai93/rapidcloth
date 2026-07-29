@@ -772,6 +772,7 @@ html {
 }
 
 @media (max-width: 587px) {
+
   .home-container,
   .container {
     padding-left: 6px !important;
