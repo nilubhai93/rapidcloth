@@ -20,14 +20,14 @@ import PhotoLibraryRoundedIcon from '@mui/icons-material/PhotoLibraryRounded';
 import MicRoundedIcon from '@mui/icons-material/MicRounded';
 
 const SEARCH_PLACEHOLDERS = [
-  "Search Banarasi Silk Sarees...",
-  "Search Designer Sherwanis...",
-  "Search Anarkali Suit Sets...",
-  "Search Tuxedos & Blazers...",
-  "Search Indo-Western Dresses...",
-  "Search Wedding Lehengas...",
-  "Search Evening Cocktail Gowns...",
-  "Search Designer Kurtis & Kurtas..."
+  " Banarasi Silk Sarees...",
+  " Designer Sherwanis...",
+  " Anarkali Suit Sets...",
+  " Tuxedos & Blazers...",
+  " Indo-Western Dresses...",
+  " Wedding Lehengas...",
+  " Evening Cocktail Gowns...",
+  " Designer Kurtis & Kurtas..."
 ];
 
 export default function Navbar() {
@@ -161,131 +161,169 @@ export default function Navbar() {
     return null;
   }
 
-  // Flipkart style category list with custom icons
-  const flipkartCategories = [
+  // Desktop 13 category list with bespoke SVG icons
+  const desktopCategories = [
     {
-      id: 'for-you',
-      title: 'For You',
+      id: 'all',
+      title: 'All',
       link: '/products',
-      isActive: location.pathname === '/' || location.pathname === '/shop',
+      isActive: location.pathname === '/products' && !location.search,
       icon: (
         <svg className="w-5 h-5 md:w-6 md:h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect x="4" y="6" width="16" height="15" rx="3" fill="#ffe500" stroke="#1d4ed8" strokeWidth="2" />
-          <path d="M9 6V5a3 3 0 016 0v1" stroke="#1d4ed8" strokeWidth="2" strokeLinecap="round" />
-          <circle cx="12" cy="13" r="2.5" fill="#1d4ed8" />
+          <rect x="3" y="3" width="8" height="8" rx="2.5" fill="#ffe500" stroke="#1d4ed8" strokeWidth="2" />
+          <rect x="13" y="3" width="8" height="8" rx="2.5" fill="#1d4ed8" stroke="#1d4ed8" strokeWidth="2" />
+          <rect x="3" y="13" width="8" height="8" rx="2.5" fill="#1d4ed8" stroke="#1d4ed8" strokeWidth="2" />
+          <rect x="13" y="13" width="8" height="8" rx="2.5" fill="#ffe500" stroke="#1d4ed8" strokeWidth="2" />
         </svg>
       )
     },
     {
-      id: 'fashion',
-      title: 'Fashion',
-      link: '/products?category=fashion',
-      isActive: location.search.includes('category=fashion'),
+      id: 'm-tshirt',
+      title: 'M-Tshirt',
+      link: '/products?category=tshirt&gender=men',
+      isActive: location.search.includes('tshirt') && location.search.includes('men'),
       icon: (
-        <svg className="w-5 h-5 md:w-6 md:h-6" viewBox="0 0 24 24" fill="none">
-          <path d="M7 4L4 8V20C4 20.5523 4.44772 21 5 21H19C19.5523 21 20 20.5523 20 20V8L17 4H7Z" stroke="#1e293b" strokeWidth="2" strokeLinejoin="round" />
-          <path d="M16 10C16 12.2091 14.2091 14 12 14C9.79086 14 8 12.2091 8 10" stroke="#ffe500" strokeWidth="2.5" strokeLinecap="round" />
-          <path d="M4 8H20" stroke="#1e293b" strokeWidth="2" />
+        <svg className="w-5 h-5 md:w-6 md:h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M4 6L8 3H16L20 6V9L17 8V21H7V8L4 9V6Z" fill="#3b82f6" fillOpacity="0.2" stroke="#1e293b" strokeWidth="2" strokeLinejoin="round" />
+          <path d="M9 3C9 4.65685 10.3431 6 12 6C13.6569 6 15 4.65685 15 3" stroke="#2874f0" strokeWidth="2" strokeLinecap="round" />
         </svg>
       )
     },
     {
-      id: 'mobiles',
-      title: 'Mobiles',
-      link: '/products?gender=women',
-      isActive: location.search.includes('gender=women'),
+      id: 'm-shirts',
+      title: 'M-Shirts',
+      link: '/products?category=shirt&gender=men',
+      isActive: location.search.includes('category=shirt') && location.search.includes('men'),
       icon: (
-        <svg className="w-5 h-5 md:w-6 md:h-6" viewBox="0 0 24 24" fill="none">
-          <rect x="6" y="2" width="12" height="20" rx="3" stroke="#1e293b" strokeWidth="2" />
-          <rect x="8" y="4" width="8" height="13" fill="#ffe500" />
-          <circle cx="12" cy="19" r="1" fill="#1d4ed8" />
+        <svg className="w-5 h-5 md:w-6 md:h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M6 4L9 2H15L18 4V9L15.5 8V21H8.5V8L6 9V4Z" fill="#0284c7" fillOpacity="0.2" stroke="#0f172a" strokeWidth="2" strokeLinejoin="round" />
+          <path d="M9 2L12 6L15 2" stroke="#2874f0" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          <circle cx="12" cy="10" r="0.8" fill="#1d4ed8" />
+          <circle cx="12" cy="14" r="0.8" fill="#1d4ed8" />
+          <circle cx="12" cy="18" r="0.8" fill="#1d4ed8" />
         </svg>
       )
     },
     {
-      id: 'electronics',
-      title: 'Electronics',
-      link: '/products?gender=men',
-      isActive: location.search.includes('gender=men'),
+      id: 'm-jeans',
+      title: 'M-Jeans',
+      link: '/products?category=jeans&gender=men',
+      isActive: location.search.includes('jeans') && location.search.includes('men'),
       icon: (
-        <svg className="w-5 h-5 md:w-6 md:h-6" viewBox="0 0 24 24" fill="none">
-          <rect x="3" y="4" width="18" height="12" rx="2" stroke="#1e293b" strokeWidth="2" fill="#ffe500" />
-          <path d="M2 20H22V18C22 16.8954 21.1046 16 20 16H4C2.89543 16 2 16.8954 2 18V20Z" stroke="#1e293b" strokeWidth="2" fill="#1e293b" />
+        <svg className="w-5 h-5 md:w-6 md:h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M5 4C5 3.44772 5.44772 3 6 3H18C18.5523 3 19 3.44772 19 4V7L16.5 21H12.5L12 11L11.5 21H7.5L5 7V4Z" fill="#2563eb" fillOpacity="0.2" stroke="#1e293b" strokeWidth="2" strokeLinejoin="round" />
+          <path d="M5 7H19" stroke="#1e293b" strokeWidth="1.8" />
+          <path d="M8 7V9M16 7V9" stroke="#ffe500" strokeWidth="2" strokeLinecap="round" />
         </svg>
       )
     },
     {
-      id: 'beauty',
-      title: 'Beauty',
-      link: '/products?category=beauty',
-      isActive: location.search.includes('category=beauty'),
+      id: 'w-shirts',
+      title: 'W-Shirts',
+      link: '/products?category=shirt&gender=women',
+      isActive: location.search.includes('category=shirt') && location.search.includes('women'),
       icon: (
-        <svg className="w-5 h-5 md:w-6 md:h-6" viewBox="0 0 24 24" fill="none">
-          <path d="M9 11L12 3L15 11" stroke="#1e293b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-          <rect x="8" y="11" width="8" height="10" rx="2" fill="#ffe500" stroke="#1e293b" strokeWidth="2" />
+        <svg className="w-5 h-5 md:w-6 md:h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M5 5L8 3H16L19 5V8.5L16.5 7.5V20C16.5 20.5523 16.0523 21 15.5 21H8.5C7.94772 21 7.5 20.5523 7.5 20V7.5L5 8.5V5Z" fill="#ec4899" fillOpacity="0.2" stroke="#0f172a" strokeWidth="2" strokeLinejoin="round" />
+          <path d="M9 3C9 5 10.5 7 12 7C13.5 7 15 5 15 3" stroke="#ec4899" strokeWidth="2" strokeLinecap="round" />
         </svg>
       )
     },
     {
-      id: 'home',
-      title: 'Home',
-      link: '/products?category=home',
-      isActive: location.search.includes('category=home'),
+      id: 'baba-suits',
+      title: 'Baba suits',
+      link: '/products?category=baba-suit',
+      isActive: location.search.includes('baba-suit'),
       icon: (
-        <svg className="w-5 h-5 md:w-6 md:h-6" viewBox="0 0 24 24" fill="none">
-          <path d="M3 10L12 3L21 10V20C21 20.5523 20.5523 21 20 21H4C3.44772 21 3 20.5523 3 20V10Z" stroke="#1e293b" strokeWidth="2" />
-          <path d="M9 21V14H15V21" fill="#ffe500" stroke="#1e293b" strokeWidth="2" />
+        <svg className="w-5 h-5 md:w-6 md:h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M6 3H18V9L16 8V14H8V8L6 9V3Z" fill="#f59e0b" fillOpacity="0.2" stroke="#1e293b" strokeWidth="2" strokeLinejoin="round" />
+          <rect x="7" y="14" width="10" height="7" rx="1.5" fill="#ffe500" stroke="#1e293b" strokeWidth="2" />
+          <path d="M10 5L12 7L14 5" stroke="#ea580c" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       )
     },
     {
-      id: 'appliances',
-      title: 'Appliances',
-      link: '/products?occasion=Wedding Guest',
-      isActive: location.search.includes('Wedding'),
+      id: 'frocks',
+      title: 'Frocks',
+      link: '/products?category=frock',
+      isActive: location.search.includes('frock'),
       icon: (
-        <svg className="w-5 h-5 md:w-6 md:h-6" viewBox="0 0 24 24" fill="none">
-          <rect x="3" y="5" width="18" height="12" rx="2" stroke="#1e293b" strokeWidth="2" fill="#ffe500" />
-          <path d="M8 21L10 17H14L16 21" stroke="#1e293b" strokeWidth="2" strokeLinecap="round" />
+        <svg className="w-5 h-5 md:w-6 md:h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M9 3H15L17 8L21 20C21.3 21 20 21.5 19 21.5H5C4 21.5 2.7 21 3 20L7 8L9 3Z" fill="#a855f7" fillOpacity="0.2" stroke="#0f172a" strokeWidth="2" strokeLinejoin="round" />
+          <path d="M7 8H17" stroke="#a855f7" strokeWidth="2" />
         </svg>
       )
     },
     {
-      id: 'toys',
-      title: 'Toys, Baby & Sports',
-      link: '/products?gender=kids',
-      isActive: location.search.includes('kids'),
+      id: 'w-jeans',
+      title: 'W-Jeans',
+      link: '/products?category=jeans&gender=women',
+      isActive: location.search.includes('jeans') && location.search.includes('women'),
       icon: (
-        <svg className="w-5 h-5 md:w-6 md:h-6" viewBox="0 0 24 24" fill="none">
-          <circle cx="12" cy="7" r="4" stroke="#1e293b" strokeWidth="2" fill="#ffe500" />
-          <circle cx="7" cy="5" r="2" fill="#1e293b" />
-          <circle cx="17" cy="5" r="2" fill="#1e293b" />
-          <path d="M6 14C6 12 8 11 12 11C16 11 18 12 18 14V20H6V14Z" stroke="#1e293b" strokeWidth="2" />
+        <svg className="w-5 h-5 md:w-6 md:h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M6 3H18V6L16.5 21H12.5L12 12L11.5 21H7.5L6 6V3Z" fill="#6366f1" fillOpacity="0.2" stroke="#1e293b" strokeWidth="2" strokeLinejoin="round" />
+          <path d="M6 6H18" stroke="#1e293b" strokeWidth="1.8" />
+          <path d="M9 6C9 8 10 9 12 9C14 9 15 8 15 6" stroke="#6366f1" strokeWidth="1.8" />
         </svg>
       )
     },
     {
-      id: 'food',
-      title: 'Food & Health',
-      link: '/products?category=health',
-      isActive: location.search.includes('health'),
+      id: 'kurta-pyjama',
+      title: 'Kurta-Pyjama',
+      link: '/products?category=kurta',
+      isActive: location.search.includes('kurta'),
       icon: (
-        <svg className="w-5 h-5 md:w-6 md:h-6" viewBox="0 0 24 24" fill="none">
-          <rect x="7" y="7" width="10" height="14" rx="2" stroke="#1e293b" strokeWidth="2" fill="#ffe500" />
-          <rect x="9" y="3" width="6" height="4" rx="1" fill="#1d4ed8" />
-          <path d="M12 11V17M9 14H15" stroke="#1d4ed8" strokeWidth="2" strokeLinecap="round" />
+        <svg className="w-5 h-5 md:w-6 md:h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M7 3L10 2H14L17 3V7L15 6.5V17L17 18V21H7V18L9 17V6.5L7 7V3Z" fill="#14327a" fillOpacity="0.2" stroke="#14327a" strokeWidth="2" strokeLinejoin="round" />
+          <path d="M12 2V10" stroke="#ffe500" strokeWidth="2" strokeLinecap="round" />
         </svg>
       )
     },
     {
-      id: 'rent',
-      title: 'Books & Rent Store',
-      link: '/rent',
-      isActive: isRentPage,
+      id: 'lehenga-choli',
+      title: 'Lehenga Choli',
+      link: '/products?category=lehenga-choli',
+      isActive: location.search.includes('lehenga-choli'),
       icon: (
-        <svg className="w-5 h-5 md:w-6 md:h-6" viewBox="0 0 24 24" fill="none">
-          <path d="M4 19.5A2.5 2.5 0 016.5 17H20V4H6.5A2.5 2.5 0 004 6.5V19.5Z" fill="#ffe500" stroke="#1e293b" strokeWidth="2" />
-          <path d="M6.5 17A2.5 2.5 0 004 19.5M6.5 17H20" stroke="#1d4ed8" strokeWidth="2" />
+        <svg className="w-5 h-5 md:w-6 md:h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M8 3H16L18 8H6L8 3Z" fill="#e11d48" fillOpacity="0.25" stroke="#9f1239" strokeWidth="2" strokeLinejoin="round" />
+          <path d="M9 11H15L19 21H5L9 11Z" fill="#e11d48" fillOpacity="0.2" stroke="#9f1239" strokeWidth="2" strokeLinejoin="round" />
+        </svg>
+      )
+    },
+    {
+      id: 'saree',
+      title: 'Saree',
+      link: '/products?category=saree',
+      isActive: location.search.includes('saree'),
+      icon: (
+        <svg className="w-5 h-5 md:w-6 md:h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M5 4C5 4 8 3 12 5C16 7 19 4 19 4V20C19 20 16 21 12 19C8 17 5 20 5 20V4Z" fill="#d97706" fillOpacity="0.2" stroke="#78350f" strokeWidth="2" strokeLinejoin="round" />
+          <path d="M5 4L19 14" stroke="#d97706" strokeWidth="2" strokeLinecap="round" />
+        </svg>
+      )
+    },
+    {
+      id: 'top',
+      title: 'Top',
+      link: '/products?category=top',
+      isActive: location.search.includes('category=top'),
+      icon: (
+        <svg className="w-5 h-5 md:w-6 md:h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M6 4L9 2H15L18 4V8L15 7V16C15 16.5523 14.5523 17 14 17H10C9.44772 17 9 16.5523 9 16V7L6 8V4Z" fill="#06b6d4" fillOpacity="0.25" stroke="#0e7490" strokeWidth="2" strokeLinejoin="round" />
+          <path d="M9 2C9 4 10.5 5.5 12 5.5C13.5 5.5 15 2 15 2" stroke="#06b6d4" strokeWidth="2" strokeLinecap="round" />
+        </svg>
+      )
+    },
+    {
+      id: 'lehengas',
+      title: 'Lehengas',
+      link: '/products?category=lehenga',
+      isActive: location.search.includes('category=lehenga') && !location.search.includes('lehenga-choli'),
+      icon: (
+        <svg className="w-5 h-5 md:w-6 md:h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M8 4H16L20 20C20.3 21 19 21.5 18 21.5H6C5 21.5 3.7 21 4 20L8 4Z" fill="#c026d3" fillOpacity="0.2" stroke="#701a75" strokeWidth="2" strokeLinejoin="round" />
+          <path d="M8 4H16" stroke="#ffe500" strokeWidth="2.5" />
         </svg>
       )
     }
@@ -293,150 +331,301 @@ export default function Navbar() {
 
   return (
     <>
-      <header
-        className="navbar-fixed-container fixed top-0 left-0 right-0 z-[100] bg-white border-b border-gray-200/90 shadow-xs transition-all duration-300 font-sans pt-2 md:pt-3 pb-1 md:pb-1.5"
-      >
-        {/* MOBILE VIEW ONLY: FIRST ROW (ADDRESS BAR ONLY) */}
+      <header className="navbar-fixed-container fixed top-0 left-0 right-0 z-[100] bg-white border-b border-gray-200/90 shadow-xs transition-all duration-300 font-sans">
+        
+        {/* MOBILE VIEW ONLY: 4 STACKED ROWS FOR ALL MOBILE DIMENSION DEVICES (md:hidden) */}
         {!isCartPage && (
-          <div className="md:hidden bg-[#f0f5ff] border-b border-blue-100 px-4 sm:px-6 py-2 flex items-center justify-between mb-1 max-w-[1440px] mx-auto">
+          <div className="md:hidden bg-white px-3.5 py-2.5 flex flex-col gap-2.5 border-b border-slate-200/80 shadow-xs">
+            
+            {/* ROW 1: BRAND LOGO ON LEFT & AI STYLIST HEADING/BUTTON ON RIGHT */}
+            <div className="flex items-center justify-between w-full">
+              <Link to="/shop" className="flex items-center gap-2 text-[#14327a] font-black tracking-tight text-decoration-none shrink-0">
+                <div className="w-8 h-8 rounded-2xl bg-gradient-to-tr from-[#14327a] via-[#2874f0] to-[#ffe500] text-white flex items-center justify-center font-black shadow-xs text-sm">
+                  R
+                </div>
+                <div className="flex flex-col leading-none text-left">
+                  <span className="font-black text-base tracking-tight bg-gradient-to-r from-[#14327a] via-[#2874f0] to-[#14327a] bg-clip-text text-transparent">
+                    RapidCloth
+                  </span>
+                  <span className="text-[8px] font-extrabold text-slate-400 tracking-wider uppercase mt-0.5">
+                    Fashion &amp; Apparel Hub
+                  </span>
+                </div>
+              </Link>
+
+              {/* AI Stylist Button / Heading */}
+              <button
+                type="button"
+                onClick={() => window.dispatchEvent(new CustomEvent('open-ai-stylist'))}
+                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-black text-white cursor-pointer border-none shadow-md hover:shadow-lg transition-all duration-200 shrink-0 whitespace-nowrap active:scale-95"
+                style={{
+                  background: 'linear-gradient(135deg, #14327a 0%, #2874f0 50%, #8b5cf6 100%)'
+                }}
+              >
+                <AutoAwesomeIcon style={{ fontSize: '15px', color: '#ffe500' }} />
+                <span>AI Stylist</span>
+              </button>
+            </div>
+
+            {/* ROW 2: ADDRESS BAR ONLY */}
             <div
               onClick={() => setAddressOpen(true)}
-              className="flex items-center gap-1.5 flex-1 min-w-0 cursor-pointer"
+              className="flex items-center gap-2.5 cursor-pointer py-2 px-3.5 bg-[#f0f5ff] hover:bg-[#e4edff] active:bg-[#dbeafe] border border-blue-200/90 rounded-2xl transition-all w-full shadow-2xs box-sizing-border"
             >
-              <PlaceIcon className="!text-base text-[#2874f0] shrink-0" />
-              <span className="text-[11px] text-gray-500 font-medium shrink-0">Deliver to:</span>
-              <span className="text-xs font-bold text-gray-900 truncate">
-                {(() => {
-                  const active = selectedAddress || user?.addresses?.find(a => a.isDefault) || user?.addresses?.[0];
-                  if (active) {
-                    if (active.type === 'pincode') return active.zip;
-                    return `${active.city || active.street || ''} ${active.zip || ''}`.trim();
-                  }
-                  return t('navbar.selectAddress') || 'Select delivery location';
-                })()}
-              </span>
-            </div>
-            <button
-              onClick={() => setAddressOpen(true)}
-              className="p-1 rounded-full text-[#2874f0] hover:bg-blue-100/60 transition-colors border-none bg-transparent cursor-pointer shrink-0 ml-1 flex items-center justify-center"
-              aria-label="Open address popup"
-            >
-              <ExpandMoreIcon className={`!text-lg transform transition-transform duration-200 ${addressOpen ? 'rotate-180' : ''}`} />
-            </button>
-          </div>
-        )}
-
-        {/* MAIN ROW: BRAND LOGO, DESKTOP ADDRESS, SEARCH BAR & DESKTOP ACTIONS */}
-        <div className="max-w-[1440px] mx-auto px-4 sm:px-6 md:px-8 py-2 md:py-2.5 flex items-center justify-between gap-3 md:gap-6">
-
-          {/* Mobile Sidebar Toggle Button */}
-          <button
-            onClick={() => setSidebarOpen(true)}
-            className="md:hidden p-1.5 text-gray-700 hover:text-[#2874f0] rounded-xl hover:bg-gray-100 border-none cursor-pointer shrink-0"
-            aria-label="Open navigation menu"
-          >
-            <MenuIcon className="!text-2xl" />
-          </button>
-
-          {/* Brand Logo */}
-          <Link to="/shop" className="flex items-center gap-1.5 text-[#14327a] font-black tracking-tight text-decoration-none shrink-0">
-            <div className="w-8.5 h-8.5 rounded-xl bg-gradient-to-tr from-[#14327a] via-[#2874f0] to-[#ffe500] text-white flex items-center justify-center font-black shadow-xs text-sm">
-              R
-            </div>
-            <span className="font-extrabold text-lg md:text-xl bg-gradient-to-r from-[#14327a] via-[#2874f0] to-[#14327a] bg-clip-text text-transparent">
-              RapidCloth
-            </span>
-          </Link>
-
-          {/* DESKTOP VIEW ONLY: SELECT ADDRESS WIDGET (Placed Between Brand Logo and Search Bar) */}
-          {!isCartPage && (
-            <div
-              ref={addressRef}
-              onClick={(e) => { e.stopPropagation(); setAddressOpen(!addressOpen); }}
-              className="hidden md:flex items-center gap-2 cursor-pointer py-1.5 px-3 bg-[#f0f5ff]/80 hover:bg-blue-100/70 border border-blue-200/60 rounded-xl transition-all text-gray-700 font-medium group shrink-0 max-w-[220px]"
-            >
-              <div className="w-7 h-7 rounded-lg bg-blue-100 text-[#2874f0] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-                <PlaceIcon className="!text-base text-[#2874f0]" />
+              <div className="w-7 h-7 rounded-xl bg-gradient-to-tr from-[#2874f0] to-[#1e4db7] text-white flex items-center justify-center shrink-0 shadow-2xs">
+                <PlaceIcon style={{ fontSize: '16px' }} />
               </div>
-              <div className="flex flex-col min-w-0 text-left">
-                <span className="text-[10px] text-gray-500 font-semibold leading-none uppercase tracking-wider">
+              <div className="flex flex-col min-w-0 text-left flex-1">
+                <span className="text-[9.5px] text-[#2874f0] font-black uppercase tracking-wider leading-none">
                   Deliver to
                 </span>
-                <span className="text-xs font-bold text-gray-900 truncate leading-tight group-hover:text-[#2874f0] transition-colors">
+                <span className="text-[12.5px] font-extrabold text-slate-900 truncate leading-tight mt-0.5">
                   {(() => {
                     const active = selectedAddress || user?.addresses?.find(a => a.isDefault) || user?.addresses?.[0];
                     if (active) {
-                      if (active.type === 'pincode') return active.zip;
+                      if (active.type === 'pincode') return `Pincode: ${active.zip}`;
                       return `${active.city || active.street || ''} ${active.zip || ''}`.trim();
                     }
-                    return t('navbar.selectAddress') || 'Select location';
+                    return t('navbar.selectAddress') || 'Select delivery location';
                   })()}
                 </span>
               </div>
-              <ExpandMoreIcon className={`!text-base text-gray-500 group-hover:text-[#2874f0] transition-transform duration-200 ${addressOpen ? 'rotate-180' : ''}`} />
+              <ExpandMoreIcon style={{ fontSize: '20px', color: '#2874f0' }} className={`transform transition-transform duration-200 ${addressOpen ? 'rotate-180' : ''}`} />
             </div>
-          )}
 
-          {/* PRO DESIGNER SEARCH BAR (SEARCH ICON REMOVED PER INSTRUCTION) */}
-          <form onSubmit={handleSearch} className="flex-1 min-w-0 max-w-3xl relative flex items-center">
-            <div className="relative flex items-center w-full bg-[#f4f7fc] hover:bg-[#ebf2fe] focus-within:bg-white border border-gray-300/80 focus-within:border-[#2874f0] focus-within:ring-4 focus-within:ring-blue-100/80 rounded-xl md:rounded-2xl transition-all duration-200 shadow-2xs overflow-visible">
+            {/* ROW 3: SEARCH BAR WITH CAMERA & MICROPHONE OPTIONS */}
+            <form onSubmit={handleSearch} className="w-full relative">
+              <div className="relative flex items-center w-full bg-[#f8fafc] border border-slate-200/90 focus-within:border-[#2874f0] focus-within:bg-white rounded-2xl px-3 py-1.5 shadow-2xs transition-all">
+                <SearchIcon style={{ fontSize: '19px', color: '#94a3b8' }} className="shrink-0 mr-1.5" />
+                <input
+                  type="text"
+                  className="w-full bg-transparent text-xs text-slate-900 placeholder-slate-400 font-semibold focus:outline-none min-w-0"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onFocus={() => searchQuery.trim() && setShowSuggestions(true)}
+                  onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+                  placeholder={SEARCH_PLACEHOLDERS[placeholderIndex]}
+                />
 
-              {/* Category Dropdown (Desktop Only) */}
-              <select
-                className="hidden lg:block bg-transparent text-xs font-bold text-gray-700 px-3 py-2.5 border-r border-gray-300/60 focus:outline-none cursor-pointer"
-                value={searchCategory}
-                onChange={(e) => setSearchCategory(e.target.value)}
-              >
-                <option value="All">All</option>
-                <option value="Fashion">Fashion</option>
-                <option value="Men">Men</option>
-                <option value="Women">Women</option>
-              </select>
+                {/* Camera & Microphone Option Icons */}
+                <div className="flex items-center gap-1.5 shrink-0 pl-1">
+                  <button
+                    type="button"
+                    title="Camera Visual Search"
+                    onClick={() => alert("Visual Camera Search: Upload or scan apparel photo")}
+                    className="w-7.5 h-7.5 rounded-full text-slate-600 hover:text-[#2874f0] hover:bg-blue-50 bg-slate-100/80 border-none cursor-pointer flex items-center justify-center transition-all"
+                  >
+                    <PhotoCameraRoundedIcon style={{ fontSize: '17px' }} />
+                  </button>
+                  <button
+                    type="button"
+                    title="Voice Search"
+                    onClick={() => alert("Voice Search: Speak to search fashion items...")}
+                    className="w-7.5 h-7.5 rounded-full text-slate-600 hover:text-[#2874f0] hover:bg-blue-50 bg-slate-100/80 border-none cursor-pointer flex items-center justify-center transition-all"
+                  >
+                    <MicRoundedIcon style={{ fontSize: '17px' }} />
+                  </button>
+                  <button
+                    type="submit"
+                    className="w-7.5 h-7.5 rounded-full bg-[#2874f0] text-white hover:bg-[#1e4db7] border-none cursor-pointer flex items-center justify-center shadow-xs transition-all"
+                  >
+                    <SearchIcon style={{ fontSize: '15px' }} />
+                  </button>
+                </div>
+              </div>
+            </form>
 
-              {/* Search Text Input (Clean start - search icon removed) */}
-              <input
-                type="text"
-                className="w-full bg-transparent py-2 md:py-2.5 px-3 md:px-4 text-xs md:text-sm text-gray-900 placeholder-gray-500 font-medium focus:outline-none min-w-0"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                onFocus={() => searchQuery.trim() && setShowSuggestions(true)}
-                onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-                placeholder={SEARCH_PLACEHOLDERS[placeholderIndex]}
-              />
-
-              {/* RIGHT SIDE SEARCH ACTIONS: Camera & Microphone on MOBILE ONLY */}
-              <div className="flex items-center gap-0.5 md:gap-1 pr-1.5 md:pr-2 shrink-0">
-
-                {/* Camera Option: MOBILE ONLY */}
-                <motion.button
-                  type="button"
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                  onClick={() => setCameraSheetOpen(true)}
-                  title="Visual Search by Camera"
-                  className="md:hidden p-1 text-[#2874f0] hover:bg-blue-100/60 rounded-full transition-colors border-none bg-transparent cursor-pointer"
+            {/* ROW 4: BOTTOM PORTION PRODUCT CATEGORIES STRIP WITH BESPOKE ICONS */}
+            <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none py-1.5 border-t border-slate-100/80 mt-0.5 -mx-1 px-1">
+              {desktopCategories.map((cat) => (
+                <Link
+                  key={cat.id}
+                  to={cat.link}
+                  className={`flex flex-col items-center justify-center gap-1 px-2.5 py-1.5 rounded-xl transition-all duration-200 shrink-0 text-decoration-none min-w-[58px] ${
+                    cat.isActive 
+                      ? 'bg-blue-50 text-[#2874f0] font-bold shadow-2xs' 
+                      : 'text-slate-700 font-medium hover:bg-slate-50'
+                  }`}
                 >
-                  <PhotoCameraRoundedIcon className="!text-lg text-[#2874f0]" />
-                </motion.button>
+                  <div className="w-7 h-7 rounded-xl flex items-center justify-center">
+                    {cat.icon}
+                  </div>
+                  <span className="text-[10px] font-bold whitespace-nowrap leading-none">
+                    {cat.title}
+                  </span>
+                </Link>
+              ))}
+            </div>
 
-                {/* Microphone Option: MOBILE ONLY */}
-                <motion.button
-                  type="button"
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                  onClick={handleVoiceSearch}
-                  title="Voice Search"
-                  className={`md:hidden p-1 rounded-full transition-colors border-none cursor-pointer ${isListening ? 'bg-red-100 text-red-600 animate-pulse' : 'text-gray-500 hover:bg-gray-200/60 bg-transparent'
-                    }`}
+          </div>
+        )}
+
+        {/* DESKTOP VIEW (md:flex / md:block): 3 HORIZONTAL PARTS WITH SCOPED CUSTOM STYLES */}
+
+        {/* PART 1 (DESKTOP TOP PORTION): BRAND LOGO ON LEFT & ADDRESS BAR ON RIGHT */}
+        {!isCartPage && (
+          <div
+            className="hidden md:flex items-center"
+            style={{
+              width: '100%',
+              maxWidth: '1440px',
+              margin: '0 auto',
+              paddingLeft: '24px',
+              paddingRight: '24px',
+              paddingTop: '10px',
+              paddingBottom: '6px',
+              boxSizing: 'border-box'
+            }}
+          >
+            {/* Brand Logo */}
+            <Link to="/shop" className="flex items-center gap-2 text-[#14327a] font-black tracking-tight text-decoration-none shrink-0 group">
+              <div className="w-8.5 h-8.5 rounded-xl bg-gradient-to-tr from-[#14327a] via-[#2874f0] to-[#ffe500] text-white flex items-center justify-center font-black shadow-xs text-base group-hover:scale-105 transition-transform">
+                R
+              </div>
+              <div className="flex flex-col leading-none text-left">
+                <span className="font-extrabold text-lg lg:text-xl bg-gradient-to-r from-[#14327a] via-[#2874f0] to-[#14327a] bg-clip-text text-transparent">
+                  RapidCloth
+                </span>
+                <span className="text-[9px] lg:text-[9.5px] font-bold text-gray-400 tracking-wider uppercase mt-0.5">
+                  Fashion &amp; Apparel Hub
+                </span>
+              </div>
+            </Link>
+
+            {/* Address Bar Widget (Slides to Brand Logo when addressOpen is true) */}
+            <div
+              ref={addressRef}
+              onClick={(e) => { e.stopPropagation(); setAddressOpen(!addressOpen); }}
+              className={`flex items-center gap-2.5 cursor-pointer py-1.5 px-4 rounded-2xl transition-all text-gray-700 font-medium group shrink-0 min-w-[280px] lg:min-w-[340px] max-w-[380px] ${
+                addressOpen
+                  ? 'bg-[#e4edff] border-2 border-[#2874f0] shadow-md ring-4 ring-blue-100/80'
+                  : 'bg-[#f0f5ff] hover:bg-[#e4edff] border border-blue-200/90 shadow-2xs'
+              }`}
+              style={{
+                marginLeft: addressOpen ? '28px' : 'auto',
+                transition: 'all 0.35s cubic-bezier(0.4, 0, 0.2, 1)'
+              }}
+            >
+              <div className="w-8 h-8 rounded-xl bg-[#2874f0] text-white flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform shadow-xs">
+                <PlaceIcon className="!text-lg text-white" />
+              </div>
+              <div className="flex flex-col min-w-0 text-left flex-1">
+                <span className="text-[10px] text-blue-600 font-extrabold leading-none uppercase tracking-wider">
+                  Deliver to
+                </span>
+                <span className="text-xs lg:text-[13px] font-bold text-gray-900 truncate leading-tight group-hover:text-[#2874f0] transition-colors mt-0.5">
+                  {(() => {
+                    const active = selectedAddress || user?.addresses?.find(a => a.isDefault) || user?.addresses?.[0];
+                    if (active) {
+                      if (active.type === 'pincode') return `Pincode: ${active.zip}`;
+                      return `${active.city || active.street || ''} ${active.zip || ''}`.trim();
+                    }
+                    return t('navbar.selectAddress') || 'Select delivery location';
+                  })()}
+                </span>
+              </div>
+              <ExpandMoreIcon className={`!text-lg text-gray-500 group-hover:text-[#2874f0] transition-transform duration-200 shrink-0 ${addressOpen ? 'rotate-180' : ''}`} />
+            </div>
+          </div>
+        )}
+
+        {/* PART 2 (DESKTOP MIDDLE PORTION): SEARCH BAR & ACCOUNT, LANGUAGE, CART */}
+        <div
+          className="hidden md:flex items-center justify-between"
+          style={{
+            width: '100%',
+            maxWidth: '1440px',
+            margin: '0 auto',
+            paddingLeft: '24px',
+            paddingRight: '24px',
+            paddingTop: '6px',
+            paddingBottom: '10px',
+            gap: '24px',
+            boxSizing: 'border-box'
+          }}
+        >
+          {/* Search Bar */}
+          <form onSubmit={handleSearch} className="flex-1 min-w-0 max-w-3xl lg:max-w-4xl relative">
+            <div
+              className="relative flex items-center w-full transition-all duration-200"
+              style={{
+                backgroundColor: '#f4f7fc',
+                border: '1.5px solid #cbd5e1',
+                borderRadius: '16px',
+                padding: '3px 4px 3px 6px',
+                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)',
+                boxSizing: 'border-box'
+              }}
+            >
+              {/* Category Select Dropdown */}
+              <div style={{ position: 'relative', display: 'flex', alignItems: 'center', shrink: 0 }}>
+                <select
+                  className="bg-transparent text-xs font-bold text-gray-800 focus:outline-none cursor-pointer"
+                  style={{
+                    padding: '8px 12px',
+                    borderRight: '1.5px solid #cbd5e1',
+                    fontFamily: 'inherit',
+                    appearance: 'none',
+                    paddingRight: '22px'
+                  }}
+                  value={searchCategory}
+                  onChange={(e) => setSearchCategory(e.target.value)}
                 >
-                  <MicRoundedIcon className="!text-lg" />
-                </motion.button>
+                  <option value="All">All Categories</option>
+                  <option value="Fashion">Fashion</option>
+                  <option value="Men">Men</option>
+                  <option value="Women">Women</option>
+                </select>
+                <ExpandMoreIcon
+                  style={{
+                    fontSize: '16px',
+                    color: '#64748b',
+                    position: 'absolute',
+                    right: '4px',
+                    pointerEvents: 'none'
+                  }}
+                />
+              </div>
 
-                {/* Desktop Search Button (Icon removed per user instruction) */}
+              {/* Input Field with Search Icon */}
+              <div className="flex-1 flex items-center min-w-0 relative px-2">
+                <SearchIcon style={{ fontSize: '18px', color: '#94a3b8', marginRight: '6px', shrink: 0 }} />
+                <input
+                  type="text"
+                  className="w-full bg-transparent py-2 text-xs lg:text-sm text-gray-900 placeholder-gray-500 font-medium focus:outline-none min-w-0"
+                  style={{ border: 'none', fontFamily: 'inherit' }}
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onFocus={() => searchQuery.trim() && setShowSuggestions(true)}
+                  onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+                  placeholder={SEARCH_PLACEHOLDERS[placeholderIndex]}
+                />
+              </div>
+
+              {/* High-Contrast Search Action Button */}
+              <div className="shrink-0">
                 <button
                   type="submit"
-                  className="hidden md:flex items-center justify-center bg-[#2874f0] hover:bg-blue-700 text-white px-4 py-1.5 rounded-xl transition-all border-none cursor-pointer shadow-2xs font-bold text-xs"
+                  style={{
+                    backgroundColor: '#2874f0',
+                    color: '#ffffff',
+                    border: 'none',
+                    borderRadius: '12px',
+                    padding: '8px 20px',
+                    cursor: 'pointer',
+                    fontWeight: 700,
+                    fontSize: '13px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    boxShadow: '0 2px 10px rgba(40, 116, 240, 0.35)',
+                    transition: 'all 0.2s ease',
+                    fontFamily: 'inherit'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#1e4db7'}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#2874f0'}
                 >
+                  <SearchIcon style={{ fontSize: '16px', color: '#ffffff' }} />
                   <span>Search</span>
                 </button>
               </div>
@@ -501,38 +690,37 @@ export default function Navbar() {
             </div>
           </form>
 
-          {/* DESKTOP VIEW ONLY: ACCOUNT & LISTS, LANGUAGE, AND CART (REMOVED ON MOBILE VIEW) */}
-          <div className="hidden md:flex items-center gap-2.5 shrink-0">
-
-            {/* Account / Login Dropdown (Desktop) */}
+          {/* Account & Lists, Language, Cart Buttons */}
+          <div className="flex items-center gap-2.5 lg:gap-3.5 shrink-0">
+            {/* Account Dropdown */}
             {!isCartPage && (
               <div
                 ref={profileRef}
                 onClick={(e) => { e.stopPropagation(); setProfileOpen(!profileOpen); }}
-                className="relative group cursor-pointer py-1.5 px-3 bg-gray-50/90 hover:bg-blue-50/80 border border-gray-200/80 hover:border-blue-200 rounded-xl transition-all"
+                className="relative group cursor-pointer py-2 px-3.5 lg:px-4 bg-[#f8fafc] hover:bg-[#ebf2fe] border border-slate-200/90 hover:border-blue-300 rounded-2xl transition-all shadow-2xs shrink-0"
               >
-                <div className="flex items-center gap-2">
-                  <div className="w-7.5 h-7.5 rounded-full bg-blue-100 text-[#2874f0] flex items-center justify-center font-bold text-sm overflow-hidden border border-blue-200 shrink-0">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-full bg-[#2874f0] text-white flex items-center justify-center font-extrabold text-xs overflow-hidden shadow-xs border border-blue-200 shrink-0">
                     {isAuthenticated && user?.avatar ? (
                       <img src={user.avatar} className="w-full h-full object-cover" />
                     ) : (
-                      <PersonOutlineIcon className="!text-xl text-[#2874f0]" />
+                      <PersonOutlineIcon className="!text-lg text-white" />
                     )}
                   </div>
                   <div className="flex flex-col text-left">
-                    <span className="text-[10px] text-gray-500 font-medium leading-none">
+                    <span className="text-[10px] text-gray-500 font-semibold leading-none">
                       {t('navbar.hello')}, {isAuthenticated ? user?.name?.split(' ')[0] : t('navbar.signIn')}
                     </span>
-                    <div className="flex items-center gap-0.5 text-xs font-bold text-gray-900 leading-tight mt-0.5">
+                    <div className="flex items-center gap-1 text-xs lg:text-[13px] font-bold text-gray-900 leading-tight mt-0.5 group-hover:text-[#2874f0] transition-colors">
                       <span>{t('navbar.accountAndLists')}</span>
                       <motion.div animate={{ rotate: profileOpen ? 180 : 0 }} transition={{ duration: 0.2 }}>
-                        <ExpandMoreIcon className="!text-sm text-gray-600" />
+                        <ExpandMoreIcon className="!text-base text-gray-500 group-hover:text-[#2874f0]" />
                       </motion.div>
                     </div>
                   </div>
                 </div>
 
-                {/* Profile Popup Menu Modal */}
+                {/* Profile Modal Menu */}
                 <AnimatePresence>
                   {profileOpen && (
                     <div className="book-container" style={{ position: 'absolute', top: '100%', right: 0, zIndex: 2000, marginTop: '8px' }}>
@@ -595,20 +783,22 @@ export default function Navbar() {
               </div>
             )}
 
-            {/* Language Switcher (Desktop) */}
+            {/* Language Switcher */}
             {!isCartPage && (
               <div
                 ref={langRef}
                 onClick={(e) => { e.stopPropagation(); setLangOpen(!langOpen); }}
-                className="flex items-center gap-1 cursor-pointer py-1.5 px-3 bg-gray-50/90 hover:bg-blue-50/80 border border-gray-200/80 hover:border-blue-200 rounded-xl transition-all text-gray-700 font-bold text-xs relative shrink-0"
+                className="flex items-center gap-1.5 cursor-pointer py-2 px-3 lg:px-3.5 bg-[#f8fafc] hover:bg-[#ebf2fe] border border-slate-200/90 hover:border-blue-300 rounded-2xl transition-all text-gray-800 font-bold text-xs relative shrink-0 shadow-2xs"
               >
-                <TranslateIcon className="!text-lg text-[#2874f0]" />
-                <span>{language}</span>
+                <div className="w-6 h-6 rounded-lg bg-blue-100/90 text-[#2874f0] flex items-center justify-center shrink-0">
+                  <TranslateIcon className="!text-sm text-[#2874f0]" />
+                </div>
+                <span className="font-extrabold text-xs text-gray-900">{language}</span>
                 <motion.div animate={{ rotate: langOpen ? 180 : 0 }} transition={{ duration: 0.2 }}>
-                  <ExpandMoreIcon className="!text-sm text-gray-500" />
+                  <ExpandMoreIcon className="!text-base text-gray-500" />
                 </motion.div>
 
-                {/* Language Modal */}
+                {/* Language Modal Menu */}
                 <AnimatePresence>
                   {langOpen && (
                     <div className="book-container" style={{ position: 'absolute', top: '100%', right: 0, zIndex: 2000, marginTop: '8px' }}>
@@ -643,49 +833,97 @@ export default function Navbar() {
               </div>
             )}
 
-            {/* Shopping Cart Button (Desktop) */}
+            {/* Shopping Cart Button */}
             <Link
               to={isRentPage ? '/rent/cart' : '/cart'}
-              className="flex items-center gap-2 py-1.5 px-3.5 bg-blue-50/80 hover:bg-blue-100/90 border border-blue-200/80 rounded-xl transition-all text-[#2874f0] font-extrabold group text-decoration-none shrink-0"
+              className="flex items-center gap-2 py-2 px-4 lg:px-5 bg-gradient-to-r from-[#2874f0] to-[#14327a] hover:from-[#1e4db7] hover:to-[#0f2456] text-white rounded-2xl transition-all duration-200 shadow-md hover:shadow-lg hover:scale-105 group text-decoration-none shrink-0"
             >
               <div className="relative flex items-center justify-center">
-                <ShoppingCartIcon className="!text-xl text-[#2874f0]" />
-                <span className="absolute -top-2 -right-2 bg-[#2874f0] text-white text-[10px] font-black rounded-full w-4.5 h-4.5 flex items-center justify-center shadow-xs group-hover:scale-110 transition-transform">
+                <ShoppingCartIcon className="!text-xl text-white" />
+                <span className="absolute -top-2.5 -right-2.5 bg-[#ffe500] text-[#14327a] text-[10px] font-black rounded-full min-w-[18px] h-[18px] px-1 flex items-center justify-center shadow-xs border border-white">
                   {itemCount}
                 </span>
               </div>
-              <span className="text-xs font-bold text-[#2874f0]">
+              <span className="text-xs lg:text-sm font-extrabold text-white tracking-wide">
                 Cart
               </span>
             </Link>
-
           </div>
         </div>
 
-        {/* CATEGORY NAVIGATION STRIP */}
+        {/* THIN LINE DIVIDER (CONTAINED TO MAIN PAGE WIDTH) */}
         {!isCartPage && (
-          <div className="bg-white border-t border-gray-200/70 shadow-2xs py-2">
-            <div className="max-w-[1440px] mx-auto px-4 sm:px-6 md:px-8 flex items-center justify-between overflow-x-auto scrollbar-none gap-2 sm:gap-4">
-              {flipkartCategories.map((cat) => (
+          <div
+            className="hidden md:block"
+            style={{
+              width: '100%',
+              maxWidth: '1440px',
+              margin: '0 auto',
+              paddingLeft: '24px',
+              paddingRight: '24px',
+              boxSizing: 'border-box'
+            }}
+          >
+            <div style={{ width: '100%', borderTop: '1px solid rgba(229, 231, 235, 0.8)' }} />
+          </div>
+        )}
+
+        {/* PART 3 (DESKTOP BOTTOM PORTION): 13 PRODUCT CATEGORIES WITH BESPOKE ICONS */}
+        {!isCartPage && (
+          <div
+            className="hidden md:block bg-white"
+            style={{
+              paddingTop: '4px',
+              paddingBottom: '2px'
+            }}
+          >
+            <div
+              className="flex items-center justify-between overflow-x-auto scrollbar-none"
+              style={{
+                width: '100%',
+                maxWidth: '1440px',
+                margin: '0 auto',
+                paddingLeft: '24px',
+                paddingRight: '24px',
+                gap: '4px',
+                boxSizing: 'border-box'
+              }}
+            >
+              {desktopCategories.map((cat) => (
                 <Link
                   key={cat.id}
                   to={cat.link}
-                  className={`group flex flex-col items-center gap-1 px-2.5 md:px-3 py-1 rounded-xl transition-all duration-200 relative text-decoration-none ${cat.isActive ? 'bg-blue-50/80 text-[#2874f0] font-bold' : 'text-gray-700 hover:text-[#2874f0] font-semibold hover:bg-gray-50'
-                    }`}
+                  className={`group flex flex-col items-center gap-0.5 px-1.5 lg:px-2 py-1 rounded-xl transition-all duration-200 relative text-decoration-none shrink-0 ${
+                    cat.isActive ? 'bg-blue-50/90 text-[#2874f0] font-bold' : 'text-gray-700 hover:text-[#2874f0] font-semibold hover:bg-gray-50'
+                  }`}
                 >
-                  <div className="w-8 h-8 md:w-9 md:h-9 rounded-xl flex items-center justify-center text-gray-800 group-hover:text-[#2874f0] transition-all duration-300 transform group-hover:-translate-y-0.5 group-hover:scale-110">
+                  <div className="w-7.5 h-7.5 lg:w-8.5 lg:h-8.5 rounded-xl flex items-center justify-center text-gray-800 group-hover:text-[#2874f0] transition-all duration-300 transform group-hover:-translate-y-0.5 group-hover:scale-110">
                     {cat.icon}
                   </div>
 
-                  <span className="text-[10px] md:text-[11px] whitespace-nowrap tracking-tight transition-colors">
+                  <span className="text-[10px] lg:text-[11px] whitespace-nowrap tracking-tight transition-colors">
                     {cat.title}
                   </span>
 
                   {cat.isActive && (
-                    <div className="absolute bottom-0 left-2 right-2 h-0.5 bg-[#2874f0] rounded-full transition-all duration-300" />
+                    <div className="absolute bottom-0 left-1 right-1 h-0.5 bg-[#2874f0] rounded-full transition-all duration-300" />
                   )}
                 </Link>
               ))}
+            </div>
+
+            {/* THIN LINE DIVIDER AFTER CATEGORIES (MATCHING IMAGE 1) */}
+            <div
+              style={{
+                width: '100%',
+                maxWidth: '1440px',
+                margin: '4px auto 0 auto',
+                paddingLeft: '24px',
+                paddingRight: '24px',
+                boxSizing: 'border-box'
+              }}
+            >
+              <div style={{ width: '100%', borderTop: '1px solid rgba(229, 231, 235, 0.9)' }} />
             </div>
           </div>
         )}
@@ -1026,7 +1264,7 @@ export default function Navbar() {
 
       {/* ADJUSTED TOP SPACER BELOW FIXED NAVBAR */}
       <div
-        className="spacer-fixed transition-all duration-300 h-[152px] md:h-[132px]"
+        className="spacer-fixed transition-all duration-300 h-[196px] md:h-[178px]"
         style={{
           height: isCartPage ? '60px' : undefined
         }}

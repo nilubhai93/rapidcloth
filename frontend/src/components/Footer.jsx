@@ -4,7 +4,8 @@ import { useCart } from '../context/CartContext';
 import { useLanguage } from '../context/LanguageContext';
 import HomeOutlinedIcon from '@mui/icons-material/HomeRounded';
 import HomeIcon from '@mui/icons-material/HomeRounded';
-import ReplayIcon from '@mui/icons-material/ReplayRounded';
+import PersonOutlineIcon from '@mui/icons-material/PersonOutlineRounded';
+import PersonIcon from '@mui/icons-material/PersonRounded';
 import ShoppingBagOutlinedIcon from '@mui/icons-material/ShoppingBagRounded';
 import ShoppingBagIcon from '@mui/icons-material/ShoppingBagRounded';
 import CategoryOutlinedIcon from '@mui/icons-material/CategoryRounded';
@@ -28,12 +29,12 @@ export default function Footer() {
       match: (p) => p === '/' || p === '/shop'
     },
     {
-      id: 'buyagain',
-      label: t('footer.buyAgain'),
-      path: '/orders',
-      icon: ReplayIcon,
-      activeIcon: ReplayIcon,
-      match: (p) => p === '/orders'
+      id: 'account',
+      label: t('Account') || 'Account',
+      path: '/profile',
+      icon: PersonOutlineIcon,
+      activeIcon: PersonIcon,
+      match: (p) => p === '/profile' || p === '/account' || p === '/orders'
     },
     {
       id: 'bucket',

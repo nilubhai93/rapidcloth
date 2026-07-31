@@ -769,32 +769,17 @@ export default function Home() {
       </section>
 
       {/* ═══ Suggested For You ═══ */}
-      <section style={{ padding: '28px 0 4px', backgroundColor: 'var(--bg-primary)' }}>
+      <section style={{ padding: '15px 0 4px', backgroundColor: 'var(--bg-primary)' }}>
         <div style={{ maxWidth: '1440px', margin: '0 auto', padding: '0 24px' }}>
 
           {/* Section Header */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
             <h2 style={{
               fontSize: '20px', fontWeight: 800, color: '#111827',
               fontFamily: 'var(--font-sans)', margin: 0
             }}>
               Suggested For You
             </h2>
-            <Link
-              to="/products"
-              style={{
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                width: '36px', height: '36px', borderRadius: '50%',
-                background: '#2874f0', color: '#fff',
-                textDecoration: 'none', flexShrink: 0,
-                boxShadow: '0 2px 8px rgba(40,116,240,0.35)',
-                transition: 'background 0.2s, transform 0.2s'
-              }}
-              onMouseEnter={e => { e.currentTarget.style.background = '#1d4ed8'; e.currentTarget.style.transform = 'scale(1.08)'; }}
-              onMouseLeave={e => { e.currentTarget.style.background = '#2874f0'; e.currentTarget.style.transform = 'scale(1)'; }}
-            >
-              <ArrowForwardIcon style={{ fontSize: '18px' }} />
-            </Link>
           </div>
 
           {/* Products Horizontal Scroll */}
@@ -812,8 +797,24 @@ export default function Home() {
               const price = p.discountPrice || p.price || 0;
               const mrp = p.price || 0;
               const discount = mrp && price < mrp ? Math.round(((mrp - price) / mrp) * 100) : 0;
-              const rating = p.rating || (4.0 + Math.random() * 0.9).toFixed(1);
-              const reviewCount = p.reviews?.length || Math.floor(Math.random() * 800 + 100);
+              
+              // Stable deterministic rating and review count per product ID (never changes automatically on re-render)
+              const getStableRating = (id) => {
+                if (!id) return '4.3';
+                let hash = 0;
+                for (let i = 0; i < id.length; i++) hash = (hash << 5) - hash + id.charCodeAt(i);
+                return (4.0 + (Math.abs(hash) % 10) * 0.1).toFixed(1);
+              };
+
+              const getStableReviews = (id) => {
+                if (!id) return 320;
+                let hash = 0;
+                for (let i = 0; i < id.length; i++) hash = (hash << 5) - hash + id.charCodeAt(i);
+                return 150 + (Math.abs(hash) % 650);
+              };
+
+              const rating = p.rating || getStableRating(p._id);
+              const reviewCount = p.numReviews || (p.reviews?.length > 0 ? p.reviews.length : getStableReviews(p._id));
               const img = p.images?.[0] || '/images/placeholder.png';
               const name = p.name || 'Fashion Product';
 
@@ -913,7 +914,7 @@ export default function Home() {
       </section>
 
 
-      <section style={{ padding: '40px 0 20px', backgroundColor: 'var(--bg-primary)' }}>
+      <section style={{ padding: '12px 0 10px', backgroundColor: 'var(--bg-primary)' }}>
         <div className="container" style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
@@ -1002,12 +1003,12 @@ export default function Home() {
             <Link to="/products" style={{ color: '#007185', fontWeight: 600, fontSize: '13px', marginTop: '14px', textDecoration: 'none' }}>Explore top collection</Link>
           </div>
         </div>
-      </section>
+      </section> 
 
       {/* Trending Now Section */}
-      <section style={{ padding: '40px 0 20px' }}>
+      <section style={{ padding: '12px 0 10px' }}>
         <div className="container" style={{ maxWidth: '1440px', margin: '0 auto', padding: '0 24px' }}>
-          <h2 style={{ fontSize: '20px', fontWeight: 700, marginBottom: '20px', color: '#0F1111', fontFamily: 'var(--font-sans)' }}>Trending Now</h2>
+          <h2 style={{ fontSize: '20px', fontWeight: 700, marginBottom: '6px', color: '#0F1111', fontFamily: 'var(--font-sans)' }}>Trending Now</h2>
 
           <div className="trending-container" style={{
             position: 'relative', display: 'flex', alignItems: 'center',
@@ -1055,9 +1056,9 @@ export default function Home() {
       </section>
 
       {/* New Arrivals Section */}
-      <section style={{ padding: '20px 0 20px', overflowX: 'hidden' }}>
+      <section style={{ padding: '12px 0 10px', overflowX: 'hidden' }}>
         <div className="container" style={{ maxWidth: '1440px', margin: '0 auto', padding: '0 24px', overflowX: 'hidden' }}>
-          <h2 style={{ fontSize: '20px', fontWeight: 700, marginBottom: '20px', color: '#0F1111', fontFamily: 'var(--font-sans)' }}>New Arrivals</h2>
+          <h2 style={{ fontSize: '20px', fontWeight: 700, marginBottom: '6px', color: '#0F1111', fontFamily: 'var(--font-sans)' }}>New Arrivals</h2>
 
           <div style={{
             position: 'relative', display: 'flex', alignItems: 'center',
@@ -1105,7 +1106,7 @@ export default function Home() {
       </section>
 
       {/* New Promotional Grid Row */}
-      <section style={{ padding: '20px 0 20px', overflowX: 'hidden' }}>
+      <section style={{ padding: '12px 0 10px', overflowX: 'hidden' }}>
         <div className="container" style={{ maxWidth: '1440px', margin: '0 auto', padding: '0 24px', overflowX: 'hidden' }}>
           <div style={{
             display: 'grid',
@@ -1175,9 +1176,9 @@ export default function Home() {
         </div>
       </section>
       {/* Quick Picks Section */}
-      <section style={{ padding: '20px 0 20px', overflowX: 'hidden' }}>
+      <section style={{ padding: '12px 0 10px', overflowX: 'hidden' }}>
         <div className="container" style={{ maxWidth: '1440px', margin: '0 auto', padding: '0 24px', overflowX: 'hidden' }}>
-          <h2 style={{ fontSize: '20px', fontWeight: 700, marginBottom: '20px', color: '#0F1111', fontFamily: 'var(--font-sans)' }}>{t('home.quickPicks')}</h2>
+          <h2 style={{ fontSize: '20px', fontWeight: 700, marginBottom: '6px', color: '#0F1111', fontFamily: 'var(--font-sans)' }}>{t('home.quickPicks')}</h2>
 
           <div style={{
             position: 'relative', display: 'flex', alignItems: 'center',
@@ -1225,9 +1226,9 @@ export default function Home() {
       </section>
 
       {/* Starting price at 199 | Men's T-shirts Section */}
-      <section style={{ padding: '20px 0 20px', overflowX: 'hidden' }}>
+      <section style={{ padding: '12px 0 10px', overflowX: 'hidden' }}>
         <div className="container" style={{ maxWidth: '1440px', margin: '0 auto', padding: '0 24px', overflowX: 'hidden' }}>
-          <h2 style={{ fontSize: '20px', fontWeight: 700, marginBottom: '20px', color: '#0F1111', fontFamily: 'var(--font-sans)' }}>Starting price at 199 | Men's T-shirts</h2>
+          <h2 style={{ fontSize: '20px', fontWeight: 700, marginBottom: '6px', color: '#0F1111', fontFamily: 'var(--font-sans)' }}>Starting price at 199 | Men's T-shirts</h2>
 
           <div style={{
             position: 'relative', display: 'flex', alignItems: 'center',
@@ -1275,7 +1276,7 @@ export default function Home() {
       </section>
 
       {/* Lifestyle Promotional Grid Row */}
-      <section style={{ padding: '20px 0 20px' }}>
+      <section style={{ padding: '12px 0 10px' }}>
         <div className="container" style={{ maxWidth: '1440px', margin: '0 auto', padding: '0 24px' }}>
           <div style={{
             display: 'grid',
@@ -1283,7 +1284,7 @@ export default function Home() {
             gap: '20px'
           }}>
             {/* Party Night */}
-            <div style={{ background: '#fff', padding: '20px', borderRadius: '4px', display: 'flex', flexDirection: 'column', height: '100%', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+            <div style={{ background: '#fff', padding: '10px 20px', borderRadius: '4px', display: 'flex', flexDirection: 'column', height: '100%', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
               <h2 style={{ fontSize: '18px', fontWeight: 700, marginBottom: '12px', color: '#0F1111', fontFamily: 'var(--font-sans)' }}>Party Night</h2>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', flexGrow: 1 }}>
                 {getCardProducts(p => p.occasion && p.occasion.includes('party')).map(p => (
@@ -1346,9 +1347,9 @@ export default function Home() {
       </section>
 
       {/* Up to 80% off | Kids dresses Section */}
-      <section style={{ padding: '20px 0 20px' }}>
+      <section style={{ padding: '12px 0 10px' }}>
         <div className="container" style={{ maxWidth: '1440px', margin: '0 auto', padding: '0 24px' }}>
-          <h2 style={{ fontSize: '20px', fontWeight: 700, marginBottom: '20px', color: '#0F1111', fontFamily: 'var(--font-sans)' }}>Up to 80% off | Kids dresses</h2>
+          <h2 style={{ fontSize: '20px', fontWeight: 700, marginBottom: '6px', color: '#0F1111', fontFamily: 'var(--font-sans)' }}>Up to 80% off | Kids dresses</h2>
 
           <div style={{
             position: 'relative', display: 'flex', alignItems: 'center',
@@ -1396,7 +1397,7 @@ export default function Home() {
       </section>
 
       {/* Brand Promotional Grid Row */}
-      <section style={{ padding: '20px 0 20px' }}>
+      <section style={{ padding: '12px 0 10px' }}>
         <div className="container" style={{ maxWidth: '1440px', margin: '0 auto', padding: '0 24px' }}>
           <div style={{
             display: 'grid',
@@ -1404,7 +1405,7 @@ export default function Home() {
             gap: '20px'
           }}>
             {/* Zara */}
-            <div style={{ background: '#fff', padding: '20px', borderRadius: '4px', display: 'flex', flexDirection: 'column', height: '100%', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+            <div style={{ background: '#fff', padding: '10px 20px', borderRadius: '4px', display: 'flex', flexDirection: 'column', height: '100%', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
               <h2 style={{ fontSize: '18px', fontWeight: 700, marginBottom: '12px', color: '#0F1111', fontFamily: 'var(--font-sans)' }}>Zara</h2>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', flexGrow: 1 }}>
                 {getCardProducts(p => p.brand && p.brand.toLowerCase() === 'zara').map(p => (
@@ -1716,19 +1717,21 @@ export default function Home() {
           position: relative;
           max-width: 1440px;
           margin: 0 auto;
-          padding: 12px 16px 20px;
+          padding: 12px 24px 20px;
           display: flex;
           flex-direction: column;
           align-items: center;
+          width: 100%;
+          box-sizing: border-box;
         }
         @media (min-width: 640px) {
           .fk-hero-container {
-            padding: 16px 24px 24px;
+            padding: 12px 24px 20px;
           }
         }
         @media (min-width: 768px) {
           .fk-hero-container {
-            padding: 16px 32px 24px;
+            padding: 12px 24px 20px;
           }
         }
         .fk-track {
@@ -1737,20 +1740,24 @@ export default function Home() {
           overflow-x: hidden;
           scrollbar-width: none;
           -ms-overflow-style: none;
-          padding: 4px 4px 14px;
+          padding: 8px 0px 20px 0px;
           width: 100%;
+          box-sizing: border-box;
         }
         .fk-track::-webkit-scrollbar { display: none; }
         .fk-card {
           flex: 0 0 clamp(320px, 42vw, 560px);
           height: clamp(175px, 20vw, 225px);
-          border-radius: 16px;
+          border-radius: 20px;
           overflow: hidden;
+          isolation: isolate;
+          -webkit-backface-visibility: hidden;
+          transform: translateZ(0);
           position: relative;
           scroll-snap-align: start;
           cursor: pointer;
-          box-shadow: 0 8px 24px rgba(0,0,0,0.12);
-          border: 1px solid rgba(255,255,255,0.18);
+          box-shadow: 0 8px 24px rgba(0,0,0,0.14);
+          border: 1px solid rgba(255,255,255,0.22);
           display: flex;
           justify-content: space-between;
           transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.3s ease;
@@ -1907,12 +1914,13 @@ export default function Home() {
             scroll-snap-type: x mandatory;
             touch-action: pan-x;
             -webkit-overflow-scrolling: touch;
-            padding: 2px 0 10px;
+            padding: 6px 12px 14px 12px;
           }
           .fk-card {
             flex: 0 0 85vw;
             height: clamp(170px, 48vw, 210px);
-            border-radius: 12px;
+            border-radius: 16px;
+            isolation: isolate;
           }
           .fk-card-content {
             padding: 10px 12px;

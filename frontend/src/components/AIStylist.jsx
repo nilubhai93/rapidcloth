@@ -340,7 +340,8 @@ export default function AIStylist() {
         transition={{ y: { repeat: Infinity, duration: 2, ease: "easeInOut" } }}
         style={{
           position: 'fixed',
-          bottom: '100px', right: '20px',
+          bottom: '24px',
+          right: 'calc(max(24px, (100vw - 1440px) / 2 + 24px))',
           width: '56px', height: '56px',
           borderRadius: '50%',
           background: 'var(--gradient-primary)',
@@ -373,6 +374,7 @@ export default function AIStylist() {
             />
             {/* Chat/Try-On Panel */}
             <motion.div
+              id="ai-stylist-panel"
               initial={{ opacity: 0, y: 50, scale: 0.9 }}
               animate={{ 
                 opacity: 1, 
@@ -384,9 +386,10 @@ export default function AIStylist() {
               transition={{ type: 'spring', damping: 22, stiffness: 120 }}
               style={{
                 position: 'fixed',
-                bottom: '100px', right: '20px',
-                maxWidth: 'calc(100vw - 40px)',
-                height: '630px', maxHeight: 'calc(100vh - 120px)',
+                bottom: '76px',
+                right: '16px',
+                maxWidth: 'calc(100vw - 32px)',
+                height: '630px', maxHeight: 'calc(100vh - 140px)',
                 borderRadius: '24px',
                 background: '#fcf8f2',
                 border: '1px solid #ebdcd0',
@@ -1306,9 +1309,24 @@ export default function AIStylist() {
       </AnimatePresence>
 
       <style>{`
+        @media (max-width: 767px) {
+          #ai-stylist-fab {
+            bottom: calc(76px + env(safe-area-inset-bottom, 0px)) !important;
+            right: 16px !important;
+          }
+          #ai-stylist-panel {
+            bottom: calc(76px + env(safe-area-inset-bottom, 0px)) !important;
+            right: 16px !important;
+          }
+        }
         @media (min-width: 768px) {
           #ai-stylist-fab {
             bottom: 24px !important;
+            right: calc(max(24px, (100vw - 1440px) / 2 + 24px)) !important;
+          }
+          #ai-stylist-panel {
+            bottom: 24px !important;
+            right: calc(max(24px, (100vw - 1440px) / 2 + 24px)) !important;
           }
         }
 
