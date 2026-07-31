@@ -494,50 +494,48 @@ export default function Home() {
       paddingBottom: '40px'
     }}>
 
-      {/* ═══ Multi-Banner Slider ═══ */}
-      <section className="fk-hero-section" style={{
-        background: `linear-gradient(180deg, rgba(${activeThemeRgb}, 0.15) 0%, #f1f3f6 60%, var(--bg-primary) 100%)`,
-        transition: 'background 0.8s cubic-bezier(0.4, 0, 0.2, 1)',
-      }}>
-        <div className="fk-hero-container">
-          <div
-            className="fk-track"
-            ref={bannerScrollRef}
-            onScroll={handleTrackScroll}
-            onTouchStart={handleTouchStart}
-            onTouchEnd={handleTouchEnd}
-          >
-            {extendedSlides.map((slide, idx) => (
-              <div
-                key={`${slide.id}-${idx}`}
-                className="fk-card"
-                onClick={() => navigate(slide.link)}
-                style={{ background: slide.bgGradient }}
-              >
-                <div style={{
-                  position: 'absolute', inset: 0,
-                  backgroundImage: 'repeating-linear-gradient(-45deg, rgba(255,255,255,0.04), rgba(255,255,255,0.04) 20px, transparent 20px, transparent 40px)',
-                  pointerEvents: 'none', zIndex: 1
-                }} />
-                <div className="fk-card-content">
-                  <div className="fk-card-tags">
-                    <span className="fk-tag-brand">{slide.brandTag}</span>
-                    <span className="fk-tag-partner">{slide.partnerTag}</span>
-                  </div>
-                  <h2 className="fk-card-title">{slide.title}</h2>
-                  <p className="fk-card-subtitle">{slide.subtitle}</p>
-                  <p className="fk-card-desc">{slide.desc}</p>
-                  <button className="fk-card-cta" onClick={(e) => { e.stopPropagation(); navigate(slide.link); }}>
-                    {slide.ctaText}
-                  </button>
+      {/* ═══ Multi-Banner Slider (Rendered Direct on Root Page) ═══ */}
+      <div className="fk-hero-container">
+        <div
+          className="fk-track"
+          ref={bannerScrollRef}
+          onScroll={handleTrackScroll}
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+        >
+          {extendedSlides.map((slide, idx) => (
+            <div
+              key={`${slide.id}-${idx}`}
+              className="fk-card"
+              onClick={() => navigate(slide.link)}
+              style={{ background: slide.bgGradient }}
+            >
+              <div style={{
+                position: 'absolute', inset: 0,
+                backgroundImage: 'repeating-linear-gradient(-45deg, rgba(255,255,255,0.04), rgba(255,255,255,0.04) 20px, transparent 20px, transparent 40px)',
+                pointerEvents: 'none', zIndex: 1
+              }} />
+
+              {/* Card Content Left Side */}
+              <div className="fk-card-content">
+                <div className="fk-card-tags">
+                  <span className="fk-tag-brand">{slide.brandTag}</span>
+                  <span className="fk-tag-partner">{slide.partnerTag}</span>
                 </div>
-                <div className="fk-card-img">
-                  <img src={slide.image} alt={slide.title} loading="lazy" />
-                </div>
-                <span className="fk-card-ad">AD</span>
+                <h2 className="fk-card-title">{slide.title}</h2>
+                <p className="fk-card-subtitle">{slide.subtitle}</p>
+                <p className="fk-card-desc">{slide.desc}</p>
+                <button className="fk-card-cta" onClick={(e) => { e.stopPropagation(); navigate(slide.link); }}>
+                  {slide.ctaText}
+                </button>
               </div>
-            ))}
-          </div>
+
+              {/* Card Image Right Side */}
+              <div className="fk-card-img">
+                <img src={slide.image} alt={slide.title} loading="lazy" />
+              </div>
+            </div>
+          ))}
         </div>
 
         <div className="fk-dots">
@@ -549,7 +547,7 @@ export default function Home() {
             />
           ))}
         </div>
-      </section>
+      </div>
 
 
       {/* Promo Cards Section */}
@@ -770,7 +768,151 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Personalized Offers Section */}
+      {/* ═══ Suggested For You ═══ */}
+      <section style={{ padding: '28px 0 4px', backgroundColor: 'var(--bg-primary)' }}>
+        <div style={{ maxWidth: '1440px', margin: '0 auto', padding: '0 24px' }}>
+
+          {/* Section Header */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+            <h2 style={{
+              fontSize: '20px', fontWeight: 800, color: '#111827',
+              fontFamily: 'var(--font-sans)', margin: 0
+            }}>
+              Suggested For You
+            </h2>
+            <Link
+              to="/products"
+              style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                width: '36px', height: '36px', borderRadius: '50%',
+                background: '#2874f0', color: '#fff',
+                textDecoration: 'none', flexShrink: 0,
+                boxShadow: '0 2px 8px rgba(40,116,240,0.35)',
+                transition: 'background 0.2s, transform 0.2s'
+              }}
+              onMouseEnter={e => { e.currentTarget.style.background = '#1d4ed8'; e.currentTarget.style.transform = 'scale(1.08)'; }}
+              onMouseLeave={e => { e.currentTarget.style.background = '#2874f0'; e.currentTarget.style.transform = 'scale(1)'; }}
+            >
+              <ArrowForwardIcon style={{ fontSize: '18px' }} />
+            </Link>
+          </div>
+
+          {/* Products Horizontal Scroll */}
+          <div style={{
+            display: 'flex',
+            gap: '12px',
+            overflowX: 'auto',
+            scrollSnapType: 'x mandatory',
+            scrollbarWidth: 'none',
+            msOverflowStyle: 'none',
+            paddingBottom: '8px'
+          }}>
+            {(allProducts.length > 0 ? allProducts : Array.from({ length: 8 })).map((product, idx) => {
+              const p = product || {};
+              const price = p.discountPrice || p.price || 0;
+              const mrp = p.price || 0;
+              const discount = mrp && price < mrp ? Math.round(((mrp - price) / mrp) * 100) : 0;
+              const rating = p.rating || (4.0 + Math.random() * 0.9).toFixed(1);
+              const reviewCount = p.reviews?.length || Math.floor(Math.random() * 800 + 100);
+              const img = p.images?.[0] || '/images/placeholder.png';
+              const name = p.name || 'Fashion Product';
+
+              return (
+                <Link
+                  key={p._id || idx}
+                  to={p._id ? `/products/${p._id}` : '/products'}
+                  style={{
+                    flex: '0 0 168px',
+                    scrollSnapAlign: 'start',
+                    textDecoration: 'none',
+                    color: 'inherit'
+                  }}
+                >
+                  <div style={{
+                    background: '#fff',
+                    borderRadius: '8px',
+                    border: '1px solid #f0f0f0',
+                    overflow: 'hidden',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    height: '280px',
+                    boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
+                    cursor: 'pointer'
+                  }}
+                  >
+                    {/* Image Area */}
+                    <div style={{ position: 'relative', height: '160px', background: '#f8f8f8', flexShrink: 0 }}>
+                      <img
+                        src={img}
+                        alt={name}
+                        loading="lazy"
+                        style={{
+                          width: '100%', height: '100%',
+                          objectFit: 'contain',
+                          padding: '8px',
+                          mixBlendMode: 'multiply'
+                        }}
+                      />
+                    </div>
+
+                    {/* Info Area */}
+                    <div style={{ padding: '10px 10px 8px', display: 'flex', flexDirection: 'column', gap: '4px', flex: 1 }}>
+                      {/* Product Name */}
+                      <p style={{
+                        fontSize: '12.5px', fontWeight: 500, color: '#212121',
+                        overflow: 'hidden', display: '-webkit-box',
+                        WebkitLineClamp: 2, WebkitBoxOrient: 'vertical',
+                        lineHeight: 1.4, margin: 0
+                      }}>
+                        {name}
+                      </p>
+
+                      {/* Price Row */}
+                      <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px', flexWrap: 'wrap' }}>
+                        <span style={{ fontSize: '14px', fontWeight: 700, color: '#212121' }}>
+                          ₹{price.toLocaleString()}
+                        </span>
+                        {discount > 0 && (
+                          <>
+                            <span style={{ fontSize: '11px', color: '#878787', textDecoration: 'line-through' }}>
+                              ₹{mrp.toLocaleString()}
+                            </span>
+                            <span style={{ fontSize: '11px', color: '#388e3c', fontWeight: 700 }}>
+                              {discount}% off
+                            </span>
+                          </>
+                        )}
+                      </div>
+
+                      {/* Rating */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        <span style={{
+                          display: 'inline-flex', alignItems: 'center', gap: '2px',
+                          background: '#388e3c', color: '#fff',
+                          fontSize: '10px', fontWeight: 700,
+                          padding: '1px 6px', borderRadius: '3px'
+                        }}>
+                          {Number(rating).toFixed(1)} ★
+                        </span>
+                        <span style={{ fontSize: '10px', color: '#878787' }}>
+                          ({reviewCount})
+                        </span>
+                      </div>
+
+                      {/* UPI offer */}
+                      <p style={{ fontSize: '10.5px', color: '#2874f0', fontWeight: 600, margin: 0 }}>
+                        ₹{Math.round(price * 0.75).toLocaleString()} with UPI offer
+                      </p>
+                    </div>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+
       <section style={{ padding: '40px 0 20px', backgroundColor: 'var(--bg-primary)' }}>
         <div className="container" style={{
           display: 'grid',
@@ -1570,18 +1712,24 @@ export default function Home() {
         }
 
         /* ── Multi Banner Slider ── */
-        .fk-hero-section {
-          position: relative;
-          padding: 20px 0 24px;
-          overflow: hidden;
-        }
         .fk-hero-container {
           position: relative;
           max-width: 1440px;
           margin: 0 auto;
-          padding: 0 16px;
+          padding: 12px 16px 20px;
           display: flex;
+          flex-direction: column;
           align-items: center;
+        }
+        @media (min-width: 640px) {
+          .fk-hero-container {
+            padding: 16px 24px 24px;
+          }
+        }
+        @media (min-width: 768px) {
+          .fk-hero-container {
+            padding: 16px 32px 24px;
+          }
         }
         .fk-track {
           display: flex;
@@ -1589,7 +1737,7 @@ export default function Home() {
           overflow-x: hidden;
           scrollbar-width: none;
           -ms-overflow-style: none;
-          padding: 8px 4px 18px;
+          padding: 4px 4px 14px;
           width: 100%;
         }
         .fk-track::-webkit-scrollbar { display: none; }
@@ -1748,7 +1896,7 @@ export default function Home() {
         /* Responsive behavior for mobile */
         @media (max-width: 768px) {
           .fk-hero-section {
-            padding: 10px 0 14px;
+            padding: 2px 0 10px;
           }
           .fk-hero-container {
             padding: 0 12px;
@@ -1759,7 +1907,7 @@ export default function Home() {
             scroll-snap-type: x mandatory;
             touch-action: pan-x;
             -webkit-overflow-scrolling: touch;
-            padding: 4px 0 12px;
+            padding: 2px 0 10px;
           }
           .fk-card {
             flex: 0 0 85vw;

@@ -419,118 +419,64 @@ img {
   }
 }
 
-/* ========== AMAZON STYLE NAVBAR ========== */
-.navbar-top {
-  background: #131921 !important;
-  color: white !important;
-  height: 60px !important;
+/* ========== FLIPKART STYLE NAVBAR SYSTEM ========== */
+.address-backdrop-mobile {
+  display: none;
 }
 
-.amazon-search-container {
-  display: flex;
-  flex: 1;
-  height: 40px;
-  background: white;
-  border-radius: 4px;
-  /* Remove overflow: hidden to allow suggestions dropdown to show */
-  overflow: visible;
-  margin: 0 10px;
-  position: relative;
+.mobile-handle-bar {
+  display: none;
 }
 
-.amazon-search-select {
-  background: #f3f3f3;
-  border: none;
-  border-right: 1px solid #ddd;
-  padding: 0 10px;
-  font-size: 12px;
-  color: #555;
-  cursor: pointer;
-  outline: none;
+.address-popup-modal {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 400px;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  z-index: 10002;
 }
 
-.amazon-search-input {
-  flex: 1;
-  border: none;
-  padding: 0 10px;
-  font-size: 14px;
-  outline: none;
-  color: #111;
+@media (max-width: 768px) {
+  .address-picker-overlay {
+    position: fixed !important;
+    inset: 0 !important;
+    z-index: 99999 !important;
+    display: flex !important;
+    align-items: flex-end !important;
+    justify-content: center !important;
+  }
+
+  .address-backdrop-mobile {
+    display: block !important;
+    position: absolute !important;
+    inset: 0 !important;
+    background: rgba(0, 0, 0, 0.6) !important;
+    backdrop-filter: blur(4px) !important;
+  }
+
+  .address-popup-modal {
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    border-radius: 24px 24px 0 0 !important;
+    background: #ffffff !important;
+    box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.25) !important;
+    z-index: 2 !important;
+  }
+
+  .mobile-handle-bar {
+    display: block !important;
+  }
 }
 
-.amazon-search-button {
-  background: var(--gradient-primary);
-  border: none;
-  width: 45px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: opacity 0.2s;
-}
-
-.amazon-search-button:hover {
-  opacity: 0.9;
-}
-
-.nav-belt-item {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding: 0 8px;
-  height: 100%;
-  cursor: pointer;
-  border: 1px solid transparent;
-  border-radius: 2px;
-  color: white !important;
-  text-decoration: none;
-}
-
-.nav-belt-item:hover {
-  border-color: transparent;
-  color: white !important;
-}
-
-.nav-sub-item {
-  color: white !important;
-  text-decoration: none;
-  padding: 4px 10px;
-  border: 1px solid transparent;
-  border-radius: 24px;
-  display: inline-flex;
-  align-items: center;
-  cursor: pointer;
-}
-
-.nav-sub-item:hover {
-  border-color: white;
-}
-
-.nav-line-1 {
-  font-size: 11px;
-  color: #ccc;
-  line-height: 12px;
-}
-
-.nav-line-2 {
-  font-size: 14px;
-  font-weight: 700;
-  line-height: 15px;
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  white-space: nowrap;
-}
-
-
-
-/* Book Opening Animation */
+/* Book Opening Popup Animation */
 .book-container {
   perspective: 1200px;
-  position: absolute;
-  top: 60px;
-  right: 0;
-  z-index: 2000;
 }
 
 .book-popup {
@@ -538,14 +484,14 @@ img {
   color: #111;
   width: 280px;
   padding: 20px;
-  border-radius: 4px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-  transform-origin: left center;
-  border: 1px solid #ddd;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  transform-origin: top right;
+  border: 1px solid #e2e8f0;
 }
 
 .profile-menu-popup {
-  width: 400px;
+  width: 380px;
   display: flex;
   flex-direction: row;
   padding: 20px;
@@ -557,7 +503,7 @@ img {
 }
 
 .main-account {
-  border-right: 1px solid #eee;
+  border-right: 1px solid #f1f5f9;
   padding-right: 15px;
 }
 
@@ -566,17 +512,12 @@ img {
 }
 
 @media (max-width: 768px) {
-  .book-container {
-    right: -10px;
-  }
-
   .profile-menu-popup {
     width: 280px;
     flex-direction: column;
-    padding: 20px;
+    padding: 16px;
     max-height: 85vh;
     overflow-y: auto;
-    right: 0;
   }
 
   .profile-menu-section {
@@ -584,54 +525,16 @@ img {
     border: none !important;
   }
 
-  .profile-menu-section h4 {
-    font-size: 15px !important;
-    margin-bottom: 12px !important;
-    padding-bottom: 8px;
-    border-bottom: 1px solid #f0f0f0;
-    color: #111 !important;
-  }
-
-  .profile-menu-section a,
-  .profile-menu-section button {
-    padding: 12px 0 !important;
-    font-size: 14px !important;
-    border-bottom: 1px solid #fafafa;
-  }
-
-  .profile-menu-section a:last-child {
-    border-bottom: none;
-  }
-
   .main-account {
-    margin-bottom: 20px;
+    margin-bottom: 16px;
   }
 
   .seller-account {
-    border-top: 2px solid #f0f2f2 !important;
-    padding-top: 20px !important;
+    border-top: 1px solid #f1f5f9 !important;
+    padding-top: 16px !important;
   }
 }
 
-.mobile-only {
-  display: none !important;
-}
-
-/* Responsive tweaks */
-@media (max-width: 768px) {
-  .amazon-search-container {
-    display: none;
-  }
-
-  .desktop-only {
-    display: none !important;
-  }
-
-  .mobile-only {
-    display: flex !important;
-  }
-
-}
 
 /* ========== PRODUCT DETAIL RESPONSIVE ========== */
 .product-detail-container {
