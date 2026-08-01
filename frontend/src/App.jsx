@@ -71,7 +71,7 @@ function AppContent() {
   const isDashboard = location.pathname.startsWith('/seller') ||
     location.pathname.startsWith('/admin') ||
     location.pathname.startsWith('/delivery');
-  const isRentSubPage = location.pathname === '/rent/cart' || location.pathname === '/rent/profile' || location.pathname === '/rent/category' || location.pathname.startsWith('/rent/product');
+  const isRentPage = location.pathname.startsWith('/rent');
   const isAuthPage = location.pathname === '/login' || location.pathname === '/register';
 
   useEffect(() => {
@@ -80,7 +80,7 @@ function AppContent() {
 
   return (
     <div className="app-page-wrapper" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', width: '100%', overflowX: 'hidden' }}>
-      {!isRentSubPage && !isDashboard && <Navbar />}
+      {!isRentPage && !isDashboard && <Navbar />}
       <main className="app-main" style={{ flex: 1, width: '100%' }}>
         <Routes>
           <Route path="/" element={<Home />} />

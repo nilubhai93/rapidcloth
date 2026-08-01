@@ -182,7 +182,6 @@ export default function BrowsingHistory() {
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.9 }}
                     transition={{ delay: i * 0.03, duration: 0.3 }}
-                    whileHover={{ y: -4, boxShadow: '0 12px 40px rgba(58,107,197,0.12)' }}
                     style={{
                       borderRadius: '16px', overflow: 'hidden',
                       background: 'var(--bg-card)', border: '1px solid var(--border)',

@@ -106,7 +106,6 @@ export default function RentProfile() {
     return (
         <div style={{ minHeight: '100vh', background: '#fafafb', fontFamily: 'var(--font-sans)' }}>
             <RentNavbar activeTab="rent" />
-
             <div className="container" style={{ padding: '32px 24px 60px', maxWidth: '700px', margin: '0 auto' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
                     <h1 style={{ fontSize: '28px', fontWeight: 800, color: '#0f172a' }}>Rental Account</h1>

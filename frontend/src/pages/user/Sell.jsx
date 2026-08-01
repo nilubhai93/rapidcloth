@@ -126,7 +126,6 @@ export default function Sell() {
                 <motion.div key={product._id}
                   initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.04, duration: 0.4 }}
-                  whileHover={{ y: -6, boxShadow: '0 12px 40px rgba(58,107,197,0.15)' }}
                   style={{
                     borderRadius: '16px', overflow: 'hidden',
                     background: 'var(--bg-card)', border: '1px solid var(--border)',

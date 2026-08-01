@@ -55,7 +55,7 @@ const ProductCard = memo(function ProductCard({ product, index = 0, showButtons 
         transition: 'all var(--transition-base)',
         position: 'relative'
       }}
-      whileHover={{ y: -4, borderColor: 'rgba(20, 50, 122, 0.5)' }}
+      whileHover={{ borderColor: 'rgba(20, 50, 122, 0.5)' }}
     >
       <Link to={linkTo || `/products/${product._id}`} style={{ textDecoration: 'none', color: 'inherit', flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
         {/* Image */}
@@ -65,11 +65,8 @@ const ProductCard = memo(function ProductCard({ product, index = 0, showButtons 
             alt={product.name}
             loading='eager'
             style={{
-              width: '100%', height: '100%', objectFit: 'cover',
-              transition: 'transform var(--transition-slow)'
+              width: '100%', height: '100%', objectFit: 'cover'
             }}
-            onMouseOver={e => e.target.style.transform = 'scale(1.05)'}
-            onMouseOut={e => e.target.style.transform = 'scale(1)'}
           />
 
           {/* Badges */}
@@ -223,8 +220,6 @@ const ProductCard = memo(function ProductCard({ product, index = 0, showButtons 
           )}
 
           <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
             onClick={async (e) => {
               e.preventDefault();
               e.stopPropagation();

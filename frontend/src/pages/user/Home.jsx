@@ -297,7 +297,8 @@ export default function Home() {
     if (!track || !track.children[displayIndex]) return;
 
     const card = track.children[displayIndex];
-    const targetScrollLeft = card.offsetLeft;
+    const paddingLeft = parseFloat(window.getComputedStyle(track).paddingLeft) || 0;
+    const targetScrollLeft = Math.max(0, card.offsetLeft - paddingLeft);
 
     isProgrammaticScrollRef.current = true;
 
@@ -1714,8 +1715,7 @@ export default function Home() {
 
         /* ── Multi Banner Slider ── */
         .fk-hero-container {
-          position: relative;
-          max-width: 1440px;
+          maxWidth: 1440px;
           margin: 0 auto;
           padding: 12px 24px 20px;
           display: flex;
@@ -1723,6 +1723,7 @@ export default function Home() {
           align-items: center;
           width: 100%;
           box-sizing: border-box;
+          overflow: hidden;
         }
         @media (min-width: 640px) {
           .fk-hero-container {
@@ -1737,12 +1738,14 @@ export default function Home() {
         .fk-track {
           display: flex;
           gap: 16px;
-          overflow-x: hidden;
+          overflow-x: auto;
           scrollbar-width: none;
           -ms-overflow-style: none;
-          padding: 8px 0px 20px 0px;
-          width: 100%;
+          padding: 10px 16px 20px 16px;
+          margin: 0 -16px;
+          width: calc(100% + 32px);
           box-sizing: border-box;
+          -webkit-overflow-scrolling: touch;
         }
         .fk-track::-webkit-scrollbar { display: none; }
         .fk-card {
@@ -1752,6 +1755,8 @@ export default function Home() {
           overflow: hidden;
           isolation: isolate;
           -webkit-backface-visibility: hidden;
+          -webkit-mask-image: -webkit-radial-gradient(white, black);
+          clip-path: inset(0 round 20px);
           transform: translateZ(0);
           position: relative;
           scroll-snap-align: start;
@@ -1763,7 +1768,6 @@ export default function Home() {
           transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.3s ease;
         }
         .fk-card:hover {
-          transform: translateY(-4px);
           box-shadow: 0 12px 30px rgba(0,0,0,0.2);
         }
         .fk-card-content {
@@ -1915,12 +1919,16 @@ export default function Home() {
             touch-action: pan-x;
             -webkit-overflow-scrolling: touch;
             padding: 6px 12px 14px 12px;
+            margin: 0 -12px;
+            width: calc(100% + 24px);
           }
           .fk-card {
             flex: 0 0 85vw;
             height: clamp(170px, 48vw, 210px);
             border-radius: 16px;
             isolation: isolate;
+            -webkit-mask-image: -webkit-radial-gradient(white, black);
+            clip-path: inset(0 round 16px);
           }
           .fk-card-content {
             padding: 10px 12px;
@@ -2079,10 +2087,9 @@ export default function Home() {
 
         /* Promo Cards */
         .promo-card {
-          transition: transform 0.3s ease, box-shadow 0.3s ease;
+          transition: box-shadow 0.3s ease;
         }
         .promo-card:hover {
-          transform: translateY(-8px);
           box-shadow: 0 12px 30px rgba(0,0,0,0.12) !important;
         }
 
@@ -2189,7 +2196,6 @@ export default function Home() {
         .category-card:hover {
           border-color: var(--accent) !important;
           background: var(--bg-elevated) !important;
-          transform: translateY(-4px);
           box-shadow: 0 8px 24px rgba(168, 85, 247, 0.15);
         }
         .category-emoji { font-size: 32px; line-height: 1; }
@@ -2206,7 +2212,6 @@ export default function Home() {
         .occasion-card:hover {
           border-color: var(--accent) !important;
           background: var(--bg-elevated) !important;
-          transform: translateY(-4px);
           box-shadow: 0 8px 24px rgba(168, 85, 247, 0.15);
         }
         .occasion-emoji { font-size: 36px; }

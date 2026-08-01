@@ -494,19 +494,14 @@ export default function Rent() {
           overflow: hidden;
           cursor: pointer;
           box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-          transition: transform 0.3s ease, box-shadow 0.3s ease;
+          transition: box-shadow 0.3s ease;
         }
         .formal-card:hover {
-          transform: translateY(-6px);
           box-shadow: 0 16px 40px rgba(0,0,0,0.18);
         }
         .formal-card img {
           width: 100%; height: 100%; object-fit: cover;
-          transition: transform 0.5s ease;
           display: block;
-        }
-        .formal-card:hover img {
-          transform: scale(1.06);
         }
         .formal-card-overlay {
           position: absolute; inset: 0;

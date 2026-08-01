@@ -18,6 +18,8 @@ import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import PhotoCameraRoundedIcon from '@mui/icons-material/PhotoCameraRounded';
 import PhotoLibraryRoundedIcon from '@mui/icons-material/PhotoLibraryRounded';
 import MicRoundedIcon from '@mui/icons-material/MicRounded';
+import CheckroomIcon from '@mui/icons-material/CheckroomRounded';
+import ArrowBackRoundedIcon from '@mui/icons-material/ArrowBackRounded';
 
 const SEARCH_PLACEHOLDERS = [
   " Banarasi Silk Sarees...",
@@ -43,6 +45,7 @@ export default function Navbar() {
 
   const [searchQuery, setSearchQuery] = useState('');
   const [searchCategory, setSearchCategory] = useState('All');
+  const [rentOpen, setRentOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [langOpen, setLangOpen] = useState(false);
   const [addressOpen, setAddressOpen] = useState(false);
@@ -51,6 +54,7 @@ export default function Navbar() {
   const [pincodeInput, setPincodeInput] = useState('');
   const [showAllCategories, setShowAllCategories] = useState(false);
 
+  const rentRef = useRef(null);
   const profileRef = useRef(null);
   const langRef = useRef(null);
   const addressRef = useRef(null);
@@ -134,9 +138,9 @@ export default function Navbar() {
   // Click outside to close dropdowns
   useEffect(() => {
     const handleClickOutside = (e) => {
+      if (rentRef.current && !rentRef.current.contains(e.target)) setRentOpen(false);
       if (profileRef.current && !profileRef.current.contains(e.target)) setProfileOpen(false);
       if (langRef.current && !langRef.current.contains(e.target)) setLangOpen(false);
-      if (addressRef.current && !addressRef.current.contains(e.target)) setAddressOpen(false);
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
@@ -157,7 +161,7 @@ export default function Navbar() {
     navigate(query);
   };
 
-  if (isAuthPage || location.pathname.startsWith('/delivery') || location.pathname.startsWith('/admin') || location.pathname.startsWith('/seller')) {
+  if (isAuthPage || location.pathname.startsWith('/delivery') || location.pathname.startsWith('/admin') || location.pathname.startsWith('/seller') || location.pathname.startsWith('/rent')) {
     return null;
   }
 
@@ -332,11 +336,11 @@ export default function Navbar() {
   return (
     <>
       <header className="navbar-fixed-container fixed top-0 left-0 right-0 z-[100] bg-white border-b border-gray-200/90 shadow-xs transition-all duration-300 font-sans">
-        
+
         {/* MOBILE VIEW ONLY: 4 STACKED ROWS FOR ALL MOBILE DIMENSION DEVICES (md:hidden) */}
         {!isCartPage && (
           <div className="md:hidden bg-white px-3.5 py-2.5 flex flex-col gap-2.5 border-b border-slate-200/80 shadow-xs">
-            
+
             {/* ROW 1: BRAND LOGO ON LEFT & AI STYLIST HEADING/BUTTON ON RIGHT */}
             <div className="flex items-center justify-between w-full">
               <Link to="/shop" className="flex items-center gap-2 text-[#14327a] font-black tracking-tight text-decoration-none shrink-0">
@@ -441,11 +445,10 @@ export default function Navbar() {
                 <Link
                   key={cat.id}
                   to={cat.link}
-                  className={`flex flex-col items-center justify-center gap-1 px-2.5 py-1.5 rounded-xl transition-all duration-200 shrink-0 text-decoration-none min-w-[58px] ${
-                    cat.isActive 
-                      ? 'bg-blue-50 text-[#2874f0] font-bold shadow-2xs' 
+                  className={`flex flex-col items-center justify-center gap-1 px-2.5 py-1.5 rounded-xl transition-all duration-200 shrink-0 text-decoration-none min-w-[58px] ${cat.isActive
+                      ? 'bg-blue-50 text-[#2874f0] font-bold shadow-2xs'
                       : 'text-slate-700 font-medium hover:bg-slate-50'
-                  }`}
+                    }`}
                 >
                   <div className="w-7 h-7 rounded-xl flex items-center justify-center">
                     {cat.icon}
@@ -457,6 +460,51 @@ export default function Navbar() {
               ))}
             </div>
 
+          </div>
+        )}
+
+        {/* MOBILE VIEW ONLY WHEN ON CART PAGE: BACK ARROW, SEARCH BAR & CART OPTION */}
+        {isCartPage && (
+          <div className="md:hidden bg-white px-3.5 py-2.5 flex items-center justify-between gap-2 border-b border-slate-200/80 shadow-xs">
+            {/* Back Arrow Icon */}
+            <motion.button
+              type="button"
+              onClick={() => navigate('/shop')}
+              whileHover={{ scale: 1.08, x: -3 }}
+              whileTap={{ scale: 0.93 }}
+              title="Back to Home"
+              className="w-9.5 h-9.5 rounded-2xl bg-[#f0f5ff] active:bg-[#2874f0] text-[#2874f0] active:text-white border border-blue-200 flex items-center justify-center shrink-0 cursor-pointer transition-colors shadow-2xs"
+            >
+              <ArrowBackRoundedIcon style={{ fontSize: '20px' }} />
+            </motion.button>
+
+            {/* Search Bar */}
+            <form onSubmit={handleSearch} className="flex-1 min-w-0 relative">
+              <div className="relative flex items-center w-full bg-[#f8fafc] border border-slate-200 focus-within:border-[#2874f0] focus-within:bg-white rounded-2xl px-2.5 py-1.5 shadow-2xs transition-all">
+                <SearchIcon style={{ fontSize: '17px', color: '#94a3b8' }} className="shrink-0 mr-1" />
+                <input
+                  type="text"
+                  className="w-full bg-transparent text-xs text-slate-900 placeholder-slate-400 font-semibold focus:outline-none min-w-0"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder={SEARCH_PLACEHOLDERS[placeholderIndex]}
+                />
+              </div>
+            </form>
+
+            {/* Redesigned Cart Option */}
+            <Link
+              to="/cart"
+              className="flex items-center gap-1.5 py-1.5 px-3 bg-gradient-to-r from-[#2874f0] to-[#14327a] text-white rounded-2xl shadow-xs shrink-0 text-decoration-none"
+            >
+              <div className="relative flex items-center justify-center">
+                <ShoppingCartIcon className="!text-lg text-white" />
+                <span className="absolute -top-2 -right-2 bg-[#ffe500] text-[#14327a] text-[9px] font-black rounded-full min-w-[16px] h-[16px] px-0.5 flex items-center justify-center border border-white">
+                  {itemCount}
+                </span>
+              </div>
+              <span className="text-xs font-black text-white">Cart</span>
+            </Link>
           </div>
         )}
 
@@ -496,11 +544,10 @@ export default function Navbar() {
             <div
               ref={addressRef}
               onClick={(e) => { e.stopPropagation(); setAddressOpen(!addressOpen); }}
-              className={`flex items-center gap-2.5 cursor-pointer py-1.5 px-4 rounded-2xl transition-all text-gray-700 font-medium group shrink-0 min-w-[280px] lg:min-w-[340px] max-w-[380px] ${
-                addressOpen
+              className={`flex items-center gap-2.5 cursor-pointer py-1.5 px-4 rounded-2xl transition-all text-gray-700 font-medium group shrink-0 min-w-[280px] lg:min-w-[340px] max-w-[380px] ${addressOpen
                   ? 'bg-[#e4edff] border-2 border-[#2874f0] shadow-md ring-4 ring-blue-100/80'
                   : 'bg-[#f0f5ff] hover:bg-[#e4edff] border border-blue-200/90 shadow-2xs'
-              }`}
+                }`}
               style={{
                 marginLeft: addressOpen ? '28px' : 'auto',
                 transition: 'all 0.35s cubic-bezier(0.4, 0, 0.2, 1)'
@@ -540,10 +587,25 @@ export default function Navbar() {
             paddingRight: '24px',
             paddingTop: '6px',
             paddingBottom: '10px',
-            gap: '24px',
+            gap: '18px',
             boxSizing: 'border-box'
           }}
         >
+          {/* ONLY ON CART PAGE: ANIMATED BACK ARROW BUTTON BEFORE SEARCH BAR */}
+          {isCartPage && (
+            <motion.button
+              type="button"
+              onClick={() => navigate('/shop')}
+              whileHover={{ scale: 1.08, x: -3 }}
+              whileTap={{ scale: 0.93 }}
+              title="Back to Home"
+              className="flex items-center gap-2 py-2 px-3.5 rounded-2xl bg-[#f0f5ff] hover:bg-[#2874f0] text-[#2874f0] hover:text-white border border-blue-200/90 shadow-2xs hover:shadow-md transition-all duration-200 shrink-0 cursor-pointer group"
+            >
+              <ArrowBackRoundedIcon className="!text-xl transition-transform duration-200 group-hover:-translate-x-1" />
+              <span className="text-xs font-black tracking-wide hidden lg:inline">Back</span>
+            </motion.button>
+          )}
+
           {/* Search Bar */}
           <form onSubmit={handleSearch} className="flex-1 min-w-0 max-w-3xl lg:max-w-4xl relative">
             <div
@@ -690,8 +752,116 @@ export default function Navbar() {
             </div>
           </form>
 
-          {/* Account & Lists, Language, Cart Buttons */}
+          {/* Rent, Account & Lists, Language, Cart Buttons */}
           <div className="flex items-center gap-2.5 lg:gap-3.5 shrink-0">
+            {/* Rent Dropdown Button */}
+            {!isCartPage && (
+              <div
+                ref={rentRef}
+                className="relative group shrink-0"
+                onMouseEnter={() => setRentOpen(true)}
+                onMouseLeave={() => setRentOpen(false)}
+              >
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setRentOpen(false);
+                    navigate('/rent');
+                  }}
+                  className={`flex items-center gap-2.5 py-2 px-3.5 lg:px-4 rounded-2xl transition-all duration-200 cursor-pointer shadow-2xs font-sans border text-decoration-none ${isRentPage
+                      ? 'bg-gradient-to-r from-[#14327a] via-[#2874f0] to-[#14327a] text-white border-blue-600 shadow-md ring-2 ring-blue-200'
+                      : 'bg-[#f8fafc] hover:bg-[#ebf2fe] border border-slate-200/90 hover:border-blue-300 text-gray-800'
+                    }`}
+                >
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center font-extrabold text-xs overflow-hidden shadow-xs shrink-0 ${isRentPage ? 'bg-white/20 text-white' : 'bg-blue-100 text-[#2874f0]'
+                    }`}>
+                    <CheckroomIcon className="!text-lg" />
+                  </div>
+                  <div className="flex flex-col text-left">
+                    <span className={`text-[10px] font-semibold leading-none ${isRentPage ? 'text-blue-100' : 'text-gray-500'}`}>
+                      Fashion
+                    </span>
+                    <div className="flex items-center gap-1 text-xs lg:text-[13px] font-extrabold leading-tight mt-0.5 group-hover:text-[#2874f0] transition-colors">
+                      <span className={isRentPage ? 'text-white' : 'text-gray-900'}>Rent</span>
+                      <motion.div animate={{ rotate: rentOpen ? 180 : 0 }} transition={{ duration: 0.2 }}>
+                        <ExpandMoreIcon className={`!text-base ${isRentPage ? 'text-white' : 'text-gray-500 group-hover:text-[#2874f0]'}`} />
+                      </motion.div>
+                    </div>
+                  </div>
+                </button>
+
+                {/* Rent Options Dropdown Menu */}
+                <AnimatePresence>
+                  {rentOpen && (
+                    <div className="book-container" style={{ position: 'absolute', top: '100%', left: 0, zIndex: 2000, marginTop: '8px' }}>
+                      <motion.div
+                        className="book-popup profile-menu-popup"
+                        onClick={(e) => e.stopPropagation()}
+                        initial={{ scaleY: 0, opacity: 0, transformOrigin: 'top left' }}
+                        animate={{ scaleY: 1, opacity: 1 }}
+                        exit={{ scaleY: 0, opacity: 0 }}
+                        transition={{ duration: 0.18, ease: "easeOut" }}
+                        style={{
+                          background: '#ffffff',
+                          borderRadius: '16px',
+                          boxShadow: '0 10px 30px rgba(0,0,0,0.15)',
+                          border: '1px solid #e2e8f0',
+                          minWidth: '250px',
+                          padding: '12px'
+                        }}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px', paddingBottom: '8px', borderBottom: '1px solid #f1f5f9' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <CheckroomIcon style={{ fontSize: '18px', color: '#2874f0' }} />
+                            <span style={{ fontSize: '13px', fontWeight: 800, color: '#1e293b' }}>Rent Outfits</span>
+                          </div>
+                          <span style={{ fontSize: '10px', fontWeight: 800, background: '#eff6ff', color: '#2874f0', padding: '2px 6px', borderRadius: '10px' }}>
+                            PREMIUM
+                          </span>
+                        </div>
+
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                          <Link
+                            to="/rent"
+                            onClick={() => setRentOpen(false)}
+                            className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-gray-800 hover:bg-blue-50 hover:text-[#2874f0] transition-colors text-decoration-none"
+                          >
+                            <span>✨</span>
+                            <span>Browse All Rentals</span>
+                          </Link>
+                          <Link
+                            to="/rent/category?gender=men"
+                            onClick={() => setRentOpen(false)}
+                            className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-gray-700 hover:bg-blue-50 hover:text-[#2874f0] transition-colors text-decoration-none"
+                          >
+                            <span>👔</span>
+                            <span>Men's Tuxedos & Sherwanis</span>
+                          </Link>
+                          <Link
+                            to="/rent/category?gender=women"
+                            onClick={() => setRentOpen(false)}
+                            className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-gray-700 hover:bg-blue-50 hover:text-[#2874f0] transition-colors text-decoration-none"
+                          >
+                            <span>👗</span>
+                            <span>Women's Designer Lehengas</span>
+                          </Link>
+                          <Link
+                            to="/rent/cart"
+                            onClick={() => setRentOpen(false)}
+                            className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-gray-700 hover:bg-blue-50 hover:text-[#2874f0] transition-colors text-decoration-none"
+                          >
+                            <span>🛍️</span>
+                            <span>My Rental Bag</span>
+                          </Link>
+                        </div>
+                      </motion.div>
+                    </div>
+                  )}
+                </AnimatePresence>
+              </div>
+            )}
+
             {/* Account Dropdown */}
             {!isCartPage && (
               <div
@@ -833,19 +1003,22 @@ export default function Navbar() {
               </div>
             )}
 
-            {/* Shopping Cart Button */}
+            {/* Redesigned Shopping Cart Button */}
             <Link
               to={isRentPage ? '/rent/cart' : '/cart'}
-              className="flex items-center gap-2 py-2 px-4 lg:px-5 bg-gradient-to-r from-[#2874f0] to-[#14327a] hover:from-[#1e4db7] hover:to-[#0f2456] text-white rounded-2xl transition-all duration-200 shadow-md hover:shadow-lg hover:scale-105 group text-decoration-none shrink-0"
+              className={`flex items-center gap-2.5 py-2 px-4 lg:px-5 text-white rounded-2xl transition-all duration-200 shadow-md hover:shadow-lg hover:scale-105 group text-decoration-none shrink-0 ${isCartPage
+                  ? 'bg-gradient-to-r from-[#14327a] via-[#2874f0] to-[#14327a] ring-2 ring-blue-300 border border-blue-400'
+                  : 'bg-gradient-to-r from-[#2874f0] to-[#14327a] hover:from-[#1e4db7] hover:to-[#0f2456]'
+                }`}
             >
               <div className="relative flex items-center justify-center">
-                <ShoppingCartIcon className="!text-xl text-white" />
-                <span className="absolute -top-2.5 -right-2.5 bg-[#ffe500] text-[#14327a] text-[10px] font-black rounded-full min-w-[18px] h-[18px] px-1 flex items-center justify-center shadow-xs border border-white">
+                <ShoppingCartIcon className="!text-xl text-white group-hover:-rotate-12 transition-transform duration-300" />
+                <span className="absolute -top-2.5 -right-2.5 bg-[#ffe500] text-[#14327a] text-[10px] font-black rounded-full min-w-[19px] h-[19px] px-1 flex items-center justify-center shadow-xs border-2 border-white">
                   {itemCount}
                 </span>
               </div>
-              <span className="text-xs lg:text-sm font-extrabold text-white tracking-wide">
-                Cart
+              <span className="text-xs lg:text-sm font-black text-white tracking-wide">
+                {isCartPage ? 'Your Bag' : 'Cart'}
               </span>
             </Link>
           </div>
@@ -893,9 +1066,8 @@ export default function Navbar() {
                 <Link
                   key={cat.id}
                   to={cat.link}
-                  className={`group flex flex-col items-center gap-0.5 px-1.5 lg:px-2 py-1 rounded-xl transition-all duration-200 relative text-decoration-none shrink-0 ${
-                    cat.isActive ? 'bg-blue-50/90 text-[#2874f0] font-bold' : 'text-gray-700 hover:text-[#2874f0] font-semibold hover:bg-gray-50'
-                  }`}
+                  className={`group flex flex-col items-center gap-0.5 px-1.5 lg:px-2 py-1 rounded-xl transition-all duration-200 relative text-decoration-none shrink-0 ${cat.isActive ? 'bg-blue-50/90 text-[#2874f0] font-bold' : 'text-gray-700 hover:text-[#2874f0] font-semibold hover:bg-gray-50'
+                    }`}
                 >
                   <div className="w-7.5 h-7.5 lg:w-8.5 lg:h-8.5 rounded-xl flex items-center justify-center text-gray-800 group-hover:text-[#2874f0] transition-all duration-300 transform group-hover:-translate-y-0.5 group-hover:scale-110">
                     {cat.icon}
@@ -1234,28 +1406,13 @@ export default function Navbar() {
                 flexShrink: 0,
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'space-between',
-                gap: '10px'
+                justifyContent: 'center',
+                gap: '6px'
               }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <span style={{ fontSize: '13px' }}>🔒</span>
-                  <span style={{ fontSize: '11px', color: '#6b7280', fontWeight: 500 }}>
-                    Your address is safe &amp; secure
-                  </span>
-                </div>
-                <button
-                  onClick={() => setAddressOpen(false)}
-                  style={{
-                    padding: '7px 16px', borderRadius: '8px',
-                    border: '1.5px solid #e5e7eb', background: '#fff',
-                    fontSize: '12px', fontWeight: 700, color: '#374151',
-                    cursor: 'pointer', transition: 'all 0.2s', fontFamily: 'inherit'
-                  }}
-                  onMouseEnter={e => { e.currentTarget.style.background = '#f9fafb'; e.currentTarget.style.borderColor = '#d1d5db'; }}
-                  onMouseLeave={e => { e.currentTarget.style.background = '#fff'; e.currentTarget.style.borderColor = '#e5e7eb'; }}
-                >
-                  Close
-                </button>
+                <span style={{ fontSize: '13px' }}>🔒</span>
+                <span style={{ fontSize: '11.5px', color: '#6b7280', fontWeight: 600 }}>
+                  Your address is safe &amp; secure
+                </span>
               </div>
             </motion.div>
           </div>

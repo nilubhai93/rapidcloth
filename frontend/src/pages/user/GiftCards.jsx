@@ -160,7 +160,6 @@ export default function GiftCards() {
             <motion.div key={card.id}
               initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.06, duration: 0.4 }}
-              whileHover={{ y: -6, boxShadow: `0 16px 48px ${card.color}20` }}
               style={{
                 borderRadius: '20px', overflow: 'hidden',
                 background: 'var(--bg-card)', border: '1px solid var(--border)',
