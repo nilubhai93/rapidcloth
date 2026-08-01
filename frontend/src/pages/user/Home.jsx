@@ -297,8 +297,7 @@ export default function Home() {
     if (!track || !track.children[displayIndex]) return;
 
     const card = track.children[displayIndex];
-    const paddingLeft = parseFloat(window.getComputedStyle(track).paddingLeft) || 0;
-    const targetScrollLeft = Math.max(0, card.offsetLeft - paddingLeft);
+    const targetScrollLeft = card.offsetLeft;
 
     isProgrammaticScrollRef.current = true;
 
@@ -1715,9 +1714,9 @@ export default function Home() {
 
         /* ── Multi Banner Slider ── */
         .fk-hero-container {
-          maxWidth: 1440px;
+          max-width: 1440px;
           margin: 0 auto;
-          padding: 12px 24px 20px;
+          padding: 16px 24px 20px;
           display: flex;
           flex-direction: column;
           align-items: center;
@@ -1727,12 +1726,12 @@ export default function Home() {
         }
         @media (min-width: 640px) {
           .fk-hero-container {
-            padding: 12px 24px 20px;
+            padding: 16px 24px 20px;
           }
         }
         @media (min-width: 768px) {
           .fk-hero-container {
-            padding: 12px 24px 20px;
+            padding: 16px 24px 20px;
           }
         }
         .fk-track {
@@ -1749,8 +1748,8 @@ export default function Home() {
         }
         .fk-track::-webkit-scrollbar { display: none; }
         .fk-card {
-          flex: 0 0 clamp(320px, 42vw, 560px);
-          height: clamp(175px, 20vw, 225px);
+          flex: 0 0 clamp(320px, 45vw, 620px);
+          height: clamp(180px, 22vw, 240px);
           border-radius: 20px;
           overflow: hidden;
           isolation: isolate;
@@ -1761,7 +1760,7 @@ export default function Home() {
           position: relative;
           scroll-snap-align: start;
           cursor: pointer;
-          box-shadow: 0 8px 24px rgba(0,0,0,0.14);
+          box-shadow: 0 8px 24px rgba(0,0,0,0.12);
           border: 1px solid rgba(255,255,255,0.22);
           display: flex;
           justify-content: space-between;
@@ -1887,21 +1886,23 @@ export default function Home() {
           display: flex;
           justify-content: center;
           align-items: center;
-          gap: 7px;
-          margin-top: 10px;
+          gap: 6px;
+          margin-top: 12px;
         }
         .fk-dot {
-          width: 7px;
-          height: 7px;
-          border-radius: 4px;
-          background: #cbd5e1;
+          width: 6px;
+          height: 6px;
+          border-radius: 50%;
+          background: #d1d5db;
           cursor: pointer;
           transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .fk-dot-active {
-          width: 24px;
-          background: #1e4db7;
-          box-shadow: 0 2px 6px rgba(30, 77, 183, 0.3);
+          width: 18px;
+          height: 6px;
+          border-radius: 3px;
+          background: #383838;
+          box-shadow: 0 1px 4px rgba(0,0,0,0.15);
         }
 
         /* Responsive behavior for mobile */
@@ -1910,7 +1911,7 @@ export default function Home() {
             padding: 2px 0 10px;
           }
           .fk-hero-container {
-            padding: 0 12px;
+            padding: 8px 14px 16px;
           }
           .fk-track {
             gap: 12px;
@@ -1918,9 +1919,9 @@ export default function Home() {
             scroll-snap-type: x mandatory;
             touch-action: pan-x;
             -webkit-overflow-scrolling: touch;
-            padding: 6px 12px 14px 12px;
-            margin: 0 -12px;
-            width: calc(100% + 24px);
+            padding: 6px 0px 14px 0px;
+            margin: 0;
+            width: 100%;
           }
           .fk-card {
             flex: 0 0 85vw;
