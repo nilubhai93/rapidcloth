@@ -18,7 +18,6 @@ const productSchema = new mongoose.Schema({
   category: {
     type: String,
     required: true,
-    enum: ['dress', 'shirt', 'jeans', 'tshirt', 'jacket', 'accessory', 'shoes', 'outerwear', 'skirt', 'shorts', 'sweater', 'bag', 'jewelry'],
     index: true
   },
   subcategory: { type: String, default: '' },
@@ -46,7 +45,7 @@ const productSchema = new mongoose.Schema({
     type: [Number],
     default: [],
     validate: {
-      validator: function(v) {
+      validator: function (v) {
         return v.length === 0 || v.length === 1536;
       },
       message: 'Style embedding must be 1536 dimensions or empty'
@@ -84,7 +83,7 @@ productSchema.index({ occasion: 1 });
 productSchema.index({ 'deliveryZones.zipPrefix': 1 });
 
 // Virtual for effective price
-productSchema.virtual('effectivePrice').get(function() {
+productSchema.virtual('effectivePrice').get(function () {
   return this.discountPrice || this.price;
 });
 

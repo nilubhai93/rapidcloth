@@ -1,19 +1,17 @@
-/* ── Responsive main content padding ── */
-/* Nav (64px) + Search area (~100px) = ~164px */
+/* ── Responsive main content padding for fixed navbar ── */
 .app-main {
-  padding-top: 164px;
+  padding-top: 148px;
+  transition: padding-top 0.28s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 @media (max-width: 768px) {
-  /* Nav (56px) + Search area (~90px) = ~146px */
   .app-main {
-    padding-top: 146px;
+    padding-top: 136px;
   }
 }
 
 @media (max-width: 480px) {
-  /* Nav (52px) + Search area (~78px) = ~130px */
   .app-main {
-    padding-top: 130px;
+    padding-top: 124px;
   }
 }

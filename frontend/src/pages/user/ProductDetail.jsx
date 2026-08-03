@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useGetProductDetailsQuery, useGetProductsQuery } from '../../store/apiSlice';
 import ProductCard from '../../components/ProductCard';
@@ -15,7 +15,6 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircleRounded';
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNewRounded';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIosRounded';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesomeRounded';
-import NavigateNextIcon from '@mui/icons-material/NavigateNextRounded';
 import SecurityIcon from '@mui/icons-material/SecurityRounded';
 import RefreshIcon from '@mui/icons-material/RefreshRounded';
 
@@ -107,25 +106,6 @@ export default function ProductDetail() {
     <div className="pd-wrapper">
       <div className="pd-main-container">
         
-        {/* Breadcrumb Navigation */}
-        <nav className="pd-breadcrumb">
-          <Link to="/">Home</Link>
-          <NavigateNextIcon sx={{ fontSize: '16px', color: '#94a3b8' }} />
-          <Link to="/products">Products</Link>
-          {product.category && (
-            <>
-              <NavigateNextIcon sx={{ fontSize: '16px', color: '#94a3b8' }} />
-              <Link to={`/products?category=${encodeURIComponent(product.category)}`} style={{ textTransform: 'capitalize' }}>
-                {product.category}
-              </Link>
-            </>
-          )}
-          <NavigateNextIcon sx={{ fontSize: '16px', color: '#94a3b8' }} />
-          <span className="pd-breadcrumb-active">
-            {product.name}
-          </span>
-        </nav>
-
         {/* Main Product Grid */}
         <div className="pd-grid">
           
@@ -418,9 +398,16 @@ export default function ProductDetail() {
           padding-bottom: 60px;
         }
         .pd-main-container {
-          max-width: 1240px;
+          width: 100%;
+          max-width: 1440px;
           margin: 0 auto;
           padding: 24px 24px 60px;
+          box-sizing: border-box;
+        }
+        @media (max-width: 768px) {
+          .pd-main-container {
+            padding: 16px 16px 40px;
+          }
         }
         .pd-breadcrumb {
           display: flex;

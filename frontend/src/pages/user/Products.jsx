@@ -114,8 +114,8 @@ export default function Products() {
   const activeFilterCount = Object.entries(filters).filter(([k, v]) => v && k !== 'sort' && k !== 'page').length;
 
   return (
-    <div className="products-page-container" style={{ maxWidth: '1280px', margin: '0 auto' }}>
-      
+    <div className="products-page-container" style={{ maxWidth: '1440px', margin: '0 auto' }}>
+
       {/* 1. TOP SINGLE HORIZONTAL SLIDING FILTER & SORT BAR (Filter Options + Sort Items) */}
       <div style={{
         display: 'flex',
@@ -289,7 +289,7 @@ export default function Products() {
 
               {/* Drawer Body */}
               <div style={{ flex: 1, overflowY: 'auto', padding: '20px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                
+
                 {/* Gender */}
                 <div>
                   <label style={{ fontSize: '12px', fontWeight: 800, color: '#475569', textTransform: 'uppercase', marginBottom: '8px', display: 'block' }}>Gender</label>
@@ -488,7 +488,7 @@ export default function Products() {
             <p style={{ color: '#64748b', fontSize: '13px', marginBottom: '20px' }}>
               Try checking spelling, clearing active filters, or check out these trending items below:
             </p>
-            
+
             <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', flexWrap: 'wrap' }}>
               <button onClick={clearFilters} style={{ padding: '10px 18px', borderRadius: '8px', background: '#14327a', color: '#ffffff', border: 'none', fontWeight: 700, cursor: 'pointer', fontSize: '13px' }}>
                 Clear All Filters

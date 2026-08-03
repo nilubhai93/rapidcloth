@@ -91,7 +91,7 @@ export default function BrowsingHistory() {
       background: 'radial-gradient(ellipse at 30% 10%, rgba(58,107,197,0.06) 0%, transparent 50%), radial-gradient(ellipse at 70% 80%, rgba(201,169,110,0.04) 0%, transparent 50%)',
     }}>
       {/* Hero */}
-      <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '20px 24px 20px', textAlign: 'center' }}>
+      <div style={{ maxWidth: '1440px', margin: '0 auto', padding: '20px 24px 20px', textAlign: 'center' }}>
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
           <div style={{
             display: 'inline-flex', alignItems: 'center', gap: '8px',
@@ -126,7 +126,7 @@ export default function BrowsingHistory() {
       </div>
 
       {/* Controls */}
-      <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 24px 24px' }}>
+      <div style={{ maxWidth: '1440px', margin: '0 auto', padding: '0 24px 24px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
           <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
             <span style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-muted)' }}>
@@ -165,7 +165,7 @@ export default function BrowsingHistory() {
       </div>
 
       {/* History Grid */}
-      <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 24px 80px' }}>
+      <div style={{ maxWidth: '1440px', margin: '0 auto', padding: '0 24px 80px' }}>
         {filteredHistory.length > 0 ? (
           <div style={{
             display: 'grid',

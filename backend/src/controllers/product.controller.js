@@ -11,7 +11,7 @@ export const getProducts = async (req, res) => {
     const filter = { isActive: { $ne: false } };
     console.log('--- Search Debug ---');
     console.log('Query Params:', req.query);
-    
+
     if (category) filter.category = category;
     if (gender) filter.gender = { $in: [gender, 'unisex'] };
     if (brand) filter.brand = new RegExp(brand, 'i');
@@ -165,7 +165,7 @@ export const getProducts = async (req, res) => {
     try {
       const fs = await import('fs');
       fs.appendFileSync('search_log.txt', `[${new Date().toISOString()}] Query: "${search}", Found: ${products.length}, Filter: ${JSON.stringify(filter)}\n`);
-    } catch (e) {}
+    } catch (e) { }
 
     return res.json({
       products,

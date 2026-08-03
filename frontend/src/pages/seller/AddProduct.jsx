@@ -36,7 +36,7 @@ export default function AddProduct() {
   const [colorList, setColorList] = useState([]);
   const [colorInput, setColorInput] = useState('');
   const [colorMedia, setColorMedia] = useState({}); // { "Blue": [File, File] }
-  
+
   const [selectedTags, setSelectedTags] = useState([]);
   const [selectedOccasions, setSelectedOccasions] = useState([]);
   const [selectedWeather, setSelectedWeather] = useState([]);
@@ -137,8 +137,8 @@ export default function AddProduct() {
             description: p.description || '',
             listingType: p.listingType || (p.isAvailableForRent ? 'sale_and_rent' : 'sale'),
             rentPricePerDay: p.rentPricePerDay || '',
-            discountPercent: p.price && p.discountPrice 
-              ? Math.round(((p.price - p.discountPrice) / p.price) * 100) 
+            discountPercent: p.price && p.discountPrice
+              ? Math.round(((p.price - p.discountPrice) / p.price) * 100)
               : '',
           });
           setColorList(p.colors || []);
@@ -148,7 +148,7 @@ export default function AddProduct() {
           setSelectedTags(p.tags || []);
           setSelectedOccasions(p.occasion || []);
           setSelectedWeather(p.weather || []);
-          
+
           const stocks = {};
           filteredSizes.forEach(s => {
             stocks[s.size] = s.stock;
@@ -223,7 +223,7 @@ export default function AddProduct() {
           canvas.height = height;
           const ctx = canvas.getContext('2d');
           ctx.drawImage(img, 0, 0, width, height);
-          
+
           canvas.toBlob((blob) => {
             const compressedFile = new File([blob], file.name, {
               type: 'image/jpeg',
@@ -240,7 +240,7 @@ export default function AddProduct() {
     if (e.target.files) {
       const newFiles = Array.from(e.target.files);
       const compressedFiles = await Promise.all(newFiles.map(file => compressImage(file)));
-      
+
       setColorMedia({
         ...colorMedia,
         [color]: [...(colorMedia[color] || []), ...compressedFiles].slice(0, 4)
@@ -258,7 +258,7 @@ export default function AddProduct() {
   const shoeSizes = ['6', '7', '8', '9', '10', '11', '12'];
   const jeansSizes = ['28', '30', '32', '34', '36', '38', '40'];
   const accessorySizes = ['One Size'];
-  
+
   const getActiveSizes = () => {
     const cat = formData.category?.toLowerCase();
     if (cat === 'shoes') return shoeSizes;
@@ -289,16 +289,16 @@ export default function AddProduct() {
     const isShoes = cat === 'shoes';
     const isJeans = cat === 'jeans';
     const isOneSize = cat === 'accessory' || cat === 'bag' || cat === 'jewelry';
-    
+
     const hasClothing = selectedSizes.some(s => allClothingSizes.includes(s));
     const hasShoes = selectedSizes.some(s => shoeSizes.includes(s));
     const hasJeans = selectedSizes.some(s => jeansSizes.includes(s));
     const hasOneSize = selectedSizes.some(s => accessorySizes.includes(s));
 
     const mismatch = (isShoes && (hasClothing || hasJeans || hasOneSize)) ||
-                     (isJeans && (hasClothing || hasShoes || hasOneSize)) ||
-                     (isOneSize && (hasClothing || hasShoes || hasJeans)) ||
-                     (!isShoes && !isJeans && !isOneSize && (hasShoes || hasJeans || hasOneSize));
+      (isJeans && (hasClothing || hasShoes || hasOneSize)) ||
+      (isOneSize && (hasClothing || hasShoes || hasJeans)) ||
+      (!isShoes && !isJeans && !isOneSize && (hasShoes || hasJeans || hasOneSize));
 
     if (mismatch) {
       if (!fetching) {
@@ -339,7 +339,7 @@ export default function AddProduct() {
       setError('Please add at least one color variant.');
       return;
     }
-    
+
     setLoading(true);
     setError('');
 
@@ -500,19 +500,19 @@ export default function AddProduct() {
                       }}
                       className="hover-accent"
                     >
-                      <input 
-                        type="file" 
+                      <input
+                        type="file"
                         id={`file-input-${color}`}
-                        onChange={(e) => handleColorMediaChange(color, e)} 
-                        style={{ display: 'none' }} 
-                        accept="image/*" 
-                        multiple 
+                        onChange={(e) => handleColorMediaChange(color, e)}
+                        style={{ display: 'none' }}
+                        accept="image/*"
+                        multiple
                       />
                       <CloudUploadOutlinedIcon sx={{ fontSize: 24, color: 'var(--accent-light)', marginBottom: '8px' }} />
                       <p style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)' }}>Upload for {color}</p>
                     </div>
 
-                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(64px, 1fr))', gap: '8px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(64px, 1fr))', gap: '8px' }}>
                       <AnimatePresence mode="popLayout">
                         {/* Show existing images from database */}
                         {existingProduct?.colorImages?.find(ci => ci.color === color)?.images?.map((url, i) => (
@@ -521,7 +521,7 @@ export default function AddProduct() {
                             <div style={{ position: 'absolute', top: '2px', left: '2px', background: 'var(--accent)', color: 'white', fontSize: '8px', padding: '2px 4px', borderRadius: '4px', fontWeight: 900 }}>EXISTING</div>
                           </motion.div>
                         ))}
-                        
+
                         {/* Show new uploads */}
                         {(colorMedia[color] || []).map((file, i) => (
                           <motion.div key={`new-${i}`} initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.8, opacity: 0 }} style={{ position: 'relative', borderRadius: 'var(--radius-sm)', aspectRatio: '1', overflow: 'hidden', border: '2px solid var(--accent)' }}>
@@ -586,7 +586,7 @@ export default function AddProduct() {
                           required
                           tabIndex={-1}
                           style={{ position: 'absolute', opacity: 0, width: 0, height: 0, pointerEvents: 'none' }}
-                          onChange={() => {}}
+                          onChange={() => { }}
                         />
                         <div
                           onClick={() => setIsCategoryOpen(prev => !prev)}
@@ -712,19 +712,19 @@ export default function AddProduct() {
                   <div style={inputStyles.container}>
                     <label style={inputStyles.label}>Product Variants (Colors)</label>
                     <div className="add-product-variant-input">
-                      <input 
-                        value={colorInput} 
-                        onChange={(e) => setColorInput(e.target.value)} 
+                      <input
+                        value={colorInput}
+                        onChange={(e) => setColorInput(e.target.value)}
                         onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleManualColorAdd())}
-                        placeholder="e.g. Navy, Silver, Gold" 
-                        style={inputStyles.field} 
+                        placeholder="e.g. Navy, Silver, Gold"
+                        style={inputStyles.field}
                       />
-                      <button 
+                      <button
                         type="button"
                         onClick={handleManualColorAdd}
-                        style={{ 
-                          padding: '0 20px', borderRadius: 'var(--radius-md)', 
-                          background: 'var(--accent-bg)', border: '1px solid rgba(168,85,247,0.3)', 
+                        style={{
+                          padding: '0 20px', borderRadius: 'var(--radius-md)',
+                          background: 'var(--accent-bg)', border: '1px solid rgba(168,85,247,0.3)',
                           color: 'var(--accent-light)', fontWeight: 700, cursor: 'pointer',
                           whiteSpace: 'nowrap'
                         }}
@@ -732,25 +732,25 @@ export default function AddProduct() {
                         ADD VARIANT
                       </button>
                     </div>
-                    
+
                     {colorList.length > 0 && (
                       <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '8px' }}>
                         {colorList.map(color => (
-                          <motion.span 
-                            initial={{ scale: 0.9, opacity: 0 }} 
+                          <motion.span
+                            initial={{ scale: 0.9, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
-                            key={color} 
-                            style={{ 
-                              display: 'inline-flex', alignItems: 'center', gap: '6px', 
-                              padding: '6px 12px', borderRadius: 'var(--radius-md)', 
+                            key={color}
+                            style={{
+                              display: 'inline-flex', alignItems: 'center', gap: '6px',
+                              padding: '6px 12px', borderRadius: 'var(--radius-md)',
                               background: 'var(--accent-bg)', color: 'var(--accent-light)',
                               fontSize: '12px', fontWeight: 700, border: '1px solid var(--accent)'
                             }}
                           >
                             {color}
-                            <CloseIcon 
-                              onClick={() => removeColor(color)} 
-                              sx={{ fontSize: 14, cursor: 'pointer', '&:hover': { color: 'white' } }} 
+                            <CloseIcon
+                              onClick={() => removeColor(color)}
+                              sx={{ fontSize: 14, cursor: 'pointer', '&:hover': { color: 'white' } }}
                             />
                           </motion.span>
                         ))}
@@ -877,9 +877,9 @@ export default function AddProduct() {
                           {selectedSizes.map(size => (
                             <div key={size} style={inputStyles.container}>
                               <label style={{ ...inputStyles.label, fontSize: '10px' }}>{size} Units</label>
-                              <input 
-                                type="number" 
-                                value={sizeStocks[size] || ''} 
+                              <input
+                                type="number"
+                                value={sizeStocks[size] || ''}
                                 onChange={(e) => handleSizeStockChange(size, e.target.value)}
                                 placeholder="0"
                                 style={{ ...inputStyles.field, padding: '8px 10px', fontSize: '13px' }}

@@ -46,7 +46,7 @@ export default function Sell() {
       background: 'radial-gradient(ellipse at 20% 10%, rgba(58,107,197,0.06) 0%, transparent 50%), radial-gradient(ellipse at 80% 80%, rgba(201,169,110,0.05) 0%, transparent 50%)',
     }}>
       {/* Hero */}
-      <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '20px 24px 20px', textAlign: 'center' }}>
+      <div style={{ maxWidth: '1440px', margin: '0 auto', padding: '20px 24px 20px', textAlign: 'center' }}>
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
           <div style={{
             display: 'inline-flex', alignItems: 'center', gap: '8px',
@@ -109,7 +109,7 @@ export default function Sell() {
       </motion.div>
 
       {/* Deals Grid */}
-      <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 24px 80px' }}>
+      <div style={{ maxWidth: '1440px', margin: '0 auto', padding: '0 24px 80px' }}>
         {loading ? (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '20px' }}>
             {[1,2,3,4,5,6].map(i => (

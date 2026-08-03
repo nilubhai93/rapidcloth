@@ -363,7 +363,7 @@ export default function RentProductDetail() {
       </div>
 
       {/* Main product detail content */}
-      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '40px 24px 100px' }}>
+      <div style={{ maxWidth: '1440px', margin: '0 auto', padding: '40px 24px 100px' }}>
         
         {/* Breadcrumb & Back Arrow */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '32px' }}>

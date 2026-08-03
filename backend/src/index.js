@@ -18,6 +18,7 @@ import adminRoutes from './routes/admin.routes.js';
 import sellerProductRoutes from './routes/sellerProduct.routes.js';
 import sellerOrderRoutes from './routes/sellerOrder.routes.js';
 import deliveryRoutes from './routes/delivery.routes.js';
+import uploadRoutes from './routes/upload.routes.js';
 import path from 'path';
 import Order from './models/Order.js';
 import { assignDriverToOrder } from './controllers/delivery.controller.js';
@@ -90,6 +91,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/seller/dashboard', sellerProductRoutes);
 app.use('/api/seller/orders', sellerOrderRoutes);
 app.use('/api/delivery', deliveryRoutes);
+app.use('/api/upload', uploadRoutes);
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
 // Health check
@@ -149,7 +151,7 @@ const startServer = async () => {
           if (isRental && order.deliveredAt) {
             const maxRentalDays = Math.max(...order.items.filter(i => i.isRental).map(i => i.rentalDays));
             const expiryTime = new Date(order.deliveredAt).getTime() + maxRentalDays * 24 * 60 * 60 * 1000;
-            
+
             if (Date.now() >= expiryTime) {
               console.log(`⏰ Rental period expired for order ${order._id}. Auto-initiating return.`);
               order.status = 'return-requested';
@@ -157,7 +159,7 @@ const startServer = async () => {
                 reason: 'Rental period expired (Auto-Return)',
                 comments: 'System generated auto-return',
                 status: 'pending',
-                pickupLocation: order.deliveryLocation, 
+                pickupLocation: order.deliveryLocation,
                 requestedAt: new Date()
               };
               order.delivery = {

@@ -42,6 +42,7 @@ export default function Navbar() {
   const isRentPage = location.pathname.startsWith('/rent');
   const isCartPage = location.pathname === '/cart' || location.pathname === '/rent/cart';
   const isAuthPage = location.pathname === '/login' || location.pathname === '/register';
+  const isHomePage = location.pathname === '/' || location.pathname === '/shop' || location.pathname === '/ai-stylist';
 
   const [searchQuery, setSearchQuery] = useState('');
   const [searchCategory, setSearchCategory] = useState('All');
@@ -66,6 +67,35 @@ export default function Navbar() {
 
   const [cameraSheetOpen, setCameraSheetOpen] = useState(false);
   const [isListening, setIsListening] = useState(false);
+
+  const [showFullHeader, setShowFullHeader] = useState(true);
+  const [clickedCatId, setClickedCatId] = useState(null);
+  const lastScrollY = useRef(0);
+
+  const handleCategoryClick = (catId) => {
+    setClickedCatId(catId);
+    setTimeout(() => setClickedCatId(null), 450);
+  };
+
+  // Smooth Scroll-driven Navbar Transformation
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      if (currentScrollY <= 20) {
+        setShowFullHeader(true);
+      } else if (currentScrollY > lastScrollY.current + 5) {
+        // Scroll down: collapse top portion to show search bar row & categories
+        setShowFullHeader(false);
+      } else if (currentScrollY < lastScrollY.current - 5) {
+        // Scroll up: expand to full navbar
+        setShowFullHeader(true);
+      }
+      lastScrollY.current = currentScrollY;
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   // Cycling search placeholder animation
   useEffect(() => {
@@ -341,61 +371,72 @@ export default function Navbar() {
         {!isCartPage && (
           <div className="md:hidden bg-white px-3.5 py-2.5 flex flex-col gap-2.5 border-b border-slate-200/80 shadow-xs">
 
-            {/* ROW 1: BRAND LOGO ON LEFT & AI STYLIST HEADING/BUTTON ON RIGHT */}
-            <div className="flex items-center justify-between w-full">
-              <Link to="/shop" className="flex items-center gap-2 text-[#14327a] font-black tracking-tight text-decoration-none shrink-0">
-                <div className="w-8 h-8 rounded-2xl bg-gradient-to-tr from-[#14327a] via-[#2874f0] to-[#ffe500] text-white flex items-center justify-center font-black shadow-xs text-sm">
-                  R
-                </div>
-                <div className="flex flex-col leading-none text-left">
-                  <span className="font-black text-base tracking-tight bg-gradient-to-r from-[#14327a] via-[#2874f0] to-[#14327a] bg-clip-text text-transparent">
-                    RapidCloth
-                  </span>
-                  <span className="text-[8px] font-extrabold text-slate-400 tracking-wider uppercase mt-0.5">
-                    Fashion &amp; Apparel Hub
-                  </span>
-                </div>
-              </Link>
-
-              {/* AI Stylist Button / Heading */}
-              <button
-                type="button"
-                onClick={() => window.dispatchEvent(new CustomEvent('open-ai-stylist'))}
-                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-black text-white cursor-pointer border-none shadow-md hover:shadow-lg transition-all duration-200 shrink-0 whitespace-nowrap active:scale-95"
-                style={{
-                  background: 'linear-gradient(135deg, #14327a 0%, #2874f0 50%, #8b5cf6 100%)'
-                }}
-              >
-                <AutoAwesomeIcon style={{ fontSize: '15px', color: '#ffe500' }} />
-                <span>AI Stylist</span>
-              </button>
-            </div>
-
-            {/* ROW 2: ADDRESS BAR ONLY */}
-            <div
-              onClick={() => setAddressOpen(true)}
-              className="flex items-center gap-2.5 cursor-pointer py-2 px-3.5 bg-[#f0f5ff] hover:bg-[#e4edff] active:bg-[#dbeafe] border border-blue-200/90 rounded-2xl transition-all w-full shadow-2xs box-sizing-border"
+            {/* ROW 1 & ROW 2: ANIMATED COLLAPSIBLE CONTAINER ON SCROLL */}
+            <motion.div
+              initial={false}
+              animate={{
+                height: showFullHeader ? 'auto' : 0,
+                opacity: showFullHeader ? 1 : 0,
+              }}
+              transition={{ duration: 0.28, ease: [0.4, 0, 0.2, 1] }}
+              style={{ overflow: 'hidden', display: 'flex', flexDirection: 'column', gap: '10px' }}
             >
-              <div className="w-7 h-7 rounded-xl bg-gradient-to-tr from-[#2874f0] to-[#1e4db7] text-white flex items-center justify-center shrink-0 shadow-2xs">
-                <PlaceIcon style={{ fontSize: '16px' }} />
+              {/* ROW 1: BRAND LOGO ON LEFT & AI STYLIST HEADING/BUTTON ON RIGHT */}
+              <div className="flex items-center justify-between w-full">
+                <Link to="/shop" className="flex items-center gap-2 text-[#14327a] font-black tracking-tight text-decoration-none shrink-0">
+                  <div className="w-8 h-8 rounded-2xl bg-gradient-to-tr from-[#14327a] via-[#2874f0] to-[#ffe500] text-white flex items-center justify-center font-black shadow-xs text-sm">
+                    R
+                  </div>
+                  <div className="flex flex-col leading-none text-left">
+                    <span className="font-black text-base tracking-tight bg-gradient-to-r from-[#14327a] via-[#2874f0] to-[#14327a] bg-clip-text text-transparent">
+                      RapidCloth
+                    </span>
+                    <span className="text-[8px] font-extrabold text-slate-400 tracking-wider uppercase mt-0.5">
+                      Fashion &amp; Apparel Hub
+                    </span>
+                  </div>
+                </Link>
+
+                {/* AI Stylist Button / Heading */}
+                <button
+                  type="button"
+                  onClick={() => window.dispatchEvent(new CustomEvent('open-ai-stylist'))}
+                  className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-black text-white cursor-pointer border-none shadow-md hover:shadow-lg transition-all duration-200 shrink-0 whitespace-nowrap active:scale-95"
+                  style={{
+                    background: 'linear-gradient(135deg, #14327a 0%, #2874f0 50%, #8b5cf6 100%)'
+                  }}
+                >
+                  <AutoAwesomeIcon style={{ fontSize: '15px', color: '#ffe500' }} />
+                  <span>AI Stylist</span>
+                </button>
               </div>
-              <div className="flex flex-col min-w-0 text-left flex-1">
-                <span className="text-[9.5px] text-[#2874f0] font-black uppercase tracking-wider leading-none">
-                  Deliver to
-                </span>
-                <span className="text-[12.5px] font-extrabold text-slate-900 truncate leading-tight mt-0.5">
-                  {(() => {
-                    const active = selectedAddress || user?.addresses?.find(a => a.isDefault) || user?.addresses?.[0];
-                    if (active) {
-                      if (active.type === 'pincode') return `Pincode: ${active.zip}`;
-                      return `${active.city || active.street || ''} ${active.zip || ''}`.trim();
-                    }
-                    return t('navbar.selectAddress') || 'Select delivery location';
-                  })()}
-                </span>
+
+              {/* ROW 2: ADDRESS BAR ONLY */}
+              <div
+                onClick={() => setAddressOpen(true)}
+                className="flex items-center gap-2.5 cursor-pointer py-2 px-3.5 bg-[#f0f5ff] hover:bg-[#e4edff] active:bg-[#dbeafe] border border-blue-200/90 rounded-2xl transition-all w-full shadow-2xs box-sizing-border"
+              >
+                <div className="w-7 h-7 rounded-xl bg-gradient-to-tr from-[#2874f0] to-[#1e4db7] text-white flex items-center justify-center shrink-0 shadow-2xs">
+                  <PlaceIcon style={{ fontSize: '16px' }} />
+                </div>
+                <div className="flex flex-col min-w-0 text-left flex-1">
+                  <span className="text-[9.5px] text-[#2874f0] font-black uppercase tracking-wider leading-none">
+                    Deliver to
+                  </span>
+                  <span className="text-[12.5px] font-extrabold text-slate-900 truncate leading-tight mt-0.5">
+                    {(() => {
+                      const active = selectedAddress || user?.addresses?.find(a => a.isDefault) || user?.addresses?.[0];
+                      if (active) {
+                        if (active.type === 'pincode') return `Pincode: ${active.zip}`;
+                        return `${active.city || active.street || ''} ${active.zip || ''}`.trim();
+                      }
+                      return t('navbar.selectAddress') || 'Select delivery location';
+                    })()}
+                  </span>
+                </div>
+                <ExpandMoreIcon style={{ fontSize: '20px', color: '#2874f0' }} className={`transform transition-transform duration-200 ${addressOpen ? 'rotate-180' : ''}`} />
               </div>
-              <ExpandMoreIcon style={{ fontSize: '20px', color: '#2874f0' }} className={`transform transition-transform duration-200 ${addressOpen ? 'rotate-180' : ''}`} />
-            </div>
+            </motion.div>
 
             {/* ROW 3: SEARCH BAR WITH CAMERA & MICROPHONE OPTIONS */}
             <form onSubmit={handleSearch} className="w-full relative">
@@ -440,25 +481,54 @@ export default function Navbar() {
             </form>
 
             {/* ROW 4: BOTTOM PORTION PRODUCT CATEGORIES STRIP WITH BESPOKE ICONS */}
-            <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none py-1.5 border-t border-slate-100/80 mt-0.5 -mx-1 px-1">
-              {desktopCategories.map((cat) => (
-                <Link
-                  key={cat.id}
-                  to={cat.link}
-                  className={`flex flex-col items-center justify-center gap-1 px-2.5 py-1.5 rounded-xl transition-all duration-200 shrink-0 text-decoration-none min-w-[58px] ${cat.isActive
-                      ? 'bg-blue-50 text-[#2874f0] font-bold shadow-2xs'
-                      : 'text-slate-700 font-medium hover:bg-slate-50'
-                    }`}
-                >
-                  <div className="w-7 h-7 rounded-xl flex items-center justify-center">
-                    {cat.icon}
-                  </div>
-                  <span className="text-[10px] font-bold whitespace-nowrap leading-none">
-                    {cat.title}
-                  </span>
-                </Link>
-              ))}
-            </div>
+            {!isCartPage && (
+              <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none py-1 border-t border-slate-100/80 mt-0.5 -mx-1 px-1 transition-all duration-300">
+                {desktopCategories.map((cat) => (
+                  <motion.div
+                    key={cat.id}
+                    animate={clickedCatId === cat.id ? { rotateX: [0, 90, 0], scale: [1, 0.92, 1] } : { rotateX: 0, scale: 1 }}
+                    transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+                    style={{ perspective: 600, transformStyle: 'preserve-3d' }}
+                  >
+                    <Link
+                      to={cat.link}
+                      onClick={() => handleCategoryClick(cat.id)}
+                      className={`flex flex-col items-center justify-center gap-0.5 px-2 py-1 rounded-xl transition-colors duration-200 shrink-0 text-decoration-none min-w-[50px] ${cat.isActive
+                          ? 'bg-blue-50 text-[#2874f0] font-bold shadow-2xs'
+                          : 'text-slate-700 font-medium hover:bg-slate-50'
+                        }`}
+                    >
+                      {/* ICON CONTAINER: Collapses to text-only on scroll */}
+                      <div
+                        style={{
+                          height: showFullHeader ? '24px' : '0px',
+                          opacity: showFullHeader ? 1 : 0,
+                          overflow: 'hidden',
+                          transition: 'all 0.28s cubic-bezier(0.4, 0, 0.2, 1)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          marginBottom: showFullHeader ? '2px' : '0px'
+                        }}
+                      >
+                        <div className="w-6 h-6 rounded-xl flex items-center justify-center">
+                          {cat.icon}
+                        </div>
+                      </div>
+
+                      {/* TEXT LABEL */}
+                      <span
+                        style={{ transition: 'all 0.28s cubic-bezier(0.4, 0, 0.2, 1)' }}
+                        className={`font-bold whitespace-nowrap leading-none ${showFullHeader ? 'text-[10px]' : 'text-[11px] py-0.5 px-1'
+                          }`}
+                      >
+                        {cat.title}
+                      </span>
+                    </Link>
+                  </motion.div>
+                ))}
+              </div>
+            )}
 
           </div>
         )}
@@ -512,68 +582,78 @@ export default function Navbar() {
 
         {/* PART 1 (DESKTOP TOP PORTION): BRAND LOGO ON LEFT & ADDRESS BAR ON RIGHT */}
         {!isCartPage && (
-          <div
-            className="hidden md:flex items-center"
-            style={{
-              width: '100%',
-              maxWidth: '1440px',
-              margin: '0 auto',
-              paddingLeft: '24px',
-              paddingRight: '24px',
-              paddingTop: '10px',
-              paddingBottom: '6px',
-              boxSizing: 'border-box'
+          <motion.div
+            initial={false}
+            animate={{
+              height: showFullHeader ? 'auto' : 0,
+              opacity: showFullHeader ? 1 : 0,
             }}
+            transition={{ duration: 0.28, ease: [0.4, 0, 0.2, 1] }}
+            style={{ overflow: 'hidden' }}
           >
-            {/* Brand Logo */}
-            <Link to="/shop" className="flex items-center gap-2 text-[#14327a] font-black tracking-tight text-decoration-none shrink-0 group">
-              <div className="w-8.5 h-8.5 rounded-xl bg-gradient-to-tr from-[#14327a] via-[#2874f0] to-[#ffe500] text-white flex items-center justify-center font-black shadow-xs text-base group-hover:scale-105 transition-transform">
-                R
-              </div>
-              <div className="flex flex-col leading-none text-left">
-                <span className="font-extrabold text-lg lg:text-xl bg-gradient-to-r from-[#14327a] via-[#2874f0] to-[#14327a] bg-clip-text text-transparent">
-                  RapidCloth
-                </span>
-                <span className="text-[9px] lg:text-[9.5px] font-bold text-gray-400 tracking-wider uppercase mt-0.5">
-                  Fashion &amp; Apparel Hub
-                </span>
-              </div>
-            </Link>
-
-            {/* Address Bar Widget (Slides to Brand Logo when addressOpen is true) */}
             <div
-              ref={addressRef}
-              onClick={(e) => { e.stopPropagation(); setAddressOpen(!addressOpen); }}
-              className={`flex items-center gap-2.5 cursor-pointer py-1.5 px-4 rounded-2xl transition-all text-gray-700 font-medium group shrink-0 min-w-[280px] lg:min-w-[340px] max-w-[380px] ${addressOpen
-                  ? 'bg-[#e4edff] border-2 border-[#2874f0] shadow-md ring-4 ring-blue-100/80'
-                  : 'bg-[#f0f5ff] hover:bg-[#e4edff] border border-blue-200/90 shadow-2xs'
-                }`}
+              className="hidden md:flex items-center"
               style={{
-                marginLeft: addressOpen ? '28px' : 'auto',
-                transition: 'all 0.35s cubic-bezier(0.4, 0, 0.2, 1)'
+                width: '100%',
+                maxWidth: '1440px',
+                margin: '0 auto',
+                paddingLeft: '24px',
+                paddingRight: '24px',
+                paddingTop: '10px',
+                paddingBottom: '6px',
+                boxSizing: 'border-box'
               }}
             >
-              <div className="w-8 h-8 rounded-xl bg-[#2874f0] text-white flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform shadow-xs">
-                <PlaceIcon className="!text-lg text-white" />
+              {/* Brand Logo */}
+              <Link to="/shop" className="flex items-center gap-2 text-[#14327a] font-black tracking-tight text-decoration-none shrink-0 group">
+                <div className="w-8.5 h-8.5 rounded-xl bg-gradient-to-tr from-[#14327a] via-[#2874f0] to-[#ffe500] text-white flex items-center justify-center font-black shadow-xs text-base group-hover:scale-105 transition-transform">
+                  R
+                </div>
+                <div className="flex flex-col leading-none text-left">
+                  <span className="font-extrabold text-lg lg:text-xl bg-gradient-to-r from-[#14327a] via-[#2874f0] to-[#14327a] bg-clip-text text-transparent">
+                    RapidCloth
+                  </span>
+                  <span className="text-[9px] lg:text-[9.5px] font-bold text-gray-400 tracking-wider uppercase mt-0.5">
+                    Fashion &amp; Apparel Hub
+                  </span>
+                </div>
+              </Link>
+
+              {/* Address Bar Widget (Slides to Brand Logo when addressOpen is true) */}
+              <div
+                ref={addressRef}
+                onClick={(e) => { e.stopPropagation(); setAddressOpen(!addressOpen); }}
+                className={`flex items-center gap-2.5 cursor-pointer py-1.5 px-4 rounded-2xl transition-all text-gray-700 font-medium group shrink-0 min-w-[280px] lg:min-w-[340px] max-w-[380px] ${addressOpen
+                    ? 'bg-[#e4edff] border-2 border-[#2874f0] shadow-md ring-4 ring-blue-100/80'
+                    : 'bg-[#f0f5ff] hover:bg-[#e4edff] border border-blue-200/90 shadow-2xs'
+                  }`}
+                style={{
+                  marginLeft: addressOpen ? '28px' : 'auto',
+                  transition: 'all 0.35s cubic-bezier(0.4, 0, 0.2, 1)'
+                }}
+              >
+                <div className="w-8 h-8 rounded-xl bg-[#2874f0] text-white flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform shadow-xs">
+                  <PlaceIcon className="!text-lg text-white" />
+                </div>
+                <div className="flex flex-col min-w-0 text-left flex-1">
+                  <span className="text-[10px] text-blue-600 font-extrabold leading-none uppercase tracking-wider">
+                    Deliver to
+                  </span>
+                  <span className="text-xs lg:text-[13px] font-bold text-gray-900 truncate leading-tight group-hover:text-[#2874f0] transition-colors mt-0.5">
+                    {(() => {
+                      const active = selectedAddress || user?.addresses?.find(a => a.isDefault) || user?.addresses?.[0];
+                      if (active) {
+                        if (active.type === 'pincode') return `Pincode: ${active.zip}`;
+                        return `${active.city || active.street || ''} ${active.zip || ''}`.trim();
+                      }
+                      return t('navbar.selectAddress') || 'Select delivery location';
+                    })()}
+                  </span>
+                </div>
+                <ExpandMoreIcon className={`!text-lg text-gray-500 group-hover:text-[#2874f0] transition-transform duration-200 shrink-0 ${addressOpen ? 'rotate-180' : ''}`} />
               </div>
-              <div className="flex flex-col min-w-0 text-left flex-1">
-                <span className="text-[10px] text-blue-600 font-extrabold leading-none uppercase tracking-wider">
-                  Deliver to
-                </span>
-                <span className="text-xs lg:text-[13px] font-bold text-gray-900 truncate leading-tight group-hover:text-[#2874f0] transition-colors mt-0.5">
-                  {(() => {
-                    const active = selectedAddress || user?.addresses?.find(a => a.isDefault) || user?.addresses?.[0];
-                    if (active) {
-                      if (active.type === 'pincode') return `Pincode: ${active.zip}`;
-                      return `${active.city || active.street || ''} ${active.zip || ''}`.trim();
-                    }
-                    return t('navbar.selectAddress') || 'Select delivery location';
-                  })()}
-                </span>
-              </div>
-              <ExpandMoreIcon className={`!text-lg text-gray-500 group-hover:text-[#2874f0] transition-transform duration-200 shrink-0 ${addressOpen ? 'rotate-180' : ''}`} />
             </div>
-          </div>
+          </motion.div>
         )}
 
         {/* PART 2 (DESKTOP MIDDLE PORTION): SEARCH BAR & ACCOUNT, LANGUAGE, CART */}
@@ -591,6 +671,28 @@ export default function Navbar() {
             boxSizing: 'border-box'
           }}
         >
+          {/* COMPACT BRAND LOGO WHEN SCROLLED */}
+          {!showFullHeader && !isCartPage && (
+            <AnimatePresence>
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9, width: 0 }}
+                animate={{ opacity: 1, scale: 1, width: 'auto' }}
+                exit={{ opacity: 0, scale: 0.9, width: 0 }}
+                transition={{ duration: 0.2, ease: 'easeOut' }}
+                className="shrink-0 mr-1"
+              >
+                <Link to="/shop" className="flex items-center gap-2 text-[#14327a] font-black tracking-tight text-decoration-none">
+                  <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#14327a] via-[#2874f0] to-[#ffe500] text-white flex items-center justify-center font-black shadow-xs text-sm">
+                    R
+                  </div>
+                  <span className="font-extrabold text-base lg:text-lg bg-gradient-to-r from-[#14327a] via-[#2874f0] to-[#14327a] bg-clip-text text-transparent hidden lg:inline">
+                    RapidCloth
+                  </span>
+                </Link>
+              </motion.div>
+            </AnimatePresence>
+          )}
+
           {/* ONLY ON CART PAGE: ANIMATED BACK ARROW BUTTON BEFORE SEARCH BAR */}
           {isCartPage && (
             <motion.button
@@ -1044,10 +1146,10 @@ export default function Navbar() {
         {/* PART 3 (DESKTOP BOTTOM PORTION): 13 PRODUCT CATEGORIES WITH BESPOKE ICONS */}
         {!isCartPage && (
           <div
-            className="hidden md:block bg-white"
+            className="hidden md:block bg-white transition-all duration-300"
             style={{
-              paddingTop: '4px',
-              paddingBottom: '2px'
+              paddingTop: showFullHeader ? '4px' : '2px',
+              paddingBottom: showFullHeader ? '2px' : '2px'
             }}
           >
             <div
@@ -1063,24 +1165,52 @@ export default function Navbar() {
               }}
             >
               {desktopCategories.map((cat) => (
-                <Link
+                <motion.div
                   key={cat.id}
-                  to={cat.link}
-                  className={`group flex flex-col items-center gap-0.5 px-1.5 lg:px-2 py-1 rounded-xl transition-all duration-200 relative text-decoration-none shrink-0 ${cat.isActive ? 'bg-blue-50/90 text-[#2874f0] font-bold' : 'text-gray-700 hover:text-[#2874f0] font-semibold hover:bg-gray-50'
-                    }`}
+                  animate={clickedCatId === cat.id ? { rotateX: [0, 90, 0], scale: [1, 0.92, 1] } : { rotateX: 0, scale: 1 }}
+                  transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
+                  style={{ perspective: 600, transformStyle: 'preserve-3d' }}
                 >
-                  <div className="w-7.5 h-7.5 lg:w-8.5 lg:h-8.5 rounded-xl flex items-center justify-center text-gray-800 group-hover:text-[#2874f0] transition-all duration-300 transform group-hover:-translate-y-0.5 group-hover:scale-110">
-                    {cat.icon}
-                  </div>
+                  <Link
+                    to={cat.link}
+                    onClick={() => handleCategoryClick(cat.id)}
+                    className={`group flex flex-col items-center justify-center gap-0.5 px-2 lg:px-2.5 py-1 rounded-xl transition-colors duration-200 relative text-decoration-none shrink-0 ${cat.isActive ? 'bg-blue-50/90 text-[#2874f0] font-bold shadow-2xs' : 'text-gray-700 hover:text-[#2874f0] font-semibold hover:bg-gray-50'
+                      }`}
+                  >
+                    {/* ICON CONTAINER: Smooth height & opacity transition */}
+                    <div
+                      style={{
+                        height: showFullHeader ? '28px' : '0px',
+                        opacity: showFullHeader ? 1 : 0,
+                        overflow: 'hidden',
+                        transition: 'all 0.28s cubic-bezier(0.4, 0, 0.2, 1)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        marginBottom: showFullHeader ? '2px' : '0px'
+                      }}
+                    >
+                      <div className="w-7.5 h-7.5 lg:w-8.5 lg:h-8.5 rounded-xl flex items-center justify-center text-gray-800 group-hover:text-[#2874f0] transition-all duration-300 transform group-hover:-translate-y-0.5 group-hover:scale-110">
+                        {cat.icon}
+                      </div>
+                    </div>
 
-                  <span className="text-[10px] lg:text-[11px] whitespace-nowrap tracking-tight transition-colors">
-                    {cat.title}
-                  </span>
+                    {/* TEXT LABEL (TEXT ONLY WHEN SCROLLED) */}
+                    <span
+                      style={{ transition: 'all 0.28s cubic-bezier(0.4, 0, 0.2, 1)' }}
+                      className={`whitespace-nowrap tracking-tight ${showFullHeader
+                          ? 'text-[10px] lg:text-[11px]'
+                          : 'text-[11px] lg:text-[12px] font-bold py-0.5 px-1.5'
+                        }`}
+                    >
+                      {cat.title}
+                    </span>
 
-                  {cat.isActive && (
-                    <div className="absolute bottom-0 left-1 right-1 h-0.5 bg-[#2874f0] rounded-full transition-all duration-300" />
-                  )}
-                </Link>
+                    {cat.isActive && (
+                      <div className="absolute bottom-0 left-1 right-1 h-0.5 bg-[#2874f0] rounded-full transition-all duration-300" />
+                    )}
+                  </Link>
+                </motion.div>
               ))}
             </div>
 
