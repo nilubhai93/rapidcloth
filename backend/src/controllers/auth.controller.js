@@ -3,7 +3,7 @@ import User from '../models/User.js';
 import BankDetail from '../models/BankDetail.js';
 
 const generateToken = (userId) => {
-  return jwt.sign({ userId }, process.env.JWT_SECRET, {
+  return jwt.sign({ userId }, process.env.JWT_SECRET || 'rapidcloth_super_secret_jwt_key_2026', {
     expiresIn: process.env.JWT_EXPIRES_IN || '7d'
   });
 };

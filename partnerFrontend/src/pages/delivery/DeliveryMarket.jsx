@@ -4,7 +4,7 @@ import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCartRounded';
 
 export default function DeliveryMarket() {
   const products = [
-    { id: 1, name: 'rapidCloth Pro Thermal Bag', price: '$35.00', image: 'https://images.unsplash.com/photo-1590845947306-6962f3a6122d?width=400', desc: 'Keeps food hot or cold for up to 4 hours.' },
+    { id: 1, name: 'RapidCloth Pro Thermal Bag', price: '$35.00', image: 'https://images.unsplash.com/photo-1590845947306-6962f3a6122d?width=400', desc: 'Keeps food hot or cold for up to 4 hours.' },
     { id: 2, name: 'Reflective Rain Jacket', price: '$45.00', image: 'https://images.unsplash.com/photo-1544644140-5e3d7cb0efb2?width=400', desc: 'High visibility, 100% waterproof.' },
     { id: 3, name: 'PowerBank 20000mAh', price: '$25.00', image: 'https://images.unsplash.com/photo-1609091839311-d5365f9ff1c5?width=400', desc: 'Keep your phone charged all day.' },
     { id: 4, name: 'Phone Holder Mount', price: '$15.00', image: 'https://images.unsplash.com/photo-1588647900762-23c218204642?width=400', desc: 'Secure handlebar mount for navigation.' },

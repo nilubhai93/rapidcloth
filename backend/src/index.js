@@ -137,6 +137,17 @@ io.on('connection', (socket) => {
 const startServer = async () => {
   try {
     await connectDB();
+    
+    server.on('error', (err) => {
+      if (err.code === 'EADDRINUSE') {
+        console.error(`\n❌ Port ${PORT} is already in use by another running server process.`);
+        console.error(`💡 Tip: Close any previous terminal running node/nodemon or kill the process on port ${PORT}.\n`);
+        process.exit(1);
+      } else {
+        console.error('❌ Server error:', err);
+      }
+    });
+
     server.listen(PORT, () => {
       console.log(`🚀 Server running on http://localhost:${PORT}`);
       console.log(`📦 Environment: ${process.env.NODE_ENV || 'development'}`);

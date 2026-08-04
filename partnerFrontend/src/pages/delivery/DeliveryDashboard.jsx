@@ -6,11 +6,16 @@ import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWalletRo
 import TimelineIcon from '@mui/icons-material/TimelineRounded';
 import DoneAllIcon from '@mui/icons-material/DoneAllRounded';
 import TwoWheelerIcon from '@mui/icons-material/TwoWheelerRounded';
+import AccessTimeIcon from '@mui/icons-material/AccessTimeRounded';
+import { formatDutyTime } from '../../components/DeliveryNavbar';
 
 export default function DeliveryDashboard() {
   const { user } = useAuth();
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [dutySeconds, setDutySeconds] = useState(0);
+
+  const isOnline = user?.deliveryProfile?.isOnline || false;
 
   useEffect(() => {
     loadData();
@@ -26,6 +31,30 @@ export default function DeliveryDashboard() {
       setLoading(false);
     }
   };
+
+  // Live real-time duty seconds ticker
+  useEffect(() => {
+    const calcSeconds = () => {
+      if (!user?.deliveryProfile) return 0;
+      const baseSec = user.deliveryProfile.onlineSecondsToday || 0;
+      if (user.deliveryProfile.isOnline && user.deliveryProfile.lastOnlineStartTime) {
+        const startMs = new Date(user.deliveryProfile.lastOnlineStartTime).getTime();
+        const elapsedSec = Math.floor((Date.now() - startMs) / 1000);
+        return baseSec + Math.max(0, elapsedSec);
+      }
+      return baseSec;
+    };
+
+    setDutySeconds(calcSeconds());
+
+    if (!isOnline) return;
+
+    const timer = setInterval(() => {
+      setDutySeconds(calcSeconds());
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [user?.deliveryProfile, isOnline]);
 
   if (loading) return <div style={{ padding: '20px' }}>Loading dashboard...</div>;
 
@@ -62,6 +91,22 @@ export default function DeliveryDashboard() {
           </div>
           <div style={{ fontSize: '32px', fontWeight: 900, color: 'var(--text-primary)' }}>{stats?.todayOrders || 0}</div>
           <div style={{ color: 'var(--text-muted)', fontSize: '12px', marginTop: '4px' }}>completed today</div>
+        </motion.div>
+
+        {/* Online Duty Time */}
+        <motion.div whileHover={{ y: -4 }} style={{ background: 'var(--bg-card)', padding: '20px', borderRadius: 'var(--radius-xl)', border: '1px solid var(--border)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
+            <div style={{ width: '32px', height: '32px', borderRadius: '10px', background: isOnline ? 'rgba(41, 255, 198, 0.1)' : 'rgba(239, 68, 68, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: isOnline ? '#29ffc6' : '#ef4444' }}>
+              <AccessTimeIcon sx={{ fontSize: '18px' }} />
+            </div>
+            <div style={{ fontSize: '14px', fontWeight: 600 }}>Online Duty Time</div>
+          </div>
+          <div style={{ fontSize: '26px', fontWeight: 900, color: 'var(--text-primary)', fontFamily: 'monospace' }}>
+            {formatDutyTime(dutySeconds)}
+          </div>
+          <div style={{ color: isOnline ? '#29ffc6' : 'var(--text-muted)', fontSize: '12px', marginTop: '4px', fontWeight: 600 }}>
+            {isOnline ? '🟢 Live Calculating' : '🔴 Paused (Offline)'}
+          </div>
         </motion.div>
 
         {/* Monthly Earnings */}
