@@ -457,22 +457,22 @@ export default function Navbar() {
                   <button
                     type="button"
                     title="Camera Visual Search"
-                    onClick={() => alert("Visual Camera Search: Upload or scan apparel photo")}
-                    className="w-7.5 h-7.5 rounded-full text-slate-600 hover:text-[#2874f0] hover:bg-blue-50 bg-slate-100/80 border-none cursor-pointer flex items-center justify-center transition-all"
+                    onClick={() => setCameraSheetOpen(true)}
+                    className="w-7.5 h-7.5 rounded-full text-slate-600 hover:text-[#2874f0] hover:bg-blue-50 bg-slate-100/80 border-none cursor-pointer flex items-center justify-center transition-all active:scale-90"
                   >
                     <PhotoCameraRoundedIcon style={{ fontSize: '17px' }} />
                   </button>
                   <button
                     type="button"
                     title="Voice Search"
-                    onClick={() => alert("Voice Search: Speak to search fashion items...")}
-                    className="w-7.5 h-7.5 rounded-full text-slate-600 hover:text-[#2874f0] hover:bg-blue-50 bg-slate-100/80 border-none cursor-pointer flex items-center justify-center transition-all"
+                    onClick={handleVoiceSearch}
+                    className={`w-7.5 h-7.5 rounded-full border-none cursor-pointer flex items-center justify-center transition-all active:scale-90 ${isListening ? 'bg-red-500 text-white animate-pulse' : 'text-slate-600 hover:text-[#2874f0] hover:bg-blue-50 bg-slate-100/80'}`}
                   >
                     <MicRoundedIcon style={{ fontSize: '17px' }} />
                   </button>
                   <button
                     type="submit"
-                    className="w-7.5 h-7.5 rounded-full bg-[#2874f0] text-white hover:bg-[#1e4db7] border-none cursor-pointer flex items-center justify-center shadow-xs transition-all"
+                    className="w-7.5 h-7.5 rounded-full bg-[#2874f0] text-white hover:bg-[#1e4db7] border-none cursor-pointer flex items-center justify-center shadow-xs transition-all active:scale-90"
                   >
                     <SearchIcon style={{ fontSize: '15px' }} />
                   </button>
@@ -1686,35 +1686,35 @@ export default function Navbar() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 <label style={{
                   display: 'flex', alignItems: 'center', gap: '14px',
-                  padding: '14px 18px', borderRadius: '14px',
+                  padding: '16px 18px', borderRadius: '16px',
                   background: '#f8fafc',
                   border: '1px solid #e2e8f0',
                   cursor: 'pointer', transition: 'all 0.2s ease'
                 }}>
                   <input type="file" accept="image/*" onChange={handleImageSelect} style={{ display: 'none' }} />
-                  <div style={{ width: '42px', height: '42px', borderRadius: '12px', background: 'rgba(40, 116, 240, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#2874f0' }}>
-                    <PhotoLibraryRoundedIcon sx={{ fontSize: 22 }} />
+                  <div style={{ width: '44px', height: '44px', borderRadius: '14px', background: 'rgba(40, 116, 240, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#2874f0', shrink: 0 }}>
+                    <PhotoLibraryRoundedIcon sx={{ fontSize: 24 }} />
                   </div>
                   <div>
-                    <div style={{ fontSize: '14px', fontWeight: 700, color: '#111' }}>1. Choose from Gallery</div>
-                    <div style={{ fontSize: '11px', color: '#666' }}>Upload an existing photo from your library</div>
+                    <div style={{ fontSize: '15px', fontWeight: 700, color: '#0f172a' }}>Choose from Gallery</div>
+                    <div style={{ fontSize: '12px', color: '#64748b', marginTop: '2px' }}>Select an existing photo from your device</div>
                   </div>
                 </label>
 
                 <label style={{
                   display: 'flex', alignItems: 'center', gap: '14px',
-                  padding: '14px 18px', borderRadius: '14px',
+                  padding: '16px 18px', borderRadius: '16px',
                   background: '#f8fafc',
                   border: '1px solid #e2e8f0',
                   cursor: 'pointer', transition: 'all 0.2s ease'
                 }}>
                   <input type="file" accept="image/*" capture="environment" onChange={handleImageSelect} style={{ display: 'none' }} />
-                  <div style={{ width: '42px', height: '42px', borderRadius: '12px', background: 'rgba(22, 163, 74, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#16a34a' }}>
-                    <PhotoCameraRoundedIcon sx={{ fontSize: 22 }} />
+                  <div style={{ width: '44px', height: '44px', borderRadius: '14px', background: 'rgba(22, 163, 74, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#16a34a', shrink: 0 }}>
+                    <PhotoCameraRoundedIcon sx={{ fontSize: 24 }} />
                   </div>
                   <div>
-                    <div style={{ fontSize: '14px', fontWeight: 700, color: '#111' }}>2. Click Photo</div>
-                    <div style={{ fontSize: '11px', color: '#666' }}>Snap a fresh picture using your camera</div>
+                    <div style={{ fontSize: '15px', fontWeight: 700, color: '#0f172a' }}>Upload Photo</div>
+                    <div style={{ fontSize: '12px', color: '#64748b', marginTop: '2px' }}>Take a new photo using your camera</div>
                   </div>
                 </label>
               </div>
