@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import toast from 'react-hot-toast';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import NavigationIcon from '@mui/icons-material/NavigationRounded';
 import { deliveryAPI } from '../../api';
 import { useAuth } from '../../context/AuthContext';
@@ -10,14 +10,24 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircleRounded';
 import CancelIcon from '@mui/icons-material/CancelRounded';
 import VolumeUpIcon from '@mui/icons-material/VolumeUpRounded';
 import VolumeOffIcon from '@mui/icons-material/VolumeOffRounded';
-import ActiveDeliveryUI from '../../components/delivery/ActiveDeliveryUI';
+import ReceiptLongIcon from '@mui/icons-material/ReceiptLongRounded';
+import AccessTimeIcon from '@mui/icons-material/AccessTimeRounded';
+import LocalAtmIcon from '@mui/icons-material/LocalAtmRounded';
+import CardGiftcardIcon from '@mui/icons-material/CardGiftcardRounded';
+import CloseIcon from '@mui/icons-material/CloseRounded';
+import ChevronRightIcon from '@mui/icons-material/ChevronRightRounded';
+import DirectionsBikeIcon from '@mui/icons-material/DirectionsBikeRounded';
+import { useLanguage } from '../../context/LanguageContext';
 
 export default function DeliveryOrders() {
   const { user } = useAuth();
+  const { t } = useLanguage();
   const [orders, setOrders] = useState([]);
   const [todayHistory, setTodayHistory] = useState([]);
   const [loading, setLoading] = useState(true);
   const [soundEnabled, setSoundEnabled] = useState(true);
+  const [selectedOrderReceipt, setSelectedOrderReceipt] = useState(null);
+
   const prevOrderIds = useRef([]);
   const prevOrderStatuses = useRef({});
 
@@ -29,10 +39,8 @@ export default function DeliveryOrders() {
 
   // Initialize audio
   useEffect(() => {
-    // Loud urgent alarm for incoming assigned orders (different from seller tone)
     orderRingtone.current = new Audio('https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3');
     orderRingtone.current.volume = 1.0;
-    // Loud reject/cancel tone
     rejectSound.current = new Audio('https://assets.mixkit.co/active_storage/sfx/2955/2955-preview.mp3');
     rejectSound.current.volume = 1.0;
     return () => {
@@ -93,7 +101,6 @@ export default function DeliveryOrders() {
     loadOrders();
     window.scrollTo(0, 0);
 
-    // Poll every 5 seconds for new assignments or status changes
     const interval = setInterval(loadOrders, 5000);
     return () => clearInterval(interval);
   }, [user]);
@@ -130,30 +137,25 @@ export default function DeliveryOrders() {
       const fetchedOrders = res.data.orders || [];
       const historyOrders = historyRes.data.orders || [];
 
-      // Check for assigned (unaccepted) orders — play looping ringtone
       const assignedOrders = fetchedOrders.filter(o =>
         o.delivery?.status === 'assigned' && o.status !== 'cancelled'
       );
 
       if (assignedOrders.length > 0) {
-        // New assigned order? Start ringtone + toast
         const hasNewAssignment = assignedOrders.some(o => !prevOrderIds.current.includes(o._id));
         if (hasNewAssignment || (assignedOrders.length > 0 && !ringtoneInterval.current)) {
           playRingtone();
           if (hasNewAssignment && prevOrderIds.current.length > 0) {
             toast.success('🚨 New order assigned! Accept now!', {
-              icon: '📦',
-              duration: 6000,
+              icon: '📦', duration: 6000,
               style: { background: '#22c55e', color: '#fff', fontWeight: 700 }
             });
           }
         }
       } else {
-        // No assigned orders pending — stop ringtone
         stopRingtone();
       }
 
-      // Detect cancelled orders (user cancelled while assigned to this driver)
       const oldStatuses = prevOrderStatuses.current;
       for (const order of fetchedOrders) {
         if (order.status === 'cancelled' && oldStatuses[order._id] && oldStatuses[order._id] !== 'cancelled') {
@@ -166,7 +168,6 @@ export default function DeliveryOrders() {
         }
       }
 
-      // Update tracking refs
       prevOrderIds.current = fetchedOrders.map(o => o._id);
       const statusMap = {};
       fetchedOrders.forEach(o => { statusMap[o._id] = o.status; });
@@ -183,7 +184,7 @@ export default function DeliveryOrders() {
   const handleAccept = async (id) => {
     try {
       await deliveryAPI.acceptOrder(id);
-      stopRingtone(); // Stop ringing immediately on accept
+      stopRingtone();
       loadOrders();
     } catch (e) {
       alert('Failed to accept order.');
@@ -194,7 +195,7 @@ export default function DeliveryOrders() {
     try {
       await deliveryAPI.rejectOrder(id);
       stopRingtone();
-      playRejectTone(); // Play reject tone for 5 seconds
+      playRejectTone();
       toast.error('Order rejected', {
         icon: '🚫', duration: 5000,
         style: { background: '#ef4444', color: '#fff', fontWeight: 700 }
@@ -214,12 +215,48 @@ export default function DeliveryOrders() {
     }
   };
 
-  if (loading) return <div>Loading...</div>;
+  // Financial calculations helper
+  const getOrderFinancials = (order) => {
+    const totalAmount = order.totalAmount || 0;
+    const storeTake = order.itemsPrice || Math.round(totalAmount * 0.82) || Math.max(0, totalAmount - 60);
+    const deliveryFee = order.deliveryEarnings || Math.round(35 + (order.deliveryDistanceKm || 2) * 8);
+    const incentiveOffice = order.surgeIncentive || order.incentiveBonus || 25;
+    const arrivalTime = order.createdAt
+      ? new Date(order.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      : 'Just now';
+    const arrivalDate = order.createdAt
+      ? new Date(order.createdAt).toLocaleDateString([], { day: '2-digit', month: 'short' })
+      : 'Today';
+
+    return {
+      totalAmount,
+      storeTake,
+      deliveryFee,
+      incentiveOffice,
+      arrivalTime,
+      arrivalDate,
+      netEarnings: deliveryFee + incentiveOffice
+    };
+  };
+
+  // Combine orders for receipt rendering
+  const allDisplayOrders = orders.length > 0 ? orders : todayHistory;
+
+  if (loading) return <div style={{ padding: '20px', textAlign: 'center' }}>Loading orders...</div>;
 
   return (
-    <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-        <h2 style={{ fontSize: '22px', fontWeight: 800, letterSpacing: '-0.5px' }}>My Deliveries</h2>
+    <div style={{ paddingBottom: '120px', maxWidth: '640px', margin: '0 auto' }}>
+      {/* 1. Header Bar */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px' }}>
+        <div>
+          <h2 style={{ fontSize: '22px', fontWeight: 900, letterSpacing: '-0.5px', color: 'var(--text-primary, #0f172a)', margin: 0 }}>
+            {t('orders')}
+          </h2>
+          <div style={{ fontSize: '12px', color: 'var(--text-muted, #64748b)', fontWeight: 600, marginTop: '2px' }}>
+            Live order tracking, store settlements & incentive office logs
+          </div>
+        </div>
+
         <button
           onClick={() => {
             setSoundEnabled(prev => {
@@ -229,11 +266,11 @@ export default function DeliveryOrders() {
           }}
           style={{
             display: 'flex', alignItems: 'center', gap: '6px',
-            padding: '8px 14px', borderRadius: 'var(--radius-md)',
-            border: '1px solid var(--border)',
-            background: soundEnabled ? 'rgba(16,185,129,0.1)' : 'var(--bg-elevated)',
-            color: soundEnabled ? '#10b981' : 'var(--text-muted)',
-            fontSize: '13px', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s'
+            padding: '8px 14px', borderRadius: '16px',
+            border: '1px solid var(--border, #e2e8f0)',
+            background: soundEnabled ? 'rgba(16,185,129,0.1)' : 'var(--bg-elevated, #ffffff)',
+            color: soundEnabled ? '#10b981' : 'var(--text-muted, #64748b)',
+            fontSize: '13px', fontWeight: 800, cursor: 'pointer', transition: 'all 0.2s'
           }}
         >
           {soundEnabled ? <VolumeUpIcon sx={{ fontSize: 18 }} /> : <VolumeOffIcon sx={{ fontSize: 18 }} />}
@@ -241,190 +278,384 @@ export default function DeliveryOrders() {
         </button>
       </div>
 
+      {/* 2. Active Orders Section */}
       {orders.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: '40px 20px', background: 'var(--bg-card)', borderRadius: 'var(--radius-xl)', border: '1px solid var(--border)' }}>
-          <p style={{ color: 'var(--text-muted)', fontSize: '14px' }}>No active orders assigned right now. Keep your status Online.</p>
+        <div style={{
+          textAlign: 'center',
+          padding: '24px 20px',
+          background: 'var(--bg-card, #ffffff)',
+          borderRadius: '24px',
+          border: '1px solid var(--border, #e2e8f0)',
+          marginBottom: '24px',
+          boxShadow: '0 4px 20px rgba(0,0,0,0.02)'
+        }}>
+          <div style={{
+            width: '48px', height: '48px', borderRadius: '50%', background: 'rgba(255, 107, 0, 0.1)',
+            color: '#ff6b00', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px'
+          }}>
+            <DirectionsBikeIcon sx={{ fontSize: '24px' }} />
+          </div>
+          <div style={{ fontSize: '15px', fontWeight: 800, color: 'var(--text-primary, #0f172a)' }}>
+            No active orders assigned right now
+          </div>
+          <p style={{ color: 'var(--text-muted, #64748b)', fontSize: '12px', marginTop: '4px', margin: 0 }}>
+            Keep your status Online. New order assignments will ring automatically.
+          </p>
         </div>
       ) : (
-        <div style={{ display: 'grid', gap: '12px' }}>
-          {orders.map(order => (
-            <motion.div key={order._id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-              style={{ background: 'var(--bg-card)', padding: '16px', borderRadius: 'var(--radius-xl)', border: '1px solid var(--border)' }}>
-
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
-                <div>
-                  <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 600 }}>Order #{order._id.substring(order._id.length - 8).toUpperCase()}</div>
-                  <div style={{ color: 'var(--accent)', fontSize: '12px', fontWeight: 700, marginTop: '2px' }}>{order.items.length} items to deliver</div>
-                </div>
-                <div style={{ padding: '4px 10px', background: 'var(--bg-elevated)', borderRadius: 'var(--radius-full)', fontSize: '11px', fontWeight: 700, height: 'fit-content' }}>
-                  {order.status}
-                </div>
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '12px', marginBottom: '16px' }}>
-                {(() => {
-                  const isReturnOrder = order.status === 'return-requested' || order.status === 'returning' || order.status === 'returned' || !!order.returnDetails?.reason;
-                  
-                  const storeName = order.items[0]?.productId?.sellerId?.sellerProfile?.storeName || order.items[0]?.productId?.sellerId?.name || 'Fashion Hub';
-                  const storeAddress = order.items[0]?.productId?.sellerId?.sellerProfile?.businessAddress || order.items[0]?.productId?.sellerId?.phone || 'Address not specified';
-                  const userName = order.userId?.name;
-                  const userAddress = isReturnOrder && order.returnDetails?.pickupLocation?.address ? order.returnDetails.pickupLocation.address : `${order.deliveryAddress?.street}, ${order.deliveryAddress?.city}`;
-
-                  const pickupTitle = isReturnOrder ? 'Pickup (User)' : 'Pickup';
-                  const pickupName = isReturnOrder ? userName : storeName;
-                  const pickupAddressStr = isReturnOrder ? userAddress : storeAddress;
-                  let pickupDist = null;
-                  if (driverPos) {
-                    if (isReturnOrder) {
-                      const lat = order.returnDetails?.pickupLocation?.lat || order.deliveryLocation?.lat;
-                      const lng = order.returnDetails?.pickupLocation?.lng || order.deliveryLocation?.lng;
-                      if (lat && lng) {
-                        pickupDist = getDistanceKm(driverPos.lat, driverPos.lng, lat, lng).toFixed(2);
-                      }
-                    } else if (order.sellerHubLocation?.lat && order.sellerHubLocation?.lng) {
-                      pickupDist = getDistanceKm(driverPos.lat, driverPos.lng, order.sellerHubLocation.lat, order.sellerHubLocation.lng).toFixed(2);
-                    }
-                  }
-
-                  const dropoffTitle = isReturnOrder ? 'Drop-off (Store)' : 'Drop-off';
-                  const dropoffName = isReturnOrder ? storeName : userName;
-                  const dropoffAddressStr = isReturnOrder ? storeAddress : userAddress;
-                  const dropoffDist = order.deliveryDistanceKm ? order.deliveryDistanceKm.toFixed(2) : '--';
-
-                  return (
-                    <>
-                      {/* Pickup Point */}
-                      <div style={{ padding: '12px', background: 'rgba(99,102,241,0.05)', borderRadius: '12px', border: '1px solid rgba(99,102,241,0.2)', position: 'relative' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px' }}>
-                          <StorefrontIcon sx={{ color: 'var(--accent)', fontSize: '18px' }} />
-                          <span style={{ fontSize: '11px', fontWeight: 800, color: 'var(--accent)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{pickupTitle}</span>
-                        </div>
-                        <div style={{ fontWeight: 700, fontSize: '14px', color: 'var(--text-primary)' }}>
-                          {pickupName}
-                          {!isReturnOrder && order.items[0]?.productId?.sellerId?.name && !order.items[0]?.productId?.sellerId?.sellerProfile?.storeName && (
-                            <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 600, marginLeft: '6px' }}>Store</span>
-                          )}
-                        </div>
-                        <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '2px', lineHeight: 1.3 }}>
-                          {pickupAddressStr}
-                        </div>
-
-                        {pickupDist > 0 && (
-                          <div style={{
-                            position: 'absolute', top: '-8px', right: '10px',
-                            background: 'var(--bg-card)', padding: '2px 8px', borderRadius: 'var(--radius-full)',
-                            border: '1px solid var(--border)', boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-                            zIndex: 10, display: 'flex', alignItems: 'center', gap: '4px'
-                          }}>
-                            <div style={{ width: '4px', height: '4px', background: 'var(--accent)', borderRadius: '50%' }} />
-                            <span style={{ fontSize: '10px', fontWeight: 800, color: 'var(--accent)' }}>
-                              {pickupDist} km
-                            </span>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Drop-off Point */}
-                      <div style={{ padding: '12px', background: 'rgba(239,68,68,0.05)', borderRadius: '12px', border: '1px solid rgba(239,68,68,0.2)', position: 'relative' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px' }}>
-                          <LocationOnIcon sx={{ color: 'var(--error)', fontSize: '18px' }} />
-                          <span style={{ fontSize: '11px', fontWeight: 800, color: 'var(--error)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{dropoffTitle}</span>
-                        </div>
-                        <div style={{ fontWeight: 700, fontSize: '14px', color: 'var(--text-primary)' }}>
-                          {dropoffName}
-                          {isReturnOrder && order.items[0]?.productId?.sellerId?.name && !order.items[0]?.productId?.sellerId?.sellerProfile?.storeName && (
-                            <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 600, marginLeft: '6px' }}>Store</span>
-                          )}
-                        </div>
-                        <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '2px', lineHeight: 1.3 }}>
-                          {dropoffAddressStr}
-                        </div>
-
-                        {dropoffDist > 0 && (
-                          <div style={{
-                            position: 'absolute', top: '-8px', right: '10px',
-                            background: 'var(--bg-card)', padding: '2px 8px', borderRadius: 'var(--radius-full)',
-                            border: '1px solid var(--border)', boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-                            zIndex: 10, display: 'flex', alignItems: 'center', gap: '4px'
-                          }}>
-                            <div style={{ width: '4px', height: '4px', background: '#f97316', borderRadius: '50%' }} />
-                            <span style={{ fontSize: '10px', fontWeight: 800, color: '#f97316' }}>{dropoffDist} km</span>
-                          </div>
-                        )}
-                      </div>
-                    </>
-                  );
-                })()}
-              </div>
-
-              {order.delivery?.status === 'accepted' ? (
-                <ActiveDeliveryUI
-                  order={order}
-                  updateStatus={updateStatus}
-                  refreshOrders={loadOrders}
-                />
-              ) : (
-                /* Assigned but not yet accepted */
-                <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
-                  <button onClick={() => handleAccept(order._id)} style={{
-                    flex: 1, padding: '12px', borderRadius: '12px',
-                    background: 'var(--success)', color: 'white',
-                    fontSize: '14px', fontWeight: 700, cursor: 'pointer'
-                  }}>
-                    Accept Order
-                  </button>
-                  <button onClick={() => handleReject(order._id)} style={{
-                    flex: 1, padding: '12px', borderRadius: '12px',
-                    background: 'var(--bg-elevated)', color: 'var(--error)',
-                    border: '1px solid var(--error)',
-                    fontSize: '14px', fontWeight: 700, cursor: 'pointer'
-                  }}>
-                    Reject
-                  </button>
-                </div>
-              )}
-            </motion.div>
-          ))}
-        </div>
-      )}
-
-      {/* Today's History Section */}
-      {todayHistory.length > 0 && (
-        <div style={{ marginTop: '40px' }}>
-          <h2 style={{ fontSize: '20px', fontWeight: 800, marginBottom: '16px', color: 'var(--text-primary)' }}>Today's Delivery History</h2>
-          <div style={{ display: 'grid', gap: '16px', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))' }}>
-            {todayHistory.map(order => (
-              <div key={order._id} style={{
-                background: 'var(--bg-card)', padding: '16px', borderRadius: '16px',
-                border: '1px solid var(--border)', display: 'flex', flexDirection: 'column', gap: '12px'
-              }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+        <div style={{ display: 'grid', gap: '16px', marginBottom: '32px' }}>
+          {orders.map(order => {
+            const fin = getOrderFinancials(order);
+            return (
+              <motion.div
+                key={order._id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                style={{
+                  background: 'var(--bg-card, #ffffff)',
+                  padding: '20px',
+                  borderRadius: '24px',
+                  border: '1.5px solid var(--border, #e2e8f0)',
+                  boxShadow: '0 6px 24px rgba(0,0,0,0.04)'
+                }}
+              >
+                {/* Active Order Header */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
                   <div>
-                    <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 600 }}>Order #{order._id.substring(order._id.length - 8).toUpperCase()}</div>
-                    <div style={{ fontSize: '14px', fontWeight: 700, marginTop: '2px', color: 'var(--text-primary)' }}>{order.userId?.name || 'Customer'}</div>
+                    <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 700 }}>
+                      Order #{order._id.substring(order._id.length - 8).toUpperCase()} • {fin.arrivalTime}
+                    </div>
+                    <div style={{ color: '#ff6b00', fontSize: '14px', fontWeight: 900, marginTop: '2px' }}>
+                      {order.items?.length || 1} items to deliver
+                    </div>
                   </div>
-                  <div style={{ 
-                    padding: '4px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: 800, textTransform: 'uppercase',
-                    background: order.status === 'delivered' ? 'rgba(16,185,129,0.1)' : 'rgba(239,68,68,0.1)',
-                    color: order.status === 'delivered' ? '#10b981' : '#ef4444'
+                  <div style={{
+                    padding: '6px 12px', borderRadius: '14px', fontSize: '11px', fontWeight: 900,
+                    textTransform: 'uppercase', background: '#ecfdf5', color: '#047857', border: '1px solid #a7f3d0'
                   }}>
                     {order.status}
                   </div>
                 </div>
-                
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto', paddingTop: '12px', borderTop: '1px dashed var(--border)' }}>
-                  <div style={{ fontSize: '12px', color: 'var(--text-secondary)', fontWeight: 600 }}>
-                    {order.paymentMethod === 'cod' ? '💵 COD' : '💳 Paid'} • ₹{order.totalAmount}
+
+                {/* Pickup & Drop Addresses */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px' }}>
+                  <div style={{ padding: '12px', background: 'rgba(99,102,241,0.06)', borderRadius: '16px', border: '1px solid rgba(99,102,241,0.2)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
+                      <StorefrontIcon sx={{ color: '#6366f1', fontSize: '16px' }} />
+                      <span style={{ fontSize: '10px', fontWeight: 900, color: '#6366f1', textTransform: 'uppercase' }}>PICKUP HUB</span>
+                    </div>
+                    <div style={{ fontWeight: 800, fontSize: '13px', color: 'var(--text-primary)' }}>
+                      {order.items[0]?.productId?.sellerId?.sellerProfile?.storeName || 'Seller Store'}
+                    </div>
+                    <div style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '2px', lineHeight: 1.2 }}>
+                      {order.items[0]?.productId?.sellerId?.sellerProfile?.businessAddress || 'Hub Address'}
+                    </div>
                   </div>
-                  <div style={{ fontSize: '14px', fontWeight: 800, color: '#10b981' }}>
-                    +₹{order.deliveryEarnings || 0}
+
+                  <div style={{ padding: '12px', background: 'rgba(239,68,68,0.06)', borderRadius: '16px', border: '1px solid rgba(239,68,68,0.2)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
+                      <LocationOnIcon sx={{ color: '#ef4444', fontSize: '16px' }} />
+                      <span style={{ fontSize: '10px', fontWeight: 900, color: '#ef4444', textTransform: 'uppercase' }}>DROP LOCATION</span>
+                    </div>
+                    <div style={{ fontWeight: 800, fontSize: '13px', color: 'var(--text-primary)' }}>
+                      {order.userId?.name || 'Customer'}
+                    </div>
+                    <div style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '2px', lineHeight: 1.2 }}>
+                      {order.deliveryAddress?.city || 'Delivery Address'}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
+
+                {/* Accept / Reject Action Buttons if pending */}
+                {order.delivery?.status === 'assigned' && order.status !== 'cancelled' && (
+                  <div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
+                    <button
+                      onClick={() => handleAccept(order._id)}
+                      style={{
+                        flex: 1, padding: '14px', borderRadius: '16px', background: '#10b981', color: '#ffffff',
+                        border: 'none', fontSize: '15px', fontWeight: 900, cursor: 'pointer'
+                      }}
+                    >
+                      Accept Order
+                    </button>
+                    <button
+                      onClick={() => handleReject(order._id)}
+                      style={{
+                        padding: '14px 20px', borderRadius: '16px', background: 'rgba(239, 68, 68, 0.1)',
+                        color: '#dc2626', border: '1px solid rgba(239, 68, 68, 0.3)', fontSize: '14px', fontWeight: 900, cursor: 'pointer'
+                      }}
+                    >
+                      Reject
+                    </button>
+                  </div>
+                )}
+              </motion.div>
+            );
+          })}
         </div>
       )}
+
+      {/* 3. Comprehensive Financial Receipt Log Section */}
+      <div style={{ marginTop: '24px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <ReceiptLongIcon sx={{ color: '#ff6b00', fontSize: '22px' }} />
+            <h3 style={{ fontSize: '18px', fontWeight: 900, color: 'var(--text-primary, #0f172a)', margin: 0 }}>
+              Order Financial Receipts & Settlement Log
+            </h3>
+          </div>
+        </div>
+
+        {/* Financial Summary Stat Bar */}
+        <div style={{
+          background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)',
+          borderRadius: '24px',
+          padding: '20px',
+          color: '#ffffff',
+          marginBottom: '20px',
+          boxShadow: '0 8px 30px rgba(0,0,0,0.15)'
+        }}>
+          <div style={{ fontSize: '11px', fontWeight: 900, color: '#94a3b8', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '14px' }}>
+            TODAY'S RECEIVABLES & INCENTIVE BREAKDOWN
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px', textAlign: 'center' }}>
+            {/* Stat 1: Total Order Value */}
+            <div style={{ background: 'rgba(255,255,255,0.06)', padding: '10px 4px', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.1)' }}>
+              <div style={{ fontSize: '10px', color: '#94a3b8', fontWeight: 700 }}>ORDER VALUE</div>
+              <div style={{ fontSize: '16px', fontWeight: 900, color: '#ffffff', marginTop: '4px' }}>
+                ₹{allDisplayOrders.reduce((sum, o) => sum + (o.totalAmount || 350), 0).toLocaleString()}
+              </div>
+            </div>
+
+            {/* Stat 2: Taken from Restaurant/Store */}
+            <div style={{ background: 'rgba(255,255,255,0.06)', padding: '10px 4px', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.1)' }}>
+              <div style={{ fontSize: '10px', color: '#94a3b8', fontWeight: 700 }}>STORE TAKE</div>
+              <div style={{ fontSize: '16px', fontWeight: 900, color: '#38bdf8', marginTop: '4px' }}>
+                ₹{allDisplayOrders.reduce((sum, o) => sum + getOrderFinancials(o).storeTake, 0).toLocaleString()}
+              </div>
+            </div>
+
+            {/* Stat 3: Delivery Pay */}
+            <div style={{ background: 'rgba(255,255,255,0.06)', padding: '10px 4px', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.1)' }}>
+              <div style={{ fontSize: '10px', color: '#94a3b8', fontWeight: 700 }}>DELIVERY PAY</div>
+              <div style={{ fontSize: '16px', fontWeight: 900, color: '#4ade80', marginTop: '4px' }}>
+                ₹{allDisplayOrders.reduce((sum, o) => sum + getOrderFinancials(o).deliveryFee, 0).toLocaleString()}
+              </div>
+            </div>
+
+            {/* Stat 4: Incentive Office Bonus */}
+            <div style={{ background: 'rgba(255,255,255,0.06)', padding: '10px 4px', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.1)' }}>
+              <div style={{ fontSize: '10px', color: '#94a3b8', fontWeight: 700 }}>INCENTIVE OFF.</div>
+              <div style={{ fontSize: '16px', fontWeight: 900, color: '#f43f5e', marginTop: '4px' }}>
+                ₹{allDisplayOrders.reduce((sum, o) => sum + getOrderFinancials(o).incentiveOffice, 0).toLocaleString()}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Detailed Financial Item Receipts List */}
+        {allDisplayOrders.length === 0 ? (
+          <div style={{
+            background: 'var(--bg-card, #ffffff)', borderRadius: '20px', padding: '30px 20px',
+            textAlign: 'center', border: '1px solid var(--border, #e2e8f0)', color: 'var(--text-muted)'
+          }}>
+            No order receipts recorded yet today. Complete orders to view detailed breakdown logs.
+          </div>
+        ) : (
+          <div style={{ display: 'grid', gap: '14px' }}>
+            {allDisplayOrders.map((order, oIdx) => {
+              const fin = getOrderFinancials(order);
+              return (
+                <div
+                  key={order._id || oIdx}
+                  onClick={() => setSelectedOrderReceipt(order)}
+                  style={{
+                    background: 'var(--bg-card, #ffffff)',
+                    border: '1.5px solid var(--border, #e2e8f0)',
+                    borderRadius: '20px',
+                    padding: '16px 18px',
+                    cursor: 'pointer',
+                    boxShadow: '0 4px 16px rgba(0,0,0,0.02)',
+                    transition: 'transform 0.2s'
+                  }}
+                >
+                  {/* Top Bar: Order ID, Arrival Time, Status */}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <div style={{
+                        padding: '4px 8px', borderRadius: '8px', background: '#ffedd5',
+                        color: '#ea580c', fontSize: '11px', fontWeight: 900
+                      }}>
+                        #{order._id ? order._id.slice(-6).toUpperCase() : `ORD-${101 + oIdx}`}
+                      </div>
+                      <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 700 }}>
+                        {fin.arrivalTime} ({fin.arrivalDate})
+                      </span>
+                    </div>
+
+                    <div style={{
+                      fontSize: '11px', fontWeight: 900, padding: '3px 8px', borderRadius: '10px',
+                      background: order.paymentMethod === 'cod' ? '#fef3c7' : '#dcfce7',
+                      color: order.paymentMethod === 'cod' ? '#d97706' : '#059669',
+                      border: `1px solid ${order.paymentMethod === 'cod' ? '#fde68a' : '#a7f3d0'}`
+                    }}>
+                      {order.paymentMethod === 'cod' ? '💵 COD Cash' : '💳 Prepaid'}
+                    </div>
+                  </div>
+
+                  {/* Financial Grid Breakdown */}
+                  <div style={{
+                    display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px',
+                    background: 'var(--bg-secondary, #f8fafc)', padding: '12px', borderRadius: '14px',
+                    border: '1px solid var(--border, #f1f5f9)', marginBottom: '12px'
+                  }}>
+                    {/* Item 1: Total Order Cost */}
+                    <div>
+                      <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 700 }}>ORDER BILL</div>
+                      <div style={{ fontSize: '14px', fontWeight: 900, color: 'var(--text-primary)', marginTop: '2px' }}>
+                        ₹{fin.totalAmount}
+                      </div>
+                    </div>
+
+                    {/* Item 2: Taken from Restaurant / Store */}
+                    <div>
+                      <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 700 }}>RESTAURANT TAKE</div>
+                      <div style={{ fontSize: '14px', fontWeight: 900, color: '#0284c7', marginTop: '2px' }}>
+                        ₹{fin.storeTake}
+                      </div>
+                    </div>
+
+                    {/* Item 3: Delivery Cost Pay */}
+                    <div>
+                      <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 700 }}>DELIVERY PAY</div>
+                      <div style={{ fontSize: '14px', fontWeight: 900, color: '#16a34a', marginTop: '2px' }}>
+                        ₹{fin.deliveryFee}
+                      </div>
+                    </div>
+
+                    {/* Item 4: Incentive Office Paid */}
+                    <div>
+                      <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 700 }}>INCENTIVE OFF.</div>
+                      <div style={{ fontSize: '14px', fontWeight: 900, color: '#e11d48', marginTop: '2px' }}>
+                        +₹{fin.incentiveOffice}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Card Bottom CTA */}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '4px' }}>
+                    <span style={{ fontSize: '12px', color: '#ff6b00', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      View Full Receipt Statement <ChevronRightIcon sx={{ fontSize: '16px' }} />
+                    </span>
+                    <span style={{ fontSize: '13px', fontWeight: 900, color: '#10b981' }}>
+                      Total Partner Payout: ₹{fin.netEarnings}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* 4. Full Receipt Breakdown Modal */}
+      <AnimatePresence>
+        {selectedOrderReceipt && (() => {
+          const fin = getOrderFinancials(selectedOrderReceipt);
+          return (
+            <motion.div
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(8px)', zIndex: 10005, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}
+              onClick={() => setSelectedOrderReceipt(null)}
+            >
+              <motion.div
+                initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }}
+                style={{
+                  background: 'var(--bg-elevated, #ffffff)', borderRadius: '28px', padding: '24px', width: '100%', maxWidth: '420px',
+                  boxShadow: '0 20px 60px rgba(0,0,0,0.3)', border: '1px solid var(--border, #e2e8f0)'
+                }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                {/* Modal Header */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <ReceiptLongIcon sx={{ color: '#ff6b00', fontSize: '26px' }} />
+                    <div>
+                      <h3 style={{ fontSize: '18px', fontWeight: 900, color: 'var(--text-primary)', margin: 0 }}>
+                        Order Statement Receipt
+                      </h3>
+                      <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 700 }}>
+                        #{selectedOrderReceipt._id ? selectedOrderReceipt._id.toUpperCase() : 'ORD-RECEIPT'}
+                      </div>
+                    </div>
+                  </div>
+                  <button onClick={() => setSelectedOrderReceipt(null)} style={{ background: '#f1f5f9', border: 'none', borderRadius: '50%', width: '36px', height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+                    <CloseIcon sx={{ color: '#475569', fontSize: '20px' }} />
+                  </button>
+                </div>
+
+                {/* Line Item Receipt Breakdown */}
+                <div style={{ background: 'var(--bg-secondary, #f8fafc)', border: '1px solid var(--border, #e2e8f0)', borderRadius: '20px', padding: '16px', marginBottom: '20px' }}>
+                  
+                  {/* Item 1: Order Arrival Time */}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px dashed #e2e8f0' }}>
+                    <span style={{ fontSize: '13px', color: 'var(--text-muted)', fontWeight: 700 }}>Order Arrival Time</span>
+                    <span style={{ fontSize: '13px', fontWeight: 900, color: 'var(--text-primary)' }}>{fin.arrivalTime} ({fin.arrivalDate})</span>
+                  </div>
+
+                  {/* Item 2: Customer Total Order Cost */}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px dashed #e2e8f0' }}>
+                    <span style={{ fontSize: '13px', color: 'var(--text-muted)', fontWeight: 700 }}>Total Customer Order Cost</span>
+                    <span style={{ fontSize: '14px', fontWeight: 900, color: 'var(--text-primary)' }}>₹{fin.totalAmount}</span>
+                  </div>
+
+                  {/* Item 3: Taken from Restaurant / Store */}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px dashed #e2e8f0' }}>
+                    <span style={{ fontSize: '13px', color: 'var(--text-muted)', fontWeight: 700 }}>Taken from Restaurant / Store</span>
+                    <span style={{ fontSize: '14px', fontWeight: 900, color: '#0284c7' }}>₹{fin.storeTake}</span>
+                  </div>
+
+                  {/* Item 4: Delivery Cost / Fee */}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px dashed #e2e8f0' }}>
+                    <span style={{ fontSize: '13px', color: 'var(--text-muted)', fontWeight: 700 }}>Delivery Pay / Fee</span>
+                    <span style={{ fontSize: '14px', fontWeight: 900, color: '#16a34a' }}>+₹{fin.deliveryFee}</span>
+                  </div>
+
+                  {/* Item 5: Paid at Incentive Office */}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px dashed #e2e8f0' }}>
+                    <span style={{ fontSize: '13px', color: 'var(--text-muted)', fontWeight: 700 }}>Paid at Incentive Office (Surge)</span>
+                    <span style={{ fontSize: '14px', fontWeight: 900, color: '#e11d48' }}>+₹{fin.incentiveOffice}</span>
+                  </div>
+
+                  {/* Item 6: Payment Method */}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0' }}>
+                    <span style={{ fontSize: '13px', color: 'var(--text-muted)', fontWeight: 700 }}>Payment Method</span>
+                    <span style={{ fontSize: '13px', fontWeight: 900, color: selectedOrderReceipt.paymentMethod === 'cod' ? '#d97706' : '#059669' }}>
+                      {selectedOrderReceipt.paymentMethod === 'cod' ? '💵 COD Cash Collected' : '💳 Prepaid Online'}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Net Payout Banner */}
+                <div style={{
+                  background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                  borderRadius: '18px', padding: '16px', color: '#ffffff',
+                  display: 'flex', justifyContent: 'space-between', alignItems: 'center'
+                }}>
+                  <div>
+                    <div style={{ fontSize: '11px', fontWeight: 800, opacity: 0.9 }}>TOTAL PARTNER PAYOUT</div>
+                    <div style={{ fontSize: '22px', fontWeight: 900, marginTop: '2px' }}>₹{fin.netEarnings}</div>
+                  </div>
+                  <div style={{ background: 'rgba(255,255,255,0.2)', padding: '6px 12px', borderRadius: '12px', fontSize: '12px', fontWeight: 900 }}>
+                    SETTLED ✓
+                  </div>
+                </div>
+              </motion.div>
+            </motion.div>
+          );
+        })()}
+      </AnimatePresence>
     </div>
   );
 }

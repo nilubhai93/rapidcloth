@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import DashboardIcon from '@mui/icons-material/DashboardRounded';
 import DirectionsBikeIcon from '@mui/icons-material/DirectionsBikeRounded';
 import HistoryIcon from '@mui/icons-material/HistoryRounded';
@@ -8,20 +8,60 @@ import PersonIcon from '@mui/icons-material/PersonRounded';
 import NotificationsIcon from '@mui/icons-material/NotificationsRounded';
 import LogoutIcon from '@mui/icons-material/LogoutRounded';
 import SupportAgentIcon from '@mui/icons-material/SupportAgentRounded';
-import { useAuth } from '../context/AuthContext';
-import { useEffect, useState } from 'react';
-import CircularProgress from '@mui/material/CircularProgress';
-import DeliveryNavbar from './DeliveryNavbar';
-import { deliveryAPI } from '../api';
 import DynamicFeedIcon from '@mui/icons-material/DynamicFeedRounded';
 import ScheduleIcon from '@mui/icons-material/ScheduleRounded';
 import LocalOfferIcon from '@mui/icons-material/LocalOfferRounded';
 import StorefrontIcon from '@mui/icons-material/StorefrontRounded';
+import GridViewIcon from '@mui/icons-material/GridViewRounded';
+import CloseIcon from '@mui/icons-material/CloseRounded';
+import ShieldIcon from '@mui/icons-material/ShieldRounded';
+import GroupAddIcon from '@mui/icons-material/GroupAddRounded';
+import ChevronRightIcon from '@mui/icons-material/ChevronRightRounded';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutlineRounded';
+import DarkModeIcon from '@mui/icons-material/DarkModeRounded';
+import LightModeIcon from '@mui/icons-material/LightModeRounded';
+import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
+import { useEffect, useState } from 'react';
+import CircularProgress from '@mui/material/CircularProgress';
+import DeliveryNavbar from './DeliveryNavbar';
+import { deliveryAPI } from '../api';
+import toast from 'react-hot-toast';
 
 export default function DeliveryLayout() {
   const { user, loading, logout } = useAuth();
+  const { t } = useLanguage();
   const navigate = useNavigate();
+  const location = useLocation();
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [showMoreMenu, setShowMoreMenu] = useState(false);
+
+  // Dark mode state
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    return localStorage.getItem('partner_theme') === 'dark';
+  });
+
+  useEffect(() => {
+    if (isDarkMode) {
+      document.body.setAttribute('data-theme', 'dark');
+      document.body.classList.add('dark-mode');
+      localStorage.setItem('partner_theme', 'dark');
+    } else {
+      document.body.setAttribute('data-theme', 'light');
+      document.body.classList.remove('dark-mode');
+      localStorage.setItem('partner_theme', 'light');
+    }
+  }, [isDarkMode]);
+
+  const toggleDarkMode = () => {
+    setIsDarkMode(prev => {
+      const next = !prev;
+      toast.success(next ? 'Dark Mode Activated 🌙' : 'Light Mode Activated ☀️');
+      return next;
+    });
+  };
+
+  const isFeedPage = location.pathname === '/delivery' || location.pathname === '/delivery/';
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -33,21 +73,18 @@ export default function DeliveryLayout() {
 
   useEffect(() => {
     if (loading) return;
-    // Only allow delivery or admin
     if (!user || (user.role !== 'delivery' && user.role !== 'admin')) {
       navigate('/login');
       return;
     }
 
-    // Auto-fetch unassigned/assigned logic
     let failCount = 0;
     const fetchAssigned = async () => {
       try {
         const res = await deliveryAPI.getCurrentOrders();
-        // Look for any order currently specifically in 'assigned' state to us
         const pending = res.data.orders.find(o => o.delivery?.status === 'assigned');
         setAssignedOrder(pending || null);
-        failCount = 0; // reset on success
+        failCount = 0;
       } catch (e) {
         failCount++;
         if (failCount <= 3) console.error('Failed to poll assigned orders', e);
@@ -55,7 +92,7 @@ export default function DeliveryLayout() {
     };
 
     fetchAssigned();
-    const interval = setInterval(fetchAssigned, 15000); // 15 sec interval
+    const interval = setInterval(fetchAssigned, 15000);
     return () => clearInterval(interval);
   }, [user, loading, navigate]);
 
@@ -88,15 +125,41 @@ export default function DeliveryLayout() {
     ? getDistanceKm(driverPos.lat, driverPos.lng, assignedOrder.sellerHubLocation.lat, assignedOrder.sellerHubLocation.lng)
     : null;
 
-  const navItems = [
-    { name: 'Dashboard', path: '/delivery', icon: <DashboardIcon /> },
-    { name: 'My Orders', path: '/delivery/orders', icon: <DirectionsBikeIcon /> },
-    { name: 'History', path: '/delivery/history', icon: <HistoryIcon /> },
-    { name: 'Earnings', path: '/delivery/earnings', icon: <AccountBalanceWalletIcon /> },
-    { name: 'Profile', path: '/delivery/profile', icon: <PersonIcon /> },
-    { name: 'Notifications', path: '/delivery/notifications', icon: <NotificationsIcon /> },
-    { name: 'Support', path: '/delivery/support', icon: <SupportAgentIcon /> },
+  const sidebarNavItems = [
+    { name: t('dashboard'), path: '/delivery', icon: <DashboardIcon /> },
+    { name: t('orders'), path: '/delivery/orders', icon: <DirectionsBikeIcon /> },
+    { name: t('history'), path: '/delivery/history', icon: <HistoryIcon /> },
+    { name: t('earnings'), path: '/delivery/earnings', icon: <AccountBalanceWalletIcon /> },
+    { name: t('profile'), path: '/delivery/profile', icon: <PersonIcon /> },
+    { name: t('notifications'), path: '/delivery/notifications', icon: <NotificationsIcon /> },
+    { name: t('support'), path: '/delivery/support', icon: <SupportAgentIcon /> },
   ];
+
+  const moreOptions = [
+    { name: t('feed'), path: '/delivery', icon: <DynamicFeedIcon sx={{ color: '#ff6b00' }} />, bg: 'rgba(255, 107, 0, 0.1)' },
+    { name: t('orders'), path: '/delivery/orders', icon: <DirectionsBikeIcon sx={{ color: '#3b82f6' }} />, bg: 'rgba(59, 130, 246, 0.1)' },
+    { name: t('earnings'), path: '/delivery/earnings', icon: <AccountBalanceWalletIcon sx={{ color: '#10b981' }} />, bg: 'rgba(16, 185, 129, 0.1)' },
+    { name: t('shifts'), path: '/delivery/shifts', icon: <ScheduleIcon sx={{ color: '#a855f7' }} />, bg: 'rgba(168, 85, 247, 0.1)' },
+    { name: t('history'), path: '/delivery/history', icon: <HistoryIcon sx={{ color: '#f59e0b' }} />, bg: 'rgba(245, 158, 11, 0.1)' },
+    { name: t('offers'), path: '/delivery/offers', icon: <LocalOfferIcon sx={{ color: '#ec4899' }} />, bg: 'rgba(236, 72, 153, 0.1)', badge: 'NEW' },
+    { name: t('profile'), path: '/delivery/profile', icon: <PersonIcon sx={{ color: '#6366f1' }} />, bg: 'rgba(99, 102, 241, 0.1)' },
+    { name: t('notifications'), path: '/delivery/notifications', icon: <NotificationsIcon sx={{ color: '#14b8a6' }} />, bg: 'rgba(20, 184, 166, 0.1)' },
+    { name: t('market'), path: '/delivery/market', icon: <StorefrontIcon sx={{ color: '#8b5cf6' }} />, bg: 'rgba(139, 92, 246, 0.1)' },
+    { name: t('support'), path: '/delivery/support', icon: <SupportAgentIcon sx={{ color: '#06b6d4' }} />, bg: 'rgba(6, 182, 212, 0.1)' },
+    { name: t('emergency'), path: '/delivery/emergency', icon: <ShieldIcon sx={{ color: '#ef4444' }} />, bg: 'rgba(239, 68, 68, 0.1)' },
+    { name: t('refer'), path: '/delivery/refer', icon: <GroupAddIcon sx={{ color: '#10b981' }} />, bg: 'rgba(16, 185, 129, 0.1)', badge: '₹18.5k' },
+  ];
+
+  const mobileBottomNavItems = [
+    { name: t('home'), path: '/delivery', icon: <DynamicFeedIcon />, isExact: true },
+    { name: t('earnings'), path: '/delivery/earnings', icon: <AccountBalanceWalletIcon /> },
+    { name: t('shifts'), path: '/delivery/shifts', icon: <ScheduleIcon /> },
+    { name: t('orders'), path: '/delivery/orders', icon: <DirectionsBikeIcon /> },
+    { name: t('more'), isMoreButton: true, icon: <GridViewIcon /> },
+  ];
+
+  // Pages covered inside the More menu
+  const isMorePageActive = ['/delivery/history', '/delivery/offers', '/delivery/profile', '/delivery/notifications', '/delivery/market', '/delivery/support', '/delivery/emergency', '/delivery/refer'].includes(location.pathname);
 
   if (loading) {
     return (
@@ -112,8 +175,8 @@ export default function DeliveryLayout() {
 
   return (
     <>
-      <DeliveryNavbar />
-      <div style={{ display: 'flex', minHeight: 'calc(100vh - 64px)', background: 'var(--bg-secondary)', paddingTop: '64px' }}>
+      {isFeedPage && <DeliveryNavbar />}
+      <div style={{ display: 'flex', minHeight: isFeedPage ? 'calc(100vh - 64px)' : '100vh', background: 'var(--bg-secondary)', paddingTop: isFeedPage ? '64px' : '0px' }}>
 
         {/* Sidebar Navigation */}
         {!isMobile && (
@@ -128,10 +191,10 @@ export default function DeliveryLayout() {
               display: 'flex',
               flexDirection: 'column',
               position: 'fixed',
-              top: '64px',
+              top: 0,
               bottom: 0,
               left: 0,
-              zIndex: 10
+              zIndex: 1001
             }}
           >
             <div style={{ marginBottom: '40px', paddingLeft: '10px' }}>
@@ -141,7 +204,7 @@ export default function DeliveryLayout() {
             </div>
 
             <nav style={{ display: 'flex', flexDirection: 'column', gap: '8px', flex: 1, overflowY: 'auto' }}>
-              {navItems.map((item) => (
+              {sidebarNavItems.map((item) => (
                 <NavLink
                   key={item.name}
                   to={item.path}
@@ -171,6 +234,34 @@ export default function DeliveryLayout() {
                   {item.name}
                 </NavLink>
               ))}
+
+              {/* More button in Sidebar */}
+              <button
+                onClick={() => setShowMoreMenu(true)}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: '14px',
+                  padding: '12px 16px', borderRadius: 'var(--radius-md)',
+                  background: isMorePageActive ? 'var(--gradient-primary)' : 'transparent',
+                  border: 'none', color: isMorePageActive ? 'white' : 'var(--text-secondary)',
+                  fontSize: 'clamp(13px, 2.5vw, 16px)', fontWeight: 600, cursor: 'pointer',
+                  textAlign: 'left', marginTop: '4px'
+                }}
+                onMouseEnter={(e) => {
+                  if (!isMorePageActive) {
+                    e.currentTarget.style.background = 'var(--bg-elevated)';
+                    e.currentTarget.style.color = 'var(--text-primary)';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!isMorePageActive) {
+                    e.currentTarget.style.background = 'transparent';
+                    e.currentTarget.style.color = 'var(--text-secondary)';
+                  }
+                }}
+              >
+                <GridViewIcon />
+                {t('more')}
+              </button>
             </nav>
 
             <div style={{ borderTop: '1px solid var(--border)', paddingTop: '20px', marginTop: 'auto' }}>
@@ -186,7 +277,7 @@ export default function DeliveryLayout() {
                 onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
               >
                 <LogoutIcon />
-                Sign Out
+                {t('signOut')}
               </button>
             </div>
           </motion.aside>
@@ -196,68 +287,387 @@ export default function DeliveryLayout() {
         <main style={{
           flex: 1,
           marginLeft: isMobile ? '0px' : '260px',
+          width: isMobile ? '100%' : 'calc(100% - 260px)',
+          boxSizing: 'border-box',
           padding: isMobile ? '16px' : '32px 40px',
-          paddingBottom: isMobile ? '80px' : '32px',
+          paddingBottom: isMobile ? '90px' : '32px',
           maxWidth: '1200px'
         }}>
           <Outlet />
         </main>
 
-        {/* Mobile Footer Navigation - Stabilized */}
+        {/* Mobile Classic Floating Dock Navigation */}
         {isMobile && (
           <nav style={{
             position: 'fixed',
-            bottom: 0, left: 0, right: 0,
-            height: '72px',
-            background: 'rgba(18, 18, 28, 0.95)',
-            backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)',
-            borderTop: '1px solid rgba(255, 255, 255, 0.05)',
+            bottom: '12px', left: '12px', right: '12px',
+            height: '68px',
+            background: isDarkMode ? 'rgba(15, 23, 42, 0.94)' : 'rgba(255, 255, 255, 0.96)',
+            backdropFilter: 'blur(24px)', WebkitBackdropFilter: 'blur(24px)',
+            border: `1.5px solid ${isDarkMode ? 'rgba(255, 255, 255, 0.12)' : 'rgba(0, 0, 0, 0.08)'}`,
+            borderRadius: '24px',
             display: 'flex',
-            justifyContent: 'space-around',
+            justify: 'space-around',
             alignItems: 'center',
-            paddingBottom: 'env(safe-area-inset-bottom)',
-            zIndex: 1000,
-            boxShadow: '0 -10px 40px rgba(0,0,0,0.5)'
+            padding: '0 6px',
+            zIndex: 10000,
+            boxShadow: isDarkMode ? '0 12px 40px rgba(0,0,0,0.7)' : '0 12px 36px rgba(0,0,0,0.12)'
           }}>
-            {[
-              { name: 'Feed', path: '/delivery', icon: <DynamicFeedIcon /> },
-              { name: 'Earnings', path: '/delivery/earnings', icon: <AccountBalanceWalletIcon /> },
-              { name: 'Slot', path: '/delivery/profile', icon: <ScheduleIcon /> },
-              { name: 'Offers', path: '/delivery/offers', icon: <LocalOfferIcon /> },
-              { name: 'Market', path: '/delivery/market', icon: <StorefrontIcon /> },
-            ].map((item) => (
-              <NavLink
-                key={item.name}
-                to={item.path}
-                end={item.path === '/delivery'}
-                style={({ isActive }) => ({
-                  display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-                  textDecoration: 'none',
-                  color: isActive ? '#29ffc6' : 'rgba(255,255,255,0.4)',
-                  fontSize: '10px', fontWeight: 700,
-                  flex: 1, height: '100%', gap: '4px',
-                  position: 'relative',
-                  transition: 'color 0.3s'
-                })}
-              >
-                {({ isActive }) => (
-                  <>
+            {mobileBottomNavItems.map((item) => {
+              if (item.isMoreButton) {
+                const isActive = showMoreMenu || isMorePageActive;
+                return (
+                  <motion.button
+                    key="more-btn"
+                    whileTap={{ scale: 0.92 }}
+                    onClick={() => setShowMoreMenu(prev => !prev)}
+                    style={{
+                      display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                      background: 'none', border: 'none', outline: 'none', cursor: 'pointer',
+                      color: isActive ? '#ff6b00' : (isDarkMode ? '#94a3b8' : '#64748b'),
+                      fontSize: '11px', fontWeight: isActive ? 900 : 700,
+                      flex: 1, height: '54px', gap: '3px',
+                      position: 'relative', borderRadius: '18px',
+                      transition: 'color 0.2s'
+                    }}
+                  >
                     {isActive && (
                       <motion.div
-                        layoutId="nav-indicator"
-                        style={{ position: 'absolute', top: 0, width: '40px', height: '3px', background: '#29ffc6', borderRadius: '0 0 4px 4px' }}
+                        layoutId="classic-active-pill"
+                        transition={{ type: 'spring', stiffness: 350, damping: 25 }}
+                        style={{
+                          position: 'absolute', inset: 0,
+                          background: isDarkMode ? 'rgba(255, 107, 0, 0.2)' : 'rgba(255, 107, 0, 0.12)',
+                          border: '1px solid rgba(255, 107, 0, 0.3)',
+                          borderRadius: '18px'
+                        }}
                       />
                     )}
-                    <div style={{ fontSize: '24px', display: 'flex' }}>{item.icon}</div>
-                    <span style={{ fontSize: '10px' }}>{item.name}</span>
-                  </>
-                )}
-              </NavLink>
-            ))}
+                    <div style={{ fontSize: '22px', display: 'flex', zIndex: 1 }}>{item.icon}</div>
+                    <span style={{ fontSize: '11px', zIndex: 1 }}>{item.name}</span>
+                  </motion.button>
+                );
+              }
+
+              return (
+                <NavLink
+                  key={item.name}
+                  to={item.path}
+                  end={item.isExact}
+                  onClick={() => setShowMoreMenu(false)}
+                  style={({ isActive }) => ({
+                    display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                    textDecoration: 'none',
+                    color: isActive ? '#ff6b00' : (isDarkMode ? '#94a3b8' : '#64748b'),
+                    fontSize: '11px', fontWeight: isActive ? 900 : 700,
+                    flex: 1, height: '54px', gap: '3px',
+                    position: 'relative', borderRadius: '18px',
+                    transition: 'color 0.2s'
+                  })}
+                >
+                  {({ isActive }) => (
+                    <>
+                      {isActive && (
+                        <motion.div
+                          layoutId="classic-active-pill"
+                          transition={{ type: 'spring', stiffness: 350, damping: 25 }}
+                          style={{
+                            position: 'absolute', inset: 0,
+                            background: isDarkMode ? 'rgba(255, 107, 0, 0.2)' : 'rgba(255, 107, 0, 0.12)',
+                            border: '1px solid rgba(255, 107, 0, 0.3)',
+                            borderRadius: '18px'
+                          }}
+                        />
+                      )}
+                      <div style={{ fontSize: '22px', display: 'flex', zIndex: 1 }}>{item.icon}</div>
+                      <span style={{ fontSize: '11px', zIndex: 1 }}>{item.name}</span>
+                    </>
+                  )}
+                </NavLink>
+              );
+            })}
           </nav>
         )}
 
       </div>
+
+      {/* "More" Menu Drawer Modal */}
+      <AnimatePresence>
+        {showMoreMenu && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            style={{
+              position: 'fixed', inset: 0, zIndex: 9995,
+              background: 'rgba(15, 23, 42, 0.75)', backdropFilter: 'blur(12px)',
+              display: 'flex', alignItems: 'flex-end', justifyContent: 'center'
+            }}
+            onClick={() => setShowMoreMenu(false)}
+          >
+            <motion.div
+              initial={{ y: '100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '100%' }}
+              transition={{ type: 'spring', damping: 26, stiffness: 220 }}
+              style={{
+                background: isDarkMode ? '#0f172a' : '#ffffff',
+                width: '100%',
+                maxWidth: '640px',
+                borderTopLeftRadius: '32px',
+                borderTopRightRadius: '32px',
+                padding: '24px 20px 100px',
+                maxHeight: '85vh',
+                overflowY: 'auto',
+                boxShadow: isDarkMode ? '0 -20px 60px rgba(0,0,0,0.8)' : '0 -20px 60px rgba(0,0,0,0.3)',
+                borderTop: `1px solid ${isDarkMode ? '#334155' : 'transparent'}`
+              }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Drag Handle Bar */}
+              <div style={{ width: '40px', height: '4px', background: isDarkMode ? '#475569' : '#cbd5e1', borderRadius: '2px', margin: '0 auto 16px' }} />
+
+              {/* 1. Partner Profile Banner with Dark Mode Toggle */}
+              <div style={{
+                background: isDarkMode ? 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)' : 'linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%)',
+                borderRadius: '24px',
+                padding: '18px 20px',
+                marginBottom: '20px',
+                border: `1px solid ${isDarkMode ? '#334155' : '#ffedd5'}`,
+                display: 'flex',
+                alignItems: 'center',
+                justify: 'space-between'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                  <div style={{
+                    width: '48px', height: '48px', borderRadius: '50%',
+                    background: 'linear-gradient(135deg, #ff5400 0%, #ff3b00 100%)',
+                    color: '#ffffff', fontWeight: 900, fontSize: '20px',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    boxShadow: '0 4px 14px rgba(255, 84, 0, 0.3)'
+                  }}>
+                    {user?.name ? user.name[0].toUpperCase() : 'P'}
+                  </div>
+                  <div>
+                    <div style={{ fontSize: '18px', fontWeight: 900, color: isDarkMode ? '#f8fafc' : '#0f172a', letterSpacing: '-0.3px' }}>
+                      {user?.name?.toUpperCase() || 'PARTNER'}
+                    </div>
+                    <div style={{ fontSize: '12px', color: isDarkMode ? '#94a3b8' : '#64748b', fontWeight: 700, marginTop: '2px' }}>
+                      DE ID: #{user?._id?.slice(-8).toUpperCase() || '19685857'}
+                    </div>
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  {/* Dark Mode Toggle Button */}
+                  <motion.button
+                    whileTap={{ scale: 0.9 }}
+                    onClick={toggleDarkMode}
+                    style={{
+                      background: isDarkMode ? '#334155' : '#ffffff',
+                      border: `1.5px solid ${isDarkMode ? '#475569' : '#fed7aa'}`,
+                      borderRadius: '20px',
+                      padding: '8px 14px',
+                      color: isDarkMode ? '#f8fafc' : '#ea580c',
+                      fontWeight: 800,
+                      fontSize: '12px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      cursor: 'pointer',
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                    }}
+                  >
+                    {isDarkMode ? <DarkModeIcon sx={{ fontSize: '16px', color: '#fbbf24' }} /> : <LightModeIcon sx={{ fontSize: '16px', color: '#ea580c' }} />}
+                    <span>{isDarkMode ? 'Dark' : 'Light'}</span>
+                  </motion.button>
+
+                  <button
+                    onClick={() => { setShowMoreMenu(false); navigate('/delivery/support'); }}
+                    style={{
+                      background: isDarkMode ? '#1e293b' : '#ffffff', border: `1px solid ${isDarkMode ? '#334155' : '#fed7aa'}`, borderRadius: '20px',
+                      padding: '8px 14px', color: isDarkMode ? '#93c5fd' : '#ea580c', fontWeight: 800, fontSize: '12px',
+                      display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer'
+                    }}
+                  >
+                    <HelpOutlineIcon sx={{ fontSize: '16px' }} /> {t('help')}
+                  </button>
+                </div>
+              </div>
+
+              {/* 2. Quick Action Pills Row */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px', marginBottom: '24px' }}>
+                {[
+                  { label: t('myProfile'), path: '/delivery/profile', icon: <PersonIcon sx={{ fontSize: '20px', color: '#6366f1' }} /> },
+                  { label: t('payouts'), path: '/delivery/earnings', icon: <AccountBalanceWalletIcon sx={{ fontSize: '20px', color: '#10b981' }} /> },
+                  { label: t('shifts'), path: '/delivery/shifts', icon: <ScheduleIcon sx={{ fontSize: '20px', color: '#a855f7' }} /> },
+                  { label: t('notifications'), path: '/delivery/notifications', icon: <NotificationsIcon sx={{ fontSize: '20px', color: '#14b8a6' }} /> },
+                ].map((quick, qIdx) => (
+                  <motion.div
+                    key={qIdx}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => { setShowMoreMenu(false); navigate(quick.path); }}
+                    style={{
+                      background: isDarkMode ? '#1e293b' : '#ffffff',
+                      border: `1.5px solid ${isDarkMode ? '#334155' : '#e2e8f0'}`,
+                      borderRadius: '16px',
+                      padding: '12px 6px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      gap: '6px',
+                      textAlign: 'center',
+                      cursor: 'pointer',
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.02)'
+                    }}
+                  >
+                    {quick.icon}
+                    <span style={{ fontSize: '11px', fontWeight: 800, color: isDarkMode ? '#f8fafc' : '#1e293b' }}>{quick.label}</span>
+                  </motion.div>
+                ))}
+              </div>
+
+              {/* Section Header */}
+              <div style={{ fontSize: '11px', fontWeight: 900, color: isDarkMode ? '#94a3b8' : '#64748b', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '14px', paddingLeft: '4px' }}>
+                {t('moreFeatures')}
+              </div>
+
+              {/* 3. Main Feature Grid (3 columns x 4 rows) */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginBottom: '28px' }}>
+                {moreOptions.map((opt) => (
+                  <motion.div
+                    key={opt.name}
+                    whileTap={{ scale: 0.95 }}
+                    whileHover={{ y: -2 }}
+                    onClick={() => {
+                      setShowMoreMenu(false);
+                      navigate(opt.path);
+                    }}
+                    style={{
+                      background: isDarkMode ? '#1e293b' : '#f8fafc',
+                      border: `1px solid ${isDarkMode ? '#334155' : '#e2e8f0'}`,
+                      borderRadius: '20px',
+                      padding: '16px 10px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justify: 'center',
+                      textAlign: 'center',
+                      cursor: 'pointer',
+                      position: 'relative',
+                      boxShadow: '0 2px 10px rgba(0,0,0,0.02)'
+                    }}
+                  >
+                    {opt.badge && (
+                      <div style={{
+                        position: 'absolute', top: '8px', right: '8px',
+                        background: opt.badge.includes('₹') ? '#10b981' : '#ff5400',
+                        color: '#ffffff', fontSize: '9px', fontWeight: 900,
+                        padding: '2px 6px', borderRadius: '10px'
+                      }}>
+                        {opt.badge}
+                      </div>
+                    )}
+                    <div style={{
+                      width: '46px', height: '46px', borderRadius: '16px',
+                      background: opt.bg, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      marginBottom: '10px', boxShadow: '0 2px 8px rgba(0,0,0,0.03)'
+                    }}>
+                      {opt.icon}
+                    </div>
+                    <span style={{ fontSize: '12px', fontWeight: 800, color: isDarkMode ? '#f8fafc' : '#0f172a', lineHeight: 1.2 }}>
+                      {opt.name}
+                    </span>
+                  </motion.div>
+                ))}
+              </div>
+
+              {/* 4. Structured Quick Links List */}
+              <div style={{
+                background: isDarkMode ? '#1e293b' : '#ffffff',
+                border: `1px solid ${isDarkMode ? '#334155' : '#e2e8f0'}`,
+                borderRadius: '20px',
+                padding: '6px 16px',
+                marginBottom: '28px',
+                boxShadow: '0 2px 10px rgba(0,0,0,0.02)'
+              }}>
+                {[
+                  { title: t('refer'), badge: 'Upto ₹18,500', path: '/delivery/refer', icon: <GroupAddIcon sx={{ color: '#10b981', fontSize: '20px' }} /> },
+                  { title: t('offers'), badge: 'NEW', path: '/delivery/offers', icon: <LocalOfferIcon sx={{ color: '#ec4899', fontSize: '20px' }} /> },
+                  { title: t('emergency'), path: '/delivery/emergency', icon: <ShieldIcon sx={{ color: '#ef4444', fontSize: '20px' }} /> },
+                  { title: t('shifts'), path: '/delivery/shifts', icon: <ScheduleIcon sx={{ color: '#a855f7', fontSize: '20px' }} /> },
+                  { title: t('support'), path: '/delivery/support', icon: <SupportAgentIcon sx={{ color: '#06b6d4', fontSize: '20px' }} /> },
+                ].map((item, idx, arr) => (
+                  <div
+                    key={idx}
+                    onClick={() => { setShowMoreMenu(false); navigate(item.path); }}
+                    style={{
+                      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                      padding: '14px 4px',
+                      borderBottom: idx < arr.length - 1 ? `1px solid ${isDarkMode ? '#334155' : '#f1f5f9'}` : 'none',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      {item.icon}
+                      <span style={{ fontSize: '14px', fontWeight: 800, color: isDarkMode ? '#f8fafc' : '#0f172a' }}>{item.title}</span>
+                    </div>
+
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      {item.badge && (
+                        <span style={{
+                          fontSize: '11px', fontWeight: 800,
+                          color: item.badge.includes('₹') ? '#047857' : '#ea580c',
+                          background: item.badge.includes('₹') ? (isDarkMode ? 'rgba(16,185,129,0.2)' : '#ecfdf5') : (isDarkMode ? 'rgba(234,88,12,0.2)' : '#fff7ed'),
+                          padding: '3px 8px', borderRadius: '10px',
+                          border: `1px solid ${item.badge.includes('₹') ? '#a7f3d0' : '#ffedd5'}`
+                        }}>
+                          {item.badge}
+                        </span>
+                      )}
+                      <ChevronRightIcon sx={{ color: '#94a3b8', fontSize: '20px' }} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* 5. Utility Links & Sign Out */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', padding: '0 6px' }}>
+                <span style={{ fontSize: '12px', color: isDarkMode ? '#94a3b8' : '#64748b', fontWeight: 700 }}>App Version 2.4.0 (Build 2026.08)</span>
+                <span style={{ fontSize: '12px', color: '#ff6b00', fontWeight: 800, cursor: 'pointer' }} onClick={() => { setShowMoreMenu(false); navigate('/delivery/profile'); }}>
+                  {t('appLanguage')} 🌐
+                </span>
+              </div>
+
+              <button
+                onClick={() => {
+                  setShowMoreMenu(false);
+                  logout();
+                  navigate('/login');
+                }}
+                style={{
+                  width: '100%',
+                  padding: '16px',
+                  borderRadius: '18px',
+                  background: 'rgba(239, 68, 68, 0.08)',
+                  border: '1.5px solid rgba(239, 68, 68, 0.3)',
+                  color: '#dc2626',
+                  fontSize: '15px',
+                  fontWeight: 900,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justify: 'center',
+                  gap: '8px',
+                  cursor: 'pointer'
+                }}
+              >
+                <LogoutIcon sx={{ fontSize: '22px' }} />
+                {t('signOut')}
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Auto-Assignment Popup Modal */}
       <AnimatePresence>
@@ -293,7 +703,6 @@ export default function DeliveryLayout() {
                 Order <strong>#{assignedOrder._id.slice(-6).toUpperCase()}</strong> — {assignedOrder.items?.length || 0} items
               </p>
 
-              {/* Multi-Distance & Earnings Info */}
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', marginBottom: '24px' }}>
                 <div style={{ padding: '12px 4px', borderRadius: '12px', background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.2)' }}>
                   <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase', marginBottom: '4px' }}>Pickup</div>
@@ -320,7 +729,6 @@ export default function DeliveryLayout() {
                 </div>
               </div>
 
-              {/* Payment Badge */}
               <div style={{
                 padding: '8px 16px', borderRadius: 'var(--radius-full)', marginBottom: '24px',
                 display: 'inline-flex', alignItems: 'center', gap: '6px',
@@ -329,7 +737,7 @@ export default function DeliveryLayout() {
                 color: assignedOrder.paymentMethod === 'cod' ? '#f59e0b' : '#10b981',
                 fontSize: '13px', fontWeight: 700
               }}>
-                {assignedOrder.status === 'return-requested' ? '🔄 Product Return' : (assignedOrder.paymentMethod === 'cod' ? '💵 Cash on Delivery' : '✅ Prepaid')}
+                {assignedOrder.status === 'return-requested' ? '🔄 Product Return' : (assignedOrder.paymentMethod === 'cod' ? '💵 Cash on Delivery' : 'Prepaid')}
                 {' · '}₹{Math.round(assignedOrder.totalAmount).toLocaleString()}
               </div>
 

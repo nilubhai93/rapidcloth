@@ -3,9 +3,40 @@ import User from '../models/User.js';
 
 const CASH_LIMIT = 2500; // ₹2500 COD cash limit
 
+const getLocalDateStr = (date = new Date()) => {
+  const d = new Date(date);
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
 export const getDeliveryProfile = async (req, res) => {
   try {
     const user = await User.findById(req.user._id).select('-password');
+    if (user && user.deliveryProfile) {
+      const now = new Date();
+      const todayStr = getLocalDateStr(now);
+      let needsSave = false;
+
+      // Reset seconds if date changed past midnight (12:00 AM)
+      if (user.deliveryProfile.lastOnlineDate && user.deliveryProfile.lastOnlineDate !== todayStr) {
+        user.deliveryProfile.onlineSecondsToday = 0;
+        user.deliveryProfile.lastOnlineDate = todayStr;
+        if (user.deliveryProfile.isOnline) {
+          const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+          user.deliveryProfile.lastOnlineStartTime = startOfToday;
+        }
+        needsSave = true;
+      } else if (!user.deliveryProfile.lastOnlineDate) {
+        user.deliveryProfile.lastOnlineDate = todayStr;
+        needsSave = true;
+      }
+
+      if (needsSave) {
+        await user.save();
+      }
+    }
     res.json({ user });
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch profile' });
@@ -39,14 +70,49 @@ export const assignDriverToOrder = async (order) => {
 export const updateDeliveryStatus = async (req, res) => {
   try {
     const { isOnline } = req.body;
-    req.user.deliveryProfile.isOnline = isOnline;
+    const user = req.user;
+    const now = new Date();
+    const todayStr = getLocalDateStr(now);
+
+    if (!user.deliveryProfile) {
+      user.deliveryProfile = {};
+    }
+
+    // New day (midnight 12:00 AM) reset check
+    if (user.deliveryProfile.lastOnlineDate && user.deliveryProfile.lastOnlineDate !== todayStr) {
+      user.deliveryProfile.onlineSecondsToday = 0;
+      user.deliveryProfile.lastOnlineDate = todayStr;
+      if (user.deliveryProfile.isOnline) {
+        const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        user.deliveryProfile.lastOnlineStartTime = startOfToday;
+      }
+    } else if (!user.deliveryProfile.lastOnlineDate) {
+      user.deliveryProfile.lastOnlineDate = todayStr;
+    }
+
+    const wasOnline = user.deliveryProfile.isOnline;
+
+    if (isOnline && !wasOnline) {
+      // Going online
+      user.deliveryProfile.isOnline = true;
+      user.deliveryProfile.lastOnlineStartTime = now;
+    } else if (!isOnline && wasOnline) {
+      // Going offline — accumulate elapsed seconds for today
+      if (user.deliveryProfile.lastOnlineStartTime) {
+        const startMs = new Date(user.deliveryProfile.lastOnlineStartTime).getTime();
+        const elapsedSec = Math.floor((now.getTime() - startMs) / 1000);
+        user.deliveryProfile.onlineSecondsToday = (user.deliveryProfile.onlineSecondsToday || 0) + Math.max(0, elapsedSec);
+      }
+      user.deliveryProfile.isOnline = false;
+      user.deliveryProfile.lastOnlineStartTime = null;
+    }
 
     // If coming online, check if there are any orphaned/unassigned confirmed or return-requested orders
-    if (isOnline && !req.user.deliveryProfile.currentOrderId) {
+    if (isOnline && !user.deliveryProfile.currentOrderId) {
       const orphanOrder = await Order.findOne({
         status: { $in: ['confirmed', 'return-requested'] },
         'delivery.status': 'unassigned',
-        'delivery.rejectedBy': { $ne: req.user._id }
+        'delivery.rejectedBy': { $ne: user._id }
       });
 
       if (orphanOrder) {
@@ -54,8 +120,11 @@ export const updateDeliveryStatus = async (req, res) => {
       }
     }
 
-    await req.user.save();
-    res.json({ isOnline: req.user.deliveryProfile.isOnline });
+    await user.save();
+    const cleanUser = user.toObject();
+    delete cleanUser.password;
+
+    res.json({ isOnline: user.deliveryProfile.isOnline, user: cleanUser });
   } catch (error) {
     console.error('Update status error', error);
     res.status(500).json({ error: 'Failed to update status' });

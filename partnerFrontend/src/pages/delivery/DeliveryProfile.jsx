@@ -1,84 +1,566 @@
-import { motion } from 'framer-motion';
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { useState, useEffect } from 'react';
-import { deliveryAPI } from '../../api';
-import EventAvailableIcon from '@mui/icons-material/EventAvailableRounded';
-import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWalletRounded';
-import CircularProgress from '@mui/material/CircularProgress';
+import { useLanguage } from '../../context/LanguageContext';
+
+import ArrowBackIcon from '@mui/icons-material/ArrowBackRounded';
+import EditIcon from '@mui/icons-material/EditRounded';
+import StarIcon from '@mui/icons-material/StarRounded';
+import VerifiedUserIcon from '@mui/icons-material/VerifiedUserRounded';
+import MedicalServicesIcon from '@mui/icons-material/MedicalServicesRounded';
+import AccountBalanceIcon from '@mui/icons-material/AccountBalanceRounded';
+import LanguageIcon from '@mui/icons-material/LanguageRounded';
+import HeadsetMicIcon from '@mui/icons-material/HeadsetMicRounded';
+import LogoutIcon from '@mui/icons-material/LogoutRounded';
+import ChevronRightIcon from '@mui/icons-material/ChevronRightRounded';
+import CloseIcon from '@mui/icons-material/CloseRounded';
+import toast from 'react-hot-toast';
 
 export default function DeliveryProfile() {
-  const { user } = useAuth();
-  const [stats, setStats] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+  const { user, logout } = useAuth();
+  const { langCode, t, changeLanguage } = useLanguage();
 
-  useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const res = await deliveryAPI.getEarnings();
-        setStats(res.data);
-      } catch (err) {
-        console.error('Failed to fetch stats', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchStats();
-  }, []);
-  
-  if (loading) {
-    return (
-      <div style={{ display: 'flex', justifyContent: 'center', padding: '40px' }}>
-        <CircularProgress sx={{ color: 'var(--accent)' }} />
-      </div>
-    );
-  }
+  // Profile fields state
+  const [phone, setPhone] = useState(user?.phone || '7407856206');
+  const [city, setCity] = useState(user?.city || 'Kolkata');
+  const [zone, setZone] = useState(user?.zone || 'Barrackpore');
+  const [category, setCategory] = useState('Clothing, Quick Delivery, Express');
+  const [joiningDate] = useState('25/12/2024');
+  const [rating] = useState(4.92);
+
+  // Bank details state
+  const [bankDetails] = useState({
+    accountNumber: '•••• •••• 4920',
+    ifsc: 'HDFC0001234',
+    bankName: 'HDFC Bank',
+    holderName: user?.name || 'ASTIK MANDAL'
+  });
+
+  // Languages display names map
+  const langNames = {
+    en: 'English',
+    hi: 'Hindi (हिंदी)',
+    bn: 'Bengali (বাংলা)',
+    ta: 'Tamil (தமிழ்)',
+    te: 'Telugu (తెలుగు)'
+  };
+
+  const [preferredLanguage, setPreferredLanguage] = useState('English');
+
+  // Modals state
+  const [activeModal, setActiveModal] = useState(null); // 'editField' | 'insurance' | 'emergency' | 'bank' | 'language' | 'rating'
+  const [editConfig, setEditConfig] = useState({ field: '', label: '', value: '' });
+
+  const languageOptions = [
+    { code: 'en', name: 'English', label: 'English' },
+    { code: 'hi', name: 'Hindi', label: 'Hindi (हिंदी)' },
+    { code: 'bn', name: 'Bengali', label: 'Bengali (বাংলা)' },
+    { code: 'ta', name: 'Tamil', label: 'Tamil (தமிழ்)' },
+    { code: 'te', name: 'Telugu', label: 'Telugu (తెలుగు)' }
+  ];
+
+  const handleOpenEdit = (field, label, currentValue) => {
+    setEditConfig({ field, label, value: currentValue });
+    setActiveModal('editField');
+  };
+
+  const handleSaveEdit = () => {
+    if (editConfig.field === 'phone') setPhone(editConfig.value);
+    if (editConfig.field === 'city') setCity(editConfig.value);
+    if (editConfig.field === 'zone') setZone(editConfig.value);
+    if (editConfig.field === 'category') setCategory(editConfig.value);
+    toast.success(`${editConfig.label} updated successfully!`);
+    setActiveModal(null);
+  };
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ paddingBottom: '60px', maxWidth: '600px' }}>
-       {/* Profile Header */}
-       <div style={{ 
-         background: 'linear-gradient(145deg, var(--bg-card) 0%, rgba(18,18,28,0) 100%)',
-         border: '1px solid var(--border)', borderRadius: '20px', padding: '20px 16px', 
-         textAlign: 'center', position: 'relative', overflow: 'hidden', marginBottom: '16px'
-       }}>
-         {/* Decorative BG */}
-         <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '60px', background: 'linear-gradient(135deg, rgba(41,255,198,0.2) 0%, rgba(12,235,235,0.1) 100%)' }} />
-         
-         <div style={{ 
-           width: '64px', height: '64px', borderRadius: '50%', background: 'var(--bg-elevated)', margin: '0 auto 12px', position: 'relative', zIndex: 1,
-           border: '3px solid var(--bg-secondary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '24px', fontWeight: 800, color: '#000',
-           backgroundImage: 'linear-gradient(135deg, #0cebeb 0%, #29ffc6 100%)'
-         }}>
-           {user?.name?.[0]?.toUpperCase() || 'R'}
-         </div>
-         
-         <h2 style={{ margin: '0 0 2px 0', fontSize: '18px', fontWeight: 800, color: 'var(--text-primary)', position: 'relative', zIndex: 1 }}>
-           {user?.name || 'Rider Profile'}
-         </h2>
-         <p style={{ margin: 0, color: 'var(--text-secondary)', fontSize: '12px', position: 'relative', zIndex: 1 }}>{user?.email}</p>
-       </div>
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      style={{
+        maxWidth: '560px',
+        margin: '0 auto',
+        padding: '16px 16px 100px',
+        fontFamily: 'Inter, system-ui, -apple-system, sans-serif',
+        color: 'var(--text-primary, #0f172a)'
+      }}
+    >
+      {/* 1. Header Bar */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
+        <button
+          onClick={() => navigate(-1)}
+          style={{
+            background: 'var(--bg-elevated, #ffffff)',
+            border: 'none',
+            color: 'var(--text-primary, #0f172a)',
+            borderRadius: '50%',
+            width: '40px',
+            height: '40px',
+            display: 'flex',
+            alignItems: 'center',
+            justify: 'center',
+            cursor: 'pointer',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
+          }}
+        >
+          <ArrowBackIcon sx={{ fontSize: '22px' }} />
+        </button>
+        <h1 style={{ fontSize: '20px', fontWeight: 900, color: 'var(--text-primary, #0f172a)', margin: 0, letterSpacing: '-0.3px' }}>
+          {t('profileTitle')}
+        </h1>
+        <div style={{ width: '40px' }} />
+      </div>
 
-       {/* Quick Stats Grid */}
-       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-         {/* Earnings Summary */}
-         <motion.div whileTap={{ scale: 0.98 }} style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '16px', padding: '16px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
-           <div style={{ width: '32px', height: '32px', borderRadius: '10px', background: 'rgba(41,255,198,0.1)', color: '#29ffc6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-             <AccountBalanceWalletIcon sx={{ fontSize: '18px' }} />
-           </div>
-           <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Weekly Earnings</div>
-           <div style={{ fontSize: '18px', fontWeight: 800, color: 'var(--text-primary)' }}>₹{stats?.weeklyEarnings || 0}</div>
-         </motion.div>
+      {/* 2. Partner Header Card */}
+      <div style={{
+        background: 'var(--bg-elevated, #ffffff)',
+        borderRadius: '28px',
+        padding: '24px 20px',
+        boxShadow: '0 8px 30px rgba(0,0,0,0.04)',
+        border: '1px solid var(--border, #e2e8f0)',
+        marginBottom: '20px',
+        position: 'relative'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          {/* Avatar */}
+          <div style={{ position: 'relative' }}>
+            <div style={{
+              width: '68px', height: '68px', borderRadius: '50%',
+              background: 'linear-gradient(135deg, #ff5400 0%, #ff3b00 100%)',
+              color: '#ffffff', fontSize: '26px', fontWeight: 900,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              boxShadow: '0 6px 18px rgba(255, 84, 0, 0.3)'
+            }}>
+              {user?.name ? user.name[0].toUpperCase() : 'A'}
+            </div>
+            <div style={{
+              position: 'absolute', bottom: '2px', right: '2px',
+              width: '16px', height: '16px', borderRadius: '50%',
+              background: '#22c55e', border: '3px solid #ffffff'
+            }} />
+          </div>
 
-         {/* Current Slot */}
-         <motion.div whileTap={{ scale: 0.98 }} style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '16px', padding: '16px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
-           <div style={{ width: '32px', height: '32px', borderRadius: '10px', background: 'rgba(168,85,247,0.1)', color: '#a855f7', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-             <EventAvailableIcon sx={{ fontSize: '18px' }} />
-           </div>
-           <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Active Slot</div>
-           <div style={{ fontSize: '14px', fontWeight: 800, color: 'var(--text-primary)' }}>12:00 PM - 4:00 PM</div>
-           <div style={{ fontSize: '11px', color: '#10b981', fontWeight: 600 }}>Zone A</div>
-         </motion.div>
-       </div>
+          <div>
+            <div style={{ fontSize: '22px', fontWeight: 900, color: 'var(--text-primary, #0f172a)', letterSpacing: '-0.5px' }}>
+              {user?.name?.toUpperCase() || 'ASTIK MANDAL'}
+            </div>
+            <div style={{ fontSize: '13px', color: 'var(--text-muted, #64748b)', fontWeight: 700, marginTop: '2px' }}>
+              DE ID: #{user?._id?.slice(-8).toUpperCase() || '19685857'}
+            </div>
+
+            {/* Ratings Badge */}
+            <div
+              onClick={() => setActiveModal('rating')}
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: '6px',
+                marginTop: '8px', cursor: 'pointer',
+                background: '#fff7ed', border: '1px solid #ffedd5',
+                padding: '4px 10px', borderRadius: '12px'
+              }}
+            >
+              <span style={{ fontSize: '11px', fontWeight: 700, color: '#ea580c' }}>{t('yourRatings')}</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '2px', color: '#eab308', fontWeight: 900, fontSize: '13px' }}>
+                <StarIcon sx={{ fontSize: '16px' }} />
+                <span>{rating}</span>
+              </div>
+              <ChevronRightIcon sx={{ fontSize: '16px', color: '#ea580c' }} />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* 3. Account & Details Grid Card */}
+      <div style={{
+        background: 'var(--bg-elevated, #ffffff)',
+        borderRadius: '28px',
+        padding: '20px',
+        boxShadow: '0 8px 30px rgba(0,0,0,0.04)',
+        border: '1px solid var(--border, #e2e8f0)',
+        marginBottom: '24px'
+      }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+          {/* Mobile Number */}
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: 'var(--text-muted, #64748b)', fontWeight: 700 }}>
+              <span>{t('mobileNumber')}</span>
+              <EditIcon
+                onClick={() => handleOpenEdit('phone', t('mobileNumber'), phone)}
+                sx={{ fontSize: '15px', color: '#ff6b00', cursor: 'pointer' }}
+              />
+            </div>
+            <div style={{ fontSize: '15px', fontWeight: 800, color: 'var(--text-primary, #0f172a)', marginTop: '4px' }}>
+              {phone}
+            </div>
+          </div>
+
+          {/* Joining Date */}
+          <div>
+            <div style={{ fontSize: '12px', color: 'var(--text-muted, #64748b)', fontWeight: 700 }}>
+              {t('joiningDate')}
+            </div>
+            <div style={{ fontSize: '15px', fontWeight: 800, color: 'var(--text-primary, #0f172a)', marginTop: '4px' }}>
+              {joiningDate}
+            </div>
+          </div>
+
+          {/* City */}
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: 'var(--text-muted, #64748b)', fontWeight: 700 }}>
+              <span>{t('city')}</span>
+              <EditIcon
+                onClick={() => handleOpenEdit('city', t('city'), city)}
+                sx={{ fontSize: '15px', color: '#ff6b00', cursor: 'pointer' }}
+              />
+            </div>
+            <div style={{ fontSize: '15px', fontWeight: 800, color: 'var(--text-primary, #0f172a)', marginTop: '4px' }}>
+              {city}
+            </div>
+          </div>
+
+          {/* Zone */}
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: 'var(--text-muted, #64748b)', fontWeight: 700 }}>
+              <span>{t('zone')}</span>
+              <EditIcon
+                onClick={() => handleOpenEdit('zone', t('zone'), zone)}
+                sx={{ fontSize: '15px', color: '#ff6b00', cursor: 'pointer' }}
+              />
+            </div>
+            <div style={{ fontSize: '15px', fontWeight: 800, color: 'var(--text-primary, #0f172a)', marginTop: '4px' }}>
+              {zone}
+            </div>
+          </div>
+        </div>
+
+        {/* Order Category Divider & Row */}
+        <div style={{ borderTop: '1px solid var(--border, #f1f5f9)', marginTop: '18px', paddingTop: '16px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: 'var(--text-muted, #64748b)', fontWeight: 700 }}>
+            <span>{t('orderCategory')}</span>
+            <EditIcon
+              onClick={() => handleOpenEdit('category', t('orderCategory'), category)}
+              sx={{ fontSize: '15px', color: '#ff6b00', cursor: 'pointer' }}
+            />
+          </div>
+          <div style={{ fontSize: '14px', fontWeight: 800, color: 'var(--text-primary, #0f172a)', marginTop: '4px', lineHeight: 1.4 }}>
+            {category}
+          </div>
+        </div>
+      </div>
+
+      {/* 4. Action Details List Card */}
+      <div style={{
+        background: 'var(--bg-elevated, #ffffff)',
+        borderRadius: '28px',
+        padding: '8px 16px',
+        boxShadow: '0 8px 30px rgba(0,0,0,0.04)',
+        border: '1px solid var(--border, #e2e8f0)',
+        marginBottom: '28px'
+      }}>
+        {[
+          {
+            id: 'insurance',
+            label: t('insuranceDetails'),
+            subtitle: t('insuranceSubtitle'),
+            icon: <VerifiedUserIcon sx={{ color: '#10b981', fontSize: '22px' }} />,
+            bg: '#dcfce7'
+          },
+          {
+            id: 'emergency',
+            label: t('emergencyDetails'),
+            subtitle: t('emergencySubtitle'),
+            icon: <MedicalServicesIcon sx={{ color: '#3b82f6', fontSize: '22px' }} />,
+            bg: '#dbeafe'
+          },
+          {
+            id: 'bank',
+            label: t('bankDetails'),
+            subtitle: bankDetails.bankName,
+            icon: <AccountBalanceIcon sx={{ color: '#f59e0b', fontSize: '22px' }} />,
+            bg: '#fef3c7'
+          },
+          {
+            id: 'language',
+            label: t('appLanguage'),
+            subtitle: langNames[langCode] || 'English',
+            icon: <LanguageIcon sx={{ color: '#8b5cf6', fontSize: '22px' }} />,
+            bg: '#f3e8ff'
+          },
+          {
+            id: 'preferredLang',
+            label: t('preferredLanguage'),
+            subtitle: preferredLanguage,
+            icon: <HeadsetMicIcon sx={{ color: '#ec4899', fontSize: '22px' }} />,
+            bg: '#fce7f3'
+          }
+        ].map((item, idx, arr) => (
+          <div
+            key={item.id}
+            onClick={() => setActiveModal(item.id)}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justify: 'space-between',
+              padding: '16px 4px',
+              borderBottom: idx < arr.length - 1 ? '1px dashed var(--border, #f1f5f9)' : 'none',
+              cursor: 'pointer'
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+              <div style={{
+                width: '40px', height: '40px', borderRadius: '50%',
+                background: item.bg, display: 'flex', alignItems: 'center', justifyContent: 'center'
+              }}>
+                {item.icon}
+              </div>
+              <div>
+                <div style={{ fontSize: '15px', fontWeight: 800, color: 'var(--text-primary, #0f172a)' }}>{item.label}</div>
+                <div style={{ fontSize: '12px', color: 'var(--text-muted, #64748b)', fontWeight: 600, marginTop: '2px' }}>{item.subtitle}</div>
+              </div>
+            </div>
+            <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: '#fff7ed', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <ChevronRightIcon sx={{ color: '#ff6b00', fontSize: '20px' }} />
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* 5. Log Out Button */}
+      <button
+        onClick={() => { logout(); navigate('/login'); }}
+        style={{
+          width: '100%',
+          padding: '16px',
+          borderRadius: '20px',
+          background: 'rgba(239, 68, 68, 0.08)',
+          border: '1.5px solid rgba(239, 68, 68, 0.3)',
+          color: '#dc2626',
+          fontSize: '15px',
+          fontWeight: 900,
+          display: 'flex',
+          alignItems: 'center',
+          justify: 'center',
+          gap: '10px',
+          cursor: 'pointer'
+        }}
+      >
+        <LogoutIcon sx={{ fontSize: '22px' }} />
+        <span>{t('logOut')}</span>
+      </button>
+
+      {/* Modals Section */}
+      <AnimatePresence>
+        {/* Modal 1: Edit Field */}
+        {activeModal === 'editField' && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(4px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}
+            onClick={() => setActiveModal(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }}
+              style={{ background: 'var(--bg-elevated, #ffffff)', borderRadius: '24px', padding: '24px', width: '100%', maxWidth: '380px' }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                <h3 style={{ fontSize: '18px', fontWeight: 900, color: 'var(--text-primary, #0f172a)', margin: 0 }}>{t('edit')} {editConfig.label}</h3>
+                <button onClick={() => setActiveModal(null)} style={{ background: '#f1f5f9', border: 'none', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+                  <CloseIcon sx={{ color: '#475569', fontSize: '18px' }} />
+                </button>
+              </div>
+
+              <input
+                autoFocus
+                type="text"
+                value={editConfig.value}
+                onChange={(e) => setEditConfig(prev => ({ ...prev, value: e.target.value }))}
+                style={{
+                  width: '100%', padding: '14px', borderRadius: '14px', border: '1.5px solid #cbd5e1',
+                  fontSize: '16px', fontWeight: 700, color: '#0f172a', outline: 'none', marginBottom: '20px'
+                }}
+              />
+
+              <button
+                onClick={handleSaveEdit}
+                style={{ width: '100%', padding: '14px', borderRadius: '14px', background: '#ff6b00', color: '#ffffff', border: 'none', fontSize: '15px', fontWeight: 900, cursor: 'pointer' }}
+              >
+                Save Changes
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+
+        {/* Modal 2: Insurance Details */}
+        {activeModal === 'insurance' && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(4px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}
+            onClick={() => setActiveModal(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }}
+              style={{ background: 'var(--bg-elevated, #ffffff)', borderRadius: '24px', padding: '24px', width: '100%', maxWidth: '400px' }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                <h3 style={{ fontSize: '18px', fontWeight: 900, color: 'var(--text-primary, #0f172a)', margin: 0 }}>Insurance Coverage</h3>
+                <button onClick={() => setActiveModal(null)} style={{ background: '#f1f5f9', border: 'none', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+                  <CloseIcon sx={{ color: '#475569', fontSize: '18px' }} />
+                </button>
+              </div>
+
+              <div style={{ background: '#ecfdf5', border: '1px solid #a7f3d0', borderRadius: '16px', padding: '16px', marginBottom: '16px' }}>
+                <div style={{ fontSize: '12px', fontWeight: 800, color: '#047857', textTransform: 'uppercase' }}>POLICY STATUS</div>
+                <div style={{ fontSize: '20px', fontWeight: 900, color: '#065f46', marginTop: '2px' }}>₹5,00,000 Active Cover</div>
+                <div style={{ fontSize: '12px', color: '#047857', marginTop: '4px' }}>Valid for 7 days post active delivery.</div>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', fontSize: '13px', color: '#475569', fontWeight: 600 }}>
+                <div>● Policy ID: <strong>POL-889124-RC</strong></div>
+                <div>● Accidental OPD: <strong>Up to ₹50,000</strong></div>
+                <div>● Hospitalization: <strong>Up to ₹5,000,000</strong></div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+
+        {/* Modal 3: Bank Details */}
+        {activeModal === 'bank' && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(4px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}
+            onClick={() => setActiveModal(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }}
+              style={{ background: 'var(--bg-elevated, #ffffff)', borderRadius: '24px', padding: '24px', width: '100%', maxWidth: '400px' }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                <h3 style={{ fontSize: '18px', fontWeight: 900, color: 'var(--text-primary, #0f172a)', margin: 0 }}>Bank Account Details</h3>
+                <button onClick={() => setActiveModal(null)} style={{ background: '#f1f5f9', border: 'none', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+                  <CloseIcon sx={{ color: '#475569', fontSize: '18px' }} />
+                </button>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginBottom: '20px' }}>
+                <div>
+                  <div style={{ fontSize: '11px', fontWeight: 700, color: '#64748b' }}>ACCOUNT HOLDER</div>
+                  <div style={{ fontSize: '16px', fontWeight: 800, color: '#0f172a' }}>{bankDetails.holderName}</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: '11px', fontWeight: 700, color: '#64748b' }}>BANK NAME</div>
+                  <div style={{ fontSize: '16px', fontWeight: 800, color: '#0f172a' }}>{bankDetails.bankName}</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: '11px', fontWeight: 700, color: '#64748b' }}>ACCOUNT NUMBER</div>
+                  <div style={{ fontSize: '16px', fontWeight: 800, color: '#0f172a' }}>{bankDetails.accountNumber}</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: '11px', fontWeight: 700, color: '#64748b' }}>IFSC CODE</div>
+                  <div style={{ fontSize: '16px', fontWeight: 800, color: '#0f172a' }}>{bankDetails.ifsc}</div>
+                </div>
+              </div>
+
+              <button
+                onClick={() => { toast.success('Bank detail update request submitted!'); setActiveModal(null); }}
+                style={{ width: '100%', padding: '14px', borderRadius: '14px', background: '#ff6b00', color: '#ffffff', border: 'none', fontSize: '14px', fontWeight: 900, cursor: 'pointer' }}
+              >
+                Request Bank Detail Change
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+
+        {/* Modal 4: App / Preferred Language */}
+        {(activeModal === 'language' || activeModal === 'preferredLang') && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(4px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}
+            onClick={() => setActiveModal(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }}
+              style={{ background: 'var(--bg-elevated, #ffffff)', borderRadius: '24px', padding: '24px', width: '100%', maxWidth: '380px' }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                <h3 style={{ fontSize: '18px', fontWeight: 900, color: 'var(--text-primary, #0f172a)', margin: 0 }}>{t('selectLanguage')}</h3>
+                <button onClick={() => setActiveModal(null)} style={{ background: '#f1f5f9', border: 'none', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+                  <CloseIcon sx={{ color: '#475569', fontSize: '18px' }} />
+                </button>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                {languageOptions.map(opt => (
+                  <button
+                    key={opt.code}
+                    onClick={() => {
+                      if (activeModal === 'language') {
+                        changeLanguage(opt.code);
+                      } else {
+                        setPreferredLanguage(opt.name);
+                      }
+                      toast.success(`App language set to ${opt.label}! 🎉`);
+                      setActiveModal(null);
+                    }}
+                    style={{
+                      padding: '14px 16px', borderRadius: '16px',
+                      border: langCode === opt.code ? '2px solid #ff6b00' : '1px solid #e2e8f0',
+                      background: langCode === opt.code ? '#fff7ed' : '#f8fafc',
+                      fontSize: '15px', fontWeight: 800,
+                      color: langCode === opt.code ? '#ea580c' : '#0f172a',
+                      display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    <span>{opt.label}</span>
+                    {langCode === opt.code && <span style={{ fontSize: '14px', color: '#ff6b00', fontWeight: 900 }}>✓</span>}
+                  </button>
+                ))}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+
+        {/* Modal 5: Rating Breakdown */}
+        {activeModal === 'rating' && (
+          <motion.div
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(4px)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}
+            onClick={() => setActiveModal(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }}
+              style={{ background: 'var(--bg-elevated, #ffffff)', borderRadius: '24px', padding: '24px', width: '100%', maxWidth: '380px', textAlign: 'center' }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div style={{ fontSize: '48px', fontWeight: 900, color: '#eab308', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+                <StarIcon sx={{ fontSize: '44px' }} />
+                <span>{rating}</span>
+              </div>
+              <h3 style={{ fontSize: '18px', fontWeight: 900, color: 'var(--text-primary, #0f172a)', marginBottom: '4px' }}>Top Delivery Rating</h3>
+              <p style={{ fontSize: '13px', color: '#64748b', fontWeight: 600, marginBottom: '20px' }}>Based on 150 customer reviews</p>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '13px', color: '#475569', fontWeight: 700, textAlign: 'left', background: '#f8fafc', padding: '16px', borderRadius: '16px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span>5 Star Ratings</span>
+                  <span style={{ color: '#16a34a' }}>142 deliveries</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span>On-time Delivery Score</span>
+                  <span style={{ color: '#16a34a' }}>99.4%</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span>Safety Rating</span>
+                  <span style={{ color: '#16a34a' }}>100%</span>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }

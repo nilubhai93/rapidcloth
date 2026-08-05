@@ -44,6 +44,9 @@ const userSchema = new mongoose.Schema({
   otpExpires: { type: Date, default: null },
   deliveryProfile: {
     isOnline: { type: Boolean, default: false },
+    lastOnlineStartTime: { type: Date, default: null },
+    onlineSecondsToday: { type: Number, default: 0 },
+    lastOnlineDate: { type: String, default: '' },
     vehicleNumber: { type: String, default: '' },
     vehicleType: { type: String, default: 'Bike' },
     aadharOrLicense: { type: String, default: '' },

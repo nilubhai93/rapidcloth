@@ -18,6 +18,9 @@ import DeliveryNotifications from './pages/delivery/DeliveryNotifications';
 import DeliveryOffers from './pages/delivery/DeliveryOffers';
 import DeliveryMarket from './pages/delivery/DeliveryMarket';
 import DeliverySupport from './pages/delivery/DeliverySupport';
+import DeliveryEmergency from './pages/delivery/DeliveryEmergency';
+import DeliveryShifts from './pages/delivery/DeliveryShifts';
+import DeliveryRefer from './pages/delivery/DeliveryRefer';
 
 import './App.css';
 
@@ -36,6 +39,7 @@ function AppContent() {
           {/* Delivery Partner Routes */}
           <Route path="/delivery" element={<DeliveryLayout />}>
             <Route index element={<DeliveryDashboard />} />
+            <Route path="shifts" element={<DeliveryShifts />} />
             <Route path="orders" element={<DeliveryOrders />} />
             <Route path="history" element={<DeliveryHistory />} />
             <Route path="earnings" element={<DeliveryEarnings />} />
@@ -45,6 +49,8 @@ function AppContent() {
             <Route path="offers" element={<DeliveryOffers />} />
             <Route path="market" element={<DeliveryMarket />} />
             <Route path="support" element={<DeliverySupport />} />
+            <Route path="emergency" element={<DeliveryEmergency />} />
+            <Route path="refer" element={<DeliveryRefer />} />
           </Route>
 
           {/* Wildcard Fallback */}
@@ -67,12 +73,16 @@ function AppContent() {
   );
 }
 
+import { LanguageProvider } from './context/LanguageContext';
+
 export default function App() {
   return (
     <BrowserRouter>
-      <AuthProvider>
-        <AppContent />
-      </AuthProvider>
+      <LanguageProvider>
+        <AuthProvider>
+          <AppContent />
+        </AuthProvider>
+      </LanguageProvider>
     </BrowserRouter>
   );
 }

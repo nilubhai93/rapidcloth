@@ -101,7 +101,10 @@ export function AuthProvider({ children }) {
   return (
     <AuthContext.Provider value={{
       user,
-      setUser: (u) => dispatch(updateProfileSuccess(u)),
+      setUser: (u) => {
+        if (u) localStorage.setItem('user', JSON.stringify(u));
+        dispatch(updateProfileSuccess(u));
+      },
       token,
       loading,
       login,
