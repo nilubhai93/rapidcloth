@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { deliveryAPI } from '../../api';
 import { useAuth } from '../../context/AuthContext';
+import toast from 'react-hot-toast';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWalletRounded';
 import DoneAllIcon from '@mui/icons-material/DoneAllRounded';
 import AccessTimeIcon from '@mui/icons-material/AccessTimeRounded';
@@ -20,12 +21,89 @@ import CloseIcon from '@mui/icons-material/CloseRounded';
 import { formatDutyTime, getLocalDateStr } from '../../utils/dutyTime';
 
 export default function DeliveryDashboard() {
-  const { user } = useAuth();
+  const { user, setUser } = useAuth();
   const navigate = useNavigate();
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [dutySeconds, setDutySeconds] = useState(0);
   const [showHotspotModal, setShowHotspotModal] = useState(false);
+
+  // Live real-time temperature state
+  const [liveTemp, setLiveTemp] = useState(27);
+
+  // Weather condition state: 'cloudy' | 'sunny' | 'rainy' | 'stormy'
+  const [weatherMode, setWeatherMode] = useState(() => {
+    return localStorage.getItem('delivery_weather_mode') || 'cloudy';
+  });
+
+  // Listen to global weather updates from DeliveryLayout
+  useEffect(() => {
+    const handleWeatherUpdate = (e) => {
+      if (e.detail) {
+        if (e.detail.mode) setWeatherMode(e.detail.mode);
+        if (e.detail.temp !== undefined) setLiveTemp(e.detail.temp);
+      }
+    };
+    window.addEventListener('delivery_weather_updated', handleWeatherUpdate);
+    return () => window.removeEventListener('delivery_weather_updated', handleWeatherUpdate);
+  }, []);
+
+  const weatherConfigs = {
+    rainy: {
+      pillText: `🌧️ ${liveTemp}°C • Heavy Rain (+₹35/order)`,
+      pillBg: 'rgba(156, 163, 175, 0.2)',
+      pillBorder: 'rgba(209, 213, 219, 0.4)',
+      pillColor: '#e5e7eb',
+      cardBg: 'linear-gradient(135deg, #111827 0%, #1f2937 50%, #374151 100%)',
+      glowBg: 'radial-gradient(circle, rgba(156,163,175,0.2) 0%, rgba(0,0,0,0) 70%)',
+      title: '🌧️ Rain Surge Active (+₹35 Extra!)',
+      subtitle: 'Heavy Rain in your area • 1.8x Pay Surge + ₹35 Rain Incentive Active',
+      buttonText: 'Go Online for Rain Surge 🌧️',
+      buttonBg: 'linear-gradient(135deg, #374151 0%, #1f2937 100%)',
+      buttonShadow: '0 6px 20px rgba(0, 0, 0, 0.5)'
+    },
+    sunny: {
+      pillText: `☀️ ${liveTemp}°C • Sunny & Clear`,
+      pillBg: 'rgba(217, 119, 6, 0.2)',
+      pillBorder: 'rgba(245, 158, 11, 0.4)',
+      pillColor: '#fbbf24',
+      cardBg: 'linear-gradient(135deg, #1c1917 0%, #292524 50%, #44403c 100%)',
+      glowBg: 'radial-gradient(circle, rgba(245,158,11,0.15) 0%, rgba(0,0,0,0) 70%)',
+      title: '☀️ Sunny Peak Hours Live!',
+      subtitle: '12:00 PM – 4:00 PM • 1.5x Peak Surge Active',
+      buttonText: "Let's book and go online",
+      buttonBg: 'linear-gradient(135deg, #44403c 0%, #292524 100%)',
+      buttonShadow: '0 6px 20px rgba(0, 0, 0, 0.5)'
+    },
+    cloudy: {
+      pillText: `⛅ ${liveTemp}°C • Overcast / Cloudy`,
+      pillBg: 'rgba(148, 163, 184, 0.2)',
+      pillBorder: 'rgba(203, 213, 225, 0.4)',
+      pillColor: '#cbd5e1',
+      cardBg: 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%)',
+      glowBg: 'radial-gradient(circle, rgba(148,163,184,0.2) 0%, rgba(0,0,0,0) 70%)',
+      title: '⛅ Cloudy Weather Shift Live!',
+      subtitle: 'Cool breeze & steady order demand • 1.2x Pay Active',
+      buttonText: 'Book Slot & Go Online',
+      buttonBg: 'linear-gradient(135deg, #334155 0%, #1e293b 100%)',
+      buttonShadow: '0 6px 20px rgba(0, 0, 0, 0.5)'
+    },
+    stormy: {
+      pillText: `⛈️ ${liveTemp}°C • Thunderstorm (+₹50/order)`,
+      pillBg: 'rgba(161, 161, 170, 0.2)',
+      pillBorder: 'rgba(212, 212, 216, 0.4)',
+      pillColor: '#e4e4e7',
+      cardBg: 'linear-gradient(135deg, #09090b 0%, #18181b 50%, #27272a 100%)',
+      glowBg: 'radial-gradient(circle, rgba(161,161,170,0.2) 0%, rgba(0,0,0,0) 70%)',
+      title: '⛈️ Storm Safety Bonus (+₹50 Extra!)',
+      subtitle: 'Severe Weather Warning • 2.0x Mega Surge + ₹50 Bonus Pay Active',
+      buttonText: 'Claim Storm Bonus Pay ⛈️',
+      buttonBg: 'linear-gradient(135deg, #27272a 0%, #18181b 100%)',
+      buttonShadow: '0 6px 20px rgba(0, 0, 0, 0.6)'
+    }
+  };
+
+  const currWeather = weatherConfigs[weatherMode] || weatherConfigs.cloudy;
 
   const isOnline = user?.deliveryProfile?.isOnline || false;
 
@@ -44,14 +122,30 @@ export default function DeliveryDashboard() {
     }
   };
 
-  // Live real-time duty seconds ticker
+  // Live real-time duty seconds ticker and 12:00 AM auto-reset
   useEffect(() => {
     const calcSeconds = () => {
       if (!user?.deliveryProfile) return 0;
       const now = new Date();
       const todayStr = getLocalDateStr(now);
-
       const profileDate = user.deliveryProfile.lastOnlineDate;
+
+      // Auto-reset when date changes past midnight (12:00 AM)
+      if (profileDate && profileDate !== todayStr) {
+        const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const updatedUser = {
+          ...user,
+          deliveryProfile: {
+            ...user.deliveryProfile,
+            onlineSecondsToday: 0,
+            lastOnlineDate: todayStr,
+            lastOnlineStartTime: user.deliveryProfile.isOnline ? startOfToday.toISOString() : null
+          }
+        };
+        setUser(updatedUser);
+        return 0;
+      }
+
       const baseSec = (profileDate === todayStr) ? (user.deliveryProfile.onlineSecondsToday || 0) : 0;
 
       if (user.deliveryProfile.isOnline && user.deliveryProfile.lastOnlineStartTime) {
@@ -69,8 +163,6 @@ export default function DeliveryDashboard() {
     };
 
     setDutySeconds(calcSeconds());
-
-    if (!isOnline) return;
 
     const timer = setInterval(() => {
       setDutySeconds(calcSeconds());
@@ -101,56 +193,214 @@ export default function DeliveryDashboard() {
       color: '#0f172a'
     }}>
       
-      {/* 1. TOP HERO HEADER & HIGH EARNING SHIFT CARD */}
+      {/* 1. TOP HERO HEADER & WEATHER ADAPTIVE SHIFT CARD */}
       <motion.div
         initial={{ opacity: 0, y: 15 }}
         animate={{ opacity: 1, y: 0 }}
         style={{
-          background: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 60%, #4338ca 100%)',
+          background: currWeather.cardBg,
           borderRadius: '28px',
-          padding: '24px',
+          padding: '22px 24px',
           color: '#ffffff',
-          boxShadow: '0 12px 30px rgba(49, 46, 129, 0.35)',
+          boxShadow: '0 12px 35px rgba(15, 23, 42, 0.4)',
           marginBottom: '20px',
           position: 'relative',
-          overflow: 'hidden'
+          overflow: 'hidden',
+          transition: 'all 0.4s ease'
         }}
       >
-        {/* Glow Accent Background Disk */}
-        <div style={{
-          position: 'absolute',
-          top: '-40px',
-          right: '-40px',
-          width: '160px',
-          height: '160px',
-          borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(255,84,0,0.4) 0%, rgba(255,84,0,0) 70%)',
-          pointerEvents: 'none'
-        }} />
+        {/* Dynamic Animated Weather FX Overlay */}
+        <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none', zIndex: 0 }}>
+          {weatherMode === 'rainy' && (
+            <div>
+              {[...Array(14)].map((_, i) => (
+                <motion.div
+                  key={`rain-${i}`}
+                  initial={{ y: -30, opacity: 0 }}
+                  animate={{ y: 240, opacity: [0, 0.85, 0] }}
+                  transition={{
+                    repeat: Infinity,
+                    duration: 0.7 + (i % 5) * 0.15,
+                    delay: (i % 7) * 0.12,
+                    ease: 'linear'
+                  }}
+                  style={{
+                    position: 'absolute',
+                    left: `${4 + i * 7}%`,
+                    width: '2px',
+                    height: '26px',
+                    background: 'linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(96,165,250,0.85) 100%)',
+                    borderRadius: '2px',
+                    transform: 'rotate(15deg)'
+                  }}
+                />
+              ))}
+            </div>
+          )}
 
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
-          <div>
-            <div style={{ fontSize: '13px', textTransform: 'uppercase', letterSpacing: '1px', opacity: 0.8, fontWeight: 700, marginBottom: '4px' }}>
-              Welcome back, {user?.name?.split(' ')?.[0] || 'Rider'} 👋
+          {weatherMode === 'sunny' && (
+            <div>
+              <motion.div
+                animate={{ rotate: 360, scale: [1, 1.06, 1] }}
+                transition={{ repeat: Infinity, duration: 25, ease: 'linear' }}
+                style={{
+                  position: 'absolute',
+                  top: '-40px',
+                  right: '-40px',
+                  width: '180px',
+                  height: '180px',
+                  borderRadius: '50%',
+                  background: 'radial-gradient(circle, rgba(251,146,60,0.45) 0%, rgba(245,158,11,0.2) 50%, rgba(0,0,0,0) 70%)'
+                }}
+              />
+              {[...Array(5)].map((_, i) => (
+                <motion.div
+                  key={`sun-${i}`}
+                  animate={{ opacity: [0.2, 0.6, 0.2], scale: [0.95, 1.15, 0.95] }}
+                  transition={{ repeat: Infinity, duration: 3 + i, delay: i * 0.4 }}
+                  style={{
+                    position: 'absolute',
+                    top: `${10 + i * 14}%`,
+                    right: `${15 + i * 12}%`,
+                    width: '36px',
+                    height: '36px',
+                    borderRadius: '50%',
+                    background: 'radial-gradient(circle, rgba(253,224,71,0.3) 0%, rgba(0,0,0,0) 70%)'
+                  }}
+                />
+              ))}
             </div>
-            <h2 style={{ fontSize: '22px', fontWeight: 900, margin: 0, letterSpacing: '-0.3px', lineHeight: 1.2 }}>
-              High Earning Shift Live!
-            </h2>
-            <div style={{ fontSize: '13px', opacity: 0.85, marginTop: '4px', fontWeight: 500 }}>
-              12:00 PM – 4:00 PM • 1.5x Surge Active
+          )}
+
+          {weatherMode === 'cloudy' && (
+            <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', overflow: 'hidden' }}>
+              {/* Realistic Fluffy Cloud 1 - Top Drift */}
+              <motion.div
+                initial={{ x: -160, opacity: 0.15 }}
+                animate={{ x: ['-20%', '115%'], opacity: [0.15, 0.45, 0.15] }}
+                transition={{ repeat: Infinity, duration: 24, ease: 'linear' }}
+                style={{ position: 'absolute', top: '8px', width: '170px', filter: 'blur(1px)' }}
+              >
+                <svg viewBox="0 0 100 50" fill="currentColor" style={{ color: 'rgba(255, 255, 255, 0.22)', width: '100%', height: 'auto' }}>
+                  <path d="M 20 40 A 15 15 0 0 1 30 18 A 20 20 0 0 1 65 15 A 18 18 0 0 1 85 30 A 12 12 0 0 1 82 40 Z" />
+                </svg>
+              </motion.div>
+
+              {/* Realistic Fluffy Cloud 2 - Lower Center Drift */}
+              <motion.div
+                initial={{ x: -200, opacity: 0.12 }}
+                animate={{ x: ['-30%', '120%'], opacity: [0.12, 0.38, 0.12] }}
+                transition={{ repeat: Infinity, duration: 32, delay: 7, ease: 'linear' }}
+                style={{ position: 'absolute', top: '50px', width: '210px', filter: 'blur(1px)' }}
+              >
+                <svg viewBox="0 0 120 50" fill="currentColor" style={{ color: 'rgba(255, 255, 255, 0.18)', width: '100%', height: 'auto' }}>
+                  <path d="M 15 42 A 18 18 0 0 1 32 20 A 24 24 0 0 1 78 16 A 22 22 0 0 1 105 32 A 15 15 0 0 1 102 42 Z" />
+                </svg>
+              </motion.div>
+
+              {/* Realistic Fluffy Cloud 3 - Soft Upper Puff */}
+              <motion.div
+                initial={{ x: -140, opacity: 0.1 }}
+                animate={{ x: ['-25%', '110%'], opacity: [0.1, 0.3, 0.1] }}
+                transition={{ repeat: Infinity, duration: 28, delay: 15, ease: 'linear' }}
+                style={{ position: 'absolute', top: '95px', width: '150px', filter: 'blur(1.5px)' }}
+              >
+                <svg viewBox="0 0 100 50" fill="currentColor" style={{ color: 'rgba(226, 232, 240, 0.18)', width: '100%', height: 'auto' }}>
+                  <path d="M 20 40 A 14 14 0 0 1 32 20 A 18 18 0 0 1 68 18 A 16 16 0 0 1 84 32 A 12 12 0 0 1 80 40 Z" />
+                </svg>
+              </motion.div>
+
+              {/* Gentle Cool Breeze Trails */}
+              {[...Array(2)].map((_, i) => (
+                <motion.div
+                  key={`wind-${i}`}
+                  initial={{ x: -120, opacity: 0 }}
+                  animate={{ x: '130%', opacity: [0, 0.35, 0] }}
+                  transition={{ repeat: Infinity, duration: 9 + i * 4, delay: i * 3.5, ease: 'easeInOut' }}
+                  style={{
+                    position: 'absolute',
+                    top: `${35 + i * 42}px`,
+                    width: '110px',
+                    height: '1.5px',
+                    background: 'linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(203,213,225,0.4) 50%, rgba(255,255,255,0) 100%)',
+                    borderRadius: '2px'
+                  }}
+                />
+              ))}
             </div>
-          </div>
-          
+          )}
+
+          {weatherMode === 'stormy' && (
+            <div>
+              <motion.div
+                animate={{ opacity: [0, 0, 0.85, 0, 0.95, 0, 0] }}
+                transition={{ repeat: Infinity, duration: 3.5, times: [0, 0.35, 0.37, 0.39, 0.41, 0.43, 1] }}
+                style={{
+                  position: 'absolute',
+                  inset: 0,
+                  background: 'radial-gradient(circle at 75% 25%, rgba(192,132,252,0.4) 0%, rgba(124,58,237,0) 70%)'
+                }}
+              />
+              {[...Array(16)].map((_, i) => (
+                <motion.div
+                  key={`storm-${i}`}
+                  initial={{ y: -30, opacity: 0 }}
+                  animate={{ y: 250, opacity: [0, 0.95, 0] }}
+                  transition={{ repeat: Infinity, duration: 0.45 + (i % 4) * 0.08, delay: (i % 6) * 0.08, ease: 'linear' }}
+                  style={{
+                    position: 'absolute',
+                    left: `${3 + i * 6}%`,
+                    width: '2px',
+                    height: '32px',
+                    background: 'linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(192,132,252,0.95) 100%)',
+                    transform: 'rotate(24deg)'
+                  }}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Live Weather Indicator & Quick Switcher Pill Row */}
+        <div style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px', flexWrap: 'wrap', gap: '8px' }}>
           <div style={{
-            padding: '6px 12px',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '6px',
+            padding: '4px 12px',
+            borderRadius: '20px',
+            background: currWeather.pillBg,
+            border: `1px solid ${currWeather.pillBorder}`,
+            color: currWeather.pillColor,
+            fontSize: '12px',
+            fontWeight: 800,
+            boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+          }}>
+            <span>{currWeather.pillText}</span>
+          </div>
+
+          <div style={{
+            padding: '4px 10px',
             borderRadius: '20px',
             backgroundColor: isOnline ? 'rgba(34, 197, 94, 0.25)' : 'rgba(239, 68, 68, 0.25)',
             border: `1px solid ${isOnline ? '#34d399' : '#f87171'}`,
-            fontSize: '12px',
+            fontSize: '11px',
             fontWeight: 800,
             color: isOnline ? '#34d399' : '#f87171'
           }}>
             {isOnline ? '🟢 ONLINE' : '🔴 OFFLINE'}
+          </div>
+        </div>
+
+        <div style={{ position: 'relative', zIndex: 1, marginBottom: '16px' }}>
+          <div style={{ fontSize: '13px', textTransform: 'uppercase', letterSpacing: '1px', opacity: 0.8, fontWeight: 700, marginBottom: '4px' }}>
+            Welcome back, {user?.name?.split(' ')?.[0] || 'Rider'} 👋
+          </div>
+          <h2 style={{ fontSize: '22px', fontWeight: 900, margin: 0, letterSpacing: '-0.3px', lineHeight: 1.2 }}>
+            {currWeather.title}
+          </h2>
+          <div style={{ fontSize: '13px', opacity: 0.9, marginTop: '4px', fontWeight: 600 }}>
+            {currWeather.subtitle}
           </div>
         </div>
 
@@ -159,12 +409,14 @@ export default function DeliveryDashboard() {
           whileTap={{ scale: 0.98 }}
           onClick={() => navigate('/delivery/shifts')}
           style={{
+            position: 'relative',
+            zIndex: 1,
             width: '100%',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             gap: '10px',
-            background: 'linear-gradient(135deg, #ff5400 0%, #ff3b00 100%)',
+            background: currWeather.buttonBg,
             color: '#ffffff',
             border: 'none',
             borderRadius: '18px',
@@ -172,10 +424,10 @@ export default function DeliveryDashboard() {
             fontSize: '16px',
             fontWeight: 800,
             cursor: 'pointer',
-            boxShadow: '0 6px 20px rgba(255, 84, 0, 0.4)'
+            boxShadow: currWeather.buttonShadow
           }}
         >
-          <span>{"Let's book and go online"}</span>
+          <span>{currWeather.buttonText}</span>
           <ArrowForwardIcon sx={{ fontSize: '20px' }} />
         </motion.button>
       </motion.div>
@@ -211,9 +463,6 @@ export default function DeliveryDashboard() {
           </div>
           <div style={{ fontSize: '18px', fontWeight: 900, color: '#0f172a', fontFamily: 'monospace' }}>
             {formatDutyTime(dutySeconds)}
-          </div>
-          <div style={{ fontSize: '10px', color: isOnline ? '#10b981' : '#64748b', fontWeight: 700, marginTop: '2px' }}>
-            {isOnline ? '🟢 Live' : 'Paused'}
           </div>
         </div>
 

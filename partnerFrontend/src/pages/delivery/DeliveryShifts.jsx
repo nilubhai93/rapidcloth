@@ -9,6 +9,7 @@ import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartmentRoun
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import PlayArrowIcon from '@mui/icons-material/PlayArrowRounded';
 import toast from 'react-hot-toast';
+import { SHIFT_SLOT_TIMES } from '../../utils/dutyTime';
 
 export default function DeliveryShifts() {
   const navigate = useNavigate();
@@ -51,6 +52,27 @@ export default function DeliveryShifts() {
 
   const shiftCategories = [
     {
+      category: 'Early Morning Breakfast',
+      tag: '☕ Breakfast Surge',
+      timeRange: '7:00 AM – 10:00 AM',
+      slots: [
+        { id: 'morning-7-10', time: '7 AM – 10 AM', duration: '3h Shift', statusText: 'Available (15 slots left)', statusType: 'available', surge: '1.3x Surge' },
+        { id: 'morning-7-8', time: '7 AM – 8 AM', duration: '1h Slot', statusText: 'Available (5 slots left)', statusType: 'available', surge: '1.2x Surge' },
+        { id: 'morning-8-9', time: '8 AM – 9 AM', duration: '1h Slot', statusText: 'Filling Fast (2 slots left)', statusType: 'filling', surge: '1.4x Surge' },
+        { id: 'morning-9-10', time: '9 AM – 10 AM', duration: '1h Slot', statusText: 'Available (8 slots left)', statusType: 'available' }
+      ]
+    },
+    {
+      category: 'Late Morning Peak',
+      tag: '☀️ Morning Rush',
+      timeRange: '10:00 AM – 12:00 PM',
+      slots: [
+        { id: 'morning-10-12', time: '10 AM – 12 PM', duration: '2h Shift', statusText: 'Available (18 slots left)', statusType: 'available', surge: '1.2x Surge' },
+        { id: 'morning-10-11', time: '10 AM – 11 AM', duration: '1h Slot', statusText: 'Available (7 slots left)', statusType: 'available' },
+        { id: 'morning-11-12', time: '11 AM – 12 PM', duration: '1h Slot', statusText: 'Filling Fast (3 slots left)', statusType: 'filling', surge: '1.3x Surge' }
+      ]
+    },
+    {
       category: 'Lunch Shift',
       tag: '🔥 High Surge',
       timeRange: '12:00 PM – 4:00 PM',
@@ -84,13 +106,40 @@ export default function DeliveryShifts() {
     }
   ];
 
+  const now = new Date();
+  const currentDecimalHour = now.getHours() + now.getMinutes() / 60;
+
+  // Calculate completed slots vs active booked slots
+  const allSlotsList = shiftCategories.flatMap(c => c.slots);
+  
+  const completedSlotsList = allSlotsList.filter(slot => {
+    const isBooked = bookedSlots.includes(slot.id);
+    const slotInfo = SHIFT_SLOT_TIMES[slot.id];
+    return isBooked && slotInfo && (currentDecimalHour >= slotInfo.endHour);
+  });
+
+  const activeBookedSlotsList = allSlotsList.filter(slot => {
+    const isBooked = bookedSlots.includes(slot.id);
+    const slotInfo = SHIFT_SLOT_TIMES[slot.id];
+    return isBooked && (!slotInfo || currentDecimalHour < slotInfo.endHour);
+  });
+
   const handleToggleSlot = (slotId, statusType) => {
     if (statusType === 'full') {
       toast.error('This shift is full / short booked.');
       return;
     }
 
-    if (bookedSlots.includes(slotId)) {
+    const slotInfo = SHIFT_SLOT_TIMES[slotId];
+    const isBooked = bookedSlots.includes(slotId);
+    const isPast = slotInfo ? (currentDecimalHour >= slotInfo.endHour) : false;
+
+    if (isBooked && isPast) {
+      toast.success('This shift slot was completed earlier today! ✓');
+      return;
+    }
+
+    if (isBooked) {
       setBookedSlots(prev => prev.filter(id => id !== slotId));
       toast('Shift slot unbooked', { icon: 'ℹ️' });
     } else {
@@ -146,17 +195,37 @@ export default function DeliveryShifts() {
           </div>
         </div>
 
-        {/* Booked counter pill */}
-        <div style={{
-          backgroundColor: bookedSlots.length > 0 ? '#ecfdf5' : '#f1f5f9',
-          color: bookedSlots.length > 0 ? '#059669' : '#64748b',
-          border: `1px solid ${bookedSlots.length > 0 ? '#a7f3d0' : '#cbd5e1'}`,
-          borderRadius: '20px',
-          padding: '6px 14px',
-          fontSize: '12px',
-          fontWeight: 800
-        }}>
-          {bookedSlots.length} Booked
+        {/* Counter Pills */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          {completedSlotsList.length > 0 && (
+            <div style={{
+              backgroundColor: '#ecfdf5',
+              color: '#059669',
+              border: '1px solid #a7f3d0',
+              borderRadius: '20px',
+              padding: '6px 12px',
+              fontSize: '12px',
+              fontWeight: 800,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px'
+            }}>
+              <CheckCircleIcon sx={{ fontSize: '15px' }} />
+              <span>{completedSlotsList.length} Completed</span>
+            </div>
+          )}
+
+          <div style={{
+            backgroundColor: activeBookedSlotsList.length > 0 ? '#ecfdf5' : '#f1f5f9',
+            color: activeBookedSlotsList.length > 0 ? '#059669' : '#64748b',
+            border: `1px solid ${activeBookedSlotsList.length > 0 ? '#a7f3d0' : '#cbd5e1'}`,
+            borderRadius: '20px',
+            padding: '6px 12px',
+            fontSize: '12px',
+            fontWeight: 800
+          }}>
+            {activeBookedSlotsList.length} Booked
+          </div>
         </div>
       </div>
 
@@ -216,6 +285,43 @@ export default function DeliveryShifts() {
         })}
       </div>
 
+      {/* Completed Shift Activity Summary Card */}
+      {completedSlotsList.length > 0 && (
+        <div style={{
+          background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)',
+          border: '1.5px solid #86efac',
+          borderRadius: '20px',
+          padding: '14px 18px',
+          marginBottom: '20px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '12px',
+          boxShadow: '0 4px 14px rgba(22, 163, 74, 0.08)'
+        }}>
+          <div style={{
+            width: '36px',
+            height: '36px',
+            borderRadius: '50%',
+            backgroundColor: '#16a34a',
+            color: '#ffffff',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexShrink: 0
+          }}>
+            <CheckCircleIcon sx={{ fontSize: '22px' }} />
+          </div>
+          <div>
+            <div style={{ fontSize: '14px', fontWeight: 900, color: '#14532d' }}>
+              {completedSlotsList.length} Shift{completedSlotsList.length > 1 ? 's' : ''} Completed Today! 🎉
+            </div>
+            <div style={{ fontSize: '12px', color: '#15803d', fontWeight: 600, marginTop: '2px' }}>
+              {completedSlotsList.map(s => s.time).join(' • ')}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Live Surge Banner Announcement */}
       <div style={{
         background: 'linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%)',
@@ -245,7 +351,7 @@ export default function DeliveryShifts() {
             Know LIVE Shift Surge Offers
           </div>
           <div style={{ fontSize: '12px', color: '#047857', fontWeight: 500 }}>
-            Book Lunch (12-4 PM) & Dinner (7-11 PM) for up to 1.8x surge pay!
+            Book Early Morning (7-10 AM), Lunch (12-4 PM) & Dinner (7-11 PM) for up to 1.8x surge pay!
           </div>
         </div>
       </div>
@@ -293,6 +399,11 @@ export default function DeliveryShifts() {
             <div style={{ padding: '8px 16px' }}>
               {cat.slots.map((slot, sIdx) => {
                 const isBooked = bookedSlots.includes(slot.id);
+                const slotInfo = SHIFT_SLOT_TIMES[slot.id];
+                const isPast = slotInfo ? (currentDecimalHour >= slotInfo.endHour) : false;
+                const isActiveDuty = isBooked && !isPast && slotInfo && (currentDecimalHour >= (slotInfo.startHour - 0.25) && currentDecimalHour < slotInfo.endHour);
+                const isCompleted = isBooked && isPast;
+
                 const isFull = slot.statusType === 'full';
                 const isFilling = slot.statusType === 'filling';
 
@@ -337,28 +448,53 @@ export default function DeliveryShifts() {
                         <span>•</span>
                         <span style={{
                           fontSize: '12px',
-                          fontWeight: 700,
-                          color: isBooked ? '#10b981' : isFull ? '#ef4444' : isFilling ? '#ea580c' : '#0284c7'
+                          fontWeight: 800,
+                          color: isCompleted
+                            ? '#059669'
+                            : isActiveDuty
+                            ? '#10b981'
+                            : isBooked
+                            ? '#0284c7'
+                            : isFull
+                            ? '#ef4444'
+                            : isFilling
+                            ? '#ea580c'
+                            : '#0284c7'
                         }}>
-                          {isBooked ? 'Booked ✓' : slot.statusText}
+                          {isCompleted
+                            ? 'Completed ✓'
+                            : isActiveDuty
+                            ? 'Active Duty Now 🟢'
+                            : isBooked
+                            ? 'Booked ✓'
+                            : slot.statusText}
                         </span>
                       </div>
                     </div>
 
                     {/* Booking Control checkbox/button */}
                     <div style={{
-                      width: '28px',
+                      padding: isCompleted ? '4px 10px' : '0',
                       height: '28px',
-                      borderRadius: '8px',
-                      border: `2px solid ${isBooked ? '#10b981' : isFull ? '#cbd5e1' : '#94a3b8'}`,
-                      backgroundColor: isBooked ? '#10b981' : 'transparent',
+                      borderRadius: isCompleted ? '12px' : '8px',
+                      border: `2px solid ${isCompleted ? '#a7f3d0' : isBooked ? '#10b981' : isFull ? '#cbd5e1' : '#94a3b8'}`,
+                      backgroundColor: isCompleted ? '#ecfdf5' : isBooked ? '#10b981' : 'transparent',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      color: '#ffffff',
+                      color: isCompleted ? '#059669' : '#ffffff',
+                      fontSize: '11px',
+                      fontWeight: 800,
                       transition: 'all 0.2s ease'
                     }}>
-                      {isBooked && <CheckCircleIcon sx={{ fontSize: '20px' }} />}
+                      {isCompleted ? (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          <CheckCircleIcon sx={{ fontSize: '16px', color: '#059669' }} />
+                          <span>Completed</span>
+                        </div>
+                      ) : isBooked ? (
+                        <CheckCircleIcon sx={{ fontSize: '20px' }} />
+                      ) : null}
                     </div>
                   </div>
                 );

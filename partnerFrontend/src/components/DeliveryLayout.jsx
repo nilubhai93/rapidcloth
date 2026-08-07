@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom';
+import { NavLink, Outlet, useNavigate, useLocation, Navigate } from 'react-router-dom';
 import DashboardIcon from '@mui/icons-material/DashboardRounded';
 import DirectionsBikeIcon from '@mui/icons-material/DirectionsBikeRounded';
 import HistoryIcon from '@mui/icons-material/HistoryRounded';
@@ -27,14 +27,248 @@ import CircularProgress from '@mui/material/CircularProgress';
 import DeliveryNavbar from './DeliveryNavbar';
 import { deliveryAPI } from '../api';
 import toast from 'react-hot-toast';
+import { hasValidCurrentShift } from '../utils/dutyTime';
 
 export default function DeliveryLayout() {
-  const { user, loading, logout } = useAuth();
+  const { user, setUser, loading, logout } = useAuth();
   const { t } = useLanguage();
   const navigate = useNavigate();
   const location = useLocation();
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [showMoreMenu, setShowMoreMenu] = useState(false);
+  // Weather theme sync state across the entire app interface
+  const [appWeatherMode, setAppWeatherMode] = useState(() => {
+    return localStorage.getItem('delivery_weather_mode') || 'cloudy';
+  });
+
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const mode = localStorage.getItem('delivery_weather_mode') || 'cloudy';
+      setAppWeatherMode(mode);
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    const interval = setInterval(handleStorageChange, 1000);
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      clearInterval(interval);
+    };
+  }, []);
+
+  // Single Global Weather Fetcher with Location Caching & Rate-Limit Protection
+  useEffect(() => {
+    const fetchRealTimeLocationWeather = async () => {
+      let lat = sessionStorage.getItem('cached_geo_lat');
+      let lng = sessionStorage.getItem('cached_geo_lng');
+
+      if (!lat || !lng) {
+        if (navigator.geolocation) {
+          try {
+            const pos = await new Promise((resolve, reject) => {
+              navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 3000, enableHighAccuracy: false });
+            });
+            lat = pos.coords.latitude;
+            lng = pos.coords.longitude;
+            sessionStorage.setItem('cached_geo_lat', lat);
+            sessionStorage.setItem('cached_geo_lng', lng);
+          } catch (err) {
+            // Geolocation timeout or denied - fallback to IP-based location silently
+          }
+        }
+      }
+
+      if (!lat || !lng) {
+        try {
+          const ipRes = await fetch('https://ip-api.com/json/').then(r => r.json());
+          if (ipRes && ipRes.lat && ipRes.lon) {
+            lat = ipRes.lat;
+            lng = ipRes.lon;
+            sessionStorage.setItem('cached_geo_lat', lat);
+            sessionStorage.setItem('cached_geo_lng', lng);
+          }
+        } catch (ipErr) {
+          // Silently handle if IP service unavailable
+        }
+      }
+
+      if (lat && lng) {
+        try {
+          const res = await fetch(
+            `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current_weather=true`
+          );
+          const data = await res.json();
+          if (data?.current_weather) {
+            const code = data.current_weather.weathercode;
+            const temp = Math.round(data.current_weather.temperature);
+
+            let mode = 'cloudy';
+            if (code === 0) mode = 'sunny';
+            else if (code >= 1 && code <= 51) mode = 'cloudy'; // Code 51 (light drizzle mist) maps to cloudy
+            else if (code >= 53 && code <= 94) mode = 'rainy';
+            else if (code >= 95) mode = 'stormy';
+
+            setAppWeatherMode(mode);
+            localStorage.setItem('delivery_weather_mode', mode);
+            window.dispatchEvent(new CustomEvent('delivery_weather_updated', { detail: { mode, temp, code } }));
+            return;
+          }
+        } catch (err) {
+          // Open-Meteo fetch failed
+        }
+      }
+
+      setAppWeatherMode('cloudy');
+      localStorage.setItem('delivery_weather_mode', 'cloudy');
+    };
+
+    fetchRealTimeLocationWeather();
+    const weatherInterval = setInterval(fetchRealTimeLocationWeather, 180000);
+    return () => clearInterval(weatherInterval);
+  }, []);
+
+  const weatherAppThemes = {
+    rainy: {
+      bgDark: 'linear-gradient(180deg, #111827 0%, #1f2937 100%)',
+      bgLight: 'linear-gradient(180deg, #f3f4f6 0%, #e5e7eb 100%)',
+      glow: 'radial-gradient(circle at 50% 0%, rgba(156,163,175,0.15) 0%, rgba(0,0,0,0) 70%)',
+      pillText: '🌧️ Rain Surge Theme (+₹35)'
+    },
+    sunny: {
+      bgDark: 'linear-gradient(180deg, #1c1917 0%, #292524 100%)',
+      bgLight: 'linear-gradient(180deg, #fafaf9 0%, #f5f5f4 100%)',
+      glow: 'radial-gradient(circle at 50% 0%, rgba(217,119,6,0.12) 0%, rgba(0,0,0,0) 70%)',
+      pillText: '☀️ Sunny Peak Theme (1.5x Pay)'
+    },
+    cloudy: {
+      bgDark: 'linear-gradient(180deg, #0f172a 0%, #1e293b 100%)',
+      bgLight: 'linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%)',
+      glow: 'radial-gradient(circle at 50% 0%, rgba(148,163,184,0.15) 0%, rgba(0,0,0,0) 70%)',
+      pillText: '⛅ Cool Breeze Theme (1.3x)'
+    },
+    stormy: {
+      bgDark: 'linear-gradient(180deg, #09090b 0%, #18181b 100%)',
+      bgLight: 'linear-gradient(180deg, #f4f4f5 0%, #e4e4e7 100%)',
+      glow: 'radial-gradient(circle at 50% 0%, rgba(161,161,170,0.18) 0%, rgba(0,0,0,0) 70%)',
+      pillText: '⛈️ Thunderstorm Theme (+₹50)'
+    }
+  };
+
+  const currAppTheme = weatherAppThemes[appWeatherMode] || weatherAppThemes.cloudy;
+
+  // Shift Completion & Auto-Offline State
+  const [shiftCompleteModalOpen, setShiftCompleteModalOpen] = useState(false);
+  const [shiftCountdown, setShiftCountdown] = useState(60);
+
+  const handleAutoOffline = async () => {
+    try {
+      const res = await deliveryAPI.updateStatus(false);
+      if (res.data?.user) {
+        setUser(res.data.user);
+      } else {
+        setUser({
+          ...user,
+          deliveryProfile: {
+            ...user?.deliveryProfile,
+            isOnline: false,
+            lastOnlineStartTime: null
+          }
+        });
+      }
+      setShiftCompleteModalOpen(false);
+      toast.error('⏰ Shift completed. You are now OFFLINE since no new shift was booked.', { duration: 5000 });
+    } catch (err) {
+      console.error('Failed to update status to offline', err);
+    }
+  };
+
+  // Event listener for shift completion trigger
+  useEffect(() => {
+    const handleShiftCompleted = () => {
+      try {
+        const stored = localStorage.getItem('delivery_notifications');
+        const list = stored ? JSON.parse(stored) : [];
+        const newNotif = {
+          id: 'shift-comp-' + Date.now(),
+          title: 'Shift Completed! ⏰',
+          text: 'Your current shift slot has ended. Please book another shift to remain online.',
+          time: 'Just now',
+          type: 'shift_complete',
+          isNew: true,
+          actionUrl: '/delivery/shifts'
+        };
+        localStorage.setItem('delivery_notifications', JSON.stringify([newNotif, ...list]));
+      } catch (e) {
+        console.error(e);
+      }
+
+      setShiftCountdown(60);
+      setShiftCompleteModalOpen(true);
+      toast('⏰ Shift completed! Please book another shift.', { icon: '📢' });
+    };
+
+    window.addEventListener('trigger_shift_completion', handleShiftCompleted);
+    return () => window.removeEventListener('trigger_shift_completion', handleShiftCompleted);
+  }, []);
+
+  // Countdown timer when shift completion modal is open
+  useEffect(() => {
+    if (!shiftCompleteModalOpen) return;
+    if (shiftCountdown <= 0) {
+      handleAutoOffline();
+      return;
+    }
+
+    const timer = setInterval(() => {
+      setShiftCountdown(prev => prev - 1);
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [shiftCompleteModalOpen, shiftCountdown]);
+
+  // Automatic Background Monitor: Checks if booked shift slot time has expired
+  useEffect(() => {
+    if (!user?.deliveryProfile?.isOnline) return;
+
+    const checkShiftSlotExpiration = async () => {
+      try {
+        const saved = localStorage.getItem('booked_delivery_shifts');
+        const bookedSlots = saved ? JSON.parse(saved) : [];
+        const now = new Date();
+
+        // If partner is online but NO valid shift slot covers the current time
+        if (!hasValidCurrentShift(bookedSlots, now)) {
+          console.log('⏰ Booked shift slot time has ended. Automatically switching to OFFLINE.');
+
+          // Add notification to localStorage
+          try {
+            const stored = localStorage.getItem('delivery_notifications');
+            const list = stored ? JSON.parse(stored) : [];
+            const newNotif = {
+              id: 'shift-comp-' + Date.now(),
+              title: 'Shift Completed! ⏰',
+              text: 'Your current shift slot has ended. Please book another shift slot to go online.',
+              time: 'Just now',
+              type: 'shift_complete',
+              isNew: true,
+              actionUrl: '/delivery/shifts'
+            };
+            localStorage.setItem('delivery_notifications', JSON.stringify([newNotif, ...list]));
+          } catch (e) {
+            console.error(e);
+          }
+
+          // Execute automatic offline transition
+          await handleAutoOffline();
+        }
+      } catch (err) {
+        console.error('Failed to check shift slot expiration:', err);
+      }
+    };
+
+    checkShiftSlotExpiration();
+    const interval = setInterval(checkShiftSlotExpiration, 5000);
+    return () => clearInterval(interval);
+  }, [user?.deliveryProfile?.isOnline]);
 
   // Dark mode state
   const [isDarkMode, setIsDarkMode] = useState(() => {
@@ -68,6 +302,11 @@ export default function DeliveryLayout() {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  // Auto-close More menu when route changes
+  useEffect(() => {
+    setShowMoreMenu(false);
+  }, [location.pathname]);
 
   const [assignedOrder, setAssignedOrder] = useState(null);
 
@@ -169,14 +408,35 @@ export default function DeliveryLayout() {
     );
   }
 
-  if (!user || (user.role !== 'delivery' && user.role !== 'admin')) {
-    return null;
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+
+  const role = user.role || 'delivery';
+  if (role !== 'delivery' && role !== 'admin') {
+    return <Navigate to="/login" replace />;
   }
 
   return (
     <>
       {isFeedPage && <DeliveryNavbar />}
-      <div style={{ display: 'flex', minHeight: isFeedPage ? 'calc(100vh - 64px)' : '100vh', background: 'var(--bg-secondary)', paddingTop: isFeedPage ? '64px' : '0px' }}>
+      <div style={{
+        display: 'flex',
+        minHeight: isFeedPage ? 'calc(100vh - 64px)' : '100vh',
+        background: isDarkMode ? currAppTheme.bgDark : currAppTheme.bgLight,
+        paddingTop: isFeedPage ? '64px' : '0px',
+        transition: 'background 0.5s ease',
+        position: 'relative'
+      }}>
+        {/* Global Ambient Weather Glow Aura */}
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          background: currAppTheme.glow,
+          pointerEvents: 'none',
+          zIndex: 0,
+          transition: 'all 0.5s ease'
+        }} />
 
         {/* Sidebar Navigation */}
         {!isMobile && (
@@ -315,7 +575,7 @@ export default function DeliveryLayout() {
           }}>
             {mobileBottomNavItems.map((item) => {
               if (item.isMoreButton) {
-                const isActive = showMoreMenu || isMorePageActive;
+                const isMoreActive = showMoreMenu || isMorePageActive;
                 return (
                   <motion.button
                     key="more-btn"
@@ -324,14 +584,14 @@ export default function DeliveryLayout() {
                     style={{
                       display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
                       background: 'none', border: 'none', outline: 'none', cursor: 'pointer',
-                      color: isActive ? '#ff6b00' : (isDarkMode ? '#94a3b8' : '#64748b'),
-                      fontSize: '11px', fontWeight: isActive ? 900 : 700,
+                      color: isMoreActive ? '#ff6b00' : (isDarkMode ? '#94a3b8' : '#64748b'),
+                      fontSize: '11px', fontWeight: isMoreActive ? 900 : 700,
                       flex: 1, height: '54px', gap: '3px',
                       position: 'relative', borderRadius: '18px',
                       transition: 'color 0.2s'
                     }}
                   >
-                    {isActive && (
+                    {isMoreActive && (
                       <motion.div
                         layoutId="classic-active-pill"
                         transition={{ type: 'spring', stiffness: 350, damping: 25 }}
@@ -355,34 +615,40 @@ export default function DeliveryLayout() {
                   to={item.path}
                   end={item.isExact}
                   onClick={() => setShowMoreMenu(false)}
-                  style={({ isActive }) => ({
-                    display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-                    textDecoration: 'none',
-                    color: isActive ? '#ff6b00' : (isDarkMode ? '#94a3b8' : '#64748b'),
-                    fontSize: '11px', fontWeight: isActive ? 900 : 700,
-                    flex: 1, height: '54px', gap: '3px',
-                    position: 'relative', borderRadius: '18px',
-                    transition: 'color 0.2s'
-                  })}
+                  style={({ isActive }) => {
+                    const isTabActive = isActive && !showMoreMenu;
+                    return {
+                      display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                      textDecoration: 'none',
+                      color: isTabActive ? '#ff6b00' : (isDarkMode ? '#94a3b8' : '#64748b'),
+                      fontSize: '11px', fontWeight: isTabActive ? 900 : 700,
+                      flex: 1, height: '54px', gap: '3px',
+                      position: 'relative', borderRadius: '18px',
+                      transition: 'color 0.2s'
+                    };
+                  }}
                 >
-                  {({ isActive }) => (
-                    <>
-                      {isActive && (
-                        <motion.div
-                          layoutId="classic-active-pill"
-                          transition={{ type: 'spring', stiffness: 350, damping: 25 }}
-                          style={{
-                            position: 'absolute', inset: 0,
-                            background: isDarkMode ? 'rgba(255, 107, 0, 0.2)' : 'rgba(255, 107, 0, 0.12)',
-                            border: '1px solid rgba(255, 107, 0, 0.3)',
-                            borderRadius: '18px'
-                          }}
-                        />
-                      )}
-                      <div style={{ fontSize: '22px', display: 'flex', zIndex: 1 }}>{item.icon}</div>
-                      <span style={{ fontSize: '11px', zIndex: 1 }}>{item.name}</span>
-                    </>
-                  )}
+                  {({ isActive }) => {
+                    const isTabActive = isActive && !showMoreMenu;
+                    return (
+                      <>
+                        {isTabActive && (
+                          <motion.div
+                            layoutId="classic-active-pill"
+                            transition={{ type: 'spring', stiffness: 350, damping: 25 }}
+                            style={{
+                              position: 'absolute', inset: 0,
+                              background: isDarkMode ? 'rgba(255, 107, 0, 0.2)' : 'rgba(255, 107, 0, 0.12)',
+                              border: '1px solid rgba(255, 107, 0, 0.3)',
+                              borderRadius: '18px'
+                            }}
+                          />
+                        )}
+                        <div style={{ fontSize: '22px', display: 'flex', zIndex: 1 }}>{item.icon}</div>
+                        <span style={{ fontSize: '11px', zIndex: 1 }}>{item.name}</span>
+                      </>
+                    );
+                  }}
                 </NavLink>
               );
             })}
@@ -760,6 +1026,120 @@ export default function DeliveryLayout() {
                   style={{ padding: '16px', background: 'transparent', color: 'var(--error)', border: '1px solid var(--error)', borderRadius: 'var(--radius-full)', fontWeight: 700, cursor: 'pointer', fontSize: '16px' }}
                 >
                   Reject & Reassign
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Shift Expiration & Auto-Offline Modal */}
+      <AnimatePresence>
+        {shiftCompleteModalOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            style={{
+              position: 'fixed', inset: 0, zIndex: 99999,
+              background: 'rgba(15, 23, 42, 0.85)', backdropFilter: 'blur(12px)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              padding: '20px'
+            }}
+          >
+            <motion.div
+              initial={{ scale: 0.8, y: 40 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.8, y: 40 }}
+              style={{
+                background: 'linear-gradient(145deg, #ffffff 0%, #fff7ed 100%)',
+                padding: '36px 28px',
+                borderRadius: '32px',
+                maxWidth: '420px',
+                width: '100%',
+                border: '2px solid #ff5400',
+                textAlign: 'center',
+                boxShadow: '0 25px 60px rgba(255, 84, 0, 0.35)',
+                color: '#0f172a'
+              }}
+            >
+              <div style={{
+                width: '72px', height: '72px', borderRadius: '50%',
+                backgroundColor: '#fff7ed', border: '3px solid #ffedd5',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                margin: '0 auto 20px', color: '#ea580c',
+                boxShadow: '0 8px 24px rgba(234, 88, 12, 0.2)'
+              }}>
+                <ScheduleIcon sx={{ fontSize: '38px' }} />
+              </div>
+
+              <h2 style={{ fontSize: '24px', fontWeight: 900, color: '#0f172a', marginBottom: '8px', letterSpacing: '-0.4px' }}>
+                Shift Completed! ⏰
+              </h2>
+
+              <p style={{ fontSize: '14px', color: '#64748b', marginBottom: '20px', lineHeight: 1.5, fontWeight: 500 }}>
+                Your current shift slot has ended. Please book another shift to remain online. If no shift is booked, you will automatically go offline.
+              </p>
+
+              {/* Live Countdown Badge */}
+              <div style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                backgroundColor: '#fef2f2',
+                border: '1px solid #fecaca',
+                padding: '8px 18px',
+                borderRadius: '20px',
+                marginBottom: '24px'
+              }}>
+                <span style={{ fontSize: '13px', fontWeight: 700, color: '#991b1b' }}>Going Offline in:</span>
+                <span style={{ fontSize: '16px', fontWeight: 900, color: '#dc2626', fontFamily: 'monospace' }}>
+                  00:{shiftCountdown < 10 ? `0${shiftCountdown}` : shiftCountdown}
+                </span>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.96 }}
+                  onClick={() => {
+                    setShiftCompleteModalOpen(false);
+                    navigate('/delivery/shifts');
+                  }}
+                  style={{
+                    padding: '16px',
+                    borderRadius: '18px',
+                    background: 'linear-gradient(135deg, #ff5400 0%, #ff3b00 100%)',
+                    color: '#ffffff',
+                    fontWeight: 900,
+                    fontSize: '16px',
+                    border: 'none',
+                    cursor: 'pointer',
+                    boxShadow: '0 6px 20px rgba(255, 84, 0, 0.35)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px'
+                  }}
+                >
+                  <ScheduleIcon />
+                  <span>Book Another Shift Now</span>
+                </motion.button>
+
+                <button
+                  onClick={handleAutoOffline}
+                  style={{
+                    padding: '14px',
+                    borderRadius: '18px',
+                    background: 'transparent',
+                    color: '#64748b',
+                    fontWeight: 700,
+                    fontSize: '14px',
+                    border: '1.5px solid #cbd5e1',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Go Offline Now
                 </button>
               </div>
             </motion.div>

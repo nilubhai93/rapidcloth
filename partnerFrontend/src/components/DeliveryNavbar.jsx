@@ -15,7 +15,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import toast from 'react-hot-toast';
 import { deliveryAPI } from '../api';
 
-import { getLocalDateStr, formatDutyTime } from '../utils/dutyTime';
+import { getLocalDateStr, formatDutyTime, hasValidCurrentShift } from '../utils/dutyTime';
 
 export default function DeliveryNavbar() {
   const { user, setUser } = useAuth();
@@ -56,7 +56,7 @@ export default function DeliveryNavbar() {
     if (user?.role === 'delivery') fetchProfile();
   }, []);
 
-  // Calculate live real-time duty seconds
+  // Calculate live real-time duty seconds and auto-reset past 12:00 AM midnight
   useEffect(() => {
     const calcSeconds = () => {
       if (!user?.deliveryProfile) return 0;
@@ -64,7 +64,22 @@ export default function DeliveryNavbar() {
       const todayStr = getLocalDateStr(now);
       const profileDate = user.deliveryProfile.lastOnlineDate;
 
-      // Base seconds reset after 12:00 AM (midnight)
+      // Detect date change past 12:00 AM midnight in real-time (silent background reset)
+      if (profileDate && profileDate !== todayStr) {
+        const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const updatedUser = {
+          ...user,
+          deliveryProfile: {
+            ...user.deliveryProfile,
+            onlineSecondsToday: 0,
+            lastOnlineDate: todayStr,
+            lastOnlineStartTime: user.deliveryProfile.isOnline ? startOfToday.toISOString() : null
+          }
+        };
+        setUser(updatedUser);
+        return 0;
+      }
+
       const baseSec = (profileDate === todayStr) ? (user.deliveryProfile.onlineSecondsToday || 0) : 0;
 
       if (user.deliveryProfile.isOnline && user.deliveryProfile.lastOnlineStartTime) {
@@ -82,8 +97,6 @@ export default function DeliveryNavbar() {
     };
 
     setDutySeconds(calcSeconds());
-
-    if (!isOnline) return;
 
     const timer = setInterval(() => {
       setDutySeconds(calcSeconds());
@@ -211,20 +224,18 @@ export default function DeliveryNavbar() {
       }
       executeGoOffline();
     } else {
-      // Going Online: First check shift booking
-      let hasBookedSlot = false;
+      // Going Online: First check shift booking validity for current time
+      let hasValidSlot = false;
       try {
         const saved = localStorage.getItem('booked_delivery_shifts');
         const bookedArr = saved ? JSON.parse(saved) : [];
-        if (bookedArr && bookedArr.length > 0) {
-          hasBookedSlot = true;
-        }
+        hasValidSlot = hasValidCurrentShift(bookedArr, new Date());
       } catch (e) {
-        hasBookedSlot = false;
+        hasValidSlot = false;
       }
 
-      if (!hasBookedSlot) {
-        alert('⚠️ Shift Booking Required!\n\nYou must book an active shift slot before going online.');
+      if (!hasValidSlot) {
+        toast.error('⚠️ Shift Slot Expired or Missing!\n\nYour booked shift slot time has ended. Please book an active shift slot to go online.');
         navigate('/delivery/shifts');
         return;
       }
@@ -250,7 +261,7 @@ export default function DeliveryNavbar() {
       deliveryProfile: {
         ...user?.deliveryProfile,
         isOnline: true,
-        lastOnlineStartTime: now,
+        lastOnlineStartTime: now.toISOString(),
         lastOnlineDate: todayStr
       }
     });
@@ -645,7 +656,7 @@ export default function DeliveryNavbar() {
                 <motion.button
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.96 }}
-                  onClick={isCameraActive ? captureLiveSelfie : startLiveCamera}
+                  onClick={captureLiveSelfie}
                   style={{
                     display: 'flex',
                     alignItems: 'center',
