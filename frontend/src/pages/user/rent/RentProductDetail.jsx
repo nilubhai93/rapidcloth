@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useCart } from '../../context/CartContext';
-import { productAPI } from '../../api';
+import { useCart } from '../../../context/CartContext';
+import { productAPI } from '../../../api';
 import toast from 'react-hot-toast';
 
 // Icons

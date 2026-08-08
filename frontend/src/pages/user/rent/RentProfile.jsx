@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { useAuth } from '../../context/AuthContext';
-import RentNavbar from '../../components/RentNavbar';
+import { useAuth } from '../../../context/AuthContext';
+import RentNavbar from '../../../components/RentNavbar';
 import PersonOutlineIcon from '@mui/icons-material/PersonOutlineRounded';
 import LocalShippingOutlinedIcon from '@mui/icons-material/LocalShippingRounded';
 import StraightenIcon from '@mui/icons-material/StraightenRounded';
@@ -55,7 +55,7 @@ export default function RentProfile() {
 
     useState(() => {
         if (isAuthenticated) {
-            import('../../api').then(({ authAPI }) => {
+            import('../../../api').then(({ authAPI }) => {
                 authAPI.getBankDetails().then(res => {
                     if (res.data?.details) setBank(res.data.details);
                     setLoadingBank(false);
@@ -89,7 +89,7 @@ export default function RentProfile() {
 
     const handleSaveBank = async () => {
         try {
-            const { authAPI } = await import('../../api');
+            const { authAPI } = await import('../../../api');
             await authAPI.updateBankDetails(bank);
             setBankEditing(false);
         } catch (e) { console.error(e); }

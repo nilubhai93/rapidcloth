@@ -1,9 +1,9 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useCart } from '../../context/CartContext';
-import { useAuth } from '../../context/AuthContext';
-import RentNavbar from '../../components/RentNavbar';
+import { useCart } from '../../../context/CartContext';
+import { useAuth } from '../../../context/AuthContext';
+import RentNavbar from '../../../components/RentNavbar';
 import AddIcon from '@mui/icons-material/AddRounded';
 import RemoveIcon from '@mui/icons-material/RemoveRounded';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutlineRounded';

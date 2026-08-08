@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useCart } from '../../context/CartContext';
-import { productAPI } from '../../api';
-import RentNavbar from '../../components/RentNavbar';
+import { useCart } from '../../../context/CartContext';
+import { productAPI } from '../../../api';
+import RentNavbar from '../../../components/RentNavbar';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import CloseIcon from '@mui/icons-material/CloseRounded';
 import AccessTimeIcon from '@mui/icons-material/AccessTimeRounded';
@@ -694,19 +694,6 @@ export default function RentCategoryProducts() {
                     onChange={(e) => setMaxPriceFilter(Number(e.target.value))}
                     style={{ width: '100%', accentColor: '#8b1e2f', cursor: 'pointer' }}
                   />
-                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                    <select 
-                      value={maxPriceFilter}
-                      onChange={(e) => setMaxPriceFilter(Number(e.target.value))}
-                      style={{ flex: 1, padding: '8px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '12px', background: 'white' }}
-                    >
-                      <option value={200}>₹200</option>
-                      <option value={500}>₹500</option>
-                      <option value={800}>₹800</option>
-                      <option value={1000}>₹1000</option>
-                      <option value={1500}>₹1500</option>
-                    </select>
-                  </div>
                 </div>
               )}
             </div>
