@@ -266,12 +266,26 @@ export default function Home() {
   const timerRef = useRef(null);
   const categoriesScrollRef = useRef(null);
 
+  const videoRefs = useRef([]);
+
   useEffect(() => {
     const videoTimer = setInterval(() => {
       setStylistVideoIndex((prev) => (prev + 1) % 3);
     }, 4000);
     return () => clearInterval(videoTimer);
   }, []);
+
+  useEffect(() => {
+    videoRefs.current.forEach((el, idx) => {
+      if (el) {
+        if (idx === stylistVideoIndex) {
+          el.play().catch(() => {});
+        } else {
+          el.pause();
+        }
+      }
+    });
+  }, [stylistVideoIndex]);
 
   const nextBanner = useCallback(() => {
     if (isResetting || isSwipingRef.current) return;
@@ -648,15 +662,7 @@ export default function Home() {
                   loop
                   playsInline
                   preload={isActive ? 'auto' : 'metadata'}
-                  ref={(el) => {
-                    if (el) {
-                      if (isActive) {
-                        el.play().catch(() => {});
-                      } else {
-                        el.pause();
-                      }
-                    }
-                  }}
+                  ref={(el) => { videoRefs.current[vIdx] = el; }}
                   style={{
                     position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover',
                     opacity: isActive ? 1 : 0,

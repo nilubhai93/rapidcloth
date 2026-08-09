@@ -77,20 +77,27 @@ export default function Navbar() {
     setTimeout(() => setClickedCatId(null), 450);
   };
 
-  // Smooth Scroll-driven Navbar Transformation
+  // High-Performance Throttled Scroll-driven Navbar Transformation (60fps)
   useEffect(() => {
+    let ticking = false;
     const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      if (currentScrollY <= 20) {
-        setShowFullHeader(true);
-      } else if (currentScrollY > lastScrollY.current + 5) {
-        // Scroll down: collapse top portion to show search bar row & categories
-        setShowFullHeader(false);
-      } else if (currentScrollY < lastScrollY.current - 5) {
-        // Scroll up: expand to full navbar
-        setShowFullHeader(true);
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const currentScrollY = window.scrollY;
+          if (currentScrollY <= 25) {
+            setShowFullHeader(prev => prev ? prev : true);
+          } else if (currentScrollY > lastScrollY.current + 15) {
+            // Scroll down: collapse top portion to show search bar row & categories
+            setShowFullHeader(prev => !prev ? prev : false);
+          } else if (currentScrollY < lastScrollY.current - 15) {
+            // Scroll up: expand to full navbar
+            setShowFullHeader(prev => prev ? prev : true);
+          }
+          lastScrollY.current = currentScrollY;
+          ticking = false;
+        });
+        ticking = true;
       }
-      lastScrollY.current = currentScrollY;
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
@@ -372,14 +379,14 @@ export default function Navbar() {
           <div className="md:hidden bg-white px-3.5 py-2.5 flex flex-col gap-2.5 border-b border-slate-200/80 shadow-xs">
 
             {/* ROW 1 & ROW 2: ANIMATED COLLAPSIBLE CONTAINER ON SCROLL */}
-            <motion.div
-              initial={false}
-              animate={{
-                height: showFullHeader ? 'auto' : 0,
+            <div
+              style={{
+                maxHeight: showFullHeader ? '220px' : '0px',
                 opacity: showFullHeader ? 1 : 0,
+                overflow: 'hidden',
+                transition: 'max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s ease',
+                willChange: 'max-height, opacity'
               }}
-              transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
-              style={{ overflow: 'hidden' }}
             >
               <div className="flex flex-col gap-2.5 pb-2">
                 {/* ROW 1: BRAND LOGO ON LEFT & AI STYLIST HEADING/BUTTON ON RIGHT */}
@@ -439,7 +446,7 @@ export default function Navbar() {
                   <ExpandMoreIcon style={{ fontSize: '18px', color: '#2874f0' }} className={`transform transition-transform duration-200 ${addressOpen ? 'rotate-180' : ''}`} />
                 </div>
               </div>
-            </motion.div>
+            </div>
 
             {/* ROW 3: SEARCH BAR WITH CAMERA & MICROPHONE OPTIONS */}
             <form onSubmit={handleSearch} className="w-full relative">
@@ -585,14 +592,14 @@ export default function Navbar() {
 
         {/* PART 1 (DESKTOP TOP PORTION): BRAND LOGO ON LEFT & ADDRESS BAR ON RIGHT */}
         {!isCartPage && (
-          <motion.div
-            initial={false}
-            animate={{
-              height: showFullHeader ? 'auto' : 0,
+          <div
+            style={{
+              maxHeight: showFullHeader ? '120px' : '0px',
               opacity: showFullHeader ? 1 : 0,
+              overflow: 'hidden',
+              transition: 'max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s ease',
+              willChange: 'max-height, opacity'
             }}
-            transition={{ duration: 0.28, ease: [0.4, 0, 0.2, 1] }}
-            style={{ overflow: 'hidden' }}
           >
             <div
               className="hidden md:flex items-center"
@@ -656,7 +663,7 @@ export default function Navbar() {
                 <ExpandMoreIcon className={`!text-lg text-gray-500 group-hover:text-[#2874f0] transition-transform duration-200 shrink-0 ${addressOpen ? 'rotate-180' : ''}`} />
               </div>
             </div>
-          </motion.div>
+          </div>
         )}
 
         {/* PART 2 (DESKTOP MIDDLE PORTION): SEARCH BAR & ACCOUNT, LANGUAGE, CART */}
