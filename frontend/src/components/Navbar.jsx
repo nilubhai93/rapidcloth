@@ -165,31 +165,37 @@ export default function Navbar() {
     setTimeout(() => setClickedCatId(null), 450);
   };
 
-  // High-Performance Throttled Scroll-driven Navbar Transformation (60fps)
+  // Butter-Smooth 60fps Scroll-driven Navbar Transformation
   useEffect(() => {
+    let lastY = window.scrollY;
     let ticking = false;
-    const handleScroll = () => {
+
+    const updateHeader = () => {
+      const currentScrollY = window.scrollY;
+      const diff = currentScrollY - lastY;
+
+      if (currentScrollY <= 30) {
+        setShowFullHeader(true);
+      } else if (diff > 8) {
+        // Scrolling down: collapse top logo & address rows
+        setShowFullHeader(false);
+      } else if (diff < -8) {
+        // Scrolling up: expand to full header
+        setShowFullHeader(true);
+      }
+      lastY = currentScrollY;
+      ticking = false;
+    };
+
+    const onScroll = () => {
       if (!ticking) {
-        window.requestAnimationFrame(() => {
-          const currentScrollY = window.scrollY;
-          if (currentScrollY <= 25) {
-            setShowFullHeader(prev => prev ? prev : true);
-          } else if (currentScrollY > lastScrollY.current + 15) {
-            // Scroll down: collapse top portion to show search bar row & categories
-            setShowFullHeader(prev => !prev ? prev : false);
-          } else if (currentScrollY < lastScrollY.current - 15) {
-            // Scroll up: expand to full navbar
-            setShowFullHeader(prev => prev ? prev : true);
-          }
-          lastScrollY.current = currentScrollY;
-          ticking = false;
-        });
+        window.requestAnimationFrame(updateHeader);
         ticking = true;
       }
     };
 
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
   // Cycling search placeholder animation
@@ -469,69 +475,70 @@ export default function Navbar() {
             {/* ROW 1 & ROW 2: ANIMATED COLLAPSIBLE CONTAINER ON SCROLL */}
             <div
               style={{
-                maxHeight: showFullHeader ? '220px' : '0px',
+                display: 'grid',
+                gridTemplateRows: showFullHeader ? '1fr' : '0fr',
                 opacity: showFullHeader ? 1 : 0,
-                overflow: 'hidden',
-                transition: 'max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s ease',
-                willChange: 'max-height, opacity'
+                transition: 'grid-template-rows 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s ease',
               }}
             >
-              <div className="flex flex-col gap-2.5 pb-2">
-                {/* ROW 1: BRAND LOGO ON LEFT & AI STYLIST HEADING/BUTTON ON RIGHT */}
-                <div className="flex items-center justify-between w-full min-w-0" style={{ padding: '10px' }}>
-                  <Link to="/shop" className="flex items-center gap-1.5 text-[#14327a] font-black tracking-tight text-decoration-none shrink min-w-0">
-                    <div className="w-7 h-7 rounded-xl bg-gradient-to-tr from-[#14327a] via-[#2874f0] to-[#ffe500] text-white flex items-center justify-center font-black shadow-xs text-xs shrink-0">
-                      R
-                    </div>
-                    <div className="flex flex-col leading-none text-left min-w-0">
-                      <span className="font-black text-sm tracking-tight bg-gradient-to-r from-[#14327a] via-[#2874f0] to-[#14327a] bg-clip-text text-transparent truncate">
-                        RapidCloth
-                      </span>
-                      <span className="text-[7.5px] font-extrabold text-slate-400 tracking-wider uppercase mt-0.5 truncate">
-                        Fashion &amp; Apparel Hub
-                      </span>
-                    </div>
-                  </Link>
+              <div style={{ minHeight: 0, overflow: 'hidden' }}>
+                <div className="flex flex-col gap-2.5 pb-2">
+                  {/* ROW 1: BRAND LOGO ON LEFT & AI STYLIST HEADING/BUTTON ON RIGHT */}
+                  <div className="flex items-center justify-between w-full min-w-0" style={{ padding: '10px' }}>
+                    <Link to="/shop" className="flex items-center gap-1.5 text-[#14327a] font-black tracking-tight text-decoration-none shrink min-w-0">
+                      <div className="w-7 h-7 rounded-xl bg-gradient-to-tr from-[#14327a] via-[#2874f0] to-[#ffe500] text-white flex items-center justify-center font-black shadow-xs text-xs shrink-0">
+                        R
+                      </div>
+                      <div className="flex flex-col leading-none text-left min-w-0">
+                        <span className="font-black text-sm tracking-tight bg-gradient-to-r from-[#14327a] via-[#2874f0] to-[#14327a] bg-clip-text text-transparent truncate">
+                          RapidCloth
+                        </span>
+                        <span className="text-[7.5px] font-extrabold text-slate-400 tracking-wider uppercase mt-0.5 truncate">
+                          Fashion &amp; Apparel Hub
+                        </span>
+                      </div>
+                    </Link>
 
-                  {/* AI Stylist Button / Heading */}
-                  <button
-                    type="button"
-                    onClick={() => window.dispatchEvent(new CustomEvent('open-ai-stylist'))}
-                    className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-black text-white cursor-pointer border-none shadow-md hover:shadow-lg transition-all duration-200 shrink-0 whitespace-nowrap active:scale-95 ml-2"
-                    style={{
-                      background: 'linear-gradient(135deg, #14327a 0%, #2874f0 50%, #8b5cf6 100%)'
-                    }}
+                    {/* AI Stylist Button / Heading */}
+                    <button
+                      type="button"
+                      onClick={() => window.dispatchEvent(new CustomEvent('open-ai-stylist'))}
+                      className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-black text-white cursor-pointer border-none shadow-md hover:shadow-lg transition-all duration-200 shrink-0 whitespace-nowrap active:scale-95 ml-2"
+                      style={{
+                        background: 'linear-gradient(135deg, #14327a 0%, #2874f0 50%, #8b5cf6 100%)'
+                      }}
+                    >
+                      <AutoAwesomeIcon style={{ fontSize: '13px', color: '#ffe500' }} />
+                      <span>AI Stylist</span>
+                    </button>
+                  </div>
+
+                  {/* ROW 2: ADDRESS BAR ONLY */}
+                  <div
+                    onClick={() => setAddressOpen(true)}
+                    style={{ padding: '10px' }}
+                    className="flex items-center gap-2.5 cursor-pointer bg-[#f0f5ff] hover:bg-[#e4edff] active:bg-[#dbeafe] border border-blue-200/90 rounded-2xl transition-all w-full shadow-2xs box-sizing-border"
                   >
-                    <AutoAwesomeIcon style={{ fontSize: '13px', color: '#ffe500' }} />
-                    <span>AI Stylist</span>
-                  </button>
-                </div>
-
-                {/* ROW 2: ADDRESS BAR ONLY */}
-                <div
-                  onClick={() => setAddressOpen(true)}
-                  style={{ padding: '10px' }}
-                  className="flex items-center gap-2.5 cursor-pointer bg-[#f0f5ff] hover:bg-[#e4edff] active:bg-[#dbeafe] border border-blue-200/90 rounded-2xl transition-all w-full shadow-2xs box-sizing-border"
-                >
-                  <div className="w-6.5 h-6.5 rounded-xl bg-gradient-to-tr from-[#2874f0] to-[#1e4db7] text-white flex items-center justify-center shrink-0 shadow-2xs">
-                    <PlaceIcon style={{ fontSize: '15px' }} />
+                    <div className="w-6.5 h-6.5 rounded-xl bg-gradient-to-tr from-[#2874f0] to-[#1e4db7] text-white flex items-center justify-center shrink-0 shadow-2xs">
+                      <PlaceIcon style={{ fontSize: '15px' }} />
+                    </div>
+                    <div className="flex flex-col min-w-0 text-left flex-1">
+                      <span className="text-[9px] text-[#2874f0] font-black uppercase tracking-wider leading-none">
+                        Deliver to
+                      </span>
+                      <span className="text-[11.5px] font-extrabold text-slate-900 truncate leading-tight mt-0.5">
+                        {(() => {
+                          const active = selectedAddress || user?.addresses?.find(a => a.isDefault) || user?.addresses?.[0];
+                          if (active) {
+                            if (active.type === 'pincode') return `Pincode: ${active.zip}`;
+                            return `${active.city || active.street || ''} ${active.zip || ''}`.trim();
+                          }
+                          return t('navbar.selectAddress') || 'Select delivery location';
+                        })()}
+                      </span>
+                    </div>
+                    <ExpandMoreIcon style={{ fontSize: '18px', color: '#2874f0' }} className={`transform transition-transform duration-200 ${addressOpen ? 'rotate-180' : ''}`} />
                   </div>
-                  <div className="flex flex-col min-w-0 text-left flex-1">
-                    <span className="text-[9px] text-[#2874f0] font-black uppercase tracking-wider leading-none">
-                      Deliver to
-                    </span>
-                    <span className="text-[11.5px] font-extrabold text-slate-900 truncate leading-tight mt-0.5">
-                      {(() => {
-                        const active = selectedAddress || user?.addresses?.find(a => a.isDefault) || user?.addresses?.[0];
-                        if (active) {
-                          if (active.type === 'pincode') return `Pincode: ${active.zip}`;
-                          return `${active.city || active.street || ''} ${active.zip || ''}`.trim();
-                        }
-                        return t('navbar.selectAddress') || 'Select delivery location';
-                      })()}
-                    </span>
-                  </div>
-                  <ExpandMoreIcon style={{ fontSize: '18px', color: '#2874f0' }} className={`transform transition-transform duration-200 ${addressOpen ? 'rotate-180' : ''}`} />
                 </div>
               </div>
             </div>
@@ -682,15 +689,15 @@ export default function Navbar() {
         {!isCartPage && (
           <div
             style={{
-              maxHeight: showFullHeader ? '120px' : '0px',
+              display: 'grid',
+              gridTemplateRows: showFullHeader ? '1fr' : '0fr',
               opacity: showFullHeader ? 1 : 0,
-              overflow: 'hidden',
-              transition: 'max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s ease',
-              willChange: 'max-height, opacity'
+              transition: 'grid-template-rows 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s ease',
             }}
           >
-            <div
-              className="hidden md:flex items-center"
+            <div style={{ minHeight: 0, overflow: 'hidden' }}>
+              <div
+                className="hidden md:flex items-center"
               style={{
                 width: '100%',
                 maxWidth: '1440px',
@@ -752,6 +759,7 @@ export default function Navbar() {
               </div>
             </div>
           </div>
+        </div>
         )}
 
         {/* PART 2 (DESKTOP MIDDLE PORTION): SEARCH BAR & ACCOUNT, LANGUAGE, CART */}
