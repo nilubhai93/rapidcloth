@@ -378,69 +378,72 @@ export default function Navbar() {
                 height: showFullHeader ? 'auto' : 0,
                 opacity: showFullHeader ? 1 : 0,
               }}
-              transition={{ duration: 0.28, ease: [0.4, 0, 0.2, 1] }}
-              style={{ overflow: 'hidden', display: 'flex', flexDirection: 'column', gap: '10px' }}
+              transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+              style={{ overflow: 'hidden' }}
             >
-              {/* ROW 1: BRAND LOGO ON LEFT & AI STYLIST HEADING/BUTTON ON RIGHT */}
-              <div className="flex items-center justify-between w-full">
-                <Link to="/shop" className="flex items-center gap-2 text-[#14327a] font-black tracking-tight text-decoration-none shrink-0">
-                  <div className="w-8 h-8 rounded-2xl bg-gradient-to-tr from-[#14327a] via-[#2874f0] to-[#ffe500] text-white flex items-center justify-center font-black shadow-xs text-sm">
-                    R
-                  </div>
-                  <div className="flex flex-col leading-none text-left">
-                    <span className="font-black text-base tracking-tight bg-gradient-to-r from-[#14327a] via-[#2874f0] to-[#14327a] bg-clip-text text-transparent">
-                      RapidCloth
-                    </span>
-                    <span className="text-[8px] font-extrabold text-slate-400 tracking-wider uppercase mt-0.5">
-                      Fashion &amp; Apparel Hub
-                    </span>
-                  </div>
-                </Link>
+              <div className="flex flex-col gap-2.5 pb-2">
+                {/* ROW 1: BRAND LOGO ON LEFT & AI STYLIST HEADING/BUTTON ON RIGHT */}
+                <div className="flex items-center justify-between w-full min-w-0" style={{ padding: '10px' }}>
+                  <Link to="/shop" className="flex items-center gap-1.5 text-[#14327a] font-black tracking-tight text-decoration-none shrink min-w-0">
+                    <div className="w-7 h-7 rounded-xl bg-gradient-to-tr from-[#14327a] via-[#2874f0] to-[#ffe500] text-white flex items-center justify-center font-black shadow-xs text-xs shrink-0">
+                      R
+                    </div>
+                    <div className="flex flex-col leading-none text-left min-w-0">
+                      <span className="font-black text-sm tracking-tight bg-gradient-to-r from-[#14327a] via-[#2874f0] to-[#14327a] bg-clip-text text-transparent truncate">
+                        RapidCloth
+                      </span>
+                      <span className="text-[7.5px] font-extrabold text-slate-400 tracking-wider uppercase mt-0.5 truncate">
+                        Fashion &amp; Apparel Hub
+                      </span>
+                    </div>
+                  </Link>
 
-                {/* AI Stylist Button / Heading */}
-                <button
-                  type="button"
-                  onClick={() => window.dispatchEvent(new CustomEvent('open-ai-stylist'))}
-                  className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-black text-white cursor-pointer border-none shadow-md hover:shadow-lg transition-all duration-200 shrink-0 whitespace-nowrap active:scale-95"
-                  style={{
-                    background: 'linear-gradient(135deg, #14327a 0%, #2874f0 50%, #8b5cf6 100%)'
-                  }}
+                  {/* AI Stylist Button / Heading */}
+                  <button
+                    type="button"
+                    onClick={() => window.dispatchEvent(new CustomEvent('open-ai-stylist'))}
+                    className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-black text-white cursor-pointer border-none shadow-md hover:shadow-lg transition-all duration-200 shrink-0 whitespace-nowrap active:scale-95 ml-2"
+                    style={{
+                      background: 'linear-gradient(135deg, #14327a 0%, #2874f0 50%, #8b5cf6 100%)'
+                    }}
+                  >
+                    <AutoAwesomeIcon style={{ fontSize: '13px', color: '#ffe500' }} />
+                    <span>AI Stylist</span>
+                  </button>
+                </div>
+
+                {/* ROW 2: ADDRESS BAR ONLY */}
+                <div
+                  onClick={() => setAddressOpen(true)}
+                  style={{ padding: '10px' }}
+                  className="flex items-center gap-2.5 cursor-pointer bg-[#f0f5ff] hover:bg-[#e4edff] active:bg-[#dbeafe] border border-blue-200/90 rounded-2xl transition-all w-full shadow-2xs box-sizing-border"
                 >
-                  <AutoAwesomeIcon style={{ fontSize: '15px', color: '#ffe500' }} />
-                  <span>AI Stylist</span>
-                </button>
-              </div>
-
-              {/* ROW 2: ADDRESS BAR ONLY */}
-              <div
-                onClick={() => setAddressOpen(true)}
-                className="flex items-center gap-2.5 cursor-pointer py-2 px-3.5 bg-[#f0f5ff] hover:bg-[#e4edff] active:bg-[#dbeafe] border border-blue-200/90 rounded-2xl transition-all w-full shadow-2xs box-sizing-border"
-              >
-                <div className="w-7 h-7 rounded-xl bg-gradient-to-tr from-[#2874f0] to-[#1e4db7] text-white flex items-center justify-center shrink-0 shadow-2xs">
-                  <PlaceIcon style={{ fontSize: '16px' }} />
+                  <div className="w-6.5 h-6.5 rounded-xl bg-gradient-to-tr from-[#2874f0] to-[#1e4db7] text-white flex items-center justify-center shrink-0 shadow-2xs">
+                    <PlaceIcon style={{ fontSize: '15px' }} />
+                  </div>
+                  <div className="flex flex-col min-w-0 text-left flex-1">
+                    <span className="text-[9px] text-[#2874f0] font-black uppercase tracking-wider leading-none">
+                      Deliver to
+                    </span>
+                    <span className="text-[11.5px] font-extrabold text-slate-900 truncate leading-tight mt-0.5">
+                      {(() => {
+                        const active = selectedAddress || user?.addresses?.find(a => a.isDefault) || user?.addresses?.[0];
+                        if (active) {
+                          if (active.type === 'pincode') return `Pincode: ${active.zip}`;
+                          return `${active.city || active.street || ''} ${active.zip || ''}`.trim();
+                        }
+                        return t('navbar.selectAddress') || 'Select delivery location';
+                      })()}
+                    </span>
+                  </div>
+                  <ExpandMoreIcon style={{ fontSize: '18px', color: '#2874f0' }} className={`transform transition-transform duration-200 ${addressOpen ? 'rotate-180' : ''}`} />
                 </div>
-                <div className="flex flex-col min-w-0 text-left flex-1">
-                  <span className="text-[9.5px] text-[#2874f0] font-black uppercase tracking-wider leading-none">
-                    Deliver to
-                  </span>
-                  <span className="text-[12.5px] font-extrabold text-slate-900 truncate leading-tight mt-0.5">
-                    {(() => {
-                      const active = selectedAddress || user?.addresses?.find(a => a.isDefault) || user?.addresses?.[0];
-                      if (active) {
-                        if (active.type === 'pincode') return `Pincode: ${active.zip}`;
-                        return `${active.city || active.street || ''} ${active.zip || ''}`.trim();
-                      }
-                      return t('navbar.selectAddress') || 'Select delivery location';
-                    })()}
-                  </span>
-                </div>
-                <ExpandMoreIcon style={{ fontSize: '20px', color: '#2874f0' }} className={`transform transition-transform duration-200 ${addressOpen ? 'rotate-180' : ''}`} />
               </div>
             </motion.div>
 
             {/* ROW 3: SEARCH BAR WITH CAMERA & MICROPHONE OPTIONS */}
             <form onSubmit={handleSearch} className="w-full relative">
-              <div className="relative flex items-center w-full bg-[#f8fafc] border border-slate-200/90 focus-within:border-[#2874f0] focus-within:bg-white rounded-2xl px-3 py-1.5 shadow-2xs transition-all">
+              <div style={{ padding: '10px' }} className="relative flex items-center w-full bg-[#f8fafc] border border-slate-200/90 focus-within:border-[#2874f0] focus-within:bg-white rounded-2xl shadow-2xs transition-all">
                 <SearchIcon style={{ fontSize: '19px', color: '#94a3b8' }} className="shrink-0 mr-1.5" />
                 <input
                   type="text"
@@ -494,8 +497,8 @@ export default function Navbar() {
                       to={cat.link}
                       onClick={() => handleCategoryClick(cat.id)}
                       className={`flex flex-col items-center justify-center gap-0.5 px-2 py-1 rounded-xl transition-colors duration-200 shrink-0 text-decoration-none min-w-[50px] ${cat.isActive
-                          ? 'bg-blue-50 text-[#2874f0] font-bold shadow-2xs'
-                          : 'text-slate-700 font-medium hover:bg-slate-50'
+                        ? 'bg-blue-50 text-[#2874f0] font-bold shadow-2xs'
+                        : 'text-slate-700 font-medium hover:bg-slate-50'
                         }`}
                     >
                       {/* ICON CONTAINER: Collapses to text-only on scroll */}
@@ -624,8 +627,8 @@ export default function Navbar() {
                 ref={addressRef}
                 onClick={(e) => { e.stopPropagation(); setAddressOpen(!addressOpen); }}
                 className={`flex items-center gap-2.5 cursor-pointer py-1.5 px-4 rounded-2xl transition-all text-gray-700 font-medium group shrink-0 min-w-[280px] lg:min-w-[340px] max-w-[380px] ${addressOpen
-                    ? 'bg-[#e4edff] border-2 border-[#2874f0] shadow-md ring-4 ring-blue-100/80'
-                    : 'bg-[#f0f5ff] hover:bg-[#e4edff] border border-blue-200/90 shadow-2xs'
+                  ? 'bg-[#e4edff] border-2 border-[#2874f0] shadow-md ring-4 ring-blue-100/80'
+                  : 'bg-[#f0f5ff] hover:bg-[#e4edff] border border-blue-200/90 shadow-2xs'
                   }`}
                 style={{
                   marginLeft: addressOpen ? '28px' : 'auto',
@@ -872,8 +875,8 @@ export default function Navbar() {
                     navigate('/rent');
                   }}
                   className={`flex items-center gap-2.5 py-2 px-3.5 lg:px-4 rounded-2xl transition-all duration-200 cursor-pointer shadow-2xs font-sans border text-decoration-none ${isRentPage
-                      ? 'bg-gradient-to-r from-[#14327a] via-[#2874f0] to-[#14327a] text-white border-blue-600 shadow-md ring-2 ring-blue-200'
-                      : 'bg-[#f8fafc] hover:bg-[#ebf2fe] border border-slate-200/90 hover:border-blue-300 text-gray-800'
+                    ? 'bg-gradient-to-r from-[#14327a] via-[#2874f0] to-[#14327a] text-white border-blue-600 shadow-md ring-2 ring-blue-200'
+                    : 'bg-[#f8fafc] hover:bg-[#ebf2fe] border border-slate-200/90 hover:border-blue-300 text-gray-800'
                     }`}
                 >
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center font-extrabold text-xs overflow-hidden shadow-xs shrink-0 ${isRentPage ? 'bg-white/20 text-white' : 'bg-blue-100 text-[#2874f0]'
@@ -1109,8 +1112,8 @@ export default function Navbar() {
             <Link
               to={isRentPage ? '/rent/cart' : '/cart'}
               className={`flex items-center gap-2.5 py-2 px-4 lg:px-5 text-white rounded-2xl transition-all duration-200 shadow-md hover:shadow-lg hover:scale-105 group text-decoration-none shrink-0 ${isCartPage
-                  ? 'bg-gradient-to-r from-[#14327a] via-[#2874f0] to-[#14327a] ring-2 ring-blue-300 border border-blue-400'
-                  : 'bg-gradient-to-r from-[#2874f0] to-[#14327a] hover:from-[#1e4db7] hover:to-[#0f2456]'
+                ? 'bg-gradient-to-r from-[#14327a] via-[#2874f0] to-[#14327a] ring-2 ring-blue-300 border border-blue-400'
+                : 'bg-gradient-to-r from-[#2874f0] to-[#14327a] hover:from-[#1e4db7] hover:to-[#0f2456]'
                 }`}
             >
               <div className="relative flex items-center justify-center">
@@ -1199,8 +1202,8 @@ export default function Navbar() {
                     <span
                       style={{ transition: 'all 0.28s cubic-bezier(0.4, 0, 0.2, 1)' }}
                       className={`whitespace-nowrap tracking-tight ${showFullHeader
-                          ? 'text-[10px] lg:text-[11px]'
-                          : 'text-[11px] lg:text-[12px] font-bold py-0.5 px-1.5'
+                        ? 'text-[10px] lg:text-[11px]'
+                        : 'text-[11px] lg:text-[12px] font-bold py-0.5 px-1.5'
                         }`}
                     >
                       {cat.title}
@@ -1692,7 +1695,7 @@ export default function Navbar() {
                   cursor: 'pointer', transition: 'all 0.2s ease'
                 }}>
                   <input type="file" accept="image/*" onChange={handleImageSelect} style={{ display: 'none' }} />
-                  <div style={{ width: '44px', height: '44px', borderRadius: '14px', background: 'rgba(40, 116, 240, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#2874f0', shrink: 0 }}>
+                  <div style={{ width: '44px', height: '44px', borderRadius: '14px', background: 'rgba(40, 116, 240, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#2874f0', flexShrink: 0 }}>
                     <PhotoLibraryRoundedIcon sx={{ fontSize: 24 }} />
                   </div>
                   <div>
@@ -1709,7 +1712,7 @@ export default function Navbar() {
                   cursor: 'pointer', transition: 'all 0.2s ease'
                 }}>
                   <input type="file" accept="image/*" capture="environment" onChange={handleImageSelect} style={{ display: 'none' }} />
-                  <div style={{ width: '44px', height: '44px', borderRadius: '14px', background: 'rgba(22, 163, 74, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#16a34a', shrink: 0 }}>
+                  <div style={{ width: '44px', height: '44px', borderRadius: '14px', background: 'rgba(22, 163, 74, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#16a34a', flexShrink: 0 }}>
                     <PhotoCameraRoundedIcon sx={{ fontSize: 24 }} />
                   </div>
                   <div>

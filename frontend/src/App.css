@@ -1,17 +1,17 @@
 /* ── Responsive main content padding for fixed navbar ── */
 .app-main {
-  padding-top: 148px;
-  transition: padding-top 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+  padding-top: 130px;
+  transition: padding-top 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 @media (max-width: 768px) {
   .app-main {
-    padding-top: 136px;
+    padding-top: 225px;
   }
 }
 
 @media (max-width: 480px) {
   .app-main {
-    padding-top: 124px;
+    padding-top: 225px;
   }
 }
