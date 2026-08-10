@@ -92,6 +92,21 @@ export default function Login() {
           position: 'relative'
         }}>
 
+        <button 
+          onClick={() => navigate(-1)}
+          style={{
+            position: 'absolute', top: '16px', right: '16px',
+            background: 'transparent', border: 'none', cursor: 'pointer',
+            color: 'var(--text-muted)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+            padding: '4px', borderRadius: '50%',
+            transition: 'background 0.2s'
+          }}
+          onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(0,0,0,0.05)'}
+          onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+        >
+          <CloseIcon sx={{ fontSize: '24px' }} />
+        </button>
+
         <div style={{ textAlign: 'center', marginBottom: '36px' }}>
           <div style={{
             width: '56px', height: '56px', borderRadius: '16px',

@@ -9,7 +9,13 @@ import toast from 'react-hot-toast';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import CloseIcon from '@mui/icons-material/CloseRounded';
 import ShareIcon from '@mui/icons-material/ShareRounded';
-import VerifiedUserIcon from '@mui/icons-material/VerifiedUserRounded';
+import VerifiedIcon from '@mui/icons-material/VerifiedRounded';
+import ExpandMoreRoundedIcon from '@mui/icons-material/ExpandMoreRounded';
+import CameraAltIcon from '@mui/icons-material/CameraAltRounded';
+import MicIcon from '@mui/icons-material/MicRounded';
+import RentAddressDrawer from '../../../components/RentAddressDrawer';
+import RentCameraModal from '../../../components/RentCameraModal';
+import RentVoiceSearchModal from '../../../components/RentVoiceSearchModal';
 import BoltIcon from '@mui/icons-material/BoltRounded';
 import CheckroomIcon from '@mui/icons-material/CheckroomRounded';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesomeRounded';
@@ -133,6 +139,11 @@ export default function RentProductDetail() {
   const [selectedDate, setSelectedDate] = useState('Fri 10');
   const [activeThumbnailIndex, setActiveThumbnailIndex] = useState(0);
   const [activeViewTab, setActiveViewTab] = useState('dress'); // 'dress' or 'selfie'
+  const [activeTab, setActiveTab] = useState('how-it-works');
+  const [addressOpen, setAddressOpen] = useState(false);
+  const [selectedAddress, setSelectedAddress] = useState(null);
+  const [cameraOpen, setCameraOpen] = useState(false);
+  const [voiceOpen, setVoiceOpen] = useState(false);
 
   // Accordion Expand States
   const [accordions, setAccordions] = useState({
@@ -168,15 +179,20 @@ export default function RentProductDetail() {
   useEffect(() => {
     const fetchProduct = async () => {
       setLoading(true);
-      try {
-        const res = await productAPI.getById(id);
-        if (res.data && res.data.product) {
-          setProduct(res.data.product);
-          setLoading(false);
-          return;
+
+      const isValidMongoId = /^[0-9a-fA-F]{24}$/.test(id);
+
+      if (isValidMongoId) {
+        try {
+          const res = await productAPI.getById(id);
+          if (res.data && res.data.product) {
+            setProduct(res.data.product);
+            setLoading(false);
+            return;
+          }
+        } catch (err) {
+          // Fall through to mock collections
         }
-      } catch (err) {
-        console.log("Product not found in DB, searching mock collections.");
       }
 
       // Check mock collections
@@ -295,68 +311,83 @@ export default function RentProductDetail() {
         color: '#231b1c',
         boxShadow: '0 2px 10px rgba(0, 0, 0, 0.05)'
       }}>
-        {/* Top bar with Rent toggle & AI styles */}
-        <div style={{ padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(35, 27, 28, 0.08)' }}>
-          <div style={{ display: 'flex', gap: '12px' }}>
+        <div style={{ maxWidth: '1440px', margin: '0 auto' }}>
+          {/* Top bar with Rent toggle & AI styles */}
+          <div style={{ padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(35, 27, 28, 0.08)' }}>
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <button
+                onClick={() => navigate('/rent')}
+                style={{
+                  padding: '8px 24px', borderRadius: '12px', border: 'none',
+                  background: '#231b1c', color: '#ffffff',
+                  fontWeight: 700, fontSize: '14px', cursor: 'pointer', transition: 'all 0.2s',
+                  boxShadow: '0 4px 12px rgba(35, 27, 28, 0.2)'
+                }}
+              >Rent</button>
+            </div>
+
             <button
-              onClick={() => navigate('/rent')}
+              onClick={() => navigate('/rent?ai=true')}
               style={{
-                padding: '8px 24px', borderRadius: '12px', border: 'none',
-                background: '#231b1c', color: '#ffffff',
-                fontWeight: 700, fontSize: '14px', cursor: 'pointer', transition: 'all 0.2s',
-                boxShadow: '0 4px 12px rgba(35, 27, 28, 0.2)'
+                padding: '8px 20px', borderRadius: '12px', background: 'linear-gradient(135deg, #a855f7 0%, #ec4899 100%)',
+                color: '#ffffff', fontWeight: 700, fontSize: '14px', border: 'none', display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer',
+                boxShadow: '0 4px 14px rgba(236,72,153,0.3)'
               }}
-            >Rent</button>
+            >
+              <AutoAwesomeIcon sx={{ fontSize: '18px' }} />
+              AI Styles
+            </button>
           </div>
 
-          <button
-            onClick={() => navigate('/rent?ai=true')}
-            style={{
-              padding: '8px 20px', borderRadius: '12px', background: 'linear-gradient(135deg, #a855f7 0%, #ec4899 100%)',
-              color: '#ffffff', fontWeight: 700, fontSize: '14px', border: 'none', display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer',
-              boxShadow: '0 4px 14px rgba(236,72,153,0.3)'
-            }}
-          >
-            <AutoAwesomeIcon sx={{ fontSize: '18px' }} />
-            AI Styles
-          </button>
-        </div>
-
-        {/* Sub-bar with Delivery, Search, Account, Cart */}
-        <div style={{ padding: '16px 24px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '20px', flexWrap: 'wrap' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: '#f8fafc', padding: '10px 16px', borderRadius: '12px', minWidth: '200px', flex: '1 1 250px', border: '2px solid #231b1c' }}>
-              <LocationOnOutlinedIcon sx={{ color: '#8b1e2f', fontSize: '20px' }} />
-              <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <span style={{ fontSize: '11px', color: '#64748b', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Delivery to</span>
-                <span style={{ fontSize: '13px', color: '#0f172a', fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Home - 400001, Mumbai</span>
+          {/* Sub-bar with Delivery, Search, Account, Cart */}
+          <div style={{ padding: '16px 24px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '20px', flexWrap: 'wrap' }}>
+              <div 
+                onClick={() => setAddressOpen(true)}
+                style={{ display: 'flex', alignItems: 'center', gap: '8px', background: '#f8fafc', padding: '10px 16px', borderRadius: '12px', minWidth: '200px', flex: '1 1 250px', border: '2px solid #231b1c', cursor: 'pointer' }}
+              >
+                <LocationOnOutlinedIcon sx={{ color: '#8b1e2f', fontSize: '20px' }} />
+                <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minWidth: 0 }}>
+                  <span style={{ fontSize: '11px', color: '#64748b', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Delivery to</span>
+                  <span style={{ fontSize: '13px', color: '#0f172a', fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {selectedAddress ? (selectedAddress.type === 'pincode' ? selectedAddress.zip : `${selectedAddress.city || 'Saved'} - ${selectedAddress.zip}`) : 'Home - 400001, Mumbai'}
+                  </span>
+                </div>
+                <ExpandMoreRoundedIcon sx={{ color: '#64748b', fontSize: '20px', transform: addressOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s', flexShrink: 0 }} />
               </div>
-            </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', background: '#f1f5f9', padding: '2px 4px', borderRadius: '14px', flex: '2 1 400px', border: '2px solid #231b1c' }}>
-              <div style={{ padding: '8px 12px', color: '#94a3b8' }}><SearchIcon /></div>
-              <input
-                type="text"
-                placeholder={placeholders[placeholderIndex]}
-                style={{ flex: 1, border: 'none', background: 'transparent', padding: '10px 0', fontSize: '14px', color: '#334155', outline: 'none', fontWeight: 500 }}
-                onKeyDown={(e) => e.key === 'Enter' && navigate(`/rent?search=${encodeURIComponent(e.target.value)}`)}
-              />
-            </div>
+              <div style={{ display: 'flex', alignItems: 'center', background: '#f1f5f9', padding: '2px 8px 2px 4px', borderRadius: '14px', flex: '2 1 400px', border: '2px solid #231b1c' }}>
+                <div style={{ padding: '8px 10px', color: '#94a3b8', display: 'flex', alignItems: 'center' }}><SearchIcon /></div>
+                <input
+                  type="text"
+                  placeholder={placeholders[placeholderIndex]}
+                  style={{ flex: 1, border: 'none', background: 'transparent', padding: '10px 0', fontSize: '14px', color: '#334155', outline: 'none', fontWeight: 500 }}
+                  onKeyDown={(e) => e.key === 'Enter' && navigate(`/rent?search=${encodeURIComponent(e.target.value)}`)}
+                />
+                <button onClick={() => setCameraOpen(true)} title="Visual Search" style={{ border: 'none', background: 'transparent', padding: '6px', cursor: 'pointer', color: '#8b1e2f', display: 'flex', alignItems: 'center' }}>
+                  <CameraAltIcon sx={{ fontSize: 20 }} />
+                </button>
+                <button onClick={() => setVoiceOpen(true)} title="Voice Search" style={{ border: 'none', background: 'transparent', padding: '6px', cursor: 'pointer', color: '#8b1e2f', display: 'flex', alignItems: 'center' }}>
+                  <MicIcon sx={{ fontSize: 20 }} />
+                </button>
+              </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginLeft: 'auto' }}>
-              <button onClick={() => navigate('/rent/profile')} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', background: 'transparent', border: 'none', cursor: 'pointer', color: '#231b1c' }}>
-                <PersonOutlineIcon sx={{ fontSize: '26px', color: '#231b1c' }} />
-                <span style={{ fontSize: '11px', fontWeight: 700, color: '#231b1c' }}>Account</span>
-              </button>
-              <button onClick={() => navigate('/rent/cart')} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', background: 'transparent', border: 'none', cursor: 'pointer', color: '#8b1e2f', position: 'relative' }}>
-                {rentalItemCount > 0 && (
-                  <div style={{ position: 'absolute', top: '-4px', right: '-4px', background: '#ef4444', color: 'white', fontSize: '10px', fontWeight: 800, width: '16px', height: '16px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10 }}>
-                    {rentalItemCount}
-                  </div>
-                )}
-                <ShoppingBagOutlinedIcon sx={{ fontSize: '26px', color: '#8b1e2f' }} />
-                <span style={{ fontSize: '11px', fontWeight: 800, color: '#8b1e2f' }}>Cart</span>
-              </button>
+              {/* Desktop Only Account & Cart (Hidden on Mobile) */}
+              <div className="rent-desktop-only-actions" style={{ display: 'flex', alignItems: 'center', gap: '16px', marginLeft: 'auto' }}>
+                <button onClick={() => navigate('/rent/profile')} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', background: 'transparent', border: 'none', cursor: 'pointer', color: '#231b1c' }}>
+                  <PersonOutlineIcon sx={{ fontSize: '26px', color: '#231b1c' }} />
+                  <span style={{ fontSize: '11px', fontWeight: 700, color: '#231b1c' }}>Account</span>
+                </button>
+                <button onClick={() => navigate('/rent/cart')} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', background: 'transparent', border: 'none', cursor: 'pointer', color: '#8b1e2f', position: 'relative' }}>
+                  {rentalItemCount > 0 && (
+                    <div style={{ position: 'absolute', top: '-4px', right: '-4px', background: '#ef4444', color: 'white', fontSize: '10px', fontWeight: 800, width: '16px', height: '16px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10 }}>
+                      {rentalItemCount}
+                    </div>
+                  )}
+                  <ShoppingBagOutlinedIcon sx={{ fontSize: '26px', color: '#8b1e2f' }} />
+                  <span style={{ fontSize: '11px', fontWeight: 800, color: '#8b1e2f' }}>Cart</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -914,6 +945,16 @@ export default function RentProductDetail() {
         </div>
 
       </div>
+      {/* ADDRESS DRAWER & SEARCH MODALS */}
+      <RentAddressDrawer addressOpen={addressOpen} setAddressOpen={setAddressOpen} selectedAddress={selectedAddress} setSelectedAddress={setSelectedAddress} />
+      <RentCameraModal isOpen={cameraOpen} onClose={() => setCameraOpen(false)} />
+      <RentVoiceSearchModal isOpen={voiceOpen} onClose={() => setVoiceOpen(false)} onQuerySubmit={(q) => navigate(`/rent?search=${encodeURIComponent(q)}`)} />
+      
+      <style>{`
+        @media (max-width: 768px) {
+          .rent-desktop-only-actions { display: none !important; }
+        }
+      `}</style>
     </div>
   );
 }

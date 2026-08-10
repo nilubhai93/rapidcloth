@@ -19,9 +19,12 @@ export default function RentNavbar() {
       background: 'rgba(255,255,255,0.95)',
       backdropFilter: 'blur(12px)',
       borderBottom: '1px solid #e2e8f0',
-      padding: '12px 24px',
-      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
     }}>
+      <div style={{
+        maxWidth: '1440px', margin: '0 auto',
+        padding: '12px 24px',
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+      }}>
       {/* Back to Rent */}
       <Link to="/rent" style={{
         display: 'flex', alignItems: 'center', gap: '6px',
@@ -61,6 +64,7 @@ export default function RentNavbar() {
           <PersonOutlineRoundedIcon sx={{ fontSize: 24 }} />
           <span style={{ fontSize: '10px', fontWeight: 600, marginTop: '2px' }}>Account</span>
         </Link>
+      </div>
       </div>
     </div>
   );

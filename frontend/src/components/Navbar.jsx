@@ -860,45 +860,54 @@ export default function Navbar() {
             {!isCartPage && (
               <div
                 ref={rentRef}
-                className="relative group shrink-0"
-                onMouseEnter={() => setRentOpen(true)}
-                onMouseLeave={() => setRentOpen(false)}
+                className="relative shrink-0"
               >
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setRentOpen(false);
-                    navigate('/rent');
-                  }}
-                  className={`flex items-center gap-2.5 py-2 px-3.5 lg:px-4 rounded-2xl transition-all duration-200 cursor-pointer shadow-2xs font-sans border text-decoration-none ${isRentPage
+                <div
+                  className={`flex items-center py-1 pl-3 pr-1 lg:pl-3.5 rounded-2xl transition-all shadow-2xs font-sans border text-decoration-none ${isRentPage
                       ? 'bg-gradient-to-r from-[#14327a] via-[#2874f0] to-[#14327a] text-white border-blue-600 shadow-md ring-2 ring-blue-200'
                       : 'bg-[#f8fafc] hover:bg-[#ebf2fe] border border-slate-200/90 hover:border-blue-300 text-gray-800'
                     }`}
                 >
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center font-extrabold text-xs overflow-hidden shadow-xs shrink-0 ${isRentPage ? 'bg-white/20 text-white' : 'bg-blue-100 text-[#2874f0]'
-                    }`}>
-                    <CheckroomIcon className="!text-lg" />
-                  </div>
-                  <div className="flex flex-col text-left">
-                    <span className={`text-[10px] font-semibold leading-none ${isRentPage ? 'text-blue-100' : 'text-gray-500'}`}>
-                      Fashion
-                    </span>
-                    <div className="flex items-center gap-1 text-xs lg:text-[13px] font-extrabold leading-tight mt-0.5 group-hover:text-[#2874f0] transition-colors">
-                      <span className={isRentPage ? 'text-white' : 'text-gray-900'}>Rent</span>
-                      <motion.div animate={{ rotate: rentOpen ? 180 : 0 }} transition={{ duration: 0.2 }}>
-                        <ExpandMoreIcon className={`!text-base ${isRentPage ? 'text-white' : 'text-gray-500 group-hover:text-[#2874f0]'}`} />
-                      </motion.div>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setRentOpen(false);
+                      navigate('/rent');
+                    }}
+                    className="flex items-center gap-2.5 cursor-pointer pr-1"
+                  >
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center font-extrabold text-xs overflow-hidden shadow-xs shrink-0 ${isRentPage ? 'bg-white/20 text-white' : 'bg-blue-100 text-[#2874f0]'
+                      }`}>
+                      <CheckroomIcon className="!text-lg" />
                     </div>
-                  </div>
-                </button>
+                    <div className="flex flex-col text-left">
+                      <span className={`text-[10px] font-semibold leading-none ${isRentPage ? 'text-blue-100' : 'text-gray-500'}`}>
+                        Fashion
+                      </span>
+                      <span className={`text-xs lg:text-[13px] font-extrabold leading-tight mt-0.5 transition-colors ${isRentPage ? 'text-white' : 'text-gray-900 group-hover:text-[#2874f0]'}`}>Rent</span>
+                    </div>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setRentOpen(!rentOpen);
+                    }}
+                    className={`flex items-center justify-center p-1.5 ml-1 rounded-full cursor-pointer transition-colors ${isRentPage ? 'text-white hover:bg-white/20' : 'text-gray-500 hover:bg-blue-100 hover:text-[#2874f0]'}`}
+                  >
+                    <motion.div animate={{ rotate: rentOpen ? 180 : 0 }} transition={{ duration: 0.2 }}>
+                      <ExpandMoreIcon className="!text-base" />
+                    </motion.div>
+                  </button>
+                </div>
 
                 {/* Rent Options Dropdown Menu */}
                 <AnimatePresence>
                   {rentOpen && (
                     <div className="book-container" style={{ position: 'absolute', top: '100%', left: 0, zIndex: 2000, marginTop: '8px' }}>
-                      <motion.div
-                        className="book-popup profile-menu-popup"
+                        <motion.div
+                        className="book-popup"
                         onClick={(e) => e.stopPropagation()}
                         initial={{ scaleY: 0, opacity: 0, transformOrigin: 'top left' }}
                         animate={{ scaleY: 1, opacity: 1 }}
@@ -909,14 +918,17 @@ export default function Navbar() {
                           borderRadius: '16px',
                           boxShadow: '0 10px 30px rgba(0,0,0,0.15)',
                           border: '1px solid #e2e8f0',
-                          minWidth: '250px',
-                          padding: '12px'
+                          minWidth: '220px',
+                          padding: '16px',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: '12px'
                         }}
                       >
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px', paddingBottom: '8px', borderBottom: '1px solid #f1f5f9' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingBottom: '12px', borderBottom: '1px solid #f1f5f9' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                             <CheckroomIcon style={{ fontSize: '18px', color: '#2874f0' }} />
-                            <span style={{ fontSize: '13px', fontWeight: 800, color: '#1e293b' }}>Rent Outfits</span>
+                            <span style={{ fontSize: '14px', fontWeight: 800, color: '#1e293b' }}>Rent Outfits</span>
                           </div>
                           <span style={{ fontSize: '10px', fontWeight: 800, background: '#eff6ff', color: '#2874f0', padding: '2px 6px', borderRadius: '10px' }}>
                             PREMIUM
@@ -927,33 +939,33 @@ export default function Navbar() {
                           <Link
                             to="/rent"
                             onClick={() => setRentOpen(false)}
-                            className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-gray-800 hover:bg-blue-50 hover:text-[#2874f0] transition-colors text-decoration-none"
+                            className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-bold text-gray-800 hover:bg-blue-50 hover:text-[#2874f0] transition-colors text-decoration-none"
                           >
-                            <span>✨</span>
+                            <span className="text-lg">✨</span>
                             <span>Browse All Rentals</span>
                           </Link>
                           <Link
                             to="/rent/category?gender=men"
                             onClick={() => setRentOpen(false)}
-                            className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-gray-700 hover:bg-blue-50 hover:text-[#2874f0] transition-colors text-decoration-none"
+                            className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-semibold text-gray-700 hover:bg-blue-50 hover:text-[#2874f0] transition-colors text-decoration-none"
                           >
-                            <span>👔</span>
+                            <span className="text-lg">👔</span>
                             <span>Men's Tuxedos & Sherwanis</span>
                           </Link>
                           <Link
                             to="/rent/category?gender=women"
                             onClick={() => setRentOpen(false)}
-                            className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-gray-700 hover:bg-blue-50 hover:text-[#2874f0] transition-colors text-decoration-none"
+                            className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-semibold text-gray-700 hover:bg-blue-50 hover:text-[#2874f0] transition-colors text-decoration-none"
                           >
-                            <span>👗</span>
+                            <span className="text-lg">👗</span>
                             <span>Women's Designer Lehengas</span>
                           </Link>
                           <Link
                             to="/rent/cart"
                             onClick={() => setRentOpen(false)}
-                            className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-gray-700 hover:bg-blue-50 hover:text-[#2874f0] transition-colors text-decoration-none"
+                            className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-[13px] font-semibold text-gray-700 hover:bg-blue-50 hover:text-[#2874f0] transition-colors text-decoration-none"
                           >
-                            <span>🛍️</span>
+                            <span className="text-lg">🛍️</span>
                             <span>My Rental Bag</span>
                           </Link>
                         </div>

@@ -68,128 +68,129 @@ export default function Footer() {
 
   const isAuthPage = location.pathname === '/login' || location.pathname === '/register';
 
+  const isRentPage = location.pathname.startsWith('/rent');
+
   if (isAuthPage) return null;
 
   return (
     <>
-      {/* Spacer to prevent content from being hidden behind the fixed footer */}
-      <div id="bottom-nav-spacer" style={{ height: '80px' }} />
+      {/* Spacer & Bottom Nav for non-rental pages */}
+      {!isRentPage && (
+        <>
+          <div id="bottom-nav-spacer" style={{ height: '80px' }} />
+          <nav
+            id="bottom-nav"
+            style={{
+              position: 'fixed',
+              bottom: 0,
+              left: 0,
+              right: 0,
+              zIndex: 999,
+              background: '#0a0a0a',
+              borderTop: '1px solid rgba(255,255,255,0.1)',
+              padding: '0 4px',
+              paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+            }}
+          >
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-around',
+              alignItems: 'center',
+              maxWidth: '560px',
+              margin: '0 auto',
+              height: '64px',
+            }}>
+              {tabs.map((tab) => {
+                const active = isActive(tab);
+                const IconComp = active ? tab.activeIcon : tab.icon;
 
-      <nav
-        id="bottom-nav"
-        style={{
-          position: 'fixed',
-          bottom: 0,
-          left: 0,
-          right: 0,
-          zIndex: 999,
-          background: '#0a0a0a',
-          borderTop: '1px solid rgba(255,255,255,0.1)',
-          padding: '0 4px',
-          paddingBottom: 'env(safe-area-inset-bottom, 0px)',
-        }}
-      >
-        <div style={{
-          display: 'flex',
-          justifyContent: 'space-around',
-          alignItems: 'center',
-          maxWidth: '560px',
-          margin: '0 auto',
-          height: '64px',
-        }}>
-          {tabs.map((tab) => {
-            const active = isActive(tab);
-            const IconComp = active ? tab.activeIcon : tab.icon;
-
-            return (
-              <button
-                key={tab.id}
-                onClick={() => navigate(tab.path)}
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '2px',
-                  padding: '8px 0',
-                  background: 'transparent',
-                  border: 'none',
-                  cursor: 'pointer',
-                  position: 'relative',
-                  minWidth: '64px',
-                  transition: 'all 0.2s ease',
-                }}
-              >
-                {/* Icon wrapper */}
-                <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <IconComp
-                    sx={{
-                      fontSize: '24px',
-                      color: active ? '#ffffff' : 'rgba(255,255,255,0.6)',
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => navigate(tab.path)}
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '2px',
+                      padding: '8px 0',
+                      background: 'transparent',
+                      border: 'none',
+                      cursor: 'pointer',
+                      position: 'relative',
+                      minWidth: '64px',
+                      transition: 'all 0.2s ease',
                     }}
-                  />
+                  >
+                    <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <IconComp
+                        sx={{
+                          fontSize: '24px',
+                          color: active ? '#ffffff' : 'rgba(255,255,255,0.6)',
+                        }}
+                      />
 
-                  {/* Cart badge */}
-                  {tab.badge > 0 && (
-                    <span
-                      style={{
-                        position: 'absolute',
-                        top: '-5px',
-                        right: '-8px',
-                        minWidth: '16px',
-                        height: '16px',
-                        borderRadius: '50%',
-                        background: '#ff5722',
-                        color: 'white',
-                        fontSize: '10px',
-                        fontWeight: 900,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        padding: '0 2px',
-                        border: '2px solid #0a0a0a'
-                      }}
-                    >
-                      {tab.badge > 99 ? '99+' : tab.badge}
-                    </span>
-                  )}
+                      {tab.badge > 0 && (
+                        <span
+                          style={{
+                            position: 'absolute',
+                            top: '-5px',
+                            right: '-8px',
+                            minWidth: '16px',
+                            height: '16px',
+                            borderRadius: '50%',
+                            background: '#ff5722',
+                            color: 'white',
+                            fontSize: '10px',
+                            fontWeight: 900,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            padding: '0 2px',
+                            border: '2px solid #0a0a0a'
+                          }}
+                        >
+                          {tab.badge > 99 ? '99+' : tab.badge}
+                        </span>
+                      )}
 
-                  {/* Upcoming "NEW" badge */}
-                  {tab.upcoming && (
+                      {tab.upcoming && (
+                        <span style={{
+                          position: 'absolute',
+                          top: '-12px',
+                          right: '-20px',
+                          padding: '2px 6px',
+                          borderRadius: '4px',
+                          background: '#ff5722',
+                          color: 'white',
+                          fontSize: '9px',
+                          fontWeight: 900,
+                          textTransform: 'uppercase',
+                          boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                          border: '1px solid rgba(255,255,255,0.1)'
+                        }}>
+                          NEW
+                        </span>
+                      )}
+                    </div>
+
                     <span style={{
-                      position: 'absolute',
-                      top: '-12px',
-                      right: '-20px',
-                      padding: '2px 6px',
-                      borderRadius: '4px',
-                      background: '#ff5722',
-                      color: 'white',
-                      fontSize: '9px',
-                      fontWeight: 900,
-                      textTransform: 'uppercase',
-                      boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
-                      border: '1px solid rgba(255,255,255,0.1)'
+                      fontSize: '10px',
+                      fontWeight: active ? 600 : 500,
+                      color: active ? '#ffffff' : 'rgba(255,255,255,0.5)',
+                      marginTop: '2px',
+                      letterSpacing: '0.3px',
                     }}>
-                      NEW
+                      {tab.label}
                     </span>
-                  )}
-                </div>
-
-                {/* Label */}
-                <span style={{
-                  fontSize: '10px',
-                  fontWeight: active ? 600 : 500,
-                  color: active ? '#ffffff' : 'rgba(255,255,255,0.5)',
-                  marginTop: '2px',
-                  letterSpacing: '0.3px',
-                }}>
-                  {tab.label}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-      </nav>
+                  </button>
+                );
+              })}
+            </div>
+          </nav>
+        </>
+      )}
 
       {/* Desktop Footer */}
       <div id="desktop-footer" style={{ background: '#232f3e', color: 'white', marginTop: '0px', fontFamily: 'Arial, sans-serif' }}>

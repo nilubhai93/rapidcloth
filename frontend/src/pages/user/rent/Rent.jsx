@@ -8,12 +8,17 @@ import PersonOutlineIcon from '@mui/icons-material/PersonOutlineRounded';
 import ShoppingBagOutlinedIcon from '@mui/icons-material/ShoppingBagRounded';
 import LocationOnOutlinedIcon from '@mui/icons-material/LocationOnOutlined';
 import SearchIcon from '@mui/icons-material/SearchRounded';
+import CameraAltIcon from '@mui/icons-material/CameraAltRounded';
+import MicIcon from '@mui/icons-material/MicRounded';
+import ExpandMoreRoundedIcon from '@mui/icons-material/ExpandMoreRounded';
+import RentAddressDrawer from '../../../components/RentAddressDrawer';
+import RentCameraModal from '../../../components/RentCameraModal';
+import RentVoiceSearchModal from '../../../components/RentVoiceSearchModal';
 import CheckroomIcon from '@mui/icons-material/CheckroomRounded';
 import DiamondIcon from '@mui/icons-material/DiamondRounded';
 import CelebrationIcon from '@mui/icons-material/CelebrationRounded';
 import StarsIcon from '@mui/icons-material/StarsRounded';
 import WineBarIcon from '@mui/icons-material/WineBarRounded';
-import CameraAltIcon from '@mui/icons-material/CameraAltRounded';
 import ChildCareIcon from '@mui/icons-material/ChildCareRounded';
 import CardGiftcardIcon from '@mui/icons-material/CardGiftcardRounded';
 import CakeIcon from '@mui/icons-material/CakeRounded';
@@ -299,6 +304,10 @@ export default function Rent() {
   const [activeTab, setActiveTab] = useState('rent');
   const [activeCategory, setActiveCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [addressOpen, setAddressOpen] = useState(false);
+  const [selectedAddress, setSelectedAddress] = useState(null);
+  const [cameraOpen, setCameraOpen] = useState(false);
+  const [voiceOpen, setVoiceOpen] = useState(false);
 
   // Ad carousel state & logic
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -584,20 +593,33 @@ export default function Rent() {
 
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2, duration: 0.5 }} style={{ padding: '16px 24px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '20px', flexWrap: 'wrap' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: '#f8fafc', padding: '10px 16px', borderRadius: '12px', border: '2px solid #0047ab', minWidth: '200px', flex: '1 1 250px' }}>
+            <div 
+              onClick={() => setAddressOpen(true)}
+              style={{ display: 'flex', alignItems: 'center', gap: '8px', background: '#f8fafc', padding: '10px 16px', borderRadius: '12px', border: '2px solid #0047ab', minWidth: '200px', flex: '1 1 250px', cursor: 'pointer' }}
+            >
               <LocationOnOutlinedIcon sx={{ color: '#ec4899', fontSize: '20px' }} />
-              <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minWidth: 0 }}>
                 <span style={{ fontSize: '11px', color: '#64748b', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Delivery to</span>
-                <span style={{ fontSize: '13px', color: '#0f172a', fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Home - 400001, Mumbai</span>
+                <span style={{ fontSize: '13px', color: '#0f172a', fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  {selectedAddress ? (selectedAddress.type === 'pincode' ? selectedAddress.zip : `${selectedAddress.city || 'Saved'} - ${selectedAddress.zip}`) : 'Home - 400001, Mumbai'}
+                </span>
               </div>
+              <ExpandMoreRoundedIcon sx={{ color: '#64748b', fontSize: '20px', transform: addressOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s', flexShrink: 0 }} />
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', background: '#f1f5f9', padding: '2px 4px', borderRadius: '14px', flex: '2 1 400px', border: '2px solid #0047ab' }}>
-              <div style={{ padding: '8px 12px', color: '#94a3b8' }}><SearchIcon /></div>
+            <div style={{ display: 'flex', alignItems: 'center', background: '#f1f5f9', padding: '2px 8px 2px 4px', borderRadius: '14px', flex: '2 1 400px', border: '2px solid #0047ab' }}>
+              <div style={{ padding: '8px 10px', color: '#94a3b8', display: 'flex', alignItems: 'center' }}><SearchIcon /></div>
               <input type="text" placeholder="Search for designer lehengas, suits..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} style={{ flex: 1, border: 'none', background: 'transparent', padding: '10px 0', fontSize: '14px', color: '#334155', outline: 'none', fontWeight: 500 }} />
+              <button onClick={() => setCameraOpen(true)} title="Visual Search" style={{ border: 'none', background: 'transparent', padding: '6px', cursor: 'pointer', color: '#8b1e2f', display: 'flex', alignItems: 'center' }}>
+                <CameraAltIcon sx={{ fontSize: 20 }} />
+              </button>
+              <button onClick={() => setVoiceOpen(true)} title="Voice Search" style={{ border: 'none', background: 'transparent', padding: '6px', cursor: 'pointer', color: '#8b1e2f', display: 'flex', alignItems: 'center' }}>
+                <MicIcon sx={{ fontSize: 20 }} />
+              </button>
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginLeft: 'auto' }}>
+            {/* Desktop Only Account & Cart (Hidden on Mobile) */}
+            <div className="rent-desktop-only-actions" style={{ display: 'flex', alignItems: 'center', gap: '16px', marginLeft: 'auto' }}>
               <button onClick={() => navigate('/rent/profile')} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', background: 'transparent', border: 'none', cursor: 'pointer', color: '#475569' }}>
                 <PersonOutlineIcon sx={{ fontSize: '26px' }} />
                 <span style={{ fontSize: '11px', fontWeight: 600 }}>Account</span>
@@ -1455,6 +1477,15 @@ export default function Rent() {
         product={selectedRentalProduct}
       />
 
+      <RentAddressDrawer addressOpen={addressOpen} setAddressOpen={setAddressOpen} selectedAddress={selectedAddress} setSelectedAddress={setSelectedAddress} />
+      <RentCameraModal isOpen={cameraOpen} onClose={() => setCameraOpen(false)} />
+      <RentVoiceSearchModal isOpen={voiceOpen} onClose={() => setVoiceOpen(false)} onQuerySubmit={(q) => setSearchQuery(q)} />
+      
+      <style>{`
+        @media (max-width: 768px) {
+          .rent-desktop-only-actions { display: none !important; }
+        }
+      `}</style>
     </div>
   );
 }

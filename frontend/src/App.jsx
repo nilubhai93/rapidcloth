@@ -19,6 +19,9 @@ import RentCart from './pages/user/rent/RentCart';
 import RentProfile from './pages/user/rent/RentProfile';
 import RentCategoryProducts from './pages/user/rent/RentCategoryProducts';
 import RentProductDetail from './pages/user/rent/RentProductDetail';
+import RentAddresses from './pages/user/rent/RentAddresses';
+import RentCategories from './pages/user/rent/RentCategories';
+import RentFooter from './components/RentFooter';
 import Sell from './pages/user/Sell';
 import GiftCards from './pages/user/GiftCards';
 import BrowsingHistory from './pages/user/BrowsingHistory';
@@ -102,6 +105,8 @@ function AppContent() {
           <Route path="/rent/profile" element={<RentProfile />} />
           <Route path="/rent/category" element={<RentCategoryProducts />} />
           <Route path="/rent/product/:id" element={<RentProductDetail />} />
+          <Route path="/rent/addresses" element={<RentAddresses />} />
+          <Route path="/rent/categories" element={<RentCategories />} />
           <Route path="/sell" element={<Sell />} />
           <Route path="/gift-cards" element={<GiftCards />} />
           <Route path="/browsing-history" element={<BrowsingHistory />} />
@@ -153,6 +158,7 @@ function AppContent() {
         </Routes>
       </main>
       {!isDashboard && <Footer />}
+      {isRentPage && <RentFooter />}
       {!isDashboard && !isAuthPage && <AIStylist />}
       <Toaster position="top-right" toastOptions={{
         style: {

@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import Product from '../models/Product.js';
 
 export const getProducts = async (req, res) => {
@@ -184,6 +185,10 @@ export const getProducts = async (req, res) => {
 
 export const getProductById = async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(404).json({ error: 'Product not found.' });
+    }
+
     const product = await Product.findById(req.params.id)
       .select('-styleEmbedding')
       .populate('sellerId', 'name avatar sellerProfile')
@@ -194,6 +199,9 @@ export const getProductById = async (req, res) => {
     }
     return res.json({ product });
   } catch (error) {
+    if (error.name === 'CastError') {
+      return res.status(404).json({ error: 'Product not found.' });
+    }
     console.error('Get product by ID error:', error);
     res.status(500).json({ error: 'Failed to fetch product.' });
   }
