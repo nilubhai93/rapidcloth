@@ -44,7 +44,7 @@ export default function DeliveryLayout() {
   useEffect(() => {
     const handleStorageChange = () => {
       const mode = localStorage.getItem('delivery_weather_mode') || 'cloudy';
-      setAppWeatherMode(mode);
+      setAppWeatherMode(prev => (prev !== mode ? mode : prev));
     };
 
     window.addEventListener('storage', handleStorageChange);
@@ -213,17 +213,20 @@ export default function DeliveryLayout() {
   // Countdown timer when shift completion modal is open
   useEffect(() => {
     if (!shiftCompleteModalOpen) return;
-    if (shiftCountdown <= 0) {
-      handleAutoOffline();
-      return;
-    }
 
     const timer = setInterval(() => {
-      setShiftCountdown(prev => prev - 1);
+      setShiftCountdown(prev => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          handleAutoOffline();
+          return 0;
+        }
+        return prev - 1;
+      });
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [shiftCompleteModalOpen, shiftCountdown]);
+  }, [shiftCompleteModalOpen]);
 
   // Automatic Background Monitor: Checks if booked shift slot time has expired
   useEffect(() => {

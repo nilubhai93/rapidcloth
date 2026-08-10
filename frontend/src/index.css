@@ -88,6 +88,12 @@ body {
   font-size: calc(16px * var(--font-scale, 1));
 }
 
+.navbar-fixed-container {
+  will-change: transform;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
 /* Ensure all scrollable containers scroll smoothly and support touch momentum */
 .categories-scroll-wrapper,
 [style*="overflow: auto"],

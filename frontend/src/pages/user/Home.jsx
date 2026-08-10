@@ -15,6 +15,9 @@ import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 import { useLanguage } from '../../context/LanguageContext';
 
+const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const BACKEND_URL = API_BASE.replace(/\/api\/?$/, '');
+
 const CarouselCard = memo(({ item }) => {
   const { addToCart, items } = useCart();
   const { isAuthenticated } = useAuth();
@@ -233,14 +236,23 @@ export default function Home() {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Automatic Single Banner Carousel state
-  const [displayIndex, setDisplayIndex] = useState(0);
+  // Automatic Single Banner Carousel state with bidirectional infinite loop
+  const N = singleDressSlides.length;
+
+  const extendedSlides = useMemo(() => [
+    singleDressSlides[N - 1], // Clone of last slide at index 0
+    ...singleDressSlides,      // Index 1..N
+    singleDressSlides[0]       // Clone of first slide at index N+1
+  ], [N]);
+
+  const [displayIndex, setDisplayIndex] = useState(1);
   const [isResetting, setIsResetting] = useState(false);
 
-  const activeBannerIndex = displayIndex % singleDressSlides.length;
-  const activeThemeRgb = singleDressSlides[activeBannerIndex]?.themeRgb || '185, 28, 28';
+  const activeBannerIndex = useMemo(() => {
+    return (displayIndex - 1 + N) % N;
+  }, [displayIndex, N]);
 
-  const extendedSlides = useMemo(() => [...singleDressSlides, singleDressSlides[0]], []);
+  const activeThemeRgb = singleDressSlides[activeBannerIndex]?.themeRgb || '185, 28, 28';
 
   const isSwipingRef = useRef(false);
   const bannerScrollRef = useRef(null);
@@ -254,6 +266,8 @@ export default function Home() {
   const timerRef = useRef(null);
   const categoriesScrollRef = useRef(null);
 
+  const videoRefs = useRef([]);
+
   useEffect(() => {
     const videoTimer = setInterval(() => {
       setStylistVideoIndex((prev) => (prev + 1) % 3);
@@ -261,25 +275,26 @@ export default function Home() {
     return () => clearInterval(videoTimer);
   }, []);
 
+  useEffect(() => {
+    videoRefs.current.forEach((el, idx) => {
+      if (el) {
+        if (idx === stylistVideoIndex) {
+          el.play().catch(() => {});
+        } else {
+          el.pause();
+        }
+      }
+    });
+  }, [stylistVideoIndex]);
+
   const nextBanner = useCallback(() => {
     if (isResetting || isSwipingRef.current) return;
     setDisplayIndex(prev => prev + 1);
   }, [isResetting]);
 
   const prevBanner = useCallback(() => {
-    if (isResetting) return;
-    setDisplayIndex(prev => {
-      if (prev === 0) {
-        const track = bannerScrollRef.current;
-        if (track && track.children[singleDressSlides.length]) {
-          track.style.scrollBehavior = 'auto';
-          const card = track.children[singleDressSlides.length];
-          track.scrollLeft = card.offsetLeft;
-        }
-        return singleDressSlides.length - 1;
-      }
-      return prev - 1;
-    });
+    if (isResetting || isSwipingRef.current) return;
+    setDisplayIndex(prev => prev - 1);
   }, [isResetting]);
 
   useEffect(() => {
@@ -292,49 +307,94 @@ export default function Home() {
 
   const isProgrammaticScrollRef = useRef(false);
 
+  // Initial centering alignment on mount
+  useEffect(() => {
+    const track = bannerScrollRef.current;
+    if (track && track.children[1]) {
+      const card = track.children[1];
+      const targetScrollLeft = card.offsetLeft - (track.clientWidth - card.clientWidth) / 2;
+      track.style.scrollBehavior = 'auto';
+      track.scrollLeft = targetScrollLeft;
+    }
+  }, []);
+
   useEffect(() => {
     const track = bannerScrollRef.current;
     if (!track || !track.children[displayIndex]) return;
 
     const card = track.children[displayIndex];
-    const targetScrollLeft = card.offsetLeft;
+    const targetScrollLeft = card.offsetLeft - (track.clientWidth - card.clientWidth) / 2;
 
     isProgrammaticScrollRef.current = true;
 
-    if (displayIndex === singleDressSlides.length) {
-      // Smooth scroll forward to cloned slide
+    if (displayIndex === N + 1) {
+      // Smooth scroll forward to cloned first slide
+      track.style.scrollBehavior = 'smooth';
       track.scrollTo({ left: targetScrollLeft, behavior: 'smooth' });
       setIsResetting(true);
 
       const timer = setTimeout(() => {
-        if (track) {
+        if (track && track.children[1]) {
           track.style.scrollBehavior = 'auto';
-          track.scrollLeft = 0;
+          const realFirstCard = track.children[1];
+          track.scrollLeft = realFirstCard.offsetLeft - (track.clientWidth - realFirstCard.clientWidth) / 2;
         }
-        setDisplayIndex(0);
+        setDisplayIndex(1);
         setIsResetting(false);
         isProgrammaticScrollRef.current = false;
-      }, 550);
+      }, 450);
+      return () => clearTimeout(timer);
+    } else if (displayIndex === 0) {
+      // Smooth scroll backward to cloned last slide
+      track.style.scrollBehavior = 'smooth';
+      track.scrollTo({ left: targetScrollLeft, behavior: 'smooth' });
+      setIsResetting(true);
+
+      const timer = setTimeout(() => {
+        if (track && track.children[N]) {
+          track.style.scrollBehavior = 'auto';
+          const realLastCard = track.children[N];
+          track.scrollLeft = realLastCard.offsetLeft - (track.clientWidth - realLastCard.clientWidth) / 2;
+        }
+        setDisplayIndex(N);
+        setIsResetting(false);
+        isProgrammaticScrollRef.current = false;
+      }, 450);
       return () => clearTimeout(timer);
     } else {
+      track.style.scrollBehavior = 'smooth';
       track.scrollTo({ left: targetScrollLeft, behavior: 'smooth' });
       const timer = setTimeout(() => {
         isProgrammaticScrollRef.current = false;
-      }, 550);
+      }, 450);
       return () => clearTimeout(timer);
     }
-  }, [displayIndex]);
+  }, [displayIndex, N]);
 
   const handleTrackScroll = useCallback(() => {
     if (isProgrammaticScrollRef.current || !isSwipingRef.current) return;
     const track = bannerScrollRef.current;
-    if (!track || !track.children[0]) return;
-    const cardWidth = track.children[0].offsetWidth + 14;
-    const newIdx = Math.round(track.scrollLeft / cardWidth);
-    if (newIdx >= 0 && newIdx < singleDressSlides.length && newIdx !== activeBannerIndex) {
-      setDisplayIndex(newIdx);
+    if (!track || !track.children[1]) return;
+
+    const trackCenter = track.scrollLeft + track.clientWidth / 2;
+    let closestIdx = 1;
+    let minDiff = Infinity;
+
+    for (let i = 0; i < extendedSlides.length; i++) {
+      const card = track.children[i];
+      if (!card) continue;
+      const cardCenter = card.offsetLeft + card.clientWidth / 2;
+      const diff = Math.abs(cardCenter - trackCenter);
+      if (diff < minDiff) {
+        minDiff = diff;
+        closestIdx = i;
+      }
     }
-  }, [activeBannerIndex]);
+
+    if (closestIdx !== displayIndex) {
+      setDisplayIndex(closestIdx);
+    }
+  }, [displayIndex, extendedSlides.length]);
 
   const handleTouchStart = () => {
     isSwipingRef.current = true;
@@ -496,6 +556,14 @@ export default function Home() {
 
       {/* ═══ Multi-Banner Slider (Rendered Direct on Root Page) ═══ */}
       <div className="fk-hero-container">
+        <button
+          className="fk-nav-btn fk-nav-prev"
+          onClick={prevBanner}
+          aria-label="Previous Slide"
+        >
+          <ChevronLeftIcon sx={{ fontSize: 24 }} />
+        </button>
+
         <div
           className="fk-track"
           ref={bannerScrollRef}
@@ -538,12 +606,20 @@ export default function Home() {
           ))}
         </div>
 
+        <button
+          className="fk-nav-btn fk-nav-next"
+          onClick={nextBanner}
+          aria-label="Next Slide"
+        >
+          <ChevronRightIcon sx={{ fontSize: 24 }} />
+        </button>
+
         <div className="fk-dots">
           {singleDressSlides.map((_, idx) => (
             <div
               key={idx}
               className={`fk-dot${idx === activeBannerIndex ? ' fk-dot-active' : ''}`}
-              onClick={() => setDisplayIndex(idx)}
+              onClick={() => setDisplayIndex(idx + 1)}
             />
           ))}
         </div>
@@ -570,24 +646,33 @@ export default function Home() {
           }}>
             {/* Video Carousel Background */}
             {[
-              { src: '/videos/men_model.mp4', label: "Men's Styling" },
-              { src: '/videos/women_model.mp4', label: "Women's Styling" },
-              { src: '/videos/kids_model.mp4', label: "Kids' Styling" }
-            ].map((media, vIdx) => (
-              <video
-                key={vIdx}
-                src={media.src}
-                title={media.label}
-                autoPlay muted loop playsInline
-                style={{
-                  position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover',
-                  opacity: vIdx === stylistVideoIndex ? 1 : 0,
-                  transition: 'opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1)',
-                  zIndex: vIdx === stylistVideoIndex ? 1 : 0,
-                  backgroundColor: '#1a1a1a'
-                }}
-              />
-            ))}
+              { src: `${BACKEND_URL}/uploads/videos/men_model.mp4`, poster: `${BACKEND_URL}/uploads/videos/men_model.png`, label: "Men's Styling" },
+              { src: `${BACKEND_URL}/uploads/videos/women_model.mp4`, poster: `${BACKEND_URL}/uploads/videos/women_model.png`, label: "Women's Styling" },
+              { src: `${BACKEND_URL}/uploads/videos/kids_model.mp4`, poster: `${BACKEND_URL}/uploads/videos/kids_model.png`, label: "Kids' Styling" }
+            ].map((media, vIdx) => {
+              const isActive = vIdx === stylistVideoIndex;
+              return (
+                <video
+                  key={vIdx}
+                  src={media.src}
+                  poster={media.poster}
+                  title={media.label}
+                  autoPlay={isActive}
+                  muted
+                  loop
+                  playsInline
+                  preload={isActive ? 'auto' : 'metadata'}
+                  ref={(el) => { videoRefs.current[vIdx] = el; }}
+                  style={{
+                    position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover',
+                    opacity: isActive ? 1 : 0,
+                    transition: 'opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1)',
+                    zIndex: isActive ? 1 : 0,
+                    backgroundColor: '#1a1a1a'
+                  }}
+                />
+              );
+            })}
 
             <div style={{
               position: 'absolute', inset: 0,
@@ -1716,23 +1801,49 @@ export default function Home() {
         .fk-hero-container {
           max-width: 1440px;
           margin: 0 auto;
-          padding: 16px 24px 20px;
+          padding: 12px 0 20px;
           display: flex;
           flex-direction: column;
           align-items: center;
           width: 100%;
           box-sizing: border-box;
           overflow: hidden;
+          position: relative;
         }
-        @media (min-width: 640px) {
-          .fk-hero-container {
-            padding: 16px 24px 20px;
-          }
+        .fk-nav-btn {
+          position: absolute;
+          top: 44%;
+          transform: translateY(-50%);
+          width: 40px;
+          height: 40px;
+          border-radius: 50%;
+          background: rgba(255, 255, 255, 0.9);
+          backdrop-filter: blur(8px);
+          border: 1px solid rgba(0, 0, 0, 0.08);
+          color: #1a1a1a;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          z-index: 10;
+          box-shadow: 0 4px 14px rgba(0,0,0,0.18);
+          transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        @media (min-width: 768px) {
-          .fk-hero-container {
-            padding: 16px 24px 20px;
+        .fk-nav-btn:hover {
+          background: #ffffff;
+          transform: translateY(-50%) scale(1.1);
+          box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+        }
+        .fk-nav-prev { left: 14px; }
+        .fk-nav-next { right: 14px; }
+        @media (max-width: 640px) {
+          .fk-nav-btn {
+            width: 34px;
+            height: 34px;
+            background: rgba(255, 255, 255, 0.95);
           }
+          .fk-nav-prev { left: 6px; }
+          .fk-nav-next { right: 6px; }
         }
         .fk-track {
           display: flex;
@@ -1740,15 +1851,15 @@ export default function Home() {
           overflow-x: auto;
           scrollbar-width: none;
           -ms-overflow-style: none;
-          padding: 10px 16px 20px 16px;
-          margin: 0 -16px;
-          width: calc(100% + 32px);
+          padding: 10px 0 20px 0;
+          width: 100%;
           box-sizing: border-box;
           -webkit-overflow-scrolling: touch;
+          scroll-snap-type: x mandatory;
         }
         .fk-track::-webkit-scrollbar { display: none; }
         .fk-card {
-          flex: 0 0 clamp(320px, 45vw, 620px);
+          flex: 0 0 clamp(260px, 80vw, 680px);
           height: clamp(180px, 22vw, 240px);
           border-radius: 20px;
           overflow: hidden;
@@ -1758,7 +1869,7 @@ export default function Home() {
           clip-path: inset(0 round 20px);
           transform: translateZ(0);
           position: relative;
-          scroll-snap-align: start;
+          scroll-snap-align: center;
           cursor: pointer;
           box-shadow: 0 8px 24px rgba(0,0,0,0.12);
           border: 1px solid rgba(255,255,255,0.22);
@@ -1911,7 +2022,8 @@ export default function Home() {
             padding: 2px 0 10px;
           }
           .fk-hero-container {
-            padding: 8px 14px 16px;
+            padding: 10px 14px 16px;
+            margin-top: 21px;
           }
           .fk-track {
             gap: 12px;

@@ -99,7 +99,10 @@ export default function DeliveryNavbar() {
     setDutySeconds(calcSeconds());
 
     const timer = setInterval(() => {
-      setDutySeconds(calcSeconds());
+      setDutySeconds(prev => {
+        const val = calcSeconds();
+        return prev !== val ? val : prev;
+      });
     }, 1000);
 
     return () => clearInterval(timer);

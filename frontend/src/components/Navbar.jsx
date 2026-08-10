@@ -6,20 +6,108 @@ import { useCart } from '../context/CartContext';
 import { useLanguage } from '../context/LanguageContext';
 import api from '../api/index';
 
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCartOutlined';
-import PersonOutlineIcon from '@mui/icons-material/PersonOutline';
-import SearchIcon from '@mui/icons-material/SearchRounded';
-import MenuIcon from '@mui/icons-material/MenuRounded';
-import PlaceIcon from '@mui/icons-material/PlaceOutlined';
-import TranslateIcon from '@mui/icons-material/Translate';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMoreRounded';
-import CloseIcon from '@mui/icons-material/CloseRounded';
-import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
-import PhotoCameraRoundedIcon from '@mui/icons-material/PhotoCameraRounded';
-import PhotoLibraryRoundedIcon from '@mui/icons-material/PhotoLibraryRounded';
-import MicRoundedIcon from '@mui/icons-material/MicRounded';
-import CheckroomIcon from '@mui/icons-material/CheckroomRounded';
-import ArrowBackRoundedIcon from '@mui/icons-material/ArrowBackRounded';
+// Zero-Overhead Lightweight SVG Icon Components (No MUI/Emotion runtime overhead)
+const SearchIcon = ({ className = "w-5 h-5", style = {} }) => (
+  <svg className={className} style={{ width: style.fontSize || '20px', height: style.fontSize || '20px', color: style.color || 'currentColor', ...style }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="11" cy="11" r="7" />
+    <line x1="21" y1="21" x2="16.35" y2="16.35" />
+  </svg>
+);
+
+const ShoppingCartIcon = ({ className = "w-5 h-5", style = {} }) => (
+  <svg className={className} style={{ width: style.fontSize || '20px', height: style.fontSize || '20px', color: style.color || 'currentColor', ...style }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="9" cy="21" r="1" />
+    <circle cx="20" cy="21" r="1" />
+    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
+  </svg>
+);
+
+const PersonOutlineIcon = ({ className = "w-5 h-5", style = {} }) => (
+  <svg className={className} style={{ width: style.fontSize || '20px', height: style.fontSize || '20px', color: style.color || 'currentColor', ...style }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+    <circle cx="12" cy="7" r="4" />
+  </svg>
+);
+
+const MenuIcon = ({ className = "w-5 h-5", style = {} }) => (
+  <svg className={className} style={{ width: style.fontSize || '20px', height: style.fontSize || '20px', color: style.color || 'currentColor', ...style }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="3" y1="12" x2="21" y2="12" />
+    <line x1="3" y1="6" x2="21" y2="6" />
+    <line x1="3" y1="18" x2="21" y2="18" />
+  </svg>
+);
+
+const PlaceIcon = ({ className = "w-5 h-5", style = {} }) => (
+  <svg className={className} style={{ width: style.fontSize || '20px', height: style.fontSize || '20px', color: style.color || 'currentColor', ...style }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+    <circle cx="12" cy="10" r="3" />
+  </svg>
+);
+
+const TranslateIcon = ({ className = "w-5 h-5", style = {} }) => (
+  <svg className={className} style={{ width: style.fontSize || '20px', height: style.fontSize || '20px', color: style.color || 'currentColor', ...style }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="9" />
+    <line x1="3.6" y1="9" x2="20.4" y2="9" />
+    <line x1="3.6" y1="15" x2="20.4" y2="15" />
+    <path d="M11.5 3a17 17 0 0 0 0 18" />
+    <path d="M12.5 3a17 17 0 0 1 0 18" />
+  </svg>
+);
+
+const ExpandMoreIcon = ({ className = "w-5 h-5", style = {} }) => (
+  <svg className={className} style={{ width: style.fontSize || '20px', height: style.fontSize || '20px', color: style.color || 'currentColor', ...style }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="6 9 12 15 18 9" />
+  </svg>
+);
+
+const CloseIcon = ({ className = "w-5 h-5", style = {} }) => (
+  <svg className={className} style={{ width: style.fontSize || '20px', height: style.fontSize || '20px', color: style.color || 'currentColor', ...style }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="18" y1="6" x2="6" y2="18" />
+    <line x1="6" y1="6" x2="18" y2="18" />
+  </svg>
+);
+
+const AutoAwesomeIcon = ({ className = "w-4 h-4", style = {} }) => (
+  <svg className={className} style={{ width: style.fontSize || '16px', height: style.fontSize || '16px', color: style.color || 'currentColor', ...style }} viewBox="0 0 24 24" fill="currentColor">
+    <path d="m19 9 1.25-2.75L23 5l-2.75-1.25L19 1l-1.25 2.75L15 5l2.75 1.25zm-7.5.5L9 4 6.5 9.5 1 12l5.5 2.5L9 20l2.5-5.5L17 12zM19 15l-1.25 2.75L15 19l2.75 1.25L19 23l1.25-2.75L23 19l-2.75-1.25z" />
+  </svg>
+);
+
+const PhotoCameraRoundedIcon = ({ className = "w-5 h-5", style = {}, sx = {} }) => (
+  <svg className={className} style={{ width: sx?.fontSize || style?.fontSize || '20px', height: sx?.fontSize || style?.fontSize || '20px', color: style?.color || 'currentColor', ...style }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+    <circle cx="12" cy="13" r="4" />
+  </svg>
+);
+
+const PhotoLibraryRoundedIcon = ({ className = "w-5 h-5", style = {}, sx = {} }) => (
+  <svg className={className} style={{ width: sx?.fontSize || style?.fontSize || '20px', height: sx?.fontSize || style?.fontSize || '20px', color: style?.color || 'currentColor', ...style }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+    <circle cx="8.5" cy="8.5" r="1.5" />
+    <polyline points="21 15 16 10 5 21" />
+  </svg>
+);
+
+const MicRoundedIcon = ({ className = "w-5 h-5", style = {} }) => (
+  <svg className={className} style={{ width: style.fontSize || '20px', height: style.fontSize || '20px', color: style.color || 'currentColor', ...style }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z" />
+    <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+    <line x1="12" y1="19" x2="12" y2="22" />
+  </svg>
+);
+
+const CheckroomIcon = ({ className = "w-5 h-5", style = {} }) => (
+  <svg className={className} style={{ width: style.fontSize || '20px', height: style.fontSize || '20px', color: style.color || 'currentColor', ...style }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M12 4a2 2 0 0 0-2 2c0 1.1.9 2 2 2a2 2 0 0 1 2 2c0 .9-.6 1.7-1.5 1.9L4 15v3h16v-3l-8.5-3.1" />
+  </svg>
+);
+
+const ArrowBackRoundedIcon = ({ className = "w-5 h-5", style = {} }) => (
+  <svg className={className} style={{ width: style.fontSize || '20px', height: style.fontSize || '20px', color: style.color || 'currentColor', ...style }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="19" y1="12" x2="5" y2="12" />
+    <polyline points="12 19 5 12 12 5" />
+  </svg>
+);
 
 const SEARCH_PLACEHOLDERS = [
   " Banarasi Silk Sarees...",
@@ -77,24 +165,37 @@ export default function Navbar() {
     setTimeout(() => setClickedCatId(null), 450);
   };
 
-  // Smooth Scroll-driven Navbar Transformation
+  // Butter-Smooth 60fps Scroll-driven Navbar Transformation
   useEffect(() => {
-    const handleScroll = () => {
+    let lastY = window.scrollY;
+    let ticking = false;
+
+    const updateHeader = () => {
       const currentScrollY = window.scrollY;
-      if (currentScrollY <= 20) {
+      const diff = currentScrollY - lastY;
+
+      if (currentScrollY <= 30) {
         setShowFullHeader(true);
-      } else if (currentScrollY > lastScrollY.current + 5) {
-        // Scroll down: collapse top portion to show search bar row & categories
+      } else if (diff > 8) {
+        // Scrolling down: collapse top logo & address rows
         setShowFullHeader(false);
-      } else if (currentScrollY < lastScrollY.current - 5) {
-        // Scroll up: expand to full navbar
+      } else if (diff < -8) {
+        // Scrolling up: expand to full header
         setShowFullHeader(true);
       }
-      lastScrollY.current = currentScrollY;
+      lastY = currentScrollY;
+      ticking = false;
     };
 
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    const onScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(updateHeader);
+        ticking = true;
+      }
+    };
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
   // Cycling search placeholder animation
@@ -372,75 +473,79 @@ export default function Navbar() {
           <div className="md:hidden bg-white px-3.5 py-2.5 flex flex-col gap-2.5 border-b border-slate-200/80 shadow-xs">
 
             {/* ROW 1 & ROW 2: ANIMATED COLLAPSIBLE CONTAINER ON SCROLL */}
-            <motion.div
-              initial={false}
-              animate={{
-                height: showFullHeader ? 'auto' : 0,
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateRows: showFullHeader ? '1fr' : '0fr',
                 opacity: showFullHeader ? 1 : 0,
+                transition: 'grid-template-rows 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s ease',
               }}
-              transition={{ duration: 0.28, ease: [0.4, 0, 0.2, 1] }}
-              style={{ overflow: 'hidden', display: 'flex', flexDirection: 'column', gap: '10px' }}
             >
-              {/* ROW 1: BRAND LOGO ON LEFT & AI STYLIST HEADING/BUTTON ON RIGHT */}
-              <div className="flex items-center justify-between w-full">
-                <Link to="/shop" className="flex items-center gap-2 text-[#14327a] font-black tracking-tight text-decoration-none shrink-0">
-                  <div className="w-8 h-8 rounded-2xl bg-gradient-to-tr from-[#14327a] via-[#2874f0] to-[#ffe500] text-white flex items-center justify-center font-black shadow-xs text-sm">
-                    R
-                  </div>
-                  <div className="flex flex-col leading-none text-left">
-                    <span className="font-black text-base tracking-tight bg-gradient-to-r from-[#14327a] via-[#2874f0] to-[#14327a] bg-clip-text text-transparent">
-                      RapidCloth
-                    </span>
-                    <span className="text-[8px] font-extrabold text-slate-400 tracking-wider uppercase mt-0.5">
-                      Fashion &amp; Apparel Hub
-                    </span>
-                  </div>
-                </Link>
+              <div style={{ minHeight: 0, overflow: 'hidden' }}>
+                <div className="flex flex-col gap-2.5 pb-2">
+                  {/* ROW 1: BRAND LOGO ON LEFT & AI STYLIST HEADING/BUTTON ON RIGHT */}
+                  <div className="flex items-center justify-between w-full min-w-0" style={{ padding: '10px' }}>
+                    <Link to="/shop" className="flex items-center gap-1.5 text-[#14327a] font-black tracking-tight text-decoration-none shrink min-w-0">
+                      <div className="w-7 h-7 rounded-xl bg-gradient-to-tr from-[#14327a] via-[#2874f0] to-[#ffe500] text-white flex items-center justify-center font-black shadow-xs text-xs shrink-0">
+                        R
+                      </div>
+                      <div className="flex flex-col leading-none text-left min-w-0">
+                        <span className="font-black text-sm tracking-tight bg-gradient-to-r from-[#14327a] via-[#2874f0] to-[#14327a] bg-clip-text text-transparent truncate">
+                          RapidCloth
+                        </span>
+                        <span className="text-[7.5px] font-extrabold text-slate-400 tracking-wider uppercase mt-0.5 truncate">
+                          Fashion &amp; Apparel Hub
+                        </span>
+                      </div>
+                    </Link>
 
-                {/* AI Stylist Button / Heading */}
-                <button
-                  type="button"
-                  onClick={() => window.dispatchEvent(new CustomEvent('open-ai-stylist'))}
-                  className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-black text-white cursor-pointer border-none shadow-md hover:shadow-lg transition-all duration-200 shrink-0 whitespace-nowrap active:scale-95"
-                  style={{
-                    background: 'linear-gradient(135deg, #14327a 0%, #2874f0 50%, #8b5cf6 100%)'
-                  }}
-                >
-                  <AutoAwesomeIcon style={{ fontSize: '15px', color: '#ffe500' }} />
-                  <span>AI Stylist</span>
-                </button>
-              </div>
+                    {/* AI Stylist Button / Heading */}
+                    <button
+                      type="button"
+                      onClick={() => window.dispatchEvent(new CustomEvent('open-ai-stylist'))}
+                      className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-black text-white cursor-pointer border-none shadow-md hover:shadow-lg transition-all duration-200 shrink-0 whitespace-nowrap active:scale-95 ml-2"
+                      style={{
+                        background: 'linear-gradient(135deg, #14327a 0%, #2874f0 50%, #8b5cf6 100%)'
+                      }}
+                    >
+                      <AutoAwesomeIcon style={{ fontSize: '13px', color: '#ffe500' }} />
+                      <span>AI Stylist</span>
+                    </button>
+                  </div>
 
-              {/* ROW 2: ADDRESS BAR ONLY */}
-              <div
-                onClick={() => setAddressOpen(true)}
-                className="flex items-center gap-2.5 cursor-pointer py-2 px-3.5 bg-[#f0f5ff] hover:bg-[#e4edff] active:bg-[#dbeafe] border border-blue-200/90 rounded-2xl transition-all w-full shadow-2xs box-sizing-border"
-              >
-                <div className="w-7 h-7 rounded-xl bg-gradient-to-tr from-[#2874f0] to-[#1e4db7] text-white flex items-center justify-center shrink-0 shadow-2xs">
-                  <PlaceIcon style={{ fontSize: '16px' }} />
+                  {/* ROW 2: ADDRESS BAR ONLY */}
+                  <div
+                    onClick={() => setAddressOpen(true)}
+                    style={{ padding: '10px' }}
+                    className="flex items-center gap-2.5 cursor-pointer bg-[#f0f5ff] hover:bg-[#e4edff] active:bg-[#dbeafe] border border-blue-200/90 rounded-2xl transition-all w-full shadow-2xs box-sizing-border"
+                  >
+                    <div className="w-6.5 h-6.5 rounded-xl bg-gradient-to-tr from-[#2874f0] to-[#1e4db7] text-white flex items-center justify-center shrink-0 shadow-2xs">
+                      <PlaceIcon style={{ fontSize: '15px' }} />
+                    </div>
+                    <div className="flex flex-col min-w-0 text-left flex-1">
+                      <span className="text-[9px] text-[#2874f0] font-black uppercase tracking-wider leading-none">
+                        Deliver to
+                      </span>
+                      <span className="text-[11.5px] font-extrabold text-slate-900 truncate leading-tight mt-0.5">
+                        {(() => {
+                          const active = selectedAddress || user?.addresses?.find(a => a.isDefault) || user?.addresses?.[0];
+                          if (active) {
+                            if (active.type === 'pincode') return `Pincode: ${active.zip}`;
+                            return `${active.city || active.street || ''} ${active.zip || ''}`.trim();
+                          }
+                          return t('navbar.selectAddress') || 'Select delivery location';
+                        })()}
+                      </span>
+                    </div>
+                    <ExpandMoreIcon style={{ fontSize: '18px', color: '#2874f0' }} className={`transform transition-transform duration-200 ${addressOpen ? 'rotate-180' : ''}`} />
+                  </div>
                 </div>
-                <div className="flex flex-col min-w-0 text-left flex-1">
-                  <span className="text-[9.5px] text-[#2874f0] font-black uppercase tracking-wider leading-none">
-                    Deliver to
-                  </span>
-                  <span className="text-[12.5px] font-extrabold text-slate-900 truncate leading-tight mt-0.5">
-                    {(() => {
-                      const active = selectedAddress || user?.addresses?.find(a => a.isDefault) || user?.addresses?.[0];
-                      if (active) {
-                        if (active.type === 'pincode') return `Pincode: ${active.zip}`;
-                        return `${active.city || active.street || ''} ${active.zip || ''}`.trim();
-                      }
-                      return t('navbar.selectAddress') || 'Select delivery location';
-                    })()}
-                  </span>
-                </div>
-                <ExpandMoreIcon style={{ fontSize: '20px', color: '#2874f0' }} className={`transform transition-transform duration-200 ${addressOpen ? 'rotate-180' : ''}`} />
               </div>
-            </motion.div>
+            </div>
 
             {/* ROW 3: SEARCH BAR WITH CAMERA & MICROPHONE OPTIONS */}
             <form onSubmit={handleSearch} className="w-full relative">
-              <div className="relative flex items-center w-full bg-[#f8fafc] border border-slate-200/90 focus-within:border-[#2874f0] focus-within:bg-white rounded-2xl px-3 py-1.5 shadow-2xs transition-all">
+              <div style={{ padding: '10px' }} className="relative flex items-center w-full bg-[#f8fafc] border border-slate-200/90 focus-within:border-[#2874f0] focus-within:bg-white rounded-2xl shadow-2xs transition-all">
                 <SearchIcon style={{ fontSize: '19px', color: '#94a3b8' }} className="shrink-0 mr-1.5" />
                 <input
                   type="text"
@@ -494,8 +599,8 @@ export default function Navbar() {
                       to={cat.link}
                       onClick={() => handleCategoryClick(cat.id)}
                       className={`flex flex-col items-center justify-center gap-0.5 px-2 py-1 rounded-xl transition-colors duration-200 shrink-0 text-decoration-none min-w-[50px] ${cat.isActive
-                          ? 'bg-blue-50 text-[#2874f0] font-bold shadow-2xs'
-                          : 'text-slate-700 font-medium hover:bg-slate-50'
+                        ? 'bg-blue-50 text-[#2874f0] font-bold shadow-2xs'
+                        : 'text-slate-700 font-medium hover:bg-slate-50'
                         }`}
                     >
                       {/* ICON CONTAINER: Collapses to text-only on scroll */}
@@ -582,17 +687,17 @@ export default function Navbar() {
 
         {/* PART 1 (DESKTOP TOP PORTION): BRAND LOGO ON LEFT & ADDRESS BAR ON RIGHT */}
         {!isCartPage && (
-          <motion.div
-            initial={false}
-            animate={{
-              height: showFullHeader ? 'auto' : 0,
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateRows: showFullHeader ? '1fr' : '0fr',
               opacity: showFullHeader ? 1 : 0,
+              transition: 'grid-template-rows 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s ease',
             }}
-            transition={{ duration: 0.28, ease: [0.4, 0, 0.2, 1] }}
-            style={{ overflow: 'hidden' }}
           >
-            <div
-              className="hidden md:flex items-center"
+            <div style={{ minHeight: 0, overflow: 'hidden' }}>
+              <div
+                className="hidden md:flex items-center"
               style={{
                 width: '100%',
                 maxWidth: '1440px',
@@ -624,8 +729,8 @@ export default function Navbar() {
                 ref={addressRef}
                 onClick={(e) => { e.stopPropagation(); setAddressOpen(!addressOpen); }}
                 className={`flex items-center gap-2.5 cursor-pointer py-1.5 px-4 rounded-2xl transition-all text-gray-700 font-medium group shrink-0 min-w-[280px] lg:min-w-[340px] max-w-[380px] ${addressOpen
-                    ? 'bg-[#e4edff] border-2 border-[#2874f0] shadow-md ring-4 ring-blue-100/80'
-                    : 'bg-[#f0f5ff] hover:bg-[#e4edff] border border-blue-200/90 shadow-2xs'
+                  ? 'bg-[#e4edff] border-2 border-[#2874f0] shadow-md ring-4 ring-blue-100/80'
+                  : 'bg-[#f0f5ff] hover:bg-[#e4edff] border border-blue-200/90 shadow-2xs'
                   }`}
                 style={{
                   marginLeft: addressOpen ? '28px' : 'auto',
@@ -653,7 +758,8 @@ export default function Navbar() {
                 <ExpandMoreIcon className={`!text-lg text-gray-500 group-hover:text-[#2874f0] transition-transform duration-200 shrink-0 ${addressOpen ? 'rotate-180' : ''}`} />
               </div>
             </div>
-          </motion.div>
+          </div>
+        </div>
         )}
 
         {/* PART 2 (DESKTOP MIDDLE PORTION): SEARCH BAR & ACCOUNT, LANGUAGE, CART */}
@@ -1121,8 +1227,8 @@ export default function Navbar() {
             <Link
               to={isRentPage ? '/rent/cart' : '/cart'}
               className={`flex items-center gap-2.5 py-2 px-4 lg:px-5 text-white rounded-2xl transition-all duration-200 shadow-md hover:shadow-lg hover:scale-105 group text-decoration-none shrink-0 ${isCartPage
-                  ? 'bg-gradient-to-r from-[#14327a] via-[#2874f0] to-[#14327a] ring-2 ring-blue-300 border border-blue-400'
-                  : 'bg-gradient-to-r from-[#2874f0] to-[#14327a] hover:from-[#1e4db7] hover:to-[#0f2456]'
+                ? 'bg-gradient-to-r from-[#14327a] via-[#2874f0] to-[#14327a] ring-2 ring-blue-300 border border-blue-400'
+                : 'bg-gradient-to-r from-[#2874f0] to-[#14327a] hover:from-[#1e4db7] hover:to-[#0f2456]'
                 }`}
             >
               <div className="relative flex items-center justify-center">
@@ -1211,8 +1317,8 @@ export default function Navbar() {
                     <span
                       style={{ transition: 'all 0.28s cubic-bezier(0.4, 0, 0.2, 1)' }}
                       className={`whitespace-nowrap tracking-tight ${showFullHeader
-                          ? 'text-[10px] lg:text-[11px]'
-                          : 'text-[11px] lg:text-[12px] font-bold py-0.5 px-1.5'
+                        ? 'text-[10px] lg:text-[11px]'
+                        : 'text-[11px] lg:text-[12px] font-bold py-0.5 px-1.5'
                         }`}
                     >
                       {cat.title}
@@ -1704,7 +1810,7 @@ export default function Navbar() {
                   cursor: 'pointer', transition: 'all 0.2s ease'
                 }}>
                   <input type="file" accept="image/*" onChange={handleImageSelect} style={{ display: 'none' }} />
-                  <div style={{ width: '44px', height: '44px', borderRadius: '14px', background: 'rgba(40, 116, 240, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#2874f0', shrink: 0 }}>
+                  <div style={{ width: '44px', height: '44px', borderRadius: '14px', background: 'rgba(40, 116, 240, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#2874f0', flexShrink: 0 }}>
                     <PhotoLibraryRoundedIcon sx={{ fontSize: 24 }} />
                   </div>
                   <div>
@@ -1721,7 +1827,7 @@ export default function Navbar() {
                   cursor: 'pointer', transition: 'all 0.2s ease'
                 }}>
                   <input type="file" accept="image/*" capture="environment" onChange={handleImageSelect} style={{ display: 'none' }} />
-                  <div style={{ width: '44px', height: '44px', borderRadius: '14px', background: 'rgba(22, 163, 74, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#16a34a', shrink: 0 }}>
+                  <div style={{ width: '44px', height: '44px', borderRadius: '14px', background: 'rgba(22, 163, 74, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#16a34a', flexShrink: 0 }}>
                     <PhotoCameraRoundedIcon sx={{ fontSize: 24 }} />
                   </div>
                   <div>
