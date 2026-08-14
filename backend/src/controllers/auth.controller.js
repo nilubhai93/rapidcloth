@@ -2,6 +2,8 @@ import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 import BankDetail from '../models/BankDetail.js';
 
+
+
 const generateToken = (userId) => {
   return jwt.sign({ userId }, process.env.JWT_SECRET || 'rapidcloth_super_secret_jwt_key_2026', {
     expiresIn: process.env.JWT_EXPIRES_IN || '7d'
@@ -12,6 +14,14 @@ export const register = async (req, res) => {
   try {
     const { name, email, password, phone, role, vehicleType, vehicleNumber } = req.body;
 
+    if (!name || !email || !password) {
+
+      return res.status(400).json({
+        success: false,
+        message: "please fill the all field"
+      })
+    }
+
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(409).json({ error: 'Email already registered.' });
@@ -19,7 +29,16 @@ export const register = async (req, res) => {
 
     const validRole = ['user', 'seller', 'delivery', 'admin'].includes(role) ? role : 'user';
 
-    const userData = { name, email, password, phone, role: validRole };
+
+
+    const userData =
+    {
+      name,
+      email,
+      password,
+      phone,
+      role: validRole
+    };
     if (validRole === 'delivery' && vehicleType) {
       userData.deliveryProfile = {
         isOnline: false,
@@ -34,7 +53,7 @@ export const register = async (req, res) => {
     res.status(201).json({
       message: 'Registration successful',
       token,
-      user: user.toJSON()
+      user: user
     });
   } catch (error) {
     console.error('Register error:', error);
@@ -46,9 +65,9 @@ export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    if(!email || !password){
+    if (!email || !password) {
       return res.status(404).json({
-        message:"email and password are required"
+        message: "email and password are required"
       })
     }
 
@@ -57,12 +76,22 @@ export const login = async (req, res) => {
       return res.status(401).json({ error: 'Invalid email or password.' });
     }
 
-    const isMatch = await user.comparePassword(password);
-    if (!isMatch) {
-      return res.status(401).json({ error: 'Invalid email or password.' });
+    const comparePassword = await user.comparePassword(password);
+    if (!comparePassword) {
+      return res.status(401).json({
+        success: false,
+        message: "invalid credintials"
+
+      });
     }
 
+
     const token = generateToken(user._id);
+    res.cookie("token", token, {
+      httpOnly: true,
+      samesite: "strict",
+      maxAge: 24 * 60 * 60 * 1000
+    })
 
     res.json({
       message: 'Login successful',
@@ -93,7 +122,10 @@ export const sendOtp = async (req, res) => {
 
     console.log(`[OTP DEBUG] OTP for ${email}: ${otp}`);
 
-    res.json({ message: 'OTP sent successfully' });
+    res.status(200).json({
+      otp,
+      message: 'OTP sent successfully'
+    });
   } catch (error) {
     console.error('Send OTP error:', error);
     res.status(500).json({ error: 'Failed to send OTP.' });
@@ -103,10 +135,10 @@ export const sendOtp = async (req, res) => {
 export const verifyOtp = async (req, res) => {
   try {
     const { email, otp } = req.body;
-    const user = await User.findOne({ 
-      email, 
-      otp, 
-      otpExpires: { $gt: Date.now() } 
+    const user = await User.findOne({
+      email,
+      otp,
+      otpExpires: { $gt: Date.now() }
     });
 
     if (!user) {
@@ -123,7 +155,7 @@ export const verifyOtp = async (req, res) => {
     res.json({
       message: 'OTP verified successfully',
       token,
-      user: user.toJSON()
+      user: user
     });
   } catch (error) {
     console.error('Verify OTP error:', error);
@@ -184,7 +216,7 @@ export const getBankDetails = async (req, res) => {
 export const updateBankDetails = async (req, res) => {
   try {
     const { accountHolderName, accountNumber, bankName, ifscCode, branchName } = req.body;
-    
+
     let details = await BankDetail.findOne({ userId: req.user._id });
     if (details) {
       details.accountHolderName = accountHolderName;
@@ -203,7 +235,7 @@ export const updateBankDetails = async (req, res) => {
         branchName
       });
     }
-    
+
     res.json({ message: 'Bank details updated successfully', details });
   } catch (error) {
     console.error('Update bank details error:', error);
