@@ -93,10 +93,15 @@ export const login = async (req, res) => {
       maxAge: 24 * 60 * 60 * 1000
     })
 
+    const populatedUser = await User.findById(user._id)
+      .select('-password -chatHistory')
+      .populate('assignedZones')
+      .populate('zone');
+
     res.json({
       message: 'Login successful',
       token,
-      user: user.toJSON()
+      user: populatedUser.toJSON()
     });
   } catch (error) {
     console.error('Login error:', error);
@@ -165,7 +170,10 @@ export const verifyOtp = async (req, res) => {
 
 export const getProfile = async (req, res) => {
   try {
-    const user = await User.findById(req.user._id).select('-password -chatHistory');
+    const user = await User.findById(req.user._id)
+      .select('-password -chatHistory')
+      .populate('assignedZones')
+      .populate('zone');
     res.json({ user });
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch profile.' });

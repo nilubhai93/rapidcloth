@@ -41,15 +41,25 @@ export const optionalAuth = async (req, res, next) => {
 };
 
 export const adminOnly = (req, res, next) => {
-  if (req.user?.role !== 'admin') {
-    return res.status(403).json({ error: 'Admin access required.' });
+  if (req.user?.role !== 'admin' && req.user?.role !== 'superadmin') {
+    return res.status(403).json({ error: 'Admin or Superadmin access required.' });
   }
   next();
 };
 
+export const superAdminOnly = (req, res, next) => {
+  if (req.user?.role !== 'superadmin') {
+    return res.status(403).json({ error: 'Superadmin access required.' });
+  }
+  next();
+};
+
+export const isSuperAdmin = superAdminOnly;
+
 export const sellerOrAdmin = (req, res, next) => {
-  if (req.user?.role !== 'admin' && req.user?.role !== 'seller') {
+  if (req.user?.role !== 'admin' && req.user?.role !== 'superadmin' && req.user?.role !== 'seller') {
     return res.status(403).json({ error: 'Seller or Admin access required.' });
   }
   next();
 };
+
