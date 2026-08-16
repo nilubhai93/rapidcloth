@@ -99,6 +99,58 @@ const Sellers = () => {
     }
   };
 
+  const [editingSeller, setEditingSeller] = useState(null);
+  const [editFormData, setEditFormData] = useState({
+    storeName: '',
+    ownerName: '',
+    email: '',
+    phone: '',
+    zoneId: '',
+    address: '',
+    categories: '',
+    gstNumber: '',
+    status: 'approved'
+  });
+  const [updatingSeller, setUpdatingSeller] = useState(false);
+
+  const handleOpenEditModal = (seller) => {
+    setEditingSeller(seller);
+    setEditFormData({
+      storeName: seller.sellerProfile?.storeName || seller.storeName || seller.name || '',
+      ownerName: seller.name || seller.ownerName || seller.sellerProfile?.storeName || '',
+      email: seller.email || '',
+      phone: seller.phone || seller.sellerProfile?.businessPhone || seller.businessPhone || '',
+      zoneId: seller.zone?._id || seller.zone || (zones.length > 0 ? zones[0]._id : ''),
+      address: seller.sellerProfile?.businessAddress || seller.address || seller.businessAddress || '',
+      categories: seller.sellerProfile?.categories || seller.categories || 'Clothing',
+      gstNumber: seller.sellerProfile?.gstNumber || seller.gstNumber || '',
+      status: seller.approvalStatus || seller.status || (seller.role === 'seller' ? 'approved' : 'pending')
+    });
+  };
+
+  const handleSaveFullSeller = async (e) => {
+    e.preventDefault();
+    setUpdatingSeller(true);
+    try {
+      await superAdminApi.updateFullSeller(editingSeller._id, editFormData);
+      setEditingSeller(null);
+      fetchData();
+    } catch (err) {
+      alert(err.response?.data?.error || 'Failed to update seller');
+    } finally {
+      setUpdatingSeller(false);
+    }
+  };
+
+  const handleAssignZone = async (sellerId, newZoneId) => {
+    try {
+      await superAdminApi.updateSellerZone(sellerId, newZoneId);
+      fetchData();
+    } catch (err) {
+      alert(err.response?.data?.error || 'Failed to assign seller zone');
+    }
+  };
+
   return (
     <>
       <Navbar title="Sellers Directory" subtitle="Inspect registered sellers, vendor stores & customer seller applications" onToggleSidebar={toggleSidebar} />
@@ -203,13 +255,36 @@ const Sellers = () => {
                         </div>
                       </td>
                       <td>
-                        {seller.zone ? (
-                          <span className="badge badge-purple">
-                            🗺️ {seller.zone.name} ({seller.zone.code})
-                          </span>
-                        ) : (
-                          <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Unassigned</span>
-                        )}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', alignItems: 'flex-start' }}>
+                          {seller.zone ? (
+                            <span className="badge badge-purple">
+                              🗺️ {seller.zone.name} ({seller.zone.code})
+                            </span>
+                          ) : (
+                            <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Unassigned</span>
+                          )}
+                          <select
+                            value={seller.zone?._id || ''}
+                            onChange={(e) => handleAssignZone(seller._id, e.target.value)}
+                            className="form-select"
+                            style={{
+                              padding: '0.2rem 0.5rem',
+                              fontSize: '0.75rem',
+                              background: 'rgba(255, 255, 255, 0.05)',
+                              border: '1px solid rgba(255, 255, 255, 0.15)',
+                              color: '#ffffff',
+                              borderRadius: '6px',
+                              cursor: 'pointer'
+                            }}
+                          >
+                            <option value="" disabled>-- Edit / Assign Zone --</option>
+                            {zones.map((z) => (
+                              <option key={z._id} value={z._id} style={{ background: '#12121e', color: '#fff' }}>
+                                {z.name} ({z.code})
+                              </option>
+                            ))}
+                          </select>
+                        </div>
                       </td>
                       <td style={{ maxWidth: '200px' }}>
                         <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
@@ -234,20 +309,25 @@ const Sellers = () => {
                         )}
                       </td>
                       <td style={{ textAlign: 'right' }}>
-                        {isPending ? (
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '0.5rem' }}>
+                          {isPending && (
+                            <button
+                              onClick={() => handleApproveSeller(seller._id, seller.sellerProfile?.applicationId)}
+                              className="btn btn-primary btn-sm"
+                              disabled={approvingId === seller._id}
+                            >
+                              <CheckCircle size={14} />
+                              <span>{approvingId === seller._id ? 'Approving...' : 'Approve'}</span>
+                            </button>
+                          )}
                           <button
-                            onClick={() => handleApproveSeller(seller._id, seller.sellerProfile?.applicationId)}
-                            className="btn btn-primary btn-sm"
-                            disabled={approvingId === seller._id}
+                            onClick={() => handleOpenEditModal(seller)}
+                            className="btn btn-secondary btn-sm"
+                            style={{ background: 'rgba(59, 130, 246, 0.15)', color: '#60a5fa', border: '1px solid rgba(59, 130, 246, 0.3)' }}
                           >
-                            <CheckCircle size={14} />
-                            <span>{approvingId === seller._id ? 'Approving...' : 'Approve Seller'}</span>
+                            ✏️ Edit Seller
                           </button>
-                        ) : (
-                          <span style={{ fontSize: '0.8rem', color: '#34d399', fontWeight: 700 }}>
-                            Approved ✓
-                          </span>
-                        )}
+                        </div>
                       </td>
                     </tr>
                   );
@@ -386,6 +466,132 @@ const Sellers = () => {
           </div>
         </form>
       </Modal>
+
+      {/* Edit Seller Profile Modal */}
+      {editingSeller && (
+        <Modal
+          isOpen={true}
+          title={`Edit Seller: ${editingSeller.sellerProfile?.storeName || editingSeller.name}`}
+          onClose={() => setEditingSeller(null)}
+        >
+          <form onSubmit={handleSaveFullSeller} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+              <div>
+                <label className="form-label">Store Name</label>
+                <input
+                  type="text"
+                  className="form-input"
+                  value={editFormData.storeName}
+                  onChange={(e) => setEditFormData({ ...editFormData, storeName: e.target.value })}
+                  required
+                />
+              </div>
+              <div>
+                <label className="form-label">Owner Name</label>
+                <input
+                  type="text"
+                  className="form-input"
+                  value={editFormData.ownerName}
+                  onChange={(e) => setEditFormData({ ...editFormData, ownerName: e.target.value })}
+                  required
+                />
+              </div>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+              <div>
+                <label className="form-label">Email Address</label>
+                <input
+                  type="email"
+                  className="form-input"
+                  value={editFormData.email}
+                  onChange={(e) => setEditFormData({ ...editFormData, email: e.target.value })}
+                  required
+                />
+              </div>
+              <div>
+                <label className="form-label">Phone Number</label>
+                <input
+                  type="text"
+                  className="form-input"
+                  value={editFormData.phone}
+                  onChange={(e) => setEditFormData({ ...editFormData, phone: e.target.value })}
+                />
+              </div>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+              <div>
+                <label className="form-label">Assigned Zone</label>
+                <select
+                  className="form-select"
+                  value={editFormData.zoneId}
+                  onChange={(e) => setEditFormData({ ...editFormData, zoneId: e.target.value })}
+                >
+                  <option value="" disabled>Select Zone</option>
+                  {zones.map((z) => (
+                    <option key={z._id} value={z._id} style={{ background: '#12121e', color: '#fff' }}>
+                      {z.name} ({z.code})
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="form-label">Approval Status</label>
+                <select
+                  className="form-select"
+                  value={editFormData.status}
+                  onChange={(e) => setEditFormData({ ...editFormData, status: e.target.value })}
+                >
+                  <option value="approved">Approved (Active Seller)</option>
+                  <option value="pending">Pending Approval</option>
+                  <option value="rejected">Rejected</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label className="form-label">Business Address</label>
+              <input
+                type="text"
+                className="form-input"
+                value={editFormData.address}
+                onChange={(e) => setEditFormData({ ...editFormData, address: e.target.value })}
+              />
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+              <div>
+                <label className="form-label">Product Categories</label>
+                <input
+                  type="text"
+                  className="form-input"
+                  value={editFormData.categories}
+                  onChange={(e) => setEditFormData({ ...editFormData, categories: e.target.value })}
+                />
+              </div>
+              <div>
+                <label className="form-label">GSTIN / Business ID</label>
+                <input
+                  type="text"
+                  className="form-input"
+                  value={editFormData.gstNumber}
+                  onChange={(e) => setEditFormData({ ...editFormData, gstNumber: e.target.value })}
+                />
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '1rem' }}>
+              <button type="button" onClick={() => setEditingSeller(null)} className="btn btn-secondary">
+                Cancel
+              </button>
+              <button type="submit" disabled={updatingSeller} className="btn btn-primary">
+                {updatingSeller ? 'Saving...' : 'Update & Save Seller'}
+              </button>
+            </div>
+          </form>
+        </Modal>
+      )}
     </>
   );
 };

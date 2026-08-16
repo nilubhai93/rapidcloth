@@ -11,7 +11,7 @@ import AccountBalanceIcon from '@mui/icons-material/AccountBalanceRounded';
 import VerifiedIcon from '@mui/icons-material/VerifiedRounded';
 
 export default function Profile() {
-  const { user, logout, updateProfile, isAuthenticated } = useAuth();
+  const { user, logout, updateProfile, isAuthenticated, openLoginModal } = useAuth();
   const navigate = useNavigate();
   const [editing, setEditing] = useState(false);
   const [form, setForm] = useState({
@@ -46,7 +46,7 @@ export default function Profile() {
     return (
       <div className="container" style={{ padding: '80px 24px', textAlign: 'center' }}>
         <h2 style={{ marginBottom: '16px' }}>Please sign in</h2>
-        <Link to="/login" className="btn btn-primary">Sign In</Link>
+        <button onClick={openLoginModal} className="btn btn-primary" style={{ padding: '12px 28px', background: '#2563eb', color: '#fff', borderRadius: '10px', fontWeight: 700, border: 'none', cursor: 'pointer' }}>Sign In</button>
       </div>
     );
   }

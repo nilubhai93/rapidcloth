@@ -121,7 +121,7 @@ const SEARCH_PLACEHOLDERS = [
 ];
 
 export default function Navbar() {
-  const { isAuthenticated, user, logout } = useAuth();
+  const { isAuthenticated, user, logout, openLoginModal } = useAuth();
   const { itemCount } = useCart();
   const { language, setLanguage, t } = useLanguage();
   const navigate = useNavigate();
@@ -1136,7 +1136,7 @@ export default function Navbar() {
                           ) : (
                             <div style={{ padding: '10px 0' }}>
                               <button
-                                onClick={() => { setProfileOpen(false); navigate('/login'); }}
+                                onClick={() => { setProfileOpen(false); openLoginModal(); }}
                                 style={{
                                   width: '100%', background: '#2874f0', color: 'white',
                                   padding: '10px', borderRadius: '10px', fontWeight: 700, border: 'none', cursor: 'pointer', marginBottom: '10px'
@@ -1145,7 +1145,7 @@ export default function Navbar() {
                                 {t('navbar.signIn')}
                               </button>
                               <p style={{ fontSize: '11px', textAlign: 'center', color: '#64748b' }}>
-                                {t('navbar.newCustomer')} <Link to="/register" onClick={() => setProfileOpen(false)} style={{ color: '#2874f0', fontWeight: 700 }}>{t('navbar.startHere')}</Link>
+                                {t('navbar.newCustomer')} <button onClick={() => { setProfileOpen(false); openLoginModal(); }} style={{ color: '#2874f0', fontWeight: 700, background: 'none', border: 'none', cursor: 'pointer' }}>{t('navbar.startHere')}</button>
                               </p>
                             </div>
                           )}
@@ -1759,7 +1759,7 @@ export default function Navbar() {
                 {isAuthenticated ? (
                   <div onClick={() => { setSidebarOpen(false); logout(); }} style={{ display: 'block', padding: '12px 36px', color: '#dc2626', cursor: 'pointer', fontSize: '14px', fontWeight: 700 }}>Sign Out</div>
                 ) : (
-                  <Link to="/login" onClick={() => setSidebarOpen(false)} style={{ display: 'block', padding: '12px 36px', color: '#2874f0', textDecoration: 'none', fontSize: '14px', fontWeight: 700 }}>Sign In</Link>
+                  <div onClick={() => { setSidebarOpen(false); openLoginModal(); }} style={{ display: 'block', padding: '12px 36px', color: '#2874f0', cursor: 'pointer', fontSize: '14px', fontWeight: 700 }}>Sign In</div>
                 )}
               </div>
             </motion.div>

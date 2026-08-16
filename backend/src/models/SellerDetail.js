@@ -85,6 +85,11 @@ const sellerDetailSchema = new mongoose.Schema({
   isActive: {
     type: Boolean,
     default: true
+  },
+  zone: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Zone',
+    default: null
   }
 }, {
   timestamps: true,

@@ -20,6 +20,7 @@ import AdminSettings from './pages/admin/AdminSettings';
 import AdminNotifications from './pages/admin/AdminNotifications';
 import AdminProfile from './pages/admin/AdminProfile';
 import AdminDelivery from './pages/admin/AdminDelivery';
+import AdminZoneSellers from './pages/admin/AdminZoneSellers';
 
 import './App.css';
 
@@ -38,6 +39,7 @@ function AppContent() {
           {/* Admin Portal Routes */}
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<AdminOverview />} />
+            <Route path="zone-sellers" element={<AdminZoneSellers />} />
             <Route path="sellers" element={<AdminDashboard />} />
             <Route path="users" element={<AdminUsers />} />
             <Route path="orders" element={<AdminOrders />} />

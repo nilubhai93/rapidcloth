@@ -8,15 +8,16 @@ import TrendingUpIcon from '@mui/icons-material/TrendingUpRounded';
 import LocalShippingIcon from '@mui/icons-material/LocalShippingRounded';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoneyRounded';
 import InventoryIcon from '@mui/icons-material/Inventory2Rounded';
+import CircularProgress from '@mui/material/CircularProgress';
 
 const iconMap = {
-  PeopleIcon: <PeopleIcon />,
-  StorefrontIcon: <StorefrontIcon />,
-  ShoppingCartIcon: <ShoppingCartIcon />,
-  AttachMoneyIcon: <AttachMoneyIcon />,
-  LocalShippingIcon: <LocalShippingIcon />,
-  InventoryIcon: <InventoryIcon />,
-  TrendingUpIcon: <TrendingUpIcon />
+  PeopleIcon: <PeopleIcon sx={{ fontSize: 16 }} />,
+  StorefrontIcon: <StorefrontIcon sx={{ fontSize: 16 }} />,
+  ShoppingCartIcon: <ShoppingCartIcon sx={{ fontSize: 16 }} />,
+  AttachMoneyIcon: <AttachMoneyIcon sx={{ fontSize: 16 }} />,
+  LocalShippingIcon: <LocalShippingIcon sx={{ fontSize: 16 }} />,
+  InventoryIcon: <InventoryIcon sx={{ fontSize: 16 }} />,
+  TrendingUpIcon: <TrendingUpIcon sx={{ fontSize: 16 }} />
 };
 
 export default function AdminOverview() {
@@ -28,8 +29,8 @@ export default function AdminOverview() {
     const fetchStats = async () => {
       try {
         const res = await api.get('/admin/stats');
-        setStats(res.data.stats);
-        setRecentActivity(res.data.recentActivity);
+        setStats(res.data.stats || []);
+        setRecentActivity(res.data.recentActivity || []);
       } catch (error) {
         console.error('Error fetching admin stats:', error);
       } finally {
@@ -41,63 +42,65 @@ export default function AdminOverview() {
 
   if (loading) {
     return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '400px' }}>
-        <div className="loader"></div>
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '300px' }}>
+        <CircularProgress size={28} sx={{ color: '#FF6B6B' }} />
       </div>
     );
   }
 
   return (
-    <div>
-      <div style={{ marginBottom: '32px' }}>
-        <h1 style={{ fontSize: 'clamp(24px, 4vw, 36px)', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.5px' }}>
-          Welcome back, Admin
+    <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
+      {/* Header */}
+      <div style={{ marginBottom: '12px' }}>
+        <h1 style={{ fontSize: '17px', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.2px', margin: 0 }}>
+          Dashboard Overview
         </h1>
-        <p style={{ color: 'var(--text-muted)', fontSize: '15px', marginTop: '8px' }}>
+        <p style={{ color: 'var(--text-muted)', fontSize: '11px', marginTop: '1px', margin: 0, fontWeight: 500 }}>
           Here's what's happening across your platform today.
         </p>
       </div>
 
-      {/* Stats Grid */}
+      {/* Compact High-Density Stats Grid */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
-        gap: '16px', marginBottom: '32px'
+        gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))',
+        gap: '10px', marginBottom: '16px'
       }}>
         {stats.map((stat, i) => (
           <motion.div
             key={stat.label}
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.08 }}
+            transition={{ delay: i * 0.05 }}
             style={{
               background: 'var(--bg-card)',
               border: '1px solid var(--border)',
-              borderRadius: '16px',
-              padding: '24px',
+              borderRadius: '10px',
+              padding: '12px 14px',
               position: 'relative',
-              overflow: 'hidden'
+              overflow: 'hidden',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.03)'
             }}
           >
             <div style={{
-              position: 'absolute', top: '-10px', right: '-10px',
-              width: '60px', height: '60px', borderRadius: '50%',
+              position: 'absolute', top: '-8px', right: '-8px',
+              width: '45px', height: '45px', borderRadius: '50%',
               background: stat.color, opacity: 0.08
             }} />
             <div style={{
-              width: '40px', height: '40px', borderRadius: '10px',
+              width: '28px', height: '28px', borderRadius: '6px',
               background: `${stat.color}20`, color: stat.color,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              marginBottom: '16px'
+              marginBottom: '10px'
             }}>
               {iconMap[stat.icon]}
             </div>
-            <div style={{ fontSize: '26px', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '4px' }}>
+            <div style={{ fontSize: '20px', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '2px', lineHeight: 1.1 }}>
               {stat.value}
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontSize: '13px', color: 'var(--text-muted)', fontWeight: 500 }}>{stat.label}</span>
-              <span style={{ fontSize: '12px', color: '#10b981', fontWeight: 700, background: 'rgba(16,185,129,0.1)', padding: '2px 8px', borderRadius: '20px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '6px' }}>
+              <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 600 }}>{stat.label}</span>
+              <span style={{ fontSize: '10px', color: '#10b981', fontWeight: 700, background: 'rgba(16,185,129,0.1)', padding: '1px 6px', borderRadius: '10px' }}>
                 {stat.change}
               </span>
             </div>
@@ -105,27 +108,32 @@ export default function AdminOverview() {
         ))}
       </div>
 
-      {/* Recent Activity */}
+      {/* Recent Activity (Compact & Structured) */}
       <div style={{
         background: 'var(--bg-card)',
         border: '1px solid var(--border)',
-        borderRadius: '16px',
-        padding: '24px'
+        borderRadius: '10px',
+        padding: '14px 16px',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.03)'
       }}>
-        <h2 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '20px' }}>
+        <h2 style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '10px', margin: 0 }}>
           Recent Activity
         </h2>
-        {recentActivity.length > 0 ? recentActivity.map((activity, i) => (
-          <div key={i} style={{
-            display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-            padding: '14px 0',
-            borderBottom: i < recentActivity.length - 1 ? '1px solid var(--border)' : 'none'
-          }}>
-            <span style={{ fontSize: '14px', color: 'var(--text-primary)', fontWeight: 500 }}>{activity.text}</span>
-            <span style={{ fontSize: '12px', color: 'var(--text-muted)', whiteSpace: 'nowrap', marginLeft: '16px' }}>{activity.time}</span>
+        {recentActivity.length > 0 ? (
+          recentActivity.map((activity, i) => (
+            <div key={i} style={{
+              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+              padding: '8px 0',
+              borderBottom: i < recentActivity.length - 1 ? '1px solid var(--border)' : 'none'
+            }}>
+              <span style={{ fontSize: '12px', color: 'var(--text-primary)', fontWeight: 500 }}>{activity.text}</span>
+              <span style={{ fontSize: '10px', color: 'var(--text-muted)', whiteSpace: 'nowrap', marginLeft: '12px' }}>{activity.time}</span>
+            </div>
+          ))
+        ) : (
+          <div style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '12px', fontSize: '11px' }}>
+            No recent activity to show
           </div>
-        )) : (
-          <div style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '20px' }}>No recent activity to show</div>
         )}
       </div>
     </div>

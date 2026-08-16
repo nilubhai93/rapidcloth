@@ -12,6 +12,8 @@ import {
   getFilteredSellers,
   createSeller,
   approveSellerApplication,
+  updateSellerZone,
+  updateFullSellerDetails,
   getFilteredDeliveryPartners,
   createDeliveryPartner,
   getFilteredCustomers
@@ -42,6 +44,8 @@ router.get('/analytics/zone-overview', getZoneAnalytics);
 router.get('/sellers', getFilteredSellers);
 router.post('/sellers', createSeller);
 router.put('/sellers/approve/:sellerId', approveSellerApplication);
+router.put('/sellers/:sellerId/zone', updateSellerZone);
+router.put('/sellers/:sellerId/full', updateFullSellerDetails);
 router.get('/delivery-partners', getFilteredDeliveryPartners);
 router.post('/delivery-partners', createDeliveryPartner);
 router.get('/customers', getFilteredCustomers);

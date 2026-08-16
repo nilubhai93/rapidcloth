@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import CircularProgress from '@mui/material/CircularProgress';
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCartRounded';
 import api from '../../api/index';
 
 export default function AdminOrders() {
@@ -35,58 +36,64 @@ export default function AdminOrders() {
   if (isLoading) {
     return (
       <div style={{ minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <CircularProgress sx={{ color: '#FF6B6B' }} />
+        <CircularProgress size={28} sx={{ color: '#FF6B6B' }} />
       </div>
     );
   }
 
   return (
-    <div>
-      <div style={{ marginBottom: '24px' }}>
-        <h1 style={{ fontSize: 'clamp(24px, 4vw, 32px)', fontWeight: 800, color: 'var(--text-primary)' }}>All Orders</h1>
-        <p style={{ color: 'var(--text-muted)', fontSize: '14px', marginTop: '4px' }}>Monitor and manage platform orders</p>
+    <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
+      <div style={{ marginBottom: '12px' }}>
+        <h1 style={{ fontSize: '17px', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.2px', margin: 0, display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <ShoppingCartIcon sx={{ fontSize: 18, color: '#FF6B6B' }} />
+          All Orders
+        </h1>
+        <p style={{ color: 'var(--text-muted)', fontSize: '11px', marginTop: '1px', margin: 0, fontWeight: 500 }}>
+          Monitor and manage platform orders
+        </p>
       </div>
 
       {orders.length === 0 ? (
         <div style={{
-          padding: '60px 20px', textAlign: 'center',
-          background: 'var(--bg-card)', borderRadius: '16px', border: '1px solid var(--border)'
+          padding: '30px 16px', textAlign: 'center',
+          background: 'var(--bg-card)', borderRadius: '10px', border: '1px solid var(--border)'
         }}>
-          <p style={{ color: 'var(--text-muted)', fontSize: '15px' }}>No orders found yet.</p>
+          <ShoppingCartIcon sx={{ fontSize: 32, color: 'var(--text-muted)', marginBottom: '6px', opacity: 0.5 }} />
+          <p style={{ color: 'var(--text-muted)', fontSize: '12px', margin: 0 }}>No orders found yet.</p>
         </div>
       ) : (
-        <div style={{ display: 'grid', gap: '12px' }}>
+        <div style={{ display: 'grid', gap: '8px' }}>
           {orders.map((order, i) => {
             const s = getStatusStyle(order.status);
             return (
               <motion.div
                 key={order._id}
-                initial={{ opacity: 0, y: 10 }}
+                initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.04 }}
+                transition={{ delay: i * 0.03 }}
                 style={{
                   background: 'var(--bg-card)', border: '1px solid var(--border)',
-                  borderRadius: '14px', padding: '20px 24px',
+                  borderRadius: '8px', padding: '10px 12px',
                   display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                  flexWrap: 'wrap', gap: '12px'
+                  flexWrap: 'wrap', gap: '8px', boxShadow: '0 2px 6px rgba(0,0,0,0.02)'
                 }}
               >
                 <div>
-                  <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)' }}>
+                  <div style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-primary)' }}>
                     Order #{order._id?.slice(-6).toUpperCase()}
                   </div>
-                  <div style={{ fontSize: '13px', color: 'var(--text-muted)', marginTop: '4px' }}>
-                    {order.userId?.name || 'Customer'} • {order.items?.length || 0} items • ₹{order.totalAmount || 0}
+                  <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '2px' }}>
+                    {order.userId?.name || 'Customer'} • {order.items?.length || 0} items • <strong style={{ color: '#10b981' }}>₹{order.totalAmount || 0}</strong>
                   </div>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <span style={{
-                    padding: '4px 12px', borderRadius: '20px', fontSize: '11px', fontWeight: 700,
+                    padding: '2px 6px', borderRadius: '10px', fontSize: '9px', fontWeight: 800,
                     background: s.bg, color: s.color, textTransform: 'uppercase'
                   }}>
                     {order.status}
                   </span>
-                  <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
+                  <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>
                     {new Date(order.createdAt).toLocaleDateString()}
                   </span>
                 </div>

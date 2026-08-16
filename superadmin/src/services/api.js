@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:5000/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -60,6 +60,8 @@ export const superAdminApi = {
   getSellers: (params) => api.get('/superadmin/sellers', { params }),
   createSeller: (data) => api.post('/superadmin/sellers', data),
   approveSeller: (sellerId, data) => api.put(`/superadmin/sellers/approve/${sellerId}`, data),
+  updateSellerZone: (sellerId, zoneId) => api.put(`/superadmin/sellers/${sellerId}/zone`, { zoneId }),
+  updateFullSeller: (sellerId, data) => api.put(`/superadmin/sellers/${sellerId}/full`, data),
   getDeliveryPartners: (params) => api.get('/superadmin/delivery-partners', { params }),
   createDeliveryPartner: (data) => api.post('/superadmin/delivery-partners', data),
   getCustomers: (params) => api.get('/superadmin/customers', { params })

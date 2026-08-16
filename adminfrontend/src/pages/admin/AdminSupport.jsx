@@ -1,7 +1,5 @@
 import { motion } from 'framer-motion';
 import SupportAgentIcon from '@mui/icons-material/SupportAgentRounded';
-import EmailIcon from '@mui/icons-material/EmailRounded';
-import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutlineRounded';
 
 export default function AdminSupport() {
   const tickets = [
@@ -22,14 +20,19 @@ export default function AdminSupport() {
   };
 
   return (
-    <div>
-      <div style={{ marginBottom: '24px' }}>
-        <h1 style={{ fontSize: 'clamp(24px, 4vw, 32px)', fontWeight: 800, color: 'var(--text-primary)' }}>Support Center</h1>
-        <p style={{ color: 'var(--text-muted)', fontSize: '14px', marginTop: '4px' }}>Manage user support tickets and inquiries</p>
+    <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
+      <div style={{ marginBottom: '12px' }}>
+        <h1 style={{ fontSize: '17px', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.2px', margin: 0, display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <SupportAgentIcon sx={{ fontSize: 18, color: '#FF6B6B' }} />
+          Support Center
+        </h1>
+        <p style={{ color: 'var(--text-muted)', fontSize: '11px', marginTop: '1px', margin: 0, fontWeight: 500 }}>
+          Manage user support tickets and customer inquiries
+        </p>
       </div>
 
       {/* Stats */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '14px', marginBottom: '24px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '10px', marginBottom: '12px' }}>
         {[
           { label: 'Open Tickets', value: '12', color: '#f59e0b' },
           { label: 'In Progress', value: '5', color: '#3b82f6' },
@@ -37,23 +40,23 @@ export default function AdminSupport() {
         ].map((s) => (
           <div key={s.label} style={{
             background: 'var(--bg-card)', border: '1px solid var(--border)',
-            borderRadius: '14px', padding: '20px'
+            borderRadius: '10px', padding: '10px 12px', boxShadow: '0 2px 8px rgba(0,0,0,0.03)'
           }}>
-            <div style={{ fontSize: '24px', fontWeight: 800, color: s.color }}>{s.value}</div>
-            <div style={{ fontSize: '13px', color: 'var(--text-muted)', marginTop: '4px', fontWeight: 500 }}>{s.label}</div>
+            <div style={{ fontSize: '20px', fontWeight: 800, color: s.color }}>{s.value}</div>
+            <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '2px', fontWeight: 600 }}>{s.label}</div>
           </div>
         ))}
       </div>
 
-      {/* Tickets */}
+      {/* Tickets Table */}
       <div style={{
         background: 'var(--bg-card)', border: '1px solid var(--border)',
-        borderRadius: '16px', overflow: 'hidden'
+        borderRadius: '10px', overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.03)'
       }}>
         <div style={{
-          display: 'grid', gridTemplateColumns: '80px 1.5fr 2fr 1fr 1fr',
-          padding: '14px 24px', background: 'var(--bg-elevated)',
-          fontSize: '12px', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px'
+          display: 'grid', gridTemplateColumns: '70px 1.5fr 2fr 1fr 1fr',
+          padding: '8px 12px', background: 'var(--bg-elevated)',
+          fontSize: '10px', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.4px'
         }}>
           <span>ID</span>
           <span>User</span>
@@ -69,26 +72,24 @@ export default function AdminSupport() {
               key={ticket.id}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: i * 0.05 }}
+              transition={{ delay: i * 0.04 }}
               style={{
-                display: 'grid', gridTemplateColumns: '80px 1.5fr 2fr 1fr 1fr',
-                padding: '14px 24px', borderTop: '1px solid var(--border)',
-                alignItems: 'center', fontSize: '14px', cursor: 'pointer',
-                transition: 'background 0.2s'
+                display: 'grid', gridTemplateColumns: '70px 1.5fr 2fr 1fr 1fr',
+                padding: '8px 12px', borderTop: '1px solid var(--border)',
+                alignItems: 'center', fontSize: '11px', cursor: 'pointer',
+                transition: 'background 0.15s'
               }}
-              onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-elevated)'}
-              onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
             >
-              <span style={{ fontWeight: 600, color: '#FF6B6B', fontSize: '13px' }}>{ticket.id}</span>
-              <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{ticket.user}</span>
+              <span style={{ fontWeight: 700, color: '#FF6B6B', fontSize: '11px' }}>{ticket.id}</span>
+              <span style={{ fontWeight: 700, color: 'var(--text-primary)' }}>{ticket.user}</span>
               <span style={{ color: 'var(--text-muted)' }}>{ticket.subject}</span>
               <span style={{
-                padding: '3px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: 700,
+                padding: '2px 6px', borderRadius: '10px', fontSize: '9px', fontWeight: 800,
                 background: s.bg, color: s.color, textTransform: 'uppercase', width: 'fit-content'
               }}>
                 {ticket.status}
               </span>
-              <span style={{ color: 'var(--text-muted)', fontSize: '13px' }}>{ticket.date}</span>
+              <span style={{ color: 'var(--text-muted)', fontSize: '10px' }}>{ticket.date}</span>
             </motion.div>
           );
         })}

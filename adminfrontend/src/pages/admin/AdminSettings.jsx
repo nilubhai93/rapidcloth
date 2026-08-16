@@ -63,34 +63,38 @@ export default function AdminSettings() {
   };
 
   const inputStyle = {
-    width: '100%', padding: '12px 16px', borderRadius: '10px',
+    width: '100%', padding: '6px 10px', borderRadius: '6px',
     background: 'var(--bg-elevated)', border: '1px solid var(--border)',
-    color: 'var(--text-primary)', fontSize: '14px', outline: 'none',
-    fontFamily: 'inherit'
+    color: 'var(--text-primary)', fontSize: '11px', outline: 'none',
+    fontFamily: 'inherit', boxSizing: 'border-box'
   };
 
   const labelStyle = {
-    fontSize: '13px', fontWeight: 600, color: 'var(--text-muted)',
-    marginBottom: '6px', display: 'block'
+    fontSize: '11px', fontWeight: 700, color: 'var(--text-muted)',
+    marginBottom: '4px', display: 'block'
   };
 
   return (
-    <div>
-      <div style={{ marginBottom: '24px' }}>
-        <h1 style={{ fontSize: 'clamp(24px, 4vw, 32px)', fontWeight: 800, color: 'var(--text-primary)' }}>Settings & Zone Admin Profile</h1>
-        <p style={{ color: 'var(--text-muted)', fontSize: '14px', marginTop: '4px' }}>Admin account profile, assigned operational zones, and map geofences</p>
+    <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
+      <div style={{ marginBottom: '12px' }}>
+        <h1 style={{ fontSize: '17px', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.2px', margin: 0, display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <MapIcon sx={{ fontSize: 18, color: '#FF6B6B' }} />
+          Settings & Zone Admin Profile
+        </h1>
+        <p style={{ color: 'var(--text-muted)', fontSize: '11px', marginTop: '1px', margin: 0, fontWeight: 500 }}>Admin account profile, assigned operational zones, and map geofences</p>
       </div>
 
       {/* Admin Account Profile Card */}
       <motion.div
-        initial={{ opacity: 0, y: 10 }}
+        initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         style={{
           background: 'var(--bg-card)',
           border: '1px solid var(--border)',
-          borderRadius: '16px',
-          padding: '24px',
-          marginBottom: '24px'
+          borderRadius: '10px',
+          padding: '14px 16px',
+          marginBottom: '12px',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.03)'
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
@@ -249,11 +253,12 @@ export default function AdminSettings() {
 
                   {/* Interactive Map Geofence Preview */}
                   <div style={{
-                    height: '240px',
+                    height: '260px',
                     width: '100%',
-                    borderRadius: '10px',
+                    maxWidth: '600px',
+                    borderRadius: '8px',
                     overflow: 'hidden',
-                    marginBottom: '16px',
+                    marginBottom: '12px',
                     border: '1px solid var(--border)'
                   }}>
                     <MapContainer
@@ -299,57 +304,57 @@ export default function AdminSettings() {
                     </MapContainer>
                   </div>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
-                    <div>
+                  <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'flex-start' }}>
+                    <div style={{ width: '130px', flexShrink: 0 }}>
                       <label style={labelStyle}>Assigned Zone ID</label>
                       <div style={{
-                        padding: '10px 14px', borderRadius: '8px',
+                        padding: '6px 10px', borderRadius: '6px',
                         background: 'var(--bg-card)', border: '1px solid rgba(139, 92, 246, 0.4)',
-                        fontSize: '14px', fontFamily: 'monospace', fontWeight: 800, color: '#c084fc', wordBreak: 'break-all'
+                        fontSize: '12px', fontFamily: 'monospace', fontWeight: 800, color: '#c084fc', textAlign: 'center'
                       }}>
                         {z.zoneId || `ZONE-${z.code}`}
                       </div>
                     </div>
 
-                    <div>
+                    <div style={{ flex: '1 1 200px' }}>
                       <label style={labelStyle}>City & Coordinates</label>
                       <div style={{
-                        padding: '10px 14px', borderRadius: '8px',
+                        padding: '6px 10px', borderRadius: '6px',
                         background: 'var(--bg-card)', border: '1px solid var(--border)',
-                        fontSize: '13px', fontWeight: 600, color: 'var(--text-primary)'
+                        fontSize: '11px', fontWeight: 600, color: 'var(--text-primary)'
                       }}>
                         {z.city} (📍 {lat}, {lng})
                       </div>
                     </div>
 
-                    <div>
+                    <div style={{ flex: '1 1 200px' }}>
                       <label style={labelStyle}>Covered Pincodes</label>
                       <div style={{
-                        padding: '10px 14px', borderRadius: '8px',
+                        padding: '6px 10px', borderRadius: '6px',
                         background: 'var(--bg-card)', border: '1px solid var(--border)',
-                        display: 'flex', flexWrap: 'wrap', gap: '6px'
+                        display: 'flex', flexWrap: 'wrap', gap: '4px'
                       }}>
                         {(z.pincodes && z.pincodes.length > 0) ? (
                           z.pincodes.map((pin, i) => (
                             <span key={i} style={{
                               background: 'rgba(255, 255, 255, 0.08)',
-                              padding: '2px 8px', borderRadius: '4px',
-                              fontSize: '12px', color: 'var(--text-primary)'
+                              padding: '1px 6px', borderRadius: '4px',
+                              fontSize: '10px', color: 'var(--text-primary)'
                             }}>
                               {pin}
                             </span>
                           ))
                         ) : (
-                          <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>No pincodes listed</span>
+                          <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>No pincodes listed</span>
                         )}
                       </div>
                     </div>
                   </div>
 
                   {z.description && (
-                    <div style={{ marginTop: '14px' }}>
+                    <div style={{ marginTop: '10px' }}>
                       <label style={labelStyle}>Description</label>
-                      <div style={{ fontSize: '13px', color: 'var(--text-muted)', background: 'var(--bg-card)', padding: '10px 14px', borderRadius: '8px', border: '1px solid var(--border)' }}>
+                      <div style={{ fontSize: '11px', color: 'var(--text-muted)', background: 'var(--bg-card)', padding: '6px 10px', borderRadius: '6px', border: '1px solid var(--border)' }}>
                         {z.description}
                       </div>
                     </div>
