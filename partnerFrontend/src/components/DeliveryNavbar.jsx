@@ -55,6 +55,33 @@ export default function DeliveryNavbar() {
     if (user?.role === 'delivery') fetchProfile();
   }, []);
 
+  // Background midnight auto-reset monitor (30s interval without continuous 1s re-renders)
+  useEffect(() => {
+    if (!user?.deliveryProfile) return;
+    const checkMidnightReset = () => {
+      const now = new Date();
+      const todayStr = getLocalDateStr(now);
+      const profileDate = user?.deliveryProfile?.lastOnlineDate;
+
+      if (profileDate && profileDate !== todayStr) {
+        const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        setUser(prev => prev ? ({
+          ...prev,
+          deliveryProfile: {
+            ...prev.deliveryProfile,
+            onlineSecondsToday: 0,
+            lastOnlineDate: todayStr,
+            lastOnlineStartTime: prev.deliveryProfile?.isOnline ? startOfToday.toISOString() : null
+          }
+        }) : prev);
+      }
+    };
+
+    checkMidnightReset();
+    const timer = setInterval(checkMidnightReset, 30000);
+    return () => clearInterval(timer);
+  }, [user?.deliveryProfile?.lastOnlineDate]);
+
   // Start Live Front Camera Stream exclusively
   const startLiveCamera = async () => {
     try {
@@ -219,7 +246,7 @@ export default function DeliveryNavbar() {
     try {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
-          () => {},
+          () => { },
           (err) => console.warn('Geolocation notice:', err.message),
           { enableHighAccuracy: false, timeout: 5000 }
         );
