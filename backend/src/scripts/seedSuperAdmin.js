@@ -22,8 +22,9 @@ const seedSuperAdminAndZones = async () => {
       console.log('✅ Superadmin created: superadmin@rapidcloth.com / SuperAdmin@123');
     } else {
       superAdmin.role = 'superadmin';
+      superAdmin.password = 'SuperAdmin@123';
       await superAdmin.save();
-      console.log('✅ Superadmin user verified.');
+      console.log('✅ Superadmin user verified and password set to SuperAdmin@123.');
     }
 
     // 2. Remove dummy seeded sellers/riders if present
