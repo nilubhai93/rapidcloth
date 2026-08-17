@@ -34,7 +34,6 @@ export default function DeliveryNavbar() {
   const [streamObj, setStreamObj] = useState(null);
 
   const isOnline = user?.deliveryProfile?.isOnline || false;
-  const [dutySeconds, setDutySeconds] = useState(0);
   const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 768);
 
   useEffect(() => {
@@ -55,58 +54,6 @@ export default function DeliveryNavbar() {
     };
     if (user?.role === 'delivery') fetchProfile();
   }, []);
-
-  // Calculate live real-time duty seconds and auto-reset past 12:00 AM midnight
-  useEffect(() => {
-    const calcSeconds = () => {
-      if (!user?.deliveryProfile) return 0;
-      const now = new Date();
-      const todayStr = getLocalDateStr(now);
-      const profileDate = user.deliveryProfile.lastOnlineDate;
-
-      // Detect date change past 12:00 AM midnight in real-time (silent background reset)
-      if (profileDate && profileDate !== todayStr) {
-        const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-        const updatedUser = {
-          ...user,
-          deliveryProfile: {
-            ...user.deliveryProfile,
-            onlineSecondsToday: 0,
-            lastOnlineDate: todayStr,
-            lastOnlineStartTime: user.deliveryProfile.isOnline ? startOfToday.toISOString() : null
-          }
-        };
-        setUser(updatedUser);
-        return 0;
-      }
-
-      const baseSec = (profileDate === todayStr) ? (user.deliveryProfile.onlineSecondsToday || 0) : 0;
-
-      if (user.deliveryProfile.isOnline && user.deliveryProfile.lastOnlineStartTime) {
-        let startMs = new Date(user.deliveryProfile.lastOnlineStartTime).getTime();
-        const startOfTodayMs = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-
-        if (startMs < startOfTodayMs) {
-          startMs = startOfTodayMs;
-        }
-
-        const elapsedSec = Math.floor((now.getTime() - startMs) / 1000);
-        return baseSec + Math.max(0, elapsedSec);
-      }
-      return baseSec;
-    };
-
-    setDutySeconds(calcSeconds());
-
-    const timer = setInterval(() => {
-      setDutySeconds(prev => {
-        const val = calcSeconds();
-        return prev !== val ? val : prev;
-      });
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, [user?.deliveryProfile, isOnline]);
 
   // Start Live Front Camera Stream exclusively
   const startLiveCamera = async () => {

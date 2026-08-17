@@ -119,86 +119,86 @@ export default function DeliveryEarnings() {
       style={{
         maxWidth: '560px',
         margin: '0 auto',
-        padding: '16px 16px 100px',
+        padding: '10px 10px 80px',
         fontFamily: 'Inter, sans-serif'
       }}
     >
       {/* 1. Date Range Week Navigator */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '16px', marginBottom: '20px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', marginBottom: '12px' }}>
         <button
           onClick={() => setWeekOffset(prev => prev - 1)}
           style={{
-            width: '36px', height: '36px', borderRadius: '50%',
+            width: '30px', height: '30px', borderRadius: '50%',
             background: '#ff6b00', border: 'none', color: '#ffffff',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            cursor: 'pointer', boxShadow: '0 2px 8px rgba(255, 107, 0, 0.35)',
+            cursor: 'pointer', boxShadow: '0 2px 6px rgba(255, 107, 0, 0.3)',
             transition: 'transform 0.15s'
           }}
         >
-          <ChevronLeftIcon sx={{ fontSize: '24px' }} />
+          <ChevronLeftIcon sx={{ fontSize: '20px' }} />
         </button>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '17px', fontWeight: 700, color: 'var(--text-primary, #1a1a2e)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '14px', fontWeight: 700, color: 'var(--text-primary, #1a1a2e)' }}>
           <span>{weekRange.label}</span>
-          <ChevronRightIcon sx={{ fontSize: '18px', color: '#94a3b8' }} />
+          <ChevronRightIcon sx={{ fontSize: '16px', color: '#94a3b8' }} />
         </div>
 
         <button
           onClick={() => setWeekOffset(prev => Math.min(0, prev + 1))}
           disabled={weekOffset >= 0}
           style={{
-            width: '36px', height: '36px', borderRadius: '50%',
+            width: '30px', height: '30px', borderRadius: '50%',
             background: weekOffset >= 0 ? '#e2e8f0' : '#ff6b00',
             border: 'none', color: weekOffset >= 0 ? '#94a3b8' : '#ffffff',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             cursor: weekOffset >= 0 ? 'default' : 'pointer',
-            boxShadow: weekOffset >= 0 ? 'none' : '0 2px 8px rgba(255, 107, 0, 0.35)'
+            boxShadow: weekOffset >= 0 ? 'none' : '0 2px 6px rgba(255, 107, 0, 0.3)'
           }}
         >
-          <ChevronRightIcon sx={{ fontSize: '24px' }} />
+          <ChevronRightIcon sx={{ fontSize: '20px' }} />
         </button>
       </div>
 
       {/* 2. Main Weekly Earnings Display */}
-      <div style={{ textAlign: 'center', marginBottom: '28px' }}>
-        <div style={{ fontSize: '48px', fontWeight: 900, color: 'var(--text-primary, #0f172a)', letterSpacing: '-1.5px', lineHeight: 1.1 }}>
+      <div style={{ textAlign: 'center', marginBottom: '16px' }}>
+        <div style={{ fontSize: '28px', fontWeight: 900, color: 'var(--text-primary, #0f172a)', letterSpacing: '-0.5px', lineHeight: 1.1 }}>
           ₹{weeklyEarningsAmount.toLocaleString('en-IN')}
         </div>
-        <div style={{ fontSize: '11px', fontWeight: 800, color: 'var(--text-muted, #64748b)', letterSpacing: '1.2px', marginTop: '8px', textTransform: 'uppercase' }}>
+        <div style={{ fontSize: '10px', fontWeight: 800, color: 'var(--text-muted, #64748b)', letterSpacing: '0.8px', marginTop: '4px', textTransform: 'uppercase' }}>
           YOUR WEEKLY EARNINGS
         </div>
       </div>
 
       {/* 3. Action Cards Grid: Offer zone & Payouts */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px', marginBottom: '24px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '14px' }}>
         {/* Offer Zone Card */}
         <motion.div
           whileTap={{ scale: 0.97 }}
           onClick={() => navigate('/delivery/offers')}
           style={{
             background: 'var(--bg-elevated, #ffffff)',
-            border: '1.5px solid var(--border, #e2e8f0)',
-            borderRadius: '24px',
-            padding: '16px 18px',
+            border: '1px solid var(--border, #e2e8f0)',
+            borderRadius: '12px',
+            padding: '10px 12px',
             display: 'flex',
             alignItems: 'center',
-            justify: 'space-between',
+            justifyContent: 'space-between',
             cursor: 'pointer',
-            boxShadow: '0 4px 14px rgba(0,0,0,0.03)'
+            boxShadow: '0 2px 8px rgba(0,0,0,0.02)'
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <div style={{
-              width: '40px', height: '40px', borderRadius: '50%',
+              width: '32px', height: '32px', borderRadius: '50%',
               background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              boxShadow: '0 2px 8px rgba(245, 158, 11, 0.25)'
+              boxShadow: '0 2px 6px rgba(245, 158, 11, 0.2)'
             }}>
-              <LocalOfferIcon sx={{ color: '#d97706', fontSize: '22px' }} />
+              <LocalOfferIcon sx={{ color: '#d97706', fontSize: '18px' }} />
             </div>
-            <span style={{ fontSize: '15px', fontWeight: 800, color: 'var(--text-primary, #1e293b)' }}>Offer zone</span>
+            <span style={{ fontSize: '13px', fontWeight: 800, color: 'var(--text-primary, #1e293b)' }}>Offer zone</span>
           </div>
-          <ChevronRightIcon sx={{ color: '#94a3b8', fontSize: '22px' }} />
+          <ChevronRightIcon sx={{ color: '#94a3b8', fontSize: '18px' }} />
         </motion.div>
 
         {/* Payouts Card */}
@@ -207,60 +207,60 @@ export default function DeliveryEarnings() {
           onClick={() => setShowPayModal(true)}
           style={{
             background: 'var(--bg-elevated, #ffffff)',
-            border: '1.5px solid var(--border, #e2e8f0)',
-            borderRadius: '24px',
-            padding: '16px 18px',
+            border: '1px solid var(--border, #e2e8f0)',
+            borderRadius: '12px',
+            padding: '10px 12px',
             display: 'flex',
             alignItems: 'center',
-            justify: 'space-between',
+            justifyContent: 'space-between',
             cursor: 'pointer',
-            boxShadow: '0 4px 14px rgba(0,0,0,0.03)'
+            boxShadow: '0 2px 8px rgba(0,0,0,0.02)'
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <div style={{
-              width: '40px', height: '40px', borderRadius: '50%',
+              width: '32px', height: '32px', borderRadius: '50%',
               background: 'linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              boxShadow: '0 2px 8px rgba(34, 197, 94, 0.25)'
+              boxShadow: '0 2px 6px rgba(34, 197, 94, 0.2)'
             }}>
-              <PaymentsIcon sx={{ color: '#15803d', fontSize: '22px' }} />
+              <PaymentsIcon sx={{ color: '#15803d', fontSize: '18px' }} />
             </div>
-            <span style={{ fontSize: '15px', fontWeight: 800, color: 'var(--text-primary, #1e293b)' }}>Payouts</span>
+            <span style={{ fontSize: '13px', fontWeight: 800, color: 'var(--text-primary, #1e293b)' }}>Payouts</span>
           </div>
-          <ChevronRightIcon sx={{ color: '#94a3b8', fontSize: '22px' }} />
+          <ChevronRightIcon sx={{ color: '#94a3b8', fontSize: '18px' }} />
         </motion.div>
       </div>
 
       {/* 4. COD Remittance Limit Card (RapidCloth) */}
       <div style={{
         background: isBlocked ? 'rgba(239, 68, 68, 0.08)' : 'var(--bg-elevated, #ffffff)',
-        border: `1.5px solid ${isBlocked ? '#ef4444' : 'var(--border, #e2e8f0)'}`,
-        borderRadius: '20px',
-        padding: '16px 18px',
-        marginBottom: '28px',
-        boxShadow: '0 4px 16px rgba(0,0,0,0.02)'
+        border: `1px solid ${isBlocked ? '#ef4444' : 'var(--border, #e2e8f0)'}`,
+        borderRadius: '12px',
+        padding: '12px 14px',
+        marginBottom: '16px',
+        boxShadow: '0 2px 10px rgba(0,0,0,0.02)'
       }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
           <div>
-            <div style={{ fontSize: '11px', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+            <div style={{ fontSize: '10px', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
               COD Cash Collected
             </div>
-            <div style={{ fontSize: '22px', fontWeight: 900, color: isBlocked ? '#dc2626' : 'var(--text-primary, #0f172a)' }}>
-              ₹{cashCollected.toLocaleString()} <span style={{ fontSize: '12px', fontWeight: 600, color: '#64748b' }}>/ ₹{cashLimit} limit</span>
+            <div style={{ fontSize: '17px', fontWeight: 900, color: isBlocked ? '#dc2626' : 'var(--text-primary, #0f172a)' }}>
+              ₹{cashCollected.toLocaleString()} <span style={{ fontSize: '11px', fontWeight: 600, color: '#64748b' }}>/ ₹{cashLimit} limit</span>
             </div>
           </div>
           <button
             onClick={() => setShowPayModal(true)}
             style={{
-              padding: '10px 18px', borderRadius: '12px',
+              padding: '6px 12px', borderRadius: '10px',
               background: isBlocked ? '#dc2626' : '#ff6b00',
-              border: 'none', color: '#ffffff', fontWeight: 800, fontSize: '13px',
-              display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer',
-              boxShadow: '0 3px 10px rgba(255, 107, 0, 0.3)'
+              border: 'none', color: '#ffffff', fontWeight: 800, fontSize: '11px',
+              display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer',
+              boxShadow: '0 2px 8px rgba(255, 107, 0, 0.25)'
             }}
           >
-            <ArrowDownwardIcon sx={{ fontSize: '16px' }} /> Remit Cash
+            <ArrowDownwardIcon sx={{ fontSize: '14px' }} /> Remit Cash
           </button>
         </div>
 
@@ -276,23 +276,23 @@ export default function DeliveryEarnings() {
       </div>
 
       {/* 5. Section Header & Filter Button */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-        <h3 style={{ fontSize: '12px', fontWeight: 800, color: '#64748b', letterSpacing: '0.6px', textTransform: 'uppercase' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+        <h3 style={{ fontSize: '11px', fontWeight: 800, color: '#64748b', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
           WEEKLY EARNINGS HISTORY ({weekRange.label})
         </h3>
         <button
           onClick={() => setShowDetailsModal(true)}
           style={{
-            padding: '7px 18px',
-            borderRadius: '20px',
+            padding: '4px 12px',
+            borderRadius: '12px',
             background: '#000000',
             color: '#ffffff',
             border: 'none',
-            fontSize: '12px',
+            fontSize: '11px',
             fontWeight: 800,
             cursor: 'pointer',
-            letterSpacing: '0.3px',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
+            letterSpacing: '0.2px',
+            boxShadow: '0 2px 6px rgba(0,0,0,0.12)'
           }}
         >
           All Details

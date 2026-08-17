@@ -143,38 +143,38 @@ export default function DeliveryHistory() {
   ];
 
   return (
-    <div style={{ padding: '0 24px 60px', maxWidth: '800px', margin: '0 auto' }}>
+    <div style={{ padding: '0 8px 60px', maxWidth: '800px', margin: '0 auto' }}>
       {/* Header */}
-      <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+      <div style={{ marginBottom: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <button
             onClick={() => navigate('/delivery')}
             style={{
               background: 'var(--bg-elevated)', border: '1px solid var(--border)',
               color: 'var(--text-primary)', cursor: 'pointer',
-              width: '38px', height: '38px', borderRadius: '50%',
+              width: '32px', height: '32px', borderRadius: '50%',
               display: 'flex', alignItems: 'center', justifyContent: 'center'
             }}
           >
-            <ArrowBackIcon sx={{ fontSize: '20px' }} />
+            <ArrowBackIcon sx={{ fontSize: '18px' }} />
           </button>
           <div>
-            <h2 style={{ fontSize: '24px', fontWeight: 800, margin: 0, letterSpacing: '-0.5px' }}>History & Logs</h2>
-            <p style={{ color: 'var(--text-muted)', fontSize: '13px', margin: 0 }}>View your orders, completed shifts, and daily login logs</p>
+            <h2 style={{ fontSize: '17px', fontWeight: 800, margin: 0, letterSpacing: '-0.2px' }}>History & Logs</h2>
+            <p style={{ color: 'var(--text-muted)', fontSize: '11px', margin: 0 }}>View your orders, completed shifts, and daily login logs</p>
           </div>
         </div>
 
         {/* Date Filter for Orders */}
         {activeTab === 'orders' && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
             <input 
               type="date" 
               value={selectedDate} 
               onChange={(e) => setSelectedDate(e.target.value)}
               style={{
-                padding: '8px 12px', borderRadius: '12px', 
+                padding: '5px 8px', borderRadius: '8px', 
                 background: 'var(--bg-elevated)', border: '1px solid var(--border)',
-                color: 'var(--text-primary)', fontSize: '13px', fontWeight: 600,
+                color: 'var(--text-primary)', fontSize: '11px', fontWeight: 600,
                 outline: 'none', cursor: 'pointer'
               }}
             />
@@ -182,9 +182,9 @@ export default function DeliveryHistory() {
               <button 
                 onClick={() => setSelectedDate('')}
                 style={{
-                  padding: '8px 12px', borderRadius: '12px',
+                  padding: '5px 8px', borderRadius: '8px',
                   background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444',
-                  border: '1px solid rgba(239, 68, 68, 0.2)', fontSize: '13px',
+                  border: '1px solid rgba(239, 68, 68, 0.2)', fontSize: '11px',
                   fontWeight: 600, cursor: 'pointer'
                 }}
               >
@@ -199,17 +199,17 @@ export default function DeliveryHistory() {
       <div style={{
         display: 'grid',
         gridTemplateColumns: 'repeat(3, 1fr)',
-        gap: '6px',
+        gap: '4px',
         background: 'var(--bg-elevated)',
-        padding: '6px',
-        borderRadius: '20px',
-        marginBottom: '24px',
+        padding: '4px',
+        borderRadius: '12px',
+        marginBottom: '14px',
         border: '1px solid var(--border)'
       }}>
         {[
-          { id: 'orders', label: 'Order History', icon: <LocalShippingIcon sx={{ fontSize: '18px' }} /> },
-          { id: 'shifts', label: 'Shift History', icon: <ScheduleIcon sx={{ fontSize: '18px' }} /> },
-          { id: 'login', label: 'Login & Duty Logs', icon: <LoginIcon sx={{ fontSize: '18px' }} /> },
+          { id: 'orders', label: 'Order History', icon: <LocalShippingIcon sx={{ fontSize: '15px' }} /> },
+          { id: 'shifts', label: 'Shift History', icon: <ScheduleIcon sx={{ fontSize: '15px' }} /> },
+          { id: 'login', label: 'Login & Duty Logs', icon: <LoginIcon sx={{ fontSize: '15px' }} /> },
         ].map(tab => {
           const isActive = activeTab === tab.id;
           return (
@@ -220,17 +220,17 @@ export default function DeliveryHistory() {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: '6px',
-                padding: '10px 6px',
-                borderRadius: '16px',
+                gap: '4px',
+                padding: '7px 4px',
+                borderRadius: '8px',
                 border: 'none',
                 background: isActive ? 'linear-gradient(135deg, #ff5400 0%, #ff3b00 100%)' : 'transparent',
                 color: isActive ? '#ffffff' : 'var(--text-secondary)',
                 fontWeight: isActive ? 800 : 700,
-                fontSize: '12px',
+                fontSize: '11px',
                 cursor: 'pointer',
                 transition: 'all 0.2s ease',
-                boxShadow: isActive ? '0 4px 14px rgba(255, 84, 0, 0.3)' : 'none'
+                boxShadow: isActive ? '0 2px 8px rgba(255, 84, 0, 0.25)' : 'none'
               }}
             >
               {tab.icon}
@@ -244,32 +244,32 @@ export default function DeliveryHistory() {
       {activeTab === 'orders' && (
         <>
           {/* Summary Stats Cards */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '16px', marginBottom: '28px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '8px', marginBottom: '16px' }}>
             {selectedDate && (
               <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
-                style={{ padding: '20px', borderRadius: 'var(--radius-xl)', background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', color: 'white', boxShadow: '0 8px 20px rgba(16,185,129,0.3)' }}>
-                <div style={{ fontSize: '11px', fontWeight: 800, textTransform: 'uppercase', opacity: 0.9, marginBottom: '4px' }}>
+                style={{ padding: '12px 14px', borderRadius: '12px', background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', color: 'white', boxShadow: '0 4px 12px rgba(16,185,129,0.2)' }}>
+                <div style={{ fontSize: '10px', fontWeight: 800, textTransform: 'uppercase', opacity: 0.9, marginBottom: '2px' }}>
                   Results for {new Date(selectedDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}
                 </div>
-                <div style={{ fontSize: '28px', fontWeight: 900 }}>
+                <div style={{ fontSize: '18px', fontWeight: 900 }}>
                   ₹{orders.reduce((sum, o) => sum + (o.deliveryEarnings || 0), 0).toFixed(2)}
                 </div>
-                <div style={{ fontSize: '12px', opacity: 0.9, marginTop: '4px' }}>{orders.length} orders found</div>
+                <div style={{ fontSize: '10px', opacity: 0.9, marginTop: '2px' }}>{orders.length} orders found</div>
               </motion.div>
             )}
 
             <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}
-              style={{ padding: '20px', borderRadius: 'var(--radius-xl)', background: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)', color: 'white', boxShadow: '0 8px 20px rgba(99,102,241,0.3)' }}>
-              <div style={{ fontSize: '12px', fontWeight: 700, textTransform: 'uppercase', opacity: 0.8, marginBottom: '4px' }}>Weekly Earnings</div>
-              <div style={{ fontSize: '28px', fontWeight: 900 }}>₹{stats?.weeklyEarnings || 0}</div>
-              <div style={{ fontSize: '12px', opacity: 0.9, marginTop: '4px' }}>{stats?.weeklyOrders || 0} orders done</div>
+              style={{ padding: '12px 14px', borderRadius: '12px', background: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)', color: 'white', boxShadow: '0 4px 12px rgba(99,102,241,0.2)' }}>
+              <div style={{ fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', opacity: 0.8, marginBottom: '2px' }}>Weekly Earnings</div>
+              <div style={{ fontSize: '18px', fontWeight: 900 }}>₹{stats?.weeklyEarnings || 0}</div>
+              <div style={{ fontSize: '10px', opacity: 0.9, marginTop: '2px' }}>{stats?.weeklyOrders || 0} orders done</div>
             </motion.div>
 
             <motion.div initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }}
-              style={{ padding: '20px', borderRadius: 'var(--radius-xl)', background: 'linear-gradient(135deg, #ec4899 0%, #db2777 100%)', color: 'white', boxShadow: '0 8px 20px rgba(236,72,153,0.3)' }}>
-              <div style={{ fontSize: '12px', fontWeight: 700, textTransform: 'uppercase', opacity: 0.8, marginBottom: '4px' }}>Monthly Total</div>
-              <div style={{ fontSize: '28px', fontWeight: 900 }}>₹{stats?.monthlyEarnings || 0}</div>
-              <div style={{ fontSize: '12px', opacity: 0.9, marginTop: '4px' }}>{stats?.monthlyOrders || 0} orders done</div>
+              style={{ padding: '12px 14px', borderRadius: '12px', background: 'linear-gradient(135deg, #ec4899 0%, #db2777 100%)', color: 'white', boxShadow: '0 4px 12px rgba(236,72,153,0.2)' }}>
+              <div style={{ fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', opacity: 0.8, marginBottom: '2px' }}>Monthly Total</div>
+              <div style={{ fontSize: '18px', fontWeight: 900 }}>₹{stats?.monthlyEarnings || 0}</div>
+              <div style={{ fontSize: '10px', opacity: 0.9, marginTop: '2px' }}>{stats?.monthlyOrders || 0} orders done</div>
             </motion.div>
           </div>
 

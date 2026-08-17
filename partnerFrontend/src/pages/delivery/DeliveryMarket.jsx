@@ -11,43 +11,43 @@ export default function DeliveryMarket() {
   ];
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ paddingBottom: '90px' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
-        <ShoppingBagOutlinedIcon sx={{ fontSize: '32px', color: '#29ffc6' }} />
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ paddingBottom: '80px', maxWidth: '640px', margin: '0 auto', padding: '8px 8px 80px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '14px' }}>
+        <ShoppingBagOutlinedIcon sx={{ fontSize: '24px', color: '#29ffc6' }} />
         <div>
-          <h2 style={{ margin: 0, fontSize: 'clamp(20px, 4vw, 24px)', fontWeight: 800, color: 'var(--text-primary)' }}>Rider Market</h2>
-          <p style={{ margin: 0, color: 'var(--text-muted)', fontSize: '13px' }}>Gear up for your deliveries</p>
+          <h2 style={{ margin: 0, fontSize: '17px', fontWeight: 800, color: 'var(--text-primary)' }}>Rider Market</h2>
+          <p style={{ margin: 0, color: 'var(--text-muted)', fontSize: '11px', fontWeight: 500 }}>Gear up for your deliveries</p>
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '16px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: '10px' }}>
         {products.map(product => (
           <motion.div 
             key={product.id}
-            whileHover={{ y: -4 }}
+            whileHover={{ y: -2 }}
             style={{
               background: 'var(--bg-card)',
-              borderRadius: '16px',
+              borderRadius: '12px',
               border: '1px solid var(--border)',
               overflow: 'hidden',
               display: 'flex',
               flexDirection: 'column'
             }}
           >
-            <div style={{ height: '140px', background: 'var(--bg-elevated)', overflow: 'hidden' }}>
+            <div style={{ height: '110px', background: 'var(--bg-elevated)', overflow: 'hidden' }}>
               <img src={product.image} alt={product.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             </div>
-            <div style={{ padding: '16px', flex: 1, display: 'flex', flexDirection: 'column' }}>
-              <h3 style={{ margin: '0 0 4px 0', fontSize: '14px', fontWeight: 600, color: 'var(--text-primary)', lineHeight: 1.3 }}>{product.name}</h3>
-              <p style={{ margin: '0 0 12px 0', fontSize: '12px', color: 'var(--text-muted)', lineHeight: 1.4, flex: 1 }}>{product.desc}</p>
+            <div style={{ padding: '10px', flex: 1, display: 'flex', flexDirection: 'column' }}>
+              <h3 style={{ margin: '0 0 2px 0', fontSize: '12px', fontWeight: 800, color: 'var(--text-primary)', lineHeight: 1.2 }}>{product.name}</h3>
+              <p style={{ margin: '0 0 8px 0', fontSize: '10px', color: 'var(--text-muted)', lineHeight: 1.3, flex: 1 }}>{product.desc}</p>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 'auto' }}>
-                <span style={{ fontSize: '16px', fontWeight: 800, color: '#29ffc6' }}>{product.price}</span>
+                <span style={{ fontSize: '14px', fontWeight: 900, color: '#29ffc6' }}>{product.price}</span>
                 <button style={{
-                  width: '32px', height: '32px', borderRadius: '8px', border: 'none',
+                  width: '28px', height: '28px', borderRadius: '6px', border: 'none',
                   background: 'var(--bg-elevated)', border: '1px solid var(--border)',
                   color: 'var(--text-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer'
                 }}>
-                  <AddShoppingCartIcon sx={{ fontSize: '16px' }} />
+                  <AddShoppingCartIcon sx={{ fontSize: '14px' }} />
                 </button>
               </div>
             </div>

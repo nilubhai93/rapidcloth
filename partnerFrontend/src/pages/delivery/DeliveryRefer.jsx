@@ -59,7 +59,7 @@ export default function DeliveryRefer() {
       style={{
         maxWidth: '560px',
         margin: '0 auto',
-        paddingBottom: '100px',
+        paddingBottom: '80px',
         fontFamily: 'Inter, system-ui, -apple-system, sans-serif',
         color: '#0f172a'
       }}
@@ -67,16 +67,16 @@ export default function DeliveryRefer() {
       {/* 1. Top Green Hero Banner */}
       <div style={{
         background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-        borderRadius: '0 0 28px 28px',
-        padding: '20px 20px 28px',
+        borderRadius: '0 0 16px 16px',
+        padding: '12px 14px 18px',
         color: '#ffffff',
         position: 'relative',
-        boxShadow: '0 8px 30px rgba(16, 185, 129, 0.25)',
+        boxShadow: '0 4px 16px rgba(16, 185, 129, 0.2)',
         overflow: 'hidden'
       }}>
         {/* Decorative background shapes */}
-        <div style={{ position: 'absolute', right: '-20px', top: '-20px', width: '140px', height: '140px', borderRadius: '50%', background: 'rgba(255,255,255,0.08)' }} />
-        <div style={{ position: 'absolute', right: '30px', bottom: '-40px', width: '100px', height: '100px', borderRadius: '50%', background: 'rgba(255,255,255,0.06)' }} />
+        <div style={{ position: 'absolute', right: '-20px', top: '-20px', width: '100px', height: '100px', borderRadius: '50%', background: 'rgba(255,255,255,0.08)' }} />
+        <div style={{ position: 'absolute', right: '30px', bottom: '-40px', width: '80px', height: '80px', borderRadius: '50%', background: 'rgba(255,255,255,0.06)' }} />
 
         {/* Back Button */}
         <button
@@ -86,28 +86,28 @@ export default function DeliveryRefer() {
             border: 'none',
             color: '#ffffff',
             borderRadius: '50%',
-            width: '38px',
-            height: '38px',
+            width: '32px',
+            height: '32px',
             display: 'flex',
             alignItems: 'center',
-            justify: 'center',
+            justifyContent: 'center',
             cursor: 'pointer',
-            marginBottom: '16px',
+            marginBottom: '10px',
             backdropFilter: 'blur(4px)'
           }}
         >
-          <ArrowBackIcon sx={{ fontSize: '22px' }} />
+          <ArrowBackIcon sx={{ fontSize: '18px' }} />
         </button>
 
         {/* Header content */}
         <div style={{ textAlign: 'center', position: 'relative', zIndex: 2 }}>
-          <div style={{ fontSize: '13px', fontWeight: 700, opacity: 0.95, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+          <div style={{ fontSize: '11px', fontWeight: 700, opacity: 0.95, textTransform: 'uppercase', letterSpacing: '0.4px' }}>
             Earn upto
           </div>
-          <div style={{ fontSize: '42px', fontWeight: 900, letterSpacing: '-1.5px', lineHeight: 1.1, margin: '2px 0 4px' }}>
+          <div style={{ fontSize: '26px', fontWeight: 900, letterSpacing: '-0.5px', lineHeight: 1.1, margin: '2px 0' }}>
             ₹18,500
           </div>
-          <div style={{ fontSize: '16px', fontWeight: 800, opacity: 0.95, marginBottom: '16px' }}>
+          <div style={{ fontSize: '13px', fontWeight: 800, opacity: 0.95, marginBottom: '10px' }}>
             For every referral ✨
           </div>
 
@@ -117,16 +117,16 @@ export default function DeliveryRefer() {
               background: '#000000',
               color: '#ffffff',
               border: 'none',
-              borderRadius: '20px',
-              padding: '8px 18px',
-              fontSize: '11px',
+              borderRadius: '12px',
+              padding: '6px 14px',
+              fontSize: '10px',
               fontWeight: 900,
-              letterSpacing: '0.6px',
+              letterSpacing: '0.5px',
               cursor: 'pointer',
-              boxShadow: '0 4px 14px rgba(0,0,0,0.3)',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.25)',
               display: 'inline-flex',
               alignItems: 'center',
-              gap: '6px'
+              gap: '4px'
             }}
           >
             <span>SEE HIGH BONUS ZONES</span>
@@ -135,26 +135,26 @@ export default function DeliveryRefer() {
         </div>
       </div>
 
-      <div style={{ padding: '0 16px', marginTop: '20px' }}>
+      <div style={{ padding: '0 10px', marginTop: '14px' }}>
         {/* 2. Refer Your Friend Card */}
         <div style={{
           background: '#ffffff',
-          borderRadius: '24px',
-          padding: '24px 20px',
-          boxShadow: '0 6px 24px rgba(0,0,0,0.04)',
+          borderRadius: '12px',
+          padding: '14px 16px',
+          boxShadow: '0 2px 10px rgba(0,0,0,0.03)',
           border: '1px solid #e2e8f0',
-          marginBottom: '24px'
+          marginBottom: '14px'
         }}>
           {/* Section Divider Title */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
             <div style={{ flex: 1, height: '1px', background: '#e2e8f0' }} />
-            <span style={{ fontSize: '11px', fontWeight: 900, color: '#64748b', letterSpacing: '1px', textTransform: 'uppercase' }}>
+            <span style={{ fontSize: '10px', fontWeight: 900, color: '#64748b', letterSpacing: '0.8px', textTransform: 'uppercase' }}>
               REFER YOUR FRIEND
             </span>
             <div style={{ flex: 1, height: '1px', background: '#e2e8f0' }} />
           </div>
 
-          <form onSubmit={handleReferSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <form onSubmit={handleReferSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
             {/* Contact Number */}
             <div style={{ position: 'relative' }}>
               <input
@@ -164,10 +164,10 @@ export default function DeliveryRefer() {
                 onChange={(e) => setPhone(e.target.value)}
                 style={{
                   width: '100%',
-                  padding: '14px 44px 14px 16px',
-                  borderRadius: '16px',
-                  border: '1.5px solid #cbd5e1',
-                  fontSize: '15px',
+                  padding: '10px 36px 10px 12px',
+                  borderRadius: '10px',
+                  border: '1px solid #cbd5e1',
+                  fontSize: '13px',
                   fontWeight: 600,
                   color: '#0f172a',
                   outline: 'none',
@@ -175,11 +175,11 @@ export default function DeliveryRefer() {
                 }}
               />
               <div style={{
-                position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)',
-                background: '#ffedd5', color: '#ea580c', borderRadius: '10px', padding: '6px',
+                position: 'absolute', right: '8px', top: '50%', transform: 'translateY(-50%)',
+                background: '#ffedd5', color: '#ea580c', borderRadius: '6px', padding: '4px',
                 display: 'flex', alignItems: 'center', justifyContent: 'center'
               }}>
-                <ContactPhoneIcon sx={{ fontSize: '20px' }} />
+                <ContactPhoneIcon sx={{ fontSize: '16px' }} />
               </div>
             </div>
 
@@ -192,10 +192,10 @@ export default function DeliveryRefer() {
                 onChange={(e) => setName(e.target.value)}
                 style={{
                   width: '100%',
-                  padding: '14px 16px',
-                  borderRadius: '16px',
-                  border: '1.5px solid #cbd5e1',
-                  fontSize: '15px',
+                  padding: '10px 12px',
+                  borderRadius: '10px',
+                  border: '1px solid #cbd5e1',
+                  fontSize: '13px',
                   fontWeight: 600,
                   color: '#0f172a',
                   outline: 'none',

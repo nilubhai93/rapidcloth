@@ -39,38 +39,38 @@ export default function DeliveryNotifications() {
   };
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ paddingBottom: '90px' }}>
-      <h2 style={{ fontSize: 'clamp(20px, 4vw, 24px)', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '24px' }}>
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ paddingBottom: '80px', maxWidth: '640px', margin: '0 auto', padding: '8px 8px 80px' }}>
+      <h2 style={{ fontSize: '17px', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '12px' }}>
         Notifications
       </h2>
       
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
         {notifications.map(notif => (
           <motion.div 
             key={notif.id}
-            initial={{ y: 20, opacity: 0 }}
+            initial={{ y: 10, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             whileTap={{ scale: 0.98 }}
             onClick={() => {
               if (notif.actionUrl) navigate(notif.actionUrl);
             }}
             style={{
-              padding: '18px',
+              padding: '10px 12px',
               background: notif.type === 'shift_complete' 
                 ? 'linear-gradient(135deg, rgba(255,84,0,0.08) 0%, rgba(255,84,0,0.02) 100%)' 
                 : notif.isNew ? 'rgba(41,255,198,0.05)' : 'var(--bg-card)',
               border: notif.type === 'shift_complete'
-                ? '1.5px solid rgba(255,84,0,0.3)'
+                ? '1px solid rgba(255,84,0,0.3)'
                 : notif.isNew ? '1px solid rgba(41,255,198,0.2)' : '1px solid var(--border)',
-              borderRadius: '20px',
+              borderRadius: '12px',
               display: 'flex',
-              gap: '16px',
+              gap: '10px',
               cursor: notif.actionUrl ? 'pointer' : 'default',
-              boxShadow: notif.type === 'shift_complete' ? '0 4px 16px rgba(255,84,0,0.1)' : 'none'
+              boxShadow: notif.type === 'shift_complete' ? '0 2px 10px rgba(255,84,0,0.08)' : 'none'
             }}
           >
             <div style={{
-              width: '48px', height: '48px', borderRadius: '50%',
+              width: '32px', height: '32px', borderRadius: '50%',
               background: notif.type === 'shift_complete' ? '#fff7ed' : 'var(--bg-elevated)',
               display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0
             }}>
@@ -78,13 +78,13 @@ export default function DeliveryNotifications() {
             </div>
             
             <div style={{ flex: 1 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '4px' }}>
-                <h4 style={{ margin: 0, fontSize: '15px', fontWeight: notif.isNew ? 800 : 600, color: notif.type === 'shift_complete' ? '#ea580c' : 'var(--text-primary)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '2px' }}>
+                <h4 style={{ margin: 0, fontSize: '13px', fontWeight: notif.isNew ? 800 : 600, color: notif.type === 'shift_complete' ? '#ea580c' : 'var(--text-primary)' }}>
                   {notif.title}
                 </h4>
-                <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{notif.time}</span>
+                <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>{notif.time}</span>
               </div>
-              <p style={{ margin: 0, fontSize: '14px', color: 'var(--text-secondary)', lineHeight: 1.4 }}>
+              <p style={{ margin: 0, fontSize: '11px', color: 'var(--text-secondary)', lineHeight: 1.3 }}>
                 {notif.text}
               </p>
 
@@ -92,20 +92,20 @@ export default function DeliveryNotifications() {
                 <div style={{
                   display: 'inline-flex',
                   alignItems: 'center',
-                  gap: '6px',
-                  marginTop: '12px',
+                  gap: '4px',
+                  marginTop: '6px',
                   color: '#ff5400',
                   fontWeight: 800,
-                  fontSize: '13px'
+                  fontSize: '11px'
                 }}>
                   <span>Book Another Shift Now</span>
-                  <ArrowForwardIcon sx={{ fontSize: '16px' }} />
+                  <ArrowForwardIcon sx={{ fontSize: '13px' }} />
                 </div>
               )}
             </div>
             
             {notif.isNew && (
-              <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: notif.type === 'shift_complete' ? '#ff5400' : '#29ffc6', flexShrink: 0, marginTop: '6px' }} />
+              <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: notif.type === 'shift_complete' ? '#ff5400' : '#29ffc6', flexShrink: 0, marginTop: '4px' }} />
             )}
           </motion.div>
         ))}

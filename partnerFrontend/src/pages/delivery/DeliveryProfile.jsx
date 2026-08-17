@@ -82,13 +82,13 @@ export default function DeliveryProfile() {
       style={{
         maxWidth: '560px',
         margin: '0 auto',
-        padding: '16px 16px 100px',
+        padding: '10px 10px 80px',
         fontFamily: 'Inter, system-ui, -apple-system, sans-serif',
         color: 'var(--text-primary, #0f172a)'
       }}
     >
       {/* 1. Header Bar */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
         <button
           onClick={() => navigate(-1)}
           style={{
@@ -96,57 +96,57 @@ export default function DeliveryProfile() {
             border: 'none',
             color: 'var(--text-primary, #0f172a)',
             borderRadius: '50%',
-            width: '40px',
-            height: '40px',
+            width: '32px',
+            height: '32px',
             display: 'flex',
             alignItems: 'center',
-            justify: 'center',
+            justifyContent: 'center',
             cursor: 'pointer',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
+            boxShadow: '0 2px 6px rgba(0,0,0,0.06)'
           }}
         >
-          <ArrowBackIcon sx={{ fontSize: '22px' }} />
+          <ArrowBackIcon sx={{ fontSize: '18px' }} />
         </button>
-        <h1 style={{ fontSize: '20px', fontWeight: 900, color: 'var(--text-primary, #0f172a)', margin: 0, letterSpacing: '-0.3px' }}>
+        <h1 style={{ fontSize: '17px', fontWeight: 800, color: 'var(--text-primary, #0f172a)', margin: 0, letterSpacing: '-0.2px' }}>
           {t('profileTitle')}
         </h1>
-        <div style={{ width: '40px' }} />
+        <div style={{ width: '32px' }} />
       </div>
 
       {/* 2. Partner Header Card */}
       <div style={{
         background: 'var(--bg-elevated, #ffffff)',
-        borderRadius: '28px',
-        padding: '24px 20px',
-        boxShadow: '0 8px 30px rgba(0,0,0,0.04)',
+        borderRadius: '12px',
+        padding: '14px 16px',
+        boxShadow: '0 2px 10px rgba(0,0,0,0.03)',
         border: '1px solid var(--border, #e2e8f0)',
-        marginBottom: '20px',
+        marginBottom: '14px',
         position: 'relative'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           {/* Avatar */}
           <div style={{ position: 'relative' }}>
             <div style={{
-              width: '68px', height: '68px', borderRadius: '50%',
+              width: '48px', height: '48px', borderRadius: '50%',
               background: 'linear-gradient(135deg, #ff5400 0%, #ff3b00 100%)',
-              color: '#ffffff', fontSize: '26px', fontWeight: 900,
+              color: '#ffffff', fontSize: '20px', fontWeight: 900,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              boxShadow: '0 6px 18px rgba(255, 84, 0, 0.3)'
+              boxShadow: '0 4px 12px rgba(255, 84, 0, 0.25)'
             }}>
               {user?.name ? user.name[0].toUpperCase() : 'A'}
             </div>
             <div style={{
-              position: 'absolute', bottom: '2px', right: '2px',
-              width: '16px', height: '16px', borderRadius: '50%',
-              background: '#22c55e', border: '3px solid #ffffff'
+              position: 'absolute', bottom: '1px', right: '1px',
+              width: '12px', height: '12px', borderRadius: '50%',
+              background: '#22c55e', border: '2px solid #ffffff'
             }} />
           </div>
 
           <div>
-            <div style={{ fontSize: '22px', fontWeight: 900, color: 'var(--text-primary, #0f172a)', letterSpacing: '-0.5px' }}>
+            <div style={{ fontSize: '16px', fontWeight: 800, color: 'var(--text-primary, #0f172a)', letterSpacing: '-0.3px' }}>
               {user?.name?.toUpperCase() || 'ASTIK MANDAL'}
             </div>
-            <div style={{ fontSize: '13px', color: 'var(--text-muted, #64748b)', fontWeight: 700, marginTop: '2px' }}>
+            <div style={{ fontSize: '11px', color: 'var(--text-muted, #64748b)', fontWeight: 700, marginTop: '1px' }}>
               DE ID: #{user?._id?.slice(-8).toUpperCase() || '19685857'}
             </div>
 
@@ -154,18 +154,18 @@ export default function DeliveryProfile() {
             <div
               onClick={() => setActiveModal('rating')}
               style={{
-                display: 'inline-flex', alignItems: 'center', gap: '6px',
-                marginTop: '8px', cursor: 'pointer',
+                display: 'inline-flex', alignItems: 'center', gap: '4px',
+                marginTop: '4px', cursor: 'pointer',
                 background: '#fff7ed', border: '1px solid #ffedd5',
-                padding: '4px 10px', borderRadius: '12px'
+                padding: '2px 8px', borderRadius: '8px'
               }}
             >
-              <span style={{ fontSize: '11px', fontWeight: 700, color: '#ea580c' }}>{t('yourRatings')}</span>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '2px', color: '#eab308', fontWeight: 900, fontSize: '13px' }}>
-                <StarIcon sx={{ fontSize: '16px' }} />
+              <span style={{ fontSize: '10px', fontWeight: 700, color: '#ea580c' }}>{t('yourRatings')}</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '2px', color: '#eab308', fontWeight: 800, fontSize: '11px' }}>
+                <StarIcon sx={{ fontSize: '13px' }} />
                 <span>{rating}</span>
               </div>
-              <ChevronRightIcon sx={{ fontSize: '16px', color: '#ea580c' }} />
+              <ChevronRightIcon sx={{ fontSize: '13px', color: '#ea580c' }} />
             </div>
           </div>
         </div>
@@ -174,76 +174,76 @@ export default function DeliveryProfile() {
       {/* 3. Account & Details Grid Card */}
       <div style={{
         background: 'var(--bg-elevated, #ffffff)',
-        borderRadius: '28px',
-        padding: '20px',
-        boxShadow: '0 8px 30px rgba(0,0,0,0.04)',
+        borderRadius: '12px',
+        padding: '14px 16px',
+        boxShadow: '0 2px 10px rgba(0,0,0,0.03)',
         border: '1px solid var(--border, #e2e8f0)',
-        marginBottom: '24px'
+        marginBottom: '14px'
       }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
           {/* Mobile Number */}
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: 'var(--text-muted, #64748b)', fontWeight: 700 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '10px', color: 'var(--text-muted, #64748b)', fontWeight: 700 }}>
               <span>{t('mobileNumber')}</span>
               <EditIcon
                 onClick={() => handleOpenEdit('phone', t('mobileNumber'), phone)}
-                sx={{ fontSize: '15px', color: '#ff6b00', cursor: 'pointer' }}
+                sx={{ fontSize: '13px', color: '#ff6b00', cursor: 'pointer' }}
               />
             </div>
-            <div style={{ fontSize: '15px', fontWeight: 800, color: 'var(--text-primary, #0f172a)', marginTop: '4px' }}>
+            <div style={{ fontSize: '13px', fontWeight: 800, color: 'var(--text-primary, #0f172a)', marginTop: '2px' }}>
               {phone}
             </div>
           </div>
 
           {/* Joining Date */}
           <div>
-            <div style={{ fontSize: '12px', color: 'var(--text-muted, #64748b)', fontWeight: 700 }}>
+            <div style={{ fontSize: '10px', color: 'var(--text-muted, #64748b)', fontWeight: 700 }}>
               {t('joiningDate')}
             </div>
-            <div style={{ fontSize: '15px', fontWeight: 800, color: 'var(--text-primary, #0f172a)', marginTop: '4px' }}>
+            <div style={{ fontSize: '13px', fontWeight: 800, color: 'var(--text-primary, #0f172a)', marginTop: '2px' }}>
               {joiningDate}
             </div>
           </div>
 
           {/* City */}
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: 'var(--text-muted, #64748b)', fontWeight: 700 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '10px', color: 'var(--text-muted, #64748b)', fontWeight: 700 }}>
               <span>{t('city')}</span>
               <EditIcon
                 onClick={() => handleOpenEdit('city', t('city'), city)}
-                sx={{ fontSize: '15px', color: '#ff6b00', cursor: 'pointer' }}
+                sx={{ fontSize: '13px', color: '#ff6b00', cursor: 'pointer' }}
               />
             </div>
-            <div style={{ fontSize: '15px', fontWeight: 800, color: 'var(--text-primary, #0f172a)', marginTop: '4px' }}>
+            <div style={{ fontSize: '13px', fontWeight: 800, color: 'var(--text-primary, #0f172a)', marginTop: '2px' }}>
               {city}
             </div>
           </div>
 
           {/* Zone */}
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: 'var(--text-muted, #64748b)', fontWeight: 700 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '10px', color: 'var(--text-muted, #64748b)', fontWeight: 700 }}>
               <span>{t('zone')}</span>
               <EditIcon
                 onClick={() => handleOpenEdit('zone', t('zone'), zone)}
-                sx={{ fontSize: '15px', color: '#ff6b00', cursor: 'pointer' }}
+                sx={{ fontSize: '13px', color: '#ff6b00', cursor: 'pointer' }}
               />
             </div>
-            <div style={{ fontSize: '15px', fontWeight: 800, color: 'var(--text-primary, #0f172a)', marginTop: '4px' }}>
+            <div style={{ fontSize: '13px', fontWeight: 800, color: 'var(--text-primary, #0f172a)', marginTop: '2px' }}>
               {zone}
             </div>
           </div>
         </div>
 
         {/* Order Category Divider & Row */}
-        <div style={{ borderTop: '1px solid var(--border, #f1f5f9)', marginTop: '18px', paddingTop: '16px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: 'var(--text-muted, #64748b)', fontWeight: 700 }}>
+        <div style={{ borderTop: '1px solid var(--border, #f1f5f9)', marginTop: '12px', paddingTop: '10px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '10px', color: 'var(--text-muted, #64748b)', fontWeight: 700 }}>
             <span>{t('orderCategory')}</span>
             <EditIcon
               onClick={() => handleOpenEdit('category', t('orderCategory'), category)}
-              sx={{ fontSize: '15px', color: '#ff6b00', cursor: 'pointer' }}
+              sx={{ fontSize: '13px', color: '#ff6b00', cursor: 'pointer' }}
             />
           </div>
-          <div style={{ fontSize: '14px', fontWeight: 800, color: 'var(--text-primary, #0f172a)', marginTop: '4px', lineHeight: 1.4 }}>
+          <div style={{ fontSize: '12px', fontWeight: 800, color: 'var(--text-primary, #0f172a)', marginTop: '2px', lineHeight: 1.3 }}>
             {category}
           </div>
         </div>
@@ -252,46 +252,46 @@ export default function DeliveryProfile() {
       {/* 4. Action Details List Card */}
       <div style={{
         background: 'var(--bg-elevated, #ffffff)',
-        borderRadius: '28px',
-        padding: '8px 16px',
-        boxShadow: '0 8px 30px rgba(0,0,0,0.04)',
+        borderRadius: '12px',
+        padding: '4px 12px',
+        boxShadow: '0 2px 10px rgba(0,0,0,0.03)',
         border: '1px solid var(--border, #e2e8f0)',
-        marginBottom: '28px'
+        marginBottom: '16px'
       }}>
         {[
           {
             id: 'insurance',
             label: t('insuranceDetails'),
             subtitle: t('insuranceSubtitle'),
-            icon: <VerifiedUserIcon sx={{ color: '#10b981', fontSize: '22px' }} />,
+            icon: <VerifiedUserIcon sx={{ color: '#10b981', fontSize: '18px' }} />,
             bg: '#dcfce7'
           },
           {
             id: 'emergency',
             label: t('emergencyDetails'),
             subtitle: t('emergencySubtitle'),
-            icon: <MedicalServicesIcon sx={{ color: '#3b82f6', fontSize: '22px' }} />,
+            icon: <MedicalServicesIcon sx={{ color: '#3b82f6', fontSize: '18px' }} />,
             bg: '#dbeafe'
           },
           {
             id: 'bank',
             label: t('bankDetails'),
             subtitle: bankDetails.bankName,
-            icon: <AccountBalanceIcon sx={{ color: '#f59e0b', fontSize: '22px' }} />,
+            icon: <AccountBalanceIcon sx={{ color: '#f59e0b', fontSize: '18px' }} />,
             bg: '#fef3c7'
           },
           {
             id: 'language',
             label: t('appLanguage'),
             subtitle: langNames[langCode] || 'English',
-            icon: <LanguageIcon sx={{ color: '#8b5cf6', fontSize: '22px' }} />,
+            icon: <LanguageIcon sx={{ color: '#8b5cf6', fontSize: '18px' }} />,
             bg: '#f3e8ff'
           },
           {
             id: 'preferredLang',
             label: t('preferredLanguage'),
             subtitle: preferredLanguage,
-            icon: <HeadsetMicIcon sx={{ color: '#ec4899', fontSize: '22px' }} />,
+            icon: <HeadsetMicIcon sx={{ color: '#ec4899', fontSize: '18px' }} />,
             bg: '#fce7f3'
           }
         ].map((item, idx, arr) => (
@@ -301,22 +301,22 @@ export default function DeliveryProfile() {
             style={{
               display: 'flex',
               alignItems: 'center',
-              justify: 'space-between',
-              padding: '16px 4px',
+              justifyContent: 'space-between',
+              padding: '10px 2px',
               borderBottom: idx < arr.length - 1 ? '1px dashed var(--border, #f1f5f9)' : 'none',
               cursor: 'pointer'
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
               <div style={{
-                width: '40px', height: '40px', borderRadius: '50%',
+                width: '32px', height: '32px', borderRadius: '50%',
                 background: item.bg, display: 'flex', alignItems: 'center', justifyContent: 'center'
               }}>
                 {item.icon}
               </div>
               <div>
-                <div style={{ fontSize: '15px', fontWeight: 800, color: 'var(--text-primary, #0f172a)' }}>{item.label}</div>
-                <div style={{ fontSize: '12px', color: 'var(--text-muted, #64748b)', fontWeight: 600, marginTop: '2px' }}>{item.subtitle}</div>
+                <div style={{ fontSize: '13px', fontWeight: 800, color: 'var(--text-primary, #0f172a)' }}>{item.label}</div>
+                <div style={{ fontSize: '11px', color: 'var(--text-muted, #64748b)', fontWeight: 600, marginTop: '1px' }}>{item.subtitle}</div>
               </div>
             </div>
             <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: '#fff7ed', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>

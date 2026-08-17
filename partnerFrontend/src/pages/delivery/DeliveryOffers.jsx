@@ -17,48 +17,48 @@ export default function DeliveryOffers() {
   };
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ paddingBottom: '90px' }}>
-      <h2 style={{ fontSize: 'clamp(20px, 4vw, 24px)', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '8px' }}>
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ paddingBottom: '80px', maxWidth: '640px', margin: '0 auto', padding: '8px 8px 80px' }}>
+      <h2 style={{ fontSize: '17px', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '2px' }}>
         Offers & Quests
       </h2>
-      <p style={{ color: 'var(--text-secondary)', marginBottom: '24px', fontSize: '14px' }}>
+      <p style={{ color: 'var(--text-secondary)', marginBottom: '14px', fontSize: '11px', fontWeight: 500 }}>
         Complete these offers to maximize your earnings.
       </p>
       
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '10px' }}>
         {offers.map(offer => (
           <motion.div 
             key={offer.id}
-            whileHover={{ y: -5 }}
+            whileHover={{ y: -2 }}
             style={{
               background: 'linear-gradient(145deg, var(--bg-card) 0%, rgba(18,18,28,0) 100%)',
               border: '1px solid var(--border)',
-              borderRadius: '20px',
-              padding: '24px',
+              borderRadius: '12px',
+              padding: '14px',
               position: 'relative',
               overflow: 'hidden'
             }}
           >
             {/* Background design */}
-            <div style={{ position: 'absolute', right: '-20px', top: '-20px', opacity: 0.1 }}>
-               <DirectionsBikeIcon sx={{ fontSize: '140px' }} />
+            <div style={{ position: 'absolute', right: '-15px', top: '-15px', opacity: 0.08 }}>
+               <DirectionsBikeIcon sx={{ fontSize: '100px' }} />
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
-              <div style={{ width: '56px', height: '56px', borderRadius: '16px', background: 'var(--bg-elevated)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
+              <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'var(--bg-elevated)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 {getIcon(offer.type)}
               </div>
-              <div style={{ background: 'rgba(41,255,198,0.1)', color: '#29ffc6', padding: '6px 12px', borderRadius: '20px', fontWeight: 800, fontSize: '15px' }}>
+              <div style={{ background: 'rgba(41,255,198,0.1)', color: '#29ffc6', padding: '4px 10px', borderRadius: '12px', fontWeight: 800, fontSize: '12px' }}>
                 {offer.amount}
               </div>
             </div>
 
-            <h3 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--text-primary)', margin: '0 0 8px 0' }}>{offer.title}</h3>
-            <p style={{ margin: '0 0 16px 0', fontSize: '14px', color: 'var(--text-secondary)', lineHeight: 1.5 }}>{offer.desc}</p>
+            <h3 style={{ fontSize: '14px', fontWeight: 800, color: 'var(--text-primary)', margin: '0 0 4px 0' }}>{offer.title}</h3>
+            <p style={{ margin: '0 0 10px 0', fontSize: '11px', color: 'var(--text-secondary)', lineHeight: 1.3 }}>{offer.desc}</p>
             
-            <div style={{ borderTop: '1px dashed var(--border)', paddingTop: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <span style={{ fontSize: '13px', color: 'var(--text-muted)', fontWeight: 600 }}>{offer.time}</span>
-              <button style={{ background: 'transparent', border: 'none', color: '#29ffc6', fontWeight: 700, cursor: 'pointer' }}>View Details</button>
+            <div style={{ borderTop: '1px dashed var(--border)', paddingTop: '10px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 600 }}>{offer.time}</span>
+              <button style={{ background: 'transparent', border: 'none', color: '#29ffc6', fontWeight: 800, fontSize: '11px', cursor: 'pointer' }}>View Details</button>
             </div>
           </motion.div>
         ))}

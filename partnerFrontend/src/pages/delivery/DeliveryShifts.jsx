@@ -154,7 +154,7 @@ export default function DeliveryShifts() {
     <div style={{
       maxWidth: '640px',
       margin: '0 auto',
-      padding: '12px 12px 120px',
+      padding: '8px 8px 80px',
       fontFamily: 'Inter, system-ui, -apple-system, sans-serif',
       color: '#0f172a'
     }}>
@@ -163,10 +163,10 @@ export default function DeliveryShifts() {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        marginBottom: '20px',
-        paddingTop: '8px'
+        marginBottom: '14px',
+        paddingTop: '4px'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <button
             onClick={() => navigate('/delivery')}
             style={{
@@ -174,44 +174,44 @@ export default function DeliveryShifts() {
               border: 'none',
               color: '#0f172a',
               cursor: 'pointer',
-              width: '40px',
-              height: '40px',
+              width: '32px',
+              height: '32px',
               borderRadius: '50%',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
+              boxShadow: '0 2px 6px rgba(0,0,0,0.06)'
             }}
           >
-            <ArrowBackIcon sx={{ fontSize: '22px' }} />
+            <ArrowBackIcon sx={{ fontSize: '18px' }} />
           </button>
           <div>
-            <h1 style={{ fontSize: '22px', fontWeight: 900, color: '#0f172a', margin: 0, letterSpacing: '-0.3px' }}>
+            <h1 style={{ fontSize: '17px', fontWeight: 800, color: '#0f172a', margin: 0, letterSpacing: '-0.2px' }}>
               My Shifts & Slots
             </h1>
-            <div style={{ fontSize: '13px', color: '#64748b', fontWeight: 500 }}>
+            <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 500 }}>
               Book slots to go online and earn surge pay
             </div>
           </div>
         </div>
 
         {/* Counter Pills */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
           {completedSlotsList.length > 0 && (
             <div style={{
               backgroundColor: '#ecfdf5',
               color: '#059669',
               border: '1px solid #a7f3d0',
-              borderRadius: '20px',
-              padding: '6px 12px',
-              fontSize: '12px',
+              borderRadius: '12px',
+              padding: '4px 8px',
+              fontSize: '10px',
               fontWeight: 800,
               display: 'flex',
               alignItems: 'center',
-              gap: '4px'
+              gap: '2px'
             }}>
-              <CheckCircleIcon sx={{ fontSize: '15px' }} />
-              <span>{completedSlotsList.length} Completed</span>
+              <CheckCircleIcon sx={{ fontSize: '13px' }} />
+              <span>{completedSlotsList.length} Done</span>
             </div>
           )}
 
@@ -219,9 +219,9 @@ export default function DeliveryShifts() {
             backgroundColor: activeBookedSlotsList.length > 0 ? '#ecfdf5' : '#f1f5f9',
             color: activeBookedSlotsList.length > 0 ? '#059669' : '#64748b',
             border: `1px solid ${activeBookedSlotsList.length > 0 ? '#a7f3d0' : '#cbd5e1'}`,
-            borderRadius: '20px',
-            padding: '6px 12px',
-            fontSize: '12px',
+            borderRadius: '12px',
+            padding: '4px 8px',
+            fontSize: '10px',
             fontWeight: 800
           }}>
             {activeBookedSlotsList.length} Booked
@@ -232,10 +232,10 @@ export default function DeliveryShifts() {
       {/* Date Tabs */}
       <div style={{
         display: 'flex',
-        gap: '10px',
+        gap: '6px',
         overflowX: 'auto',
-        paddingBottom: '12px',
-        marginBottom: '20px',
+        paddingBottom: '8px',
+        marginBottom: '14px',
         scrollbarWidth: 'none'
       }}>
         {dateTabs.map(tab => {
@@ -247,13 +247,13 @@ export default function DeliveryShifts() {
               onClick={() => setSelectedDate(tab.id)}
               style={{
                 flexShrink: 0,
-                minWidth: '85px',
-                padding: '12px 10px',
-                borderRadius: '18px',
+                minWidth: '65px',
+                padding: '8px 6px',
+                borderRadius: '12px',
                 textAlign: 'center',
                 backgroundColor: isSelected ? '#ff5400' : '#ffffff',
                 color: isSelected ? '#ffffff' : '#0f172a',
-                boxShadow: isSelected ? '0 6px 20px rgba(255, 84, 0, 0.35)' : '0 2px 10px rgba(0,0,0,0.03)',
+                boxShadow: isSelected ? '0 4px 12px rgba(255, 84, 0, 0.25)' : '0 2px 6px rgba(0,0,0,0.02)',
                 border: isSelected ? 'none' : '1px solid rgba(0,0,0,0.04)',
                 cursor: 'pointer',
                 position: 'relative'
@@ -262,22 +262,22 @@ export default function DeliveryShifts() {
               {tab.badge && (
                 <div style={{
                   position: 'absolute',
-                  top: '-8px',
-                  right: '6px',
+                  top: '-6px',
+                  right: '4px',
                   backgroundColor: '#10b981',
                   color: '#ffffff',
-                  fontSize: '9px',
+                  fontSize: '8px',
                   fontWeight: 900,
-                  padding: '2px 6px',
-                  borderRadius: '10px'
+                  padding: '1px 4px',
+                  borderRadius: '6px'
                 }}>
                   {tab.badge}
                 </div>
               )}
-              <div style={{ fontSize: '11px', textTransform: 'uppercase', opacity: isSelected ? 0.9 : 0.6, fontWeight: 700 }}>
+              <div style={{ fontSize: '9px', textTransform: 'uppercase', opacity: isSelected ? 0.9 : 0.6, fontWeight: 700 }}>
                 {tab.label}
               </div>
-              <div style={{ fontSize: '16px', fontWeight: 900, marginTop: '2px' }}>
+              <div style={{ fontSize: '13px', fontWeight: 800, marginTop: '1px' }}>
                 {tab.dateStr}
               </div>
             </motion.div>
@@ -289,18 +289,18 @@ export default function DeliveryShifts() {
       {completedSlotsList.length > 0 && (
         <div style={{
           background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)',
-          border: '1.5px solid #86efac',
-          borderRadius: '20px',
-          padding: '14px 18px',
-          marginBottom: '20px',
+          border: '1px solid #86efac',
+          borderRadius: '12px',
+          padding: '10px 12px',
+          marginBottom: '12px',
           display: 'flex',
           alignItems: 'center',
-          gap: '12px',
-          boxShadow: '0 4px 14px rgba(22, 163, 74, 0.08)'
+          gap: '8px',
+          boxShadow: '0 2px 8px rgba(22, 163, 74, 0.06)'
         }}>
           <div style={{
-            width: '36px',
-            height: '36px',
+            width: '28px',
+            height: '28px',
             borderRadius: '50%',
             backgroundColor: '#16a34a',
             color: '#ffffff',
@@ -309,13 +309,13 @@ export default function DeliveryShifts() {
             justifyContent: 'center',
             flexShrink: 0
           }}>
-            <CheckCircleIcon sx={{ fontSize: '22px' }} />
+            <CheckCircleIcon sx={{ fontSize: '18px' }} />
           </div>
           <div>
-            <div style={{ fontSize: '14px', fontWeight: 900, color: '#14532d' }}>
+            <div style={{ fontSize: '13px', fontWeight: 800, color: '#14532d' }}>
               {completedSlotsList.length} Shift{completedSlotsList.length > 1 ? 's' : ''} Completed Today! 🎉
             </div>
-            <div style={{ fontSize: '12px', color: '#15803d', fontWeight: 600, marginTop: '2px' }}>
+            <div style={{ fontSize: '11px', color: '#15803d', fontWeight: 600, marginTop: '1px' }}>
               {completedSlotsList.map(s => s.time).join(' • ')}
             </div>
           </div>
@@ -325,17 +325,17 @@ export default function DeliveryShifts() {
       {/* Live Surge Banner Announcement */}
       <div style={{
         background: 'linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%)',
-        border: '1.5px solid #a7f3d0',
-        borderRadius: '20px',
-        padding: '14px 18px',
-        marginBottom: '24px',
+        border: '1px solid #a7f3d0',
+        borderRadius: '12px',
+        padding: '10px 12px',
+        marginBottom: '16px',
         display: 'flex',
         alignItems: 'center',
-        gap: '12px'
+        gap: '8px'
       }}>
         <div style={{
-          width: '38px',
-          height: '38px',
+          width: '28px',
+          height: '28px',
           borderRadius: '50%',
           backgroundColor: '#10b981',
           color: '#ffffff',
@@ -344,10 +344,10 @@ export default function DeliveryShifts() {
           justifyContent: 'center',
           flexShrink: 0
         }}>
-          <LocalFireDepartmentIcon sx={{ fontSize: '22px' }} />
+          <LocalFireDepartmentIcon sx={{ fontSize: '18px' }} />
         </div>
         <div>
-          <div style={{ fontSize: '14px', fontWeight: 900, color: '#065f46' }}>
+          <div style={{ fontSize: '13px', fontWeight: 800, color: '#065f46' }}>
             Know LIVE Shift Surge Offers
           </div>
           <div style={{ fontSize: '12px', color: '#047857', fontWeight: 500 }}>

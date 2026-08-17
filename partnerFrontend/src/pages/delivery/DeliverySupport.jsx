@@ -47,14 +47,14 @@ export default function DeliverySupport() {
 
   return (
     <div style={{
-      maxWidth: '680px',
+      maxWidth: '640px',
       margin: '0 auto',
-      padding: '16px 12px 60px',
+      padding: '8px 8px 80px',
       minHeight: '100vh',
       fontFamily: 'Inter, system-ui, sans-serif'
     }}>
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', marginBottom: '24px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', marginBottom: '14px' }}>
         <button
           onClick={() => navigate(-1)}
           style={{
@@ -62,34 +62,36 @@ export default function DeliverySupport() {
             border: 'none',
             color: 'var(--text-primary)',
             cursor: 'pointer',
-            padding: '8px',
+            padding: '4px',
             borderRadius: '50%',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center'
+            justifyContent: 'center',
+            width: '32px',
+            height: '32px'
           }}
         >
-          <ArrowBackIcon sx={{ fontSize: '26px' }} />
+          <ArrowBackIcon sx={{ fontSize: '20px' }} />
         </button>
       </div>
 
       {/* Hero Welcome Banner */}
-      <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+      <div style={{ textAlign: 'center', marginBottom: '16px' }}>
         <h1 style={{
-          fontSize: '24px',
+          fontSize: '17px',
           fontWeight: 800,
           color: 'var(--text-primary)',
-          marginBottom: '20px',
-          letterSpacing: '-0.3px'
+          marginBottom: '10px',
+          letterSpacing: '-0.2px'
         }}>
           Welcome to the{' '}
           <span style={{
             position: 'relative',
             display: 'inline-block',
-            paddingBottom: '4px'
+            paddingBottom: '2px'
           }}>
             Delivery Partner Help Center
-            <svg style={{ position: 'absolute', bottom: 0, left: 0, width: '100%', height: '8px' }} viewBox="0 0 200 8" fill="none">
+            <svg style={{ position: 'absolute', bottom: 0, left: 0, width: '100%', height: '6px' }} viewBox="0 0 200 8" fill="none">
               <path d="M2 5C50 2 150 2 198 5" stroke="#f97316" strokeWidth="4" strokeLinecap="round" />
             </svg>
           </span>
@@ -98,9 +100,9 @@ export default function DeliverySupport() {
         {/* Illustration Avatar Card */}
         <div style={{
           background: 'linear-gradient(135deg, rgba(254,226,226,0.15) 0%, rgba(254,215,170,0.15) 100%)',
-          borderRadius: '24px',
-          padding: '28px 20px',
-          maxWidth: '360px',
+          borderRadius: '12px',
+          padding: '14px 16px',
+          maxWidth: '300px',
           margin: '0 auto',
           border: '1px solid rgba(249,115,22,0.15)',
           display: 'flex',
@@ -109,24 +111,24 @@ export default function DeliverySupport() {
         }}>
           {/* Agent Avatar Box */}
           <div style={{
-            width: '90px',
-            height: '90px',
+            width: '48px',
+            height: '48px',
             borderRadius: '50%',
             background: 'linear-gradient(135deg, #fbcfe8 0%, #f472b6 100%)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            marginBottom: '14px',
-            boxShadow: '0 8px 20px rgba(244,114,182,0.3)',
+            marginBottom: '8px',
+            boxShadow: '0 4px 12px rgba(244,114,182,0.25)',
             position: 'relative'
           }}>
-            <SupportAgentIcon sx={{ fontSize: '54px', color: '#831843' }} />
+            <SupportAgentIcon sx={{ fontSize: '28px', color: '#831843' }} />
           </div>
 
-          <p style={{ fontSize: '14px', color: 'var(--text-secondary)', fontWeight: 500, margin: 0 }}>
+          <p style={{ fontSize: '11px', color: 'var(--text-secondary)', fontWeight: 500, margin: 0 }}>
             Need any help?
           </p>
-          <p style={{ fontSize: '15px', color: 'var(--text-primary)', fontWeight: 700, margin: '2px 0 0' }}>
+          <p style={{ fontSize: '12px', color: 'var(--text-primary)', fontWeight: 800, margin: '2px 0 0' }}>
             RapidCloth is here for you.
           </p>
         </div>
@@ -134,11 +136,11 @@ export default function DeliverySupport() {
 
       {/* Section Title */}
       <h2 style={{
-        fontSize: '18px',
-        fontWeight: 700,
+        fontSize: '14px',
+        fontWeight: 800,
         color: 'var(--text-primary)',
-        marginBottom: '16px',
-        paddingLeft: '4px'
+        marginBottom: '10px',
+        paddingLeft: '2px'
       }}>
         Raise a new issue
       </h2>
@@ -147,12 +149,12 @@ export default function DeliverySupport() {
       <div style={{
         display: 'flex',
         flexDirection: 'column',
-        gap: '2px',
+        gap: '1px',
         background: 'var(--bg-card)',
-        borderRadius: '20px',
+        borderRadius: '12px',
         overflow: 'hidden',
         border: '1px solid var(--border)',
-        boxShadow: '0 4px 20px rgba(0,0,0,0.05)'
+        boxShadow: '0 2px 10px rgba(0,0,0,0.03)'
       }}>
         {issuesList.map((issue, index) => (
           <motion.div
@@ -163,16 +165,16 @@ export default function DeliverySupport() {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
-              padding: '16px 20px',
+              padding: '10px 12px',
               cursor: 'pointer',
               borderBottom: index < issuesList.length - 1 ? '1px dashed var(--border)' : 'none',
               transition: 'background 0.2s ease'
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
               <div style={{
-                width: '42px',
-                height: '42px',
+                width: '32px',
+                height: '32px',
                 borderRadius: '50%',
                 backgroundColor: 'rgba(255,255,255,0.05)',
                 border: '1px solid var(--border)',
@@ -182,10 +184,10 @@ export default function DeliverySupport() {
                 color: 'var(--text-primary)',
                 flexShrink: 0
               }}>
-                {issue.icon}
+                {React.cloneElement(issue.icon, { sx: { fontSize: '16px' } })}
               </div>
               <span style={{
-                fontSize: '15px',
+                fontSize: '13px',
                 fontWeight: 600,
                 color: 'var(--text-primary)'
               }}>
@@ -193,7 +195,7 @@ export default function DeliverySupport() {
               </span>
             </div>
 
-            <ChevronRightIcon sx={{ color: '#f97316', fontSize: '22px' }} />
+            <ChevronRightIcon sx={{ color: '#f97316', fontSize: '18px' }} />
           </motion.div>
         ))}
       </div>

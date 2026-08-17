@@ -245,14 +245,14 @@ export default function DeliveryOrders() {
   if (loading) return <div style={{ padding: '20px', textAlign: 'center' }}>Loading orders...</div>;
 
   return (
-    <div style={{ paddingBottom: '120px', maxWidth: '640px', margin: '0 auto' }}>
+    <div style={{ paddingBottom: '80px', maxWidth: '640px', margin: '0 auto', padding: '8px 8px 80px' }}>
       {/* 1. Header Bar */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
         <div>
-          <h2 style={{ fontSize: '22px', fontWeight: 900, letterSpacing: '-0.5px', color: 'var(--text-primary, #0f172a)', margin: 0 }}>
+          <h2 style={{ fontSize: '17px', fontWeight: 800, letterSpacing: '-0.2px', color: 'var(--text-primary, #0f172a)', margin: 0 }}>
             {t('orders')}
           </h2>
-          <div style={{ fontSize: '12px', color: 'var(--text-muted, #64748b)', fontWeight: 600, marginTop: '2px' }}>
+          <div style={{ fontSize: '11px', color: 'var(--text-muted, #64748b)', fontWeight: 500, marginTop: '1px' }}>
             Live order tracking, store settlements & incentive office logs
           </div>
         </div>
@@ -265,15 +265,15 @@ export default function DeliveryOrders() {
             });
           }}
           style={{
-            display: 'flex', alignItems: 'center', gap: '6px',
-            padding: '8px 14px', borderRadius: '16px',
+            display: 'flex', alignItems: 'center', gap: '4px',
+            padding: '5px 10px', borderRadius: '10px',
             border: '1px solid var(--border, #e2e8f0)',
             background: soundEnabled ? 'rgba(16,185,129,0.1)' : 'var(--bg-elevated, #ffffff)',
             color: soundEnabled ? '#10b981' : 'var(--text-muted, #64748b)',
-            fontSize: '13px', fontWeight: 800, cursor: 'pointer', transition: 'all 0.2s'
+            fontSize: '11px', fontWeight: 800, cursor: 'pointer', transition: 'all 0.2s'
           }}
         >
-          {soundEnabled ? <VolumeUpIcon sx={{ fontSize: 18 }} /> : <VolumeOffIcon sx={{ fontSize: 18 }} />}
+          {soundEnabled ? <VolumeUpIcon sx={{ fontSize: 16 }} /> : <VolumeOffIcon sx={{ fontSize: 16 }} />}
           {soundEnabled ? 'Sound On' : 'Sound Off'}
         </button>
       </div>
@@ -282,28 +282,28 @@ export default function DeliveryOrders() {
       {orders.length === 0 ? (
         <div style={{
           textAlign: 'center',
-          padding: '24px 20px',
+          padding: '16px 14px',
           background: 'var(--bg-card, #ffffff)',
-          borderRadius: '24px',
+          borderRadius: '12px',
           border: '1px solid var(--border, #e2e8f0)',
-          marginBottom: '24px',
-          boxShadow: '0 4px 20px rgba(0,0,0,0.02)'
+          marginBottom: '14px',
+          boxShadow: '0 2px 10px rgba(0,0,0,0.02)'
         }}>
           <div style={{
-            width: '48px', height: '48px', borderRadius: '50%', background: 'rgba(255, 107, 0, 0.1)',
-            color: '#ff6b00', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px'
+            width: '36px', height: '36px', borderRadius: '50%', background: 'rgba(255, 107, 0, 0.1)',
+            color: '#ff6b00', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 8px'
           }}>
-            <DirectionsBikeIcon sx={{ fontSize: '24px' }} />
+            <DirectionsBikeIcon sx={{ fontSize: '20px' }} />
           </div>
-          <div style={{ fontSize: '15px', fontWeight: 800, color: 'var(--text-primary, #0f172a)' }}>
+          <div style={{ fontSize: '13px', fontWeight: 800, color: 'var(--text-primary, #0f172a)' }}>
             No active orders assigned right now
           </div>
-          <p style={{ color: 'var(--text-muted, #64748b)', fontSize: '12px', marginTop: '4px', margin: 0 }}>
+          <p style={{ color: 'var(--text-muted, #64748b)', fontSize: '11px', marginTop: '2px', margin: 0 }}>
             Keep your status Online. New order assignments will ring automatically.
           </p>
         </div>
       ) : (
-        <div style={{ display: 'grid', gap: '16px', marginBottom: '32px' }}>
+        <div style={{ display: 'grid', gap: '10px', marginBottom: '16px' }}>
           {orders.map(order => {
             const fin = getOrderFinancials(order);
             return (
@@ -313,24 +313,24 @@ export default function DeliveryOrders() {
                 animate={{ opacity: 1, y: 0 }}
                 style={{
                   background: 'var(--bg-card, #ffffff)',
-                  padding: '20px',
-                  borderRadius: '24px',
-                  border: '1.5px solid var(--border, #e2e8f0)',
-                  boxShadow: '0 6px 24px rgba(0,0,0,0.04)'
+                  padding: '12px 14px',
+                  borderRadius: '12px',
+                  border: '1px solid var(--border, #e2e8f0)',
+                  boxShadow: '0 2px 12px rgba(0,0,0,0.03)'
                 }}
               >
                 {/* Active Order Header */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px' }}>
                   <div>
-                    <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: 700 }}>
+                    <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 700 }}>
                       Order #{order._id.substring(order._id.length - 8).toUpperCase()} • {fin.arrivalTime}
                     </div>
-                    <div style={{ color: '#ff6b00', fontSize: '14px', fontWeight: 900, marginTop: '2px' }}>
+                    <div style={{ color: '#ff6b00', fontSize: '13px', fontWeight: 800, marginTop: '1px' }}>
                       {order.items?.length || 1} items to deliver
                     </div>
                   </div>
                   <div style={{
-                    padding: '6px 12px', borderRadius: '14px', fontSize: '11px', fontWeight: 900,
+                    padding: '3px 8px', borderRadius: '10px', fontSize: '10px', fontWeight: 800,
                     textTransform: 'uppercase', background: '#ecfdf5', color: '#047857', border: '1px solid #a7f3d0'
                   }}>
                     {order.status}
@@ -338,29 +338,29 @@ export default function DeliveryOrders() {
                 </div>
 
                 {/* Pickup & Drop Addresses */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px' }}>
-                  <div style={{ padding: '12px', background: 'rgba(99,102,241,0.06)', borderRadius: '16px', border: '1px solid rgba(99,102,241,0.2)' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
-                      <StorefrontIcon sx={{ color: '#6366f1', fontSize: '16px' }} />
-                      <span style={{ fontSize: '10px', fontWeight: 900, color: '#6366f1', textTransform: 'uppercase' }}>PICKUP HUB</span>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '10px' }}>
+                  <div style={{ padding: '8px 10px', background: 'rgba(99,102,241,0.06)', borderRadius: '10px', border: '1px solid rgba(99,102,241,0.15)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '2px' }}>
+                      <StorefrontIcon sx={{ color: '#6366f1', fontSize: '14px' }} />
+                      <span style={{ fontSize: '9px', fontWeight: 800, color: '#6366f1', textTransform: 'uppercase' }}>PICKUP HUB</span>
                     </div>
-                    <div style={{ fontWeight: 800, fontSize: '13px', color: 'var(--text-primary)' }}>
+                    <div style={{ fontWeight: 800, fontSize: '12px', color: 'var(--text-primary)' }}>
                       {order.items[0]?.productId?.sellerId?.sellerProfile?.storeName || 'Seller Store'}
                     </div>
-                    <div style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '2px', lineHeight: 1.2 }}>
+                    <div style={{ fontSize: '10px', color: 'var(--text-secondary)', marginTop: '1px', lineHeight: 1.2 }}>
                       {order.items[0]?.productId?.sellerId?.sellerProfile?.businessAddress || 'Hub Address'}
                     </div>
                   </div>
 
-                  <div style={{ padding: '12px', background: 'rgba(239,68,68,0.06)', borderRadius: '16px', border: '1px solid rgba(239,68,68,0.2)' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
-                      <LocationOnIcon sx={{ color: '#ef4444', fontSize: '16px' }} />
-                      <span style={{ fontSize: '10px', fontWeight: 900, color: '#ef4444', textTransform: 'uppercase' }}>DROP LOCATION</span>
+                  <div style={{ padding: '8px 10px', background: 'rgba(239,68,68,0.06)', borderRadius: '10px', border: '1px solid rgba(239,68,68,0.15)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '2px' }}>
+                      <LocationOnIcon sx={{ color: '#ef4444', fontSize: '14px' }} />
+                      <span style={{ fontSize: '9px', fontWeight: 800, color: '#ef4444', textTransform: 'uppercase' }}>DROP LOCATION</span>
                     </div>
-                    <div style={{ fontWeight: 800, fontSize: '13px', color: 'var(--text-primary)' }}>
+                    <div style={{ fontWeight: 800, fontSize: '12px', color: 'var(--text-primary)' }}>
                       {order.userId?.name || 'Customer'}
                     </div>
-                    <div style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '2px', lineHeight: 1.2 }}>
+                    <div style={{ fontSize: '10px', color: 'var(--text-secondary)', marginTop: '1px', lineHeight: 1.2 }}>
                       {order.deliveryAddress?.city || 'Delivery Address'}
                     </div>
                   </div>
@@ -368,12 +368,12 @@ export default function DeliveryOrders() {
 
                 {/* Accept / Reject Action Buttons if pending */}
                 {order.delivery?.status === 'assigned' && order.status !== 'cancelled' && (
-                  <div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
+                  <div style={{ display: 'flex', gap: '8px', marginTop: '10px' }}>
                     <button
                       onClick={() => handleAccept(order._id)}
                       style={{
-                        flex: 1, padding: '14px', borderRadius: '16px', background: '#10b981', color: '#ffffff',
-                        border: 'none', fontSize: '15px', fontWeight: 900, cursor: 'pointer'
+                        flex: 1, padding: '9px 12px', borderRadius: '10px', background: '#10b981', color: '#ffffff',
+                        border: 'none', fontSize: '12px', fontWeight: 800, cursor: 'pointer'
                       }}
                     >
                       Accept Order
@@ -381,8 +381,8 @@ export default function DeliveryOrders() {
                     <button
                       onClick={() => handleReject(order._id)}
                       style={{
-                        padding: '14px 20px', borderRadius: '16px', background: 'rgba(239, 68, 68, 0.1)',
-                        color: '#dc2626', border: '1px solid rgba(239, 68, 68, 0.3)', fontSize: '14px', fontWeight: 900, cursor: 'pointer'
+                        padding: '9px 14px', borderRadius: '10px', background: 'rgba(239, 68, 68, 0.1)',
+                        color: '#dc2626', border: '1px solid rgba(239, 68, 68, 0.3)', fontSize: '12px', fontWeight: 800, cursor: 'pointer'
                       }}
                     >
                       Reject
@@ -396,11 +396,11 @@ export default function DeliveryOrders() {
       )}
 
       {/* 3. Comprehensive Financial Receipt Log Section */}
-      <div style={{ marginTop: '24px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <ReceiptLongIcon sx={{ color: '#ff6b00', fontSize: '22px' }} />
-            <h3 style={{ fontSize: '18px', fontWeight: 900, color: 'var(--text-primary, #0f172a)', margin: 0 }}>
+      <div style={{ marginTop: '16px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <ReceiptLongIcon sx={{ color: '#ff6b00', fontSize: '18px' }} />
+            <h3 style={{ fontSize: '14px', fontWeight: 800, color: 'var(--text-primary, #0f172a)', margin: 0 }}>
               Order Financial Receipts & Settlement Log
             </h3>
           </div>
@@ -409,45 +409,45 @@ export default function DeliveryOrders() {
         {/* Financial Summary Stat Bar */}
         <div style={{
           background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)',
-          borderRadius: '24px',
-          padding: '20px',
+          borderRadius: '12px',
+          padding: '12px 14px',
           color: '#ffffff',
-          marginBottom: '20px',
-          boxShadow: '0 8px 30px rgba(0,0,0,0.15)'
+          marginBottom: '14px',
+          boxShadow: '0 4px 16px rgba(0,0,0,0.12)'
         }}>
-          <div style={{ fontSize: '11px', fontWeight: 900, color: '#94a3b8', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '14px' }}>
+          <div style={{ fontSize: '10px', fontWeight: 800, color: '#94a3b8', letterSpacing: '0.6px', textTransform: 'uppercase', marginBottom: '8px' }}>
             TODAY'S RECEIVABLES & INCENTIVE BREAKDOWN
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px', textAlign: 'center' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '6px', textAlign: 'center' }}>
             {/* Stat 1: Total Order Value */}
-            <div style={{ background: 'rgba(255,255,255,0.06)', padding: '10px 4px', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.1)' }}>
-              <div style={{ fontSize: '10px', color: '#94a3b8', fontWeight: 700 }}>ORDER VALUE</div>
-              <div style={{ fontSize: '16px', fontWeight: 900, color: '#ffffff', marginTop: '4px' }}>
+            <div style={{ background: 'rgba(255,255,255,0.06)', padding: '6px 2px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)' }}>
+              <div style={{ fontSize: '9px', color: '#94a3b8', fontWeight: 700 }}>ORDER VALUE</div>
+              <div style={{ fontSize: '14px', fontWeight: 800, color: '#ffffff', marginTop: '2px' }}>
                 ₹{allDisplayOrders.reduce((sum, o) => sum + (o.totalAmount || 350), 0).toLocaleString()}
               </div>
             </div>
 
             {/* Stat 2: Taken from Restaurant/Store */}
-            <div style={{ background: 'rgba(255,255,255,0.06)', padding: '10px 4px', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.1)' }}>
-              <div style={{ fontSize: '10px', color: '#94a3b8', fontWeight: 700 }}>STORE TAKE</div>
-              <div style={{ fontSize: '16px', fontWeight: 900, color: '#38bdf8', marginTop: '4px' }}>
+            <div style={{ background: 'rgba(255,255,255,0.06)', padding: '6px 2px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)' }}>
+              <div style={{ fontSize: '9px', color: '#94a3b8', fontWeight: 700 }}>STORE TAKE</div>
+              <div style={{ fontSize: '14px', fontWeight: 800, color: '#38bdf8', marginTop: '2px' }}>
                 ₹{allDisplayOrders.reduce((sum, o) => sum + getOrderFinancials(o).storeTake, 0).toLocaleString()}
               </div>
             </div>
 
             {/* Stat 3: Delivery Pay */}
-            <div style={{ background: 'rgba(255,255,255,0.06)', padding: '10px 4px', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.1)' }}>
-              <div style={{ fontSize: '10px', color: '#94a3b8', fontWeight: 700 }}>DELIVERY PAY</div>
-              <div style={{ fontSize: '16px', fontWeight: 900, color: '#4ade80', marginTop: '4px' }}>
+            <div style={{ background: 'rgba(255,255,255,0.06)', padding: '6px 2px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)' }}>
+              <div style={{ fontSize: '9px', color: '#94a3b8', fontWeight: 700 }}>DELIVERY PAY</div>
+              <div style={{ fontSize: '14px', fontWeight: 800, color: '#4ade80', marginTop: '2px' }}>
                 ₹{allDisplayOrders.reduce((sum, o) => sum + getOrderFinancials(o).deliveryFee, 0).toLocaleString()}
               </div>
             </div>
 
             {/* Stat 4: Incentive Office Bonus */}
-            <div style={{ background: 'rgba(255,255,255,0.06)', padding: '10px 4px', borderRadius: '14px', border: '1px solid rgba(255,255,255,0.1)' }}>
-              <div style={{ fontSize: '10px', color: '#94a3b8', fontWeight: 700 }}>INCENTIVE OFF.</div>
-              <div style={{ fontSize: '16px', fontWeight: 900, color: '#f43f5e', marginTop: '4px' }}>
+            <div style={{ background: 'rgba(255,255,255,0.06)', padding: '6px 2px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)' }}>
+              <div style={{ fontSize: '9px', color: '#94a3b8', fontWeight: 700 }}>INCENTIVE OFF.</div>
+              <div style={{ fontSize: '14px', fontWeight: 800, color: '#f43f5e', marginTop: '2px' }}>
                 ₹{allDisplayOrders.reduce((sum, o) => sum + getOrderFinancials(o).incentiveOffice, 0).toLocaleString()}
               </div>
             </div>

@@ -757,8 +757,8 @@ export default function DeliveryEmergency() {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
-              marginBottom: '24px',
-              paddingTop: '8px'
+              marginBottom: '14px',
+              paddingTop: '4px'
             }}>
               <button
                 onClick={() => navigate('/delivery')}
@@ -767,16 +767,16 @@ export default function DeliveryEmergency() {
                   border: 'none',
                   color: '#0f172a',
                   cursor: 'pointer',
-                  width: '42px',
-                  height: '42px',
+                  width: '32px',
+                  height: '32px',
                   borderRadius: '50%',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
+                  boxShadow: '0 2px 6px rgba(0,0,0,0.06)'
                 }}
               >
-                <ArrowBackIcon sx={{ fontSize: '24px' }} />
+                <ArrowBackIcon sx={{ fontSize: '18px' }} />
               </button>
 
               <button
@@ -786,26 +786,26 @@ export default function DeliveryEmergency() {
                   border: 'none',
                   color: '#0f172a',
                   cursor: 'pointer',
-                  width: '42px',
-                  height: '42px',
+                  width: '32px',
+                  height: '32px',
                   borderRadius: '50%',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
+                  boxShadow: '0 2px 6px rgba(0,0,0,0.06)'
                 }}
               >
-                <HelpOutlineIcon sx={{ fontSize: '24px' }} />
+                <HelpOutlineIcon sx={{ fontSize: '18px' }} />
               </button>
             </div>
 
             {/* Hero Pulsing Emergency Siren */}
-            <div style={{ textAlign: 'center', marginBottom: '32px', position: 'relative' }}>
+            <div style={{ textAlign: 'center', marginBottom: '20px', position: 'relative' }}>
               <div style={{
                 position: 'relative',
-                width: '100px',
-                height: '100px',
-                margin: '0 auto 20px',
+                width: '68px',
+                height: '68px',
+                margin: '0 auto 12px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center'
@@ -816,7 +816,7 @@ export default function DeliveryEmergency() {
                   transition={{ repeat: Infinity, duration: 2, ease: 'easeInOut' }}
                   style={{
                     position: 'absolute',
-                    inset: '-12px',
+                    inset: '-8px',
                     borderRadius: '50%',
                     backgroundColor: 'rgba(239, 68, 68, 0.25)'
                   }}
@@ -827,25 +827,25 @@ export default function DeliveryEmergency() {
                   transition={{ repeat: Infinity, duration: 2, ease: 'easeInOut', delay: 0.3 }}
                   style={{
                     position: 'absolute',
-                    inset: '-4px',
+                    inset: '-3px',
                     borderRadius: '50%',
                     backgroundColor: 'rgba(239, 68, 68, 0.35)'
                   }}
                 />
                 {/* Inner Red Core */}
                 <div style={{
-                  width: '72px',
-                  height: '72px',
+                  width: '48px',
+                  height: '48px',
                   borderRadius: '50%',
                   background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  boxShadow: '0 8px 25px rgba(239, 68, 68, 0.5)',
+                  boxShadow: '0 4px 16px rgba(239, 68, 68, 0.5)',
                   position: 'relative',
                   zIndex: 2
                 }}>
-                  <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M12 2v2" />
                     <path d="M4.93 4.93l1.41 1.41" />
                     <path d="M19.07 4.93l-1.41 1.41" />
@@ -856,16 +856,16 @@ export default function DeliveryEmergency() {
               </div>
 
               <h1 style={{
-                fontSize: '24px',
+                fontSize: '17px',
                 fontWeight: 800,
                 color: '#0f172a',
-                marginBottom: '6px',
-                letterSpacing: '-0.3px'
+                marginBottom: '2px',
+                letterSpacing: '-0.2px'
               }}>
                 Are you in an emergency?
               </h1>
               <p style={{
-                fontSize: '14px',
+                fontSize: '11px',
                 color: '#64748b',
                 margin: 0,
                 fontWeight: 500
@@ -880,21 +880,21 @@ export default function DeliveryEmergency() {
               onClick={() => handleCall('RapidCloth Emergency Helpline', '1800-RAPID-SOS')}
               style={{
                 background: '#ffffff',
-                borderRadius: '40px',
-                padding: '14px 20px 14px 14px',
+                borderRadius: '12px',
+                padding: '10px 14px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
-                marginBottom: '16px',
-                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.04)',
+                marginBottom: '10px',
+                boxShadow: '0 2px 10px rgba(0, 0, 0, 0.03)',
                 cursor: 'pointer',
                 border: '1px solid rgba(0, 0, 0, 0.04)'
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <div style={{
-                  width: '44px',
-                  height: '44px',
+                  width: '32px',
+                  height: '32px',
                   borderRadius: '50%',
                   backgroundColor: '#fff7ed',
                   display: 'flex',
@@ -902,21 +902,21 @@ export default function DeliveryEmergency() {
                   justifyContent: 'center',
                   color: '#ea580c'
                 }}>
-                  <PhoneInTalkIcon sx={{ fontSize: '24px' }} />
+                  <PhoneInTalkIcon sx={{ fontSize: '18px' }} />
                 </div>
-                <span style={{ fontSize: '16px', fontWeight: 800, color: '#0f172a' }}>
+                <span style={{ fontSize: '13px', fontWeight: 800, color: '#0f172a' }}>
                   Call helpline
                 </span>
               </div>
-              <ChevronRightIcon sx={{ fontSize: '26px', color: '#0f172a' }} />
+              <ChevronRightIcon sx={{ fontSize: '20px', color: '#0f172a' }} />
             </motion.div>
 
             {/* Two Column Grid Cards (Police & Ambulance) */}
             <div style={{
               display: 'grid',
               gridTemplateColumns: '1fr 1fr',
-              gap: '16px',
-              marginBottom: '24px'
+              gap: '10px',
+              marginBottom: '14px'
             }}>
               {/* Call Police Card */}
               <motion.div
@@ -924,31 +924,31 @@ export default function DeliveryEmergency() {
                 onClick={() => handleCall('Police Control Room', '112')}
                 style={{
                   background: '#ffffff',
-                  borderRadius: '24px',
-                  padding: '24px 16px',
+                  borderRadius: '12px',
+                  padding: '14px 10px',
                   display: 'flex',
                   flexDirection: 'column',
                   alignItems: 'center',
                   textAlign: 'center',
-                  boxShadow: '0 4px 20px rgba(0, 0, 0, 0.04)',
+                  boxShadow: '0 2px 10px rgba(0, 0, 0, 0.03)',
                   cursor: 'pointer',
                   border: '1px solid rgba(0, 0, 0, 0.04)'
                 }}
               >
                 <div style={{
-                  width: '56px',
-                  height: '56px',
+                  width: '38px',
+                  height: '38px',
                   borderRadius: '50%',
                   backgroundColor: '#f1f5f9',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   color: '#334155',
-                  marginBottom: '14px'
+                  marginBottom: '8px'
                 }}>
-                  <LocalPoliceOutlinedIcon sx={{ fontSize: '30px' }} />
+                  <LocalPoliceOutlinedIcon sx={{ fontSize: '22px' }} />
                 </div>
-                <span style={{ fontSize: '15px', fontWeight: 800, color: '#0f172a', lineHeight: 1.3 }}>
+                <span style={{ fontSize: '12px', fontWeight: 800, color: '#0f172a', lineHeight: 1.2 }}>
                   Call<br />Police
                 </span>
               </motion.div>
@@ -959,32 +959,32 @@ export default function DeliveryEmergency() {
                 onClick={() => handleCall('Ambulance Emergency', '108')}
                 style={{
                   background: '#ffffff',
-                  borderRadius: '24px',
-                  padding: '24px 16px',
+                  borderRadius: '12px',
+                  padding: '14px 10px',
                   display: 'flex',
                   flexDirection: 'column',
                   alignItems: 'center',
                   textAlign: 'center',
-                  boxShadow: '0 4px 20px rgba(0, 0, 0, 0.04)',
+                  boxShadow: '0 2px 10px rgba(0, 0, 0, 0.03)',
                   cursor: 'pointer',
                   border: '1px solid rgba(0, 0, 0, 0.04)'
                 }}
               >
                 <div style={{
-                  width: '56px',
-                  height: '56px',
+                  width: '38px',
+                  height: '38px',
                   borderRadius: '50%',
                   backgroundColor: '#f1f5f9',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   color: '#334155',
-                  marginBottom: '14px'
+                  marginBottom: '8px'
                 }}>
-                  <MedicalServicesOutlinedIcon sx={{ fontSize: '30px' }} />
+                  <MedicalServicesOutlinedIcon sx={{ fontSize: '22px' }} />
                 </div>
-                <span style={{ fontSize: '15px', fontWeight: 800, color: '#0f172a', lineHeight: 1.3 }}>
-                  Call an<br />ambulance
+                <span style={{ fontSize: '12px', fontWeight: 800, color: '#0f172a', lineHeight: 1.2 }}>
+                  Call<br />Ambulance
                 </span>
               </motion.div>
             </div>
