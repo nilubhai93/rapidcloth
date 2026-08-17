@@ -15,7 +15,7 @@ const Modal = ({ isOpen, onClose, title, children }) => {
           alignItems: 'center',
           justifyContent: 'space-between'
         }}>
-          <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#ffffff' }}>{title}</h3>
+          <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--text-primary)' }}>{title}</h3>
           <button
             onClick={onClose}
             style={{

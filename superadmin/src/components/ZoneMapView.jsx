@@ -10,7 +10,7 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png'
 });
 
-const ZONE_COLORS = ['#8b5cf6', '#3b82f6', '#10b981', '#f59e0b', '#ec4899', '#06b6d4'];
+const ZONE_COLORS = ['#FF6B6B', '#3b82f6', '#10b981', '#f59e0b', '#ec4899', '#06b6d4'];
 
 // Helper component to capture map clicks for picking center or adding polygon boundary points
 const MapClickHandler = ({ mode, onLocationSelect, onAddPolygonPoint }) => {
@@ -57,7 +57,7 @@ const ZoneMapView = ({
         center={center}
         zoom={11}
         scrollWheelZoom={true}
-        style={{ height: '100%', width: '100%', background: '#0b0f19' }}
+        style={{ height: '100%', width: '100%', background: '#f5f0eb' }}
       >
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
@@ -77,8 +77,8 @@ const ZoneMapView = ({
               <Polygon
                 positions={currentPolygonPoints.map(p => [p.lat, p.lng])}
                 pathOptions={{
-                  color: '#d946ef',
-                  fillColor: '#d946ef',
+                  color: '#FF6B6B',
+                  fillColor: '#FF6B6B',
                   fillOpacity: 0.35,
                   weight: 3,
                   dashArray: '6, 6'

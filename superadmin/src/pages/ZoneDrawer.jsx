@@ -230,7 +230,7 @@ const ZoneDrawer = () => {
         </div>
 
         {error && (
-          <div style={{ padding: '0.75rem 1rem', background: 'rgba(244, 63, 94, 0.15)', borderRadius: 'var(--radius-md)', color: '#fb7185', marginBottom: '1rem' }}>
+          <div style={{ padding: '0.75rem 1rem', background: 'rgba(239, 68, 68, 0.1)', borderRadius: 'var(--radius-md)', color: '#dc2626', marginBottom: '1rem' }}>
             {error}
           </div>
         )}
@@ -316,7 +316,7 @@ const ZoneDrawer = () => {
 
             {shapeType === 'polygon' ? (
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                <span style={{ fontSize: '0.85rem', color: '#d946ef', fontWeight: 700 }}>
+                <span style={{ fontSize: '0.85rem', color: 'var(--accent)', fontWeight: 700 }}>
                   📍 Boundary Vertices: {polygonPoints.length} points
                 </span>
                 <button
@@ -347,7 +347,7 @@ const ZoneDrawer = () => {
                     step="0.5"
                     value={formData.radiusKm}
                     onChange={e => setFormData({ ...formData, radiusKm: e.target.value })}
-                    style={{ width: '70px', marginLeft: '0.5rem', padding: '0.3rem', borderRadius: '4px', background: '#0b0f19', color: '#fff', border: '1px solid var(--border-color)' }}
+                    style={{ width: '70px', marginLeft: '0.5rem', padding: '0.3rem', borderRadius: '4px', background: 'var(--bg-secondary)', color: 'var(--text-primary)', border: '1px solid var(--border-color)' }}
                   />
                 </label>
               </div>

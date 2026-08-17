@@ -185,7 +185,7 @@ const Admins = () => {
       <div className="content-body">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
           <div>
-            <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#ffffff' }}>Zone Admins</h2>
+            <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--text-primary)' }}>Zone Admins</h2>
             <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Assign administrative control over specific operational zones</p>
           </div>
           <div style={{ display: 'flex', gap: '0.75rem' }}>
@@ -200,7 +200,7 @@ const Admins = () => {
         </div>
 
         {error && (
-          <div style={{ padding: '1rem', background: 'rgba(244, 63, 94, 0.15)', borderRadius: 'var(--radius-md)', color: '#fb7185', marginBottom: '1.5rem' }}>
+          <div style={{ padding: '1rem', background: 'rgba(239, 68, 68, 0.1)', borderRadius: 'var(--radius-md)', color: '#dc2626', marginBottom: '1.5rem' }}>
             {error}
           </div>
         )}
@@ -225,7 +225,7 @@ const Admins = () => {
                   <tr key={admin._id}>
                     <td>
                       <div>
-                        <strong style={{ color: '#ffffff', fontSize: '0.95rem' }}>{admin.name}</strong>
+                        <strong style={{ color: 'var(--text-primary)', fontSize: '0.95rem' }}>{admin.name}</strong>
                         <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{admin.email}</div>
                       </div>
                     </td>
@@ -344,14 +344,14 @@ const Admins = () => {
             {/* Inline Quick Zone Creator Form */}
             {showQuickZoneForm && (
               <div style={{
-                background: '#0b0f19',
-                border: '1px solid var(--accent-purple)',
+                background: 'var(--bg-secondary)',
+                border: '1px solid var(--accent)',
                 borderRadius: 'var(--radius-md)',
                 padding: '1rem',
                 marginBottom: '1rem',
-                boxShadow: '0 4px 15px rgba(139, 92, 246, 0.15)'
+                boxShadow: '0 4px 15px rgba(255, 107, 107, 0.15)'
               }}>
-                <h4 style={{ fontSize: '0.85rem', fontWeight: 700, color: '#c084fc', marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                <h4 style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--accent)', marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
                   <MapPin size={16} /> Create & Define New Zone Area
                 </h4>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '0.75rem' }}>
@@ -420,7 +420,7 @@ const Admins = () => {
                 <button
                   type="button"
                   onClick={handleSelectAllZones}
-                  style={{ background: 'none', border: 'none', color: '#60a5fa', fontSize: '0.75rem', cursor: 'pointer', fontWeight: 600 }}
+                  style={{ background: 'none', border: 'none', color: 'var(--accent)', fontSize: '0.75rem', cursor: 'pointer', fontWeight: 600 }}
                 >
                   Select All
                 </button>
@@ -428,7 +428,7 @@ const Admins = () => {
                 <button
                   type="button"
                   onClick={handleClearAllZones}
-                  style={{ background: 'none', border: 'none', color: '#fb7185', fontSize: '0.75rem', cursor: 'pointer', fontWeight: 600 }}
+                  style={{ background: 'none', border: 'none', color: '#dc2626', fontSize: '0.75rem', cursor: 'pointer', fontWeight: 600 }}
                 >
                   Clear Selections
                 </button>
@@ -439,7 +439,7 @@ const Admins = () => {
             <div style={{
               maxHeight: '180px',
               overflowY: 'auto',
-              background: '#0b0f19',
+              background: 'var(--bg-secondary)',
               border: '1px solid var(--border-color)',
               borderRadius: 'var(--radius-md)',
               padding: '0.5rem'
@@ -461,8 +461,8 @@ const Admins = () => {
                         padding: '0.5rem',
                         borderRadius: 'var(--radius-sm)',
                         cursor: 'pointer',
-                        background: isChecked ? 'rgba(139, 92, 246, 0.12)' : 'transparent',
-                        border: isChecked ? '1px solid rgba(139, 92, 246, 0.25)' : '1px solid transparent',
+                        background: isChecked ? 'rgba(255, 107, 107, 0.12)' : 'transparent',
+                        border: isChecked ? '1px solid rgba(255, 107, 107, 0.3)' : '1px solid transparent',
                         marginBottom: '0.35rem',
                         transition: 'all 0.15s ease'
                       }}
@@ -477,9 +477,9 @@ const Admins = () => {
                         <div style={{
                           fontSize: '0.85rem',
                           fontWeight: 700,
-                          color: isChecked ? '#ffffff' : 'var(--text-primary)'
+                          color: 'var(--text-primary)'
                         }}>
-                          {zone.name} <span style={{ color: 'var(--accent-purple)', fontSize: '0.75rem' }}>({zone.code})</span> • {zone.city}
+                          {zone.name} <span style={{ color: 'var(--accent)', fontSize: '0.75rem' }}>({zone.code})</span> • {zone.city}
                         </div>
                         {zone.pincodes && zone.pincodes.length > 0 && (
                           <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.15rem' }}>

@@ -100,7 +100,7 @@ const DeliveryPartners = () => {
         {/* Header & Controls */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
           <div>
-            <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#ffffff' }}>Delivery Fleet Directory</h2>
+            <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--text-primary)' }}>Delivery Fleet Directory</h2>
             <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Live zone breakdown, driver availability, and fleet statistics</p>
           </div>
 
@@ -164,19 +164,19 @@ const DeliveryPartners = () => {
             style={{
               padding: '1.25rem',
               cursor: 'pointer',
-              border: selectedZone === '' ? '2px solid var(--accent-purple)' : '1px solid var(--border-color)',
-              background: selectedZone === '' ? 'rgba(139, 92, 246, 0.15)' : 'var(--bg-card)',
+              border: selectedZone === '' ? '2px solid var(--accent)' : '1px solid var(--border-color)',
+              background: selectedZone === '' ? 'rgba(255, 107, 107, 0.12)' : 'var(--bg-card)',
               borderRadius: 'var(--radius-lg)',
               transition: 'all 0.2s ease'
             }}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-              <span style={{ fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--accent-purple)', fontWeight: 700 }}>
+              <span style={{ fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--accent)', fontWeight: 700 }}>
                 GLOBAL FLEET
               </span>
-              <Truck size={20} color="var(--accent-purple)" />
+              <Truck size={20} color="var(--accent)" />
             </div>
-            <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#ffffff' }}>All Operational Zones</h3>
+            <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-primary)' }}>All Operational Zones</h3>
             <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.75rem' }}>
               <span className="badge badge-purple" style={{ fontSize: '0.8rem' }}>
                 🛵 {zoneSummary.reduce((acc, z) => acc + z.totalPartners, 0) + unassignedStats.total} Drivers
@@ -198,19 +198,19 @@ const DeliveryPartners = () => {
                 style={{
                   padding: '1.25rem',
                   cursor: 'pointer',
-                  border: isSelected ? '2px solid var(--accent-cyan)' : '1px solid var(--border-color)',
-                  background: isSelected ? 'rgba(6, 182, 212, 0.15)' : 'var(--bg-card)',
+                  border: isSelected ? '2px solid var(--accent)' : '1px solid var(--border-color)',
+                  background: isSelected ? 'rgba(255, 107, 107, 0.12)' : 'var(--bg-card)',
                   borderRadius: 'var(--radius-lg)',
                   transition: 'all 0.2s ease'
                 }}
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-                  <span style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--accent-cyan)', background: 'rgba(6, 182, 212, 0.2)', padding: '2px 8px', borderRadius: '4px' }}>
+                  <span style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--accent)', background: 'rgba(255, 107, 107, 0.15)', padding: '2px 8px', borderRadius: '4px' }}>
                     {z.readableZoneId}
                   </span>
                   <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>📍 {z.city}</span>
                 </div>
-                <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#ffffff', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                   {z.name}
                 </h3>
                 <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.75rem', flexWrap: 'wrap' }}>
@@ -230,7 +230,7 @@ const DeliveryPartners = () => {
         </div>
 
         {error && (
-          <div style={{ padding: '1rem', background: 'rgba(244, 63, 94, 0.15)', borderRadius: 'var(--radius-md)', color: '#fb7185', marginBottom: '1.5rem' }}>
+          <div style={{ padding: '1rem', background: 'rgba(239, 68, 68, 0.1)', borderRadius: 'var(--radius-md)', color: '#dc2626', marginBottom: '1.5rem' }}>
             {error}
           </div>
         )}
@@ -262,7 +262,7 @@ const DeliveryPartners = () => {
                   return (
                     <tr key={driver._id}>
                       <td>
-                        <strong style={{ color: '#ffffff', fontSize: '0.95rem' }}>{driver.name}</strong>
+                        <strong style={{ color: 'var(--text-primary)', fontSize: '0.95rem' }}>{driver.name}</strong>
                       </td>
                       <td>
                         <div>
@@ -287,7 +287,7 @@ const DeliveryPartners = () => {
                       </td>
                       <td>
                         <div>
-                          <strong style={{ fontSize: '0.85rem', color: '#ffffff' }}>
+                          <strong style={{ fontSize: '0.85rem', color: 'var(--text-primary)' }}>
                             🛵 {driver.deliveryProfile?.vehicleType || 'Bike'}
                           </strong>
                           <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', fontFamily: 'monospace' }}>
@@ -302,12 +302,12 @@ const DeliveryPartners = () => {
                         </span>
                       </td>
                       <td>
-                        <span style={{ fontWeight: 700, color: '#fbbf24' }}>
+                        <span style={{ fontWeight: 700, color: '#d97706' }}>
                           ₹{driver.deliveryProfile?.cashCollected || 0}
                         </span>
                       </td>
                       <td>
-                        <span style={{ fontWeight: 700, color: '#34d399' }}>
+                        <span style={{ fontWeight: 700, color: '#16a34a' }}>
                           ₹{driver.deliveryProfile?.totalEarnings || 0}
                         </span>
                       </td>

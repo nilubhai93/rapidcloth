@@ -158,7 +158,7 @@ const Sellers = () => {
       <div className="content-body">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
           <div>
-            <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#ffffff' }}>Registered Sellers & Vendor Applicants</h2>
+            <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--text-primary)' }}>Registered Sellers & Vendor Applicants</h2>
             <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>All active vendors and customer seller applications across operational zones</p>
           </div>
 
@@ -208,7 +208,7 @@ const Sellers = () => {
         </div>
 
         {error && (
-          <div style={{ padding: '1rem', background: 'rgba(244, 63, 94, 0.15)', borderRadius: 'var(--radius-md)', color: '#fb7185', marginBottom: '1.5rem' }}>
+          <div style={{ padding: '1rem', background: 'rgba(239, 68, 68, 0.1)', borderRadius: 'var(--radius-md)', color: '#dc2626', marginBottom: '1.5rem' }}>
             {error}
           </div>
         )}
@@ -240,7 +240,7 @@ const Sellers = () => {
                     <tr key={seller._id}>
                       <td>
                         <div>
-                          <strong style={{ color: '#ffffff', fontSize: '0.95rem' }}>
+                          <strong style={{ color: 'var(--text-primary)', fontSize: '0.95rem' }}>
                             {seller.sellerProfile?.storeName || seller.name}
                           </strong>
                           <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
@@ -270,16 +270,16 @@ const Sellers = () => {
                             style={{
                               padding: '0.2rem 0.5rem',
                               fontSize: '0.75rem',
-                              background: 'rgba(255, 255, 255, 0.05)',
-                              border: '1px solid rgba(255, 255, 255, 0.15)',
-                              color: '#ffffff',
+                              background: 'var(--bg-secondary)',
+                              border: '1px solid var(--border-color)',
+                              color: 'var(--text-primary)',
                               borderRadius: '6px',
                               cursor: 'pointer'
                             }}
                           >
                             <option value="" disabled>-- Edit / Assign Zone --</option>
                             {zones.map((z) => (
-                              <option key={z._id} value={z._id} style={{ background: '#12121e', color: '#fff' }}>
+                              <option key={z._id} value={z._id} style={{ background: '#ffffff', color: '#1a1a1a' }}>
                                 {z.name} ({z.code})
                               </option>
                             ))}
@@ -323,7 +323,7 @@ const Sellers = () => {
                           <button
                             onClick={() => handleOpenEditModal(seller)}
                             className="btn btn-secondary btn-sm"
-                            style={{ background: 'rgba(59, 130, 246, 0.15)', color: '#60a5fa', border: '1px solid rgba(59, 130, 246, 0.3)' }}
+                            style={{ background: 'rgba(255, 107, 107, 0.1)', color: 'var(--accent)', border: '1px solid rgba(255, 107, 107, 0.3)' }}
                           >
                             ✏️ Edit Seller
                           </button>
@@ -530,7 +530,7 @@ const Sellers = () => {
                 >
                   <option value="" disabled>Select Zone</option>
                   {zones.map((z) => (
-                    <option key={z._id} value={z._id} style={{ background: '#12121e', color: '#fff' }}>
+                    <option key={z._id} value={z._id} style={{ background: '#ffffff', color: '#1a1a1a' }}>
                       {z.name} ({z.code})
                     </option>
                   ))}

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { ShieldCheck, Lock, Mail, ArrowRight, Sparkles } from 'lucide-react';
+import { ShieldCheck, Lock, Mail, ArrowRight } from 'lucide-react';
 
 const Login = () => {
   const [email, setEmail] = useState('superadmin@rapidcloth.com');
@@ -23,7 +23,7 @@ const Login = () => {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      background: 'radial-gradient(circle at 50% 20%, #1e1b4b 0%, #090d16 80%)',
+      background: 'radial-gradient(ellipse at 50% 30%, rgba(255, 107, 107, 0.12) 0%, transparent 60%), var(--bg-primary)',
       padding: '1.5rem',
       position: 'relative',
       overflow: 'hidden'
@@ -36,11 +36,11 @@ const Login = () => {
         transform: 'translateX(-50%)',
         width: '500px',
         height: '500px',
-        background: 'radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, transparent 70%)',
+        background: 'radial-gradient(circle, rgba(255, 107, 107, 0.12) 0%, transparent 70%)',
         pointerEvents: 'none'
       }} />
 
-      <div className="glass-card" style={{ width: '100%', maxWidth: '440px', padding: '2.5rem' }}>
+      <div className="glass-card" style={{ width: '100%', maxWidth: '440px', padding: '2.5rem', background: '#ffffff', boxShadow: '0 10px 40px rgba(0,0,0,0.08)' }}>
         {/* Brand Logo */}
         <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
           <div style={{
@@ -51,12 +51,12 @@ const Login = () => {
             display: 'inline-flex',
             alignItems: 'center',
             justifyContent: 'center',
-            boxShadow: '0 10px 25px rgba(139, 92, 246, 0.5)',
+            boxShadow: '0 10px 25px rgba(255, 107, 107, 0.35)',
             marginBottom: '1rem'
           }}>
             <ShieldCheck size={32} color="#ffffff" />
           </div>
-          <h2 style={{ fontSize: '1.75rem', fontWeight: 800, color: '#ffffff', letterSpacing: '-0.02em' }}>
+          <h2 style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
             RapidCloth
           </h2>
           <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '0.25rem' }}>
@@ -67,10 +67,10 @@ const Login = () => {
         {error && (
           <div style={{
             padding: '0.75rem 1rem',
-            background: 'rgba(244, 63, 94, 0.15)',
-            border: '1px solid rgba(244, 63, 94, 0.3)',
+            background: 'rgba(239, 68, 68, 0.1)',
+            border: '1px solid rgba(239, 68, 68, 0.25)',
             borderRadius: 'var(--radius-md)',
-            color: '#fb7185',
+            color: '#dc2626',
             fontSize: '0.85rem',
             marginBottom: '1.5rem',
             textAlign: 'center'
@@ -135,7 +135,7 @@ const Login = () => {
           fontSize: '0.8rem',
           color: 'var(--text-muted)'
         }}>
-          💡 Default Login: <strong style={{ color: '#fff' }}>superadmin@rapidcloth.com</strong> / <strong style={{ color: '#fff' }}>SuperAdmin@123</strong>
+          💡 Default Login: <strong style={{ color: 'var(--text-primary)' }}>superadmin@rapidcloth.com</strong> / <strong style={{ color: 'var(--text-primary)' }}>SuperAdmin@123</strong>
         </div>
       </div>
     </div>

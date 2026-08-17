@@ -47,7 +47,7 @@ const Customers = () => {
       <div className="content-body">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
           <div>
-            <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#ffffff' }}>Customer Accounts</h2>
+            <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--text-primary)' }}>Customer Accounts</h2>
             <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Users placing fashion quick-commerce orders</p>
           </div>
 
@@ -86,7 +86,7 @@ const Customers = () => {
         </div>
 
         {error && (
-          <div style={{ padding: '1rem', background: 'rgba(244, 63, 94, 0.15)', borderRadius: 'var(--radius-md)', color: '#fb7185', marginBottom: '1.5rem' }}>
+          <div style={{ padding: '1rem', background: 'rgba(239, 68, 68, 0.1)', borderRadius: 'var(--radius-md)', color: '#dc2626', marginBottom: '1.5rem' }}>
             {error}
           </div>
         )}
@@ -116,7 +116,7 @@ const Customers = () => {
                   return (
                     <tr key={cust._id}>
                       <td>
-                        <strong style={{ color: '#ffffff', fontSize: '0.95rem' }}>{cust.name}</strong>
+                        <strong style={{ color: 'var(--text-primary)', fontSize: '0.95rem' }}>{cust.name}</strong>
                       </td>
                       <td>
                         <div>
@@ -146,7 +146,7 @@ const Customers = () => {
                         )}
                       </td>
                       <td>
-                        <span style={{ fontWeight: 700, color: '#f472b6' }}>
+                        <span style={{ fontWeight: 700, color: '#db2777' }}>
                           <ShoppingBag size={14} style={{ display: 'inline', marginRight: '4px' }} />
                           {cust.orderCount || 0} Orders
                         </span>

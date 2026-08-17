@@ -208,7 +208,7 @@ const Zones = () => {
       <div className="content-body">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
           <div>
-            <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#ffffff' }}>Operational Zones</h2>
+            <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--text-primary)' }}>Operational Zones</h2>
             <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Define custom irregular delivery shapes or radius geofences</p>
           </div>
 
@@ -216,7 +216,7 @@ const Zones = () => {
             {/* View Mode Toggle */}
             <div style={{
               display: 'flex',
-              background: '#0b0f19',
+              background: 'var(--bg-secondary)',
               border: '1px solid var(--border-color)',
               borderRadius: 'var(--radius-md)',
               padding: '0.2rem'
@@ -276,7 +276,7 @@ const Zones = () => {
         </div>
 
         {error && (
-          <div style={{ padding: '1rem', background: 'rgba(244, 63, 94, 0.15)', borderRadius: 'var(--radius-md)', color: '#fb7185', marginBottom: '1.5rem' }}>
+          <div style={{ padding: '1rem', background: 'rgba(239, 68, 68, 0.1)', borderRadius: 'var(--radius-md)', color: '#dc2626', marginBottom: '1.5rem' }}>
             {error}
           </div>
         )}
@@ -296,8 +296,8 @@ const Zones = () => {
                   fontSize: '0.75rem',
                   cursor: 'pointer',
                   border: '1px solid var(--border-color)',
-                  background: selectedZoneId === null ? 'var(--accent-purple)' : 'transparent',
-                  color: '#fff'
+                  background: selectedZoneId === null ? 'var(--accent)' : 'transparent',
+                  color: selectedZoneId === null ? '#fff' : 'var(--text-secondary)'
                 }}
               >
                 All Zones
@@ -312,8 +312,8 @@ const Zones = () => {
                     fontSize: '0.75rem',
                     cursor: 'pointer',
                     border: '1px solid var(--border-color)',
-                    background: selectedZoneId === z._id ? 'var(--accent-purple)' : 'transparent',
-                    color: '#fff'
+                    background: selectedZoneId === z._id ? 'var(--accent)' : 'transparent',
+                    color: selectedZoneId === z._id ? '#fff' : 'var(--text-secondary)'
                   }}
                 >
                   {z.name} ({z.code})
@@ -351,7 +351,7 @@ const Zones = () => {
                       </td>
                       <td>
                         <div>
-                          <strong style={{ color: '#ffffff', fontSize: '0.95rem' }}>{zone.name}</strong>
+                          <strong style={{ color: 'var(--text-primary)', fontSize: '0.95rem' }}>{zone.name}</strong>
                           <div style={{ fontSize: '0.75rem', color: 'var(--accent-purple)', fontWeight: 700 }}>
                             {zone.code}
                           </div>
@@ -514,9 +514,9 @@ const Zones = () => {
                 style={{
                   padding: '0.65rem 1rem',
                   borderRadius: 'var(--radius-md)',
-                  border: shapeType === 'circle' ? '2px solid var(--accent-purple)' : '1px solid var(--border-color)',
-                  background: shapeType === 'circle' ? 'rgba(139, 92, 246, 0.15)' : '#0b0f19',
-                  color: shapeType === 'circle' ? '#ffffff' : 'var(--text-secondary)',
+                  border: shapeType === 'circle' ? '2px solid var(--accent)' : '1px solid var(--border-color)',
+                  background: shapeType === 'circle' ? 'rgba(255, 107, 107, 0.12)' : 'var(--bg-secondary)',
+                  color: shapeType === 'circle' ? 'var(--text-primary)' : 'var(--text-secondary)',
                   fontWeight: 700,
                   fontSize: '0.85rem',
                   cursor: 'pointer',
@@ -535,9 +535,9 @@ const Zones = () => {
                 style={{
                   padding: '0.65rem 1rem',
                   borderRadius: 'var(--radius-md)',
-                  border: shapeType === 'polygon' ? '2px solid var(--accent-purple)' : '1px solid var(--border-color)',
-                  background: shapeType === 'polygon' ? 'rgba(139, 92, 246, 0.15)' : '#0b0f19',
-                  color: shapeType === 'polygon' ? '#ffffff' : 'var(--text-secondary)',
+                  border: shapeType === 'polygon' ? '2px solid var(--accent)' : '1px solid var(--border-color)',
+                  background: shapeType === 'polygon' ? 'rgba(255, 107, 107, 0.12)' : 'var(--bg-secondary)',
+                  color: shapeType === 'polygon' ? 'var(--text-primary)' : 'var(--text-secondary)',
                   fontWeight: 700,
                   fontSize: '0.85rem',
                   cursor: 'pointer',
@@ -565,7 +565,7 @@ const Zones = () => {
                     type="button"
                     onClick={handleUndoPolygonPoint}
                     disabled={polygonPoints.length === 0}
-                    style={{ background: 'none', border: 'none', color: '#60a5fa', fontSize: '0.75rem', cursor: 'pointer', fontWeight: 600 }}
+                    style={{ background: 'none', border: 'none', color: 'var(--accent)', fontSize: '0.75rem', cursor: 'pointer', fontWeight: 600 }}
                   >
                     Undo Point
                   </button>
@@ -574,7 +574,7 @@ const Zones = () => {
                     type="button"
                     onClick={handleClearPolygonPoints}
                     disabled={polygonPoints.length === 0}
-                    style={{ background: 'none', border: 'none', color: '#fb7185', fontSize: '0.75rem', cursor: 'pointer', fontWeight: 600 }}
+                    style={{ background: 'none', border: 'none', color: '#dc2626', fontSize: '0.75rem', cursor: 'pointer', fontWeight: 600 }}
                   >
                     Clear All ({polygonPoints.length})
                   </button>
@@ -602,7 +602,7 @@ const Zones = () => {
             />
 
             {shapeType === 'polygon' && (
-              <div style={{ fontSize: '0.75rem', color: '#d946ef', marginTop: '0.35rem', fontWeight: 600 }}>
+              <div style={{ fontSize: '0.75rem', color: 'var(--accent)', marginTop: '0.35rem', fontWeight: 600 }}>
                 💡 Click 3 or more points on the map above to enclose your custom delivery boundary shape! (Points added: {polygonPoints.length})
               </div>
             )}
@@ -662,7 +662,7 @@ const Zones = () => {
             <div style={{
               maxHeight: '120px',
               overflowY: 'auto',
-              background: '#0b0f19',
+              background: 'var(--bg-secondary)',
               border: '1px solid var(--border-color)',
               borderRadius: 'var(--radius-md)',
               padding: '0.5rem'
@@ -680,7 +680,7 @@ const Zones = () => {
                       padding: '0.4rem',
                       fontSize: '0.85rem',
                       cursor: 'pointer',
-                      color: formData.assignedAdmins.includes(admin._id) ? '#ffffff' : 'var(--text-secondary)'
+                      color: formData.assignedAdmins.includes(admin._id) ? 'var(--text-primary)' : 'var(--text-secondary)'
                     }}
                   >
                     <input
