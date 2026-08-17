@@ -49,7 +49,16 @@ export default function Login() {
         }
       }
     } catch (err) {
-      setError(err.response?.data?.error || 'Authentication failed. Please try again.');
+      const data = err.response?.data;
+      let errMsg = 'Authentication failed. Please try again.';
+      if (data) {
+        if (Array.isArray(data.details) && data.details.length > 0) {
+          errMsg = data.details.map(d => d.message).join('. ');
+        } else {
+          errMsg = data.error || data.message || errMsg;
+        }
+      }
+      setError(errMsg);
     } finally {
       setLoading(false);
     }

@@ -3,6 +3,7 @@ import User from '../models/User.js';
 import Order from '../models/Order.js';
 import SellerDetail from '../models/SellerDetail.js';
 import Product from '../models/Product.js';
+import Zone from '../models/Zone.js';
 
 export const getSellerApplications = async (req, res) => {
   try {
@@ -141,5 +142,249 @@ export const getAdminStats = async (req, res) => {
   } catch (error) {
     console.error('Error fetching admin stats:', error);
     res.status(500).json({ error: 'Failed to fetch admin stats' });
+  }
+};
+
+export const getZoneSellers = async (req, res) => {
+  try {
+    const zones = await Zone.find({ status: 'active' }).sort({ name: 1 });
+
+    const zoneMapById = {};
+    const zoneMapByPincode = {};
+
+    zones.forEach(z => {
+      zoneMapById[z._id.toString()] = z;
+      if (Array.isArray(z.pincodes)) {
+        z.pincodes.forEach(pin => {
+          if (pin) zoneMapByPincode[pin.trim()] = z;
+        });
+      }
+    });
+
+    const resolveSellerZone = (userObj, addressText = '', itemZone = null) => {
+      if (itemZone) {
+        if (typeof itemZone === 'object' && itemZone._id) return itemZone;
+        if (zoneMapById[itemZone.toString()]) return zoneMapById[itemZone.toString()];
+      }
+      if (userObj?.zone) {
+        if (typeof userObj.zone === 'object' && userObj.zone._id) return userObj.zone;
+        if (zoneMapById[userObj.zone.toString()]) return zoneMapById[userObj.zone.toString()];
+      }
+      if (Array.isArray(userObj?.assignedZones) && userObj.assignedZones.length > 0) {
+        const firstAz = userObj.assignedZones[0];
+        if (typeof firstAz === 'object' && firstAz._id) return firstAz;
+        if (zoneMapById[firstAz.toString()]) return zoneMapById[firstAz.toString()];
+      }
+      if (addressText) {
+        const pinMatch = addressText.match(/\b\d{6}\b/);
+        if (pinMatch && zoneMapByPincode[pinMatch[0]]) {
+          return zoneMapByPincode[pinMatch[0]];
+        }
+        for (const z of zones) {
+          if (z.name && addressText.toLowerCase().includes(z.name.toLowerCase())) {
+            return z;
+          }
+          if (z.city && addressText.toLowerCase().includes(z.city.toLowerCase())) {
+            return z;
+          }
+        }
+      }
+      return null;
+    };
+
+    // Fetch sellerDetails
+    const sellerDetails = await SellerDetail.find()
+      .populate('zone', 'name code zoneId city')
+      .populate({
+        path: 'userId',
+        select: 'name email role phone zone assignedZones',
+        populate: { path: 'zone', select: 'name code zoneId city' }
+      })
+      .sort({ createdAt: -1 });
+
+    // Fetch applications
+    const applications = await SellerApplication.find()
+      .populate('zone', 'name code zoneId city')
+      .populate({
+        path: 'userId',
+        select: 'name email role phone zone assignedZones',
+        populate: { path: 'zone', select: 'name code zoneId city' }
+      })
+      .sort({ createdAt: -1 });
+
+    // Fetch seller users
+    const sellerUsers = await User.find({ role: 'seller' })
+      .populate('zone', 'name code zoneId city')
+      .sort({ createdAt: -1 });
+
+    // Products per seller count
+    const productCounts = await Product.aggregate([
+      { $group: { _id: '$sellerId', count: { $sum: 1 } } }
+    ]);
+    const pCountMap = {};
+    productCounts.forEach(pc => {
+      if (pc._id) pCountMap[pc._id.toString()] = pc.count;
+    });
+
+    const sellerMap = new Map();
+    const appToSellerKeyMap = new Map();
+    const storeNameToSellerKeyMap = new Map();
+
+    const addOrUpdateSeller = (key, data, appId = null) => {
+      let targetKey = key;
+
+      const storeNamePhoneKey = `${(data.storeName || '').toLowerCase().trim()}_${(data.phone || '').trim()}`;
+      if (appId && appToSellerKeyMap.has(appId.toString())) {
+        targetKey = appToSellerKeyMap.get(appId.toString());
+      } else if (storeNamePhoneKey && storeNameToSellerKeyMap.has(storeNamePhoneKey)) {
+        targetKey = storeNameToSellerKeyMap.get(storeNamePhoneKey);
+      }
+
+      if (!sellerMap.has(targetKey)) {
+        sellerMap.set(targetKey, data);
+      } else {
+        const existing = sellerMap.get(targetKey);
+        sellerMap.set(targetKey, {
+          ...existing,
+          ...data,
+          zone: data.zone || existing.zone,
+          storeName: existing.storeName || data.storeName,
+          email: existing.email && existing.email !== 'N/A' ? existing.email : data.email,
+          phone: existing.phone && existing.phone !== 'N/A' ? existing.phone : data.phone,
+          address: existing.address && existing.address !== 'N/A' ? existing.address : data.address,
+          gstNumber: existing.gstNumber && existing.gstNumber !== 'N/A' ? existing.gstNumber : data.gstNumber,
+          documentPath: existing.documentPath || data.documentPath
+        });
+      }
+
+      if (appId) appToSellerKeyMap.set(appId.toString(), targetKey);
+      if (storeNamePhoneKey) storeNameToSellerKeyMap.set(storeNamePhoneKey, targetKey);
+    };
+
+    // 1. Process SellerDetails
+    for (const sd of sellerDetails) {
+      const u = sd.userId;
+      const uId = u?._id?.toString() || sd._id.toString();
+      const zoneObj = resolveSellerZone(u, sd.address, sd.zone);
+      const appId = sd.applicationId || sd._id;
+      
+      addOrUpdateSeller(uId, {
+        _id: uId,
+        storeName: sd.storeName || u?.name || 'Seller Store',
+        ownerName: u?.name || sd.storeName || 'Store Owner',
+        email: u?.email || 'N/A',
+        phone: sd.businessPhone || u?.phone || 'N/A',
+        address: sd.address || 'N/A',
+        categories: sd.categories || 'Clothing',
+        gstNumber: sd.gstNumber || 'N/A',
+        returnPolicy: sd.returnPolicy || '7 Days Return',
+        processingTime: sd.processingTime || '1-2 Days',
+        documentType: sd.documentType || 'Aadhar Card',
+        documentPath: sd.documentPath || '',
+        zone: zoneObj ? {
+          _id: zoneObj._id,
+          name: zoneObj.name,
+          code: zoneObj.code,
+          zoneId: zoneObj.zoneId || zoneObj.code,
+          city: zoneObj.city
+        } : null,
+        productCount: pCountMap[uId] || 0,
+        status: sd.isActive ? 'approved' : 'pending',
+        createdAt: sd.createdAt
+      }, appId);
+    }
+
+    // 2. Process SellerApplications
+    for (const app of applications) {
+      const u = app.userId;
+      const uId = u?._id?.toString() || app._id.toString();
+      const zoneObj = resolveSellerZone(u, app.address, app.zone);
+
+      addOrUpdateSeller(uId, {
+        _id: uId,
+        storeName: app.storeName || u?.name || 'Seller Store',
+        ownerName: u?.name || app.storeName || 'Store Owner',
+        email: u?.email || 'N/A',
+        phone: app.businessPhone || u?.phone || 'N/A',
+        address: app.address || 'N/A',
+        categories: app.categories || 'Clothing',
+        gstNumber: 'N/A',
+        returnPolicy: '7 Days Return',
+        processingTime: '1-2 Days',
+        documentType: app.documentType || 'Identity Proof',
+        documentPath: app.documentPath || '',
+        zone: zoneObj ? {
+          _id: zoneObj._id,
+          name: zoneObj.name,
+          code: zoneObj.code,
+          zoneId: zoneObj.zoneId || zoneObj.code,
+          city: zoneObj.city
+        } : null,
+        productCount: pCountMap[uId] || 0,
+        status: app.status || 'pending',
+        createdAt: app.createdAt
+      }, app._id);
+    }
+
+    // 3. Process seller role users
+    for (const su of sellerUsers) {
+      const uId = su._id.toString();
+      const zoneObj = resolveSellerZone(su, su.sellerProfile?.businessAddress);
+
+      addOrUpdateSeller(uId, {
+        _id: uId,
+        storeName: su.sellerProfile?.storeName || su.name || 'Seller Store',
+        ownerName: su.name,
+        email: su.email,
+        phone: su.phone || 'N/A',
+        address: su.sellerProfile?.businessAddress || 'N/A',
+        categories: 'Fashion & Clothing',
+        gstNumber: 'N/A',
+        returnPolicy: '7 Days Return',
+        processingTime: '1-2 Days',
+        documentType: 'Aadhar Card',
+        documentPath: '',
+        zone: zoneObj ? {
+          _id: zoneObj._id,
+          name: zoneObj.name,
+          code: zoneObj.code,
+          zoneId: zoneObj.zoneId || zoneObj.code,
+          city: zoneObj.city
+        } : null,
+        productCount: pCountMap[uId] || 0,
+        status: 'approved',
+        createdAt: su.createdAt
+      });
+    }
+
+    const allSellersList = Array.from(sellerMap.values());
+
+    // Calculate per-zone stats
+    const zoneSummaries = zones.map(z => {
+      const zoneSellers = allSellersList.filter(s => s.zone && s.zone._id?.toString() === z._id.toString());
+      const totalProds = zoneSellers.reduce((sum, s) => sum + (s.productCount || 0), 0);
+      return {
+        _id: z._id,
+        name: z.name,
+        code: z.code,
+        zoneId: z.zoneId || z.code,
+        city: z.city,
+        pincodesCount: z.pincodes?.length || 0,
+        sellerCount: zoneSellers.length,
+        productCount: totalProds
+      };
+    });
+
+    const unassignedSellers = allSellersList.filter(s => !s.zone);
+
+    res.status(200).json({
+      zones: zoneSummaries,
+      sellers: allSellersList,
+      totalSellers: allSellersList.length,
+      unassignedCount: unassignedSellers.length
+    });
+  } catch (error) {
+    console.error('Error fetching zone sellers:', error);
+    res.status(500).json({ error: 'Failed to fetch zone sellers' });
   }
 };

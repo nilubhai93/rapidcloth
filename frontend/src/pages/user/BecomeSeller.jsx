@@ -7,6 +7,7 @@ import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutlineRounde
 import CloseIcon from '@mui/icons-material/CloseRounded';
 import CircularProgress from '@mui/material/CircularProgress';
 import ScheduleIcon from '@mui/icons-material/ScheduleRounded';
+import MapIcon from '@mui/icons-material/MapRounded';
 import api from '../../api/index';
 import { useAuth } from '../../context/AuthContext';
 
@@ -21,9 +22,11 @@ export default function BecomeSeller() {
     address: '',
     categories: '',
     businessPhone: '',
-    documentType: ''
+    documentType: '',
+    zone: ''
   });
   const [file, setFile] = useState(null);
+  const [zones, setZones] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [error, setError] = useState('');
@@ -31,6 +34,11 @@ export default function BecomeSeller() {
   const [existingApp, setExistingApp] = useState(null);
 
   useEffect(() => {
+    // Fetch available operational zones
+    api.get('/seller/zones')
+      .then(res => setZones(res.data.zones || []))
+      .catch(err => console.error('Failed to load operational zones:', err));
+
     const checkStatus = async () => {
       try {
         const res = await api.get('/seller/status');
@@ -42,7 +50,8 @@ export default function BecomeSeller() {
             address: res.data.application.address || '',
             categories: res.data.application.categories || '',
             businessPhone: res.data.application.businessPhone || '',
-            documentType: res.data.application.documentType || ''
+            documentType: res.data.application.documentType || '',
+            zone: res.data.application.zone?._id || res.data.application.zone || ''
           });
         }
       } catch (err) {
@@ -51,7 +60,9 @@ export default function BecomeSeller() {
         setIsLoadingStatus(false);
       }
     };
+
     if (user) checkStatus();
+    else setIsLoadingStatus(false);
   }, [user]);
 
   const handleChange = (e) => {
@@ -73,7 +84,7 @@ export default function BecomeSeller() {
       });
       setIsSuccess(true);
     } catch (err) {
-      setError(err.response?.data?.error || 'Something went wrong. Please try again.');
+      setError(err.response?.data?.error || 'Something went wrong. Please check details and try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -81,8 +92,8 @@ export default function BecomeSeller() {
 
   if (authLoading || isLoadingStatus) {
     return (
-      <div style={{ minHeight: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#faf7f2' }}>
-        <CircularProgress sx={{ color: '#c9a96e' }} />
+      <div style={{ minHeight: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8fafc' }}>
+        <CircularProgress size={32} sx={{ color: '#2563eb' }} />
       </div>
     );
   }
@@ -91,117 +102,139 @@ export default function BecomeSeller() {
   const isApproved = existingApp?.status === 'approved';
   const isRejected = existingApp?.status === 'rejected';
 
-  // --- SHARED THEME (MATCHING SHOP) ---
+  // Find zone details object
+  const selectedZoneObj = zones.find(z => z._id === (appData.zone?._id || appData.zone)) || appData.zone;
+
   const theme = {
-    bg: '#faf7f2',
-    bgCard: 'rgba(255, 255, 255, 0.9)',
-    accent: '#c9a96e',
-    accentLight: '#dfc492',
-    textPrimary: '#1a1a1a',
-    textSecondary: '#5a5550',
-    textMuted: '#8a8580',
-    border: '#e8e4df',
-    fontDisplay: '"Inter", sans-serif',
+    bg: '#f8fafc',
+    bgCard: '#ffffff',
+    accent: '#2563eb',
+    accentGrad: 'linear-gradient(135deg, #1e3a8a 0%, #2563eb 50%, #1d4ed8 100%)',
+    textPrimary: '#0f172a',
+    textSecondary: '#475569',
+    textMuted: '#64748b',
+    border: '#e2e8f0',
+    fontDisplay: '"Outfit", "Inter", sans-serif',
     fontSans: '"Inter", sans-serif'
   };
 
   const responsiveStyles = (
     <style>{`
+      .become-seller-wrapper {
+        min-height: 100vh;
+        padding: 40px 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: radial-gradient(circle at 50% 0%, rgba(37, 99, 235, 0.05) 0%, #f8fafc 70%);
+        font-family: ${theme.fontSans};
+        box-sizing: border-box;
+      }
       .glass-card {
         display: grid;
-        grid-template-columns: minmax(350px, 1fr) 1.5fr;
+        grid-template-columns: 360px 1fr;
+        width: 100%;
+        max-width: 1060px;
+        background: #ffffff;
+        border-radius: 24px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 20px 50px rgba(15, 23, 42, 0.08);
+        overflow: hidden;
       }
-      @media (max-width: 850px) {
+      .branding-col {
+        padding: 40px 32px;
+        background: linear-gradient(180deg, #f0f5ff 0%, #ffffff 100%);
+        border-right: 1px solid #e2e8f0;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+      .form-col {
+        padding: 40px 36px;
+      }
+      .form-grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+      }
+      @media (max-width: 860px) {
+        .become-seller-wrapper {
+          padding: 16px 12px;
+        }
         .glass-card {
           grid-template-columns: 1fr !important;
+          border-radius: 16px;
         }
         .branding-col {
           border-right: none !important;
-          border-bottom: 1px solid ${theme.border} !important;
-          padding: 40px 24px !important;
+          border-bottom: 1px solid #e2e8f0 !important;
+          padding: 24px 18px !important;
         }
         .form-col {
-          padding: 40px 24px !important;
+          padding: 24px 18px !important;
         }
-      }
-      .select-arrow {
-        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        animation: arrowBounce 2s ease-in-out infinite;
-      }
-      .select-wrapper select:focus ~ .select-arrow {
-        transform: translateY(-50%) rotate(180deg);
-        animation: none;
-      }
-      @keyframes arrowBounce {
-        0%, 100% { transform: translateY(-50%) translateX(0); }
-        50% { transform: translateY(-40%) translateX(0); }
+        .form-grid-2 {
+          grid-template-columns: 1fr !important;
+          gap: 12px;
+        }
       }
     `}</style>
   );
 
-  // --- STATUS / SUCCESS VIEW ---
+  // --- STATUS / APPLICATION SUBMITTED VIEW ---
   if (isSuccess || existingApp) {
     return (
       <>
         {responsiveStyles}
-        <div style={{ minHeight: '100vh', padding: 'clamp(20px, 5vw, 100px) 16px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: theme.bg, fontFamily: theme.fontSans }}>
+        <div className="become-seller-wrapper">
           <motion.div
             className="glass-card"
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
-            style={{
-              background: theme.bgCard, borderRadius: '24px',
-              border: `1px solid ${theme.border}`, maxWidth: '950px', width: '100%',
-              boxShadow: '0 40px 100px rgba(201, 169, 110, 0.15)', overflow: 'hidden',
-              backdropFilter: 'blur(20px)'
-            }}
           >
-            {/* Left Column: Status Info */}
-            <div className="branding-col" style={{ 
-              padding: '60px 40px', background: 'rgba(201, 169, 110, 0.03)', 
-              borderRight: `1px solid ${theme.border}`, display: 'flex', 
-              flexDirection: 'column', alignItems: 'center', textAlign: 'center',
-              justifyContent: 'center'
-            }}>
-              <motion.div
-                initial={{ scale: 0, rotate: -15 }}
-                animate={{ scale: 1, rotate: 0 }}
-                transition={{ type: 'spring', damping: 12 }}
-                style={{
-                  width: '100px', height: '100px', borderRadius: '50%',
-                  background: isApproved ? 'rgba(16, 185, 129, 0.05)' : isRejected ? 'rgba(239, 68, 68, 0.05)' : 'rgba(201, 169, 110, 0.05)',
-                  border: `1px solid ${isApproved ? '#10b981' : isRejected ? '#ef4444' : theme.accent}`,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '24px'
-                }}
-              >
-                {isApproved ? <CheckCircleOutlineIcon sx={{ fontSize: 48, color: '#10b981' }} /> :
-                  isRejected ? <CloseIcon sx={{ fontSize: 48, color: '#ef4444' }} /> :
-                    <ScheduleIcon sx={{ fontSize: 48, color: theme.accent }} />}
-              </motion.div>
+            {/* Left Column: Status Overview */}
+            <div className="branding-col">
+              <div style={{ textAlign: 'center' }}>
+                <motion.div
+                  initial={{ scale: 0, rotate: -15 }}
+                  animate={{ scale: 1, rotate: 0 }}
+                  transition={{ type: 'spring', damping: 14 }}
+                  style={{
+                    width: '80px', height: '80px', borderRadius: '50%',
+                    background: isApproved ? 'rgba(16, 185, 129, 0.1)' : isRejected ? 'rgba(239, 68, 68, 0.1)' : 'rgba(37, 99, 235, 0.1)',
+                    border: `2px solid ${isApproved ? '#10b981' : isRejected ? '#ef4444' : theme.accent}`,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px'
+                  }}
+                >
+                  {isApproved ? <CheckCircleOutlineIcon sx={{ fontSize: 42, color: '#10b981' }} /> :
+                    isRejected ? <CloseIcon sx={{ fontSize: 42, color: '#ef4444' }} /> :
+                      <ScheduleIcon sx={{ fontSize: 42, color: theme.accent }} />}
+                </motion.div>
 
-              <h2 style={{ fontSize: '28px', fontWeight: 700, color: theme.textPrimary, marginBottom: '12px', fontFamily: theme.fontDisplay }}>
-                {isSuccess ? 'Application Sent' : 'Status Overview'}
-              </h2>
+                <h2 style={{ fontSize: '24px', fontWeight: 800, color: theme.textPrimary, marginBottom: '8px', fontFamily: theme.fontDisplay }}>
+                  {isSuccess ? 'Application Submitted' : 'Application Status'}
+                </h2>
 
-              <div style={{
-                display: 'inline-block', padding: '8px 20px', borderRadius: '100px',
-                background: isApproved ? 'rgba(16, 185, 129, 0.1)' : isRejected ? 'rgba(239, 68, 68, 0.1)' : 'rgba(201, 169, 110, 0.1)',
-                color: isApproved ? '#10b981' : isRejected ? '#ef4444' : theme.accent,
-                fontSize: '12px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '2px', marginBottom: '32px',
-                border: `1px solid ${isApproved ? 'rgba(16, 185, 129, 0.2)' : isRejected ? 'rgba(239, 68, 68, 0.2)' : 'rgba(201, 169, 110, 0.2)'}`
-              }}>
-                {existingApp?.status || 'Processing'}
+                <div style={{
+                  display: 'inline-block', padding: '6px 16px', borderRadius: '20px',
+                  background: isApproved ? 'rgba(16, 185, 129, 0.1)' : isRejected ? 'rgba(239, 68, 68, 0.1)' : 'rgba(37, 99, 235, 0.1)',
+                  color: isApproved ? '#10b981' : isRejected ? '#ef4444' : theme.accent,
+                  fontSize: '11px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '20px',
+                  border: `1px solid ${isApproved ? 'rgba(16, 185, 129, 0.2)' : isRejected ? 'rgba(239, 68, 68, 0.2)' : 'rgba(37, 99, 235, 0.2)'}`
+                }}>
+                  {existingApp?.status || 'Under Curation'}
+                </div>
+
+                <p style={{ color: theme.textSecondary, fontSize: '13px', lineHeight: 1.6, margin: 0 }}>
+                  {isSuccess
+                    ? "Your seller application has been received and is under review by our admin team."
+                    : existingApp?.status === 'pending'
+                      ? "Your business credentials are currently being reviewed."
+                      : isApproved 
+                        ? "Congratulations! Your seller application has been approved."
+                        : "Unfortunately, your application was not approved."}
+                </p>
               </div>
-
-              <p style={{ color: theme.textSecondary, fontSize: '15px', lineHeight: 1.6, maxWidth: '240px' }}>
-                {isSuccess
-                  ? "Your application is currently being reviewed by our curators."
-                  : existingApp?.status === 'pending'
-                    ? "We're verifying your business credentials. Please wait a moment."
-                    : isApproved 
-                      ? "Welcome to the collective! Your dashboard is now active."
-                      : "Unfortunately, we couldn't approve your request at this stage."}
-              </p>
 
               <button
                 onClick={async () => {
@@ -216,55 +249,64 @@ export default function BecomeSeller() {
                   }
                 }}
                 style={{ 
-                  width: '100%', padding: '16px', marginTop: '40px', fontWeight: 800, letterSpacing: '1px',
-                  background: theme.accent, color: '#1a1a1a', border: 'none', borderRadius: '100px',
-                  cursor: 'pointer', transition: 'all 0.3s ease', boxShadow: `0 8px 25px ${theme.accent}33`,
-                  fontSize: '13px', textTransform: 'uppercase'
+                  width: '100%', padding: '14px', marginTop: '24px', fontWeight: 700,
+                  background: theme.accentGrad, color: '#ffffff', border: 'none', borderRadius: '12px',
+                  cursor: 'pointer', transition: 'all 0.2s ease', boxShadow: `0 4px 14px rgba(37, 99, 235, 0.3)`,
+                  fontSize: '13px'
                 }}
-                onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = `0 12px 30px ${theme.accent}44`; }}
-                onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = `0 8px 25px ${theme.accent}33`; }}
               >
                 {isApproved ? 'Enter Seller Portal' : 'Return to Shop'}
               </button>
             </div>
 
-            {/* Right Column: Details */}
-            <div className="form-col" style={{ padding: '60px', display: 'flex', flexDirection: 'column', gap: '40px' }}>
-              <div>
-                <h3 style={{ fontSize: '12px', fontWeight: 800, color: theme.textMuted, textTransform: 'uppercase', letterSpacing: '2px', marginBottom: '24px' }}>
-                  Submission Details
-                </h3>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px' }}>
-                  <div>
-                    <p style={{ color: theme.textMuted, fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', marginBottom: '8px' }}>Store Name</p>
-                    <p style={{ color: theme.textPrimary, fontSize: '20px', fontWeight: 700, fontFamily: theme.fontDisplay }}>{appData.storeName}</p>
-                  </div>
-                  <div>
-                    <p style={{ color: theme.textMuted, fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', marginBottom: '8px' }}>Verified Via</p>
-                    <p style={{ color: theme.accent, fontSize: '20px', fontWeight: 700, fontFamily: theme.fontDisplay }}>{appData.documentType}</p>
-                  </div>
-                  <div style={{ gridColumn: 'span 2' }}>
-                    <p style={{ color: theme.textMuted, fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', marginBottom: '8px' }}>Operational Base</p>
-                    <p style={{ color: theme.textPrimary, fontSize: '16px', fontWeight: 500, lineHeight: 1.5 }}>{appData.address}</p>
-                  </div>
+            {/* Right Column: Submission Details */}
+            <div className="form-col" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              <h3 style={{ fontSize: '12px', fontWeight: 800, color: theme.textMuted, textTransform: 'uppercase', letterSpacing: '1px', margin: 0 }}>
+                Submission Summary
+              </h3>
+
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '16px' }}>
+                <div style={{ padding: '12px 14px', background: '#f8fafc', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
+                  <p style={{ color: theme.textMuted, fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', margin: 0, marginBottom: '4px' }}>Store Name</p>
+                  <p style={{ color: theme.textPrimary, fontSize: '15px', fontWeight: 800, margin: 0, fontFamily: theme.fontDisplay }}>{appData.storeName}</p>
+                </div>
+
+                <div style={{ padding: '12px 14px', background: 'rgba(37, 99, 235, 0.04)', borderRadius: '10px', border: '1px solid rgba(37, 99, 235, 0.15)' }}>
+                  <p style={{ color: theme.accent, fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', margin: 0, marginBottom: '4px' }}>Applied Operational Zone</p>
+                  <p style={{ color: theme.textPrimary, fontSize: '14px', fontWeight: 800, margin: 0, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <MapIcon sx={{ fontSize: 16, color: theme.accent }} />
+                    {selectedZoneObj?.name || (typeof selectedZoneObj === 'string' ? selectedZoneObj : 'Default Zone')}
+                  </p>
+                </div>
+
+                <div style={{ padding: '12px 14px', background: '#f8fafc', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
+                  <p style={{ color: theme.textMuted, fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', margin: 0, marginBottom: '4px' }}>Category</p>
+                  <p style={{ color: theme.textPrimary, fontSize: '13px', fontWeight: 700, margin: 0, textTransform: 'capitalize' }}>{appData.categories}</p>
+                </div>
+
+                <div style={{ padding: '12px 14px', background: '#f8fafc', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
+                  <p style={{ color: theme.textMuted, fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', margin: 0, marginBottom: '4px' }}>Verified Via</p>
+                  <p style={{ color: theme.textPrimary, fontSize: '13px', fontWeight: 700, margin: 0 }}>{appData.documentType}</p>
                 </div>
               </div>
 
-              <div style={{ borderTop: `1px solid ${theme.border}`, paddingTop: '32px' }}>
-                <p style={{ color: theme.textMuted, fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', marginBottom: '12px' }}>Brand Story</p>
-                <p style={{ color: theme.textSecondary, fontSize: '14px', lineHeight: 1.8, fontStyle: 'italic' }}>"{appData.description}"</p>
+              <div style={{ padding: '12px 14px', background: '#f8fafc', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
+                <p style={{ color: theme.textMuted, fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', margin: 0, marginBottom: '4px' }}>Headquarters & Address</p>
+                <p style={{ color: theme.textPrimary, fontSize: '12px', fontWeight: 500, margin: 0, lineHeight: 1.4 }}>{appData.address}</p>
+              </div>
+
+              <div style={{ padding: '12px 14px', background: '#f8fafc', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
+                <p style={{ color: theme.textMuted, fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', margin: 0, marginBottom: '4px' }}>Brand Story</p>
+                <p style={{ color: theme.textSecondary, fontSize: '12px', lineHeight: 1.5, margin: 0, fontStyle: 'italic' }}>"{appData.description}"</p>
               </div>
 
               {isRejected && (
                 <div style={{ 
-                  marginTop: 'auto', padding: '24px', background: 'rgba(239, 68, 68, 0.03)', 
-                  border: '1px solid rgba(239, 68, 68, 0.1)', borderRadius: '16px'
+                  padding: '12px 14px', background: 'rgba(239, 68, 68, 0.05)', 
+                  border: '1px solid rgba(239, 68, 68, 0.2)', borderRadius: '10px'
                 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
-                    <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#ef4444' }}></div>
-                    <p style={{ fontSize: '11px', fontWeight: 800, color: '#ef4444', textTransform: 'uppercase', letterSpacing: '1px' }}>Curator Feedback</p>
-                  </div>
-                  <p style={{ color: theme.textPrimary, fontSize: '15px', fontWeight: 500, lineHeight: 1.6 }}>{existingApp?.rejectionReason || "Please ensure all documents are clear and valid."}</p>
+                  <p style={{ fontSize: '11px', fontWeight: 800, color: '#ef4444', textTransform: 'uppercase', margin: 0, marginBottom: '4px' }}>Feedback Reason</p>
+                  <p style={{ color: theme.textPrimary, fontSize: '12px', fontWeight: 500, margin: 0 }}>{existingApp?.rejectionReason || "Please verify credentials and resubmit."}</p>
                 </div>
               )}
             </div>
@@ -278,202 +320,207 @@ export default function BecomeSeller() {
   return (
     <>
       {responsiveStyles}
-      <div id="become-seller-container" style={{ minHeight: '100vh', padding: 'clamp(20px, 5vw, 100px) 16px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: theme.bg, fontFamily: theme.fontSans }}>
+      <div className="become-seller-wrapper">
         <motion.div
-          id="become-seller-card"
           className="glass-card"
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        style={{
-          background: theme.bgCard, borderRadius: '24px',
-          border: `1px solid ${theme.border}`, maxWidth: '1000px', width: '100%',
-          boxShadow: '0 50px 100px rgba(201, 169, 110, 0.12)', overflow: 'hidden',
-          backdropFilter: 'blur(20px)'
-        }}
-      >
-        {/* Left Column: Branding & Steps */}
-        <div className="branding-col" style={{ 
-          padding: '60px 50px', background: 'rgba(201, 169, 110, 0.03)', 
-          borderRight: `1px solid ${theme.border}`, display: 'flex', 
-          flexDirection: 'column', justifyContent: 'space-between'
-        }}>
-          <div>
-            <div style={{
-              width: '64px', height: '64px', borderRadius: '16px',
-              background: 'white', border: `1px solid ${theme.border}`,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              marginBottom: '32px', color: theme.accent,
-              boxShadow: '0 10px 20px rgba(201, 169, 110, 0.1)'
-            }}>
-              <StorefrontOutlinedIcon sx={{ fontSize: 32 }} />
-            </div>
-            <h1 style={{ fontSize: '48px', fontWeight: 700, color: theme.textPrimary, letterSpacing: '-1.5px', lineHeight: 1.1, marginBottom: '24px', fontFamily: theme.fontDisplay }}>
-              Launch Your <br /><span style={{ color: theme.accent }}>Luxury Store</span>
-            </h1>
-            <p style={{ color: theme.textSecondary, fontSize: '16px', lineHeight: 1.6, marginBottom: '48px' }}>
-              Join an exclusive collective of elite fashion brands and reach discerning customers worldwide.
-            </p>
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+        >
+          {/* Left Column: Branding & Overview */}
+          <div className="branding-col">
+            <div>
+              <div style={{
+                width: '52px', height: '52px', borderRadius: '14px',
+                background: theme.accentGrad, color: '#ffffff',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                marginBottom: '20px', boxShadow: '0 8px 20px rgba(37, 99, 235, 0.3)'
+              }}>
+                <StorefrontOutlinedIcon sx={{ fontSize: 28 }} />
+              </div>
+              <h1 style={{ fontSize: '28px', fontWeight: 800, color: theme.textPrimary, letterSpacing: '-0.5px', lineHeight: 1.2, marginBottom: '12px', fontFamily: theme.fontDisplay }}>
+                Launch Your <br /><span style={{ color: theme.accent }}>Seller Account</span>
+              </h1>
+              <p style={{ color: theme.textSecondary, fontSize: '13px', lineHeight: 1.5, marginBottom: '28px' }}>
+                Partner with RapidCloth to reach thousands of local shoppers across assigned operational zones.
+              </p>
 
-            <div style={{ display: 'grid', gap: '32px' }}>
-              {[
-                { step: '01', title: 'Brand Identity', text: 'Define your unique store name and narrative.' },
-                { step: '02', title: 'Curator Review', text: 'Our team will verify your credentials for trust.' },
-                { step: '03', title: 'Global Reach', text: 'Start selling to fashion lovers everywhere.' }
-              ].map(item => (
-                <div key={item.step} style={{ display: 'flex', gap: '20px', alignItems: 'flex-start' }}>
-                  <span style={{ fontSize: '13px', fontWeight: 900, color: theme.accent, opacity: 0.6 }}>{item.step}</span>
-                  <div>
-                    <h4 style={{ fontSize: '15px', fontWeight: 700, color: theme.textPrimary, marginBottom: '4px' }}>{item.title}</h4>
-                    <p style={{ fontSize: '13px', color: theme.textMuted, lineHeight: 1.4 }}>{item.text}</p>
+              <div style={{ display: 'grid', gap: '16px' }}>
+                {[
+                  { step: '01', title: 'Store Details', text: 'Define your store name, category & target zone.' },
+                  { step: '02', title: 'Verification', text: 'Upload ID proof for quick admin approval.' },
+                  { step: '03', title: 'Start Selling', text: 'Manage inventory & orders via seller portal.' }
+                ].map(item => (
+                  <div key={item.step} style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+                    <span style={{ fontSize: '11px', fontWeight: 800, color: theme.accent, padding: '2px 6px', background: 'rgba(37, 99, 235, 0.08)', borderRadius: '4px' }}>{item.step}</span>
+                    <div>
+                      <h4 style={{ fontSize: '13px', fontWeight: 700, color: theme.textPrimary, margin: 0, marginBottom: '2px' }}>{item.title}</h4>
+                      <p style={{ fontSize: '11px', color: theme.textMuted, margin: 0, lineHeight: 1.4 }}>{item.text}</p>
+                    </div>
                   </div>
+                ))}
+              </div>
+            </div>
+
+            <div style={{ paddingTop: '20px' }}>
+              <p style={{ fontSize: '11px', color: theme.textMuted, margin: 0 }}>
+                Need help? <span style={{ color: theme.accent, fontWeight: 700 }}>support@rapidCloth.com</span>
+              </p>
+            </div>
+          </div>
+
+          {/* Right Column: Application Form */}
+          <div className="form-col">
+            {error && (
+              <div style={{ padding: '10px 14px', marginBottom: '16px', background: 'rgba(239, 68, 68, 0.08)', color: '#ef4444', borderRadius: '10px', fontSize: '12px', fontWeight: 600, border: '1px solid rgba(239, 68, 68, 0.2)' }}>
+                {error}
+              </div>
+            )}
+
+            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+              <div className="form-grid-2">
+                <div>
+                  <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: theme.textMuted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>Store Name</label>
+                  <input
+                    required name="storeName" value={formData.storeName} onChange={handleChange}
+                    placeholder="e.g., TrendZone Fashion"
+                    style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', background: '#ffffff', border: `1px solid ${theme.border}`, color: theme.textPrimary, fontSize: '12px', outline: 'none', boxSizing: 'border-box' }}
+                    onFocus={e => e.target.style.borderColor = theme.accent}
+                    onBlur={e => e.target.style.borderColor = theme.border}
+                  />
                 </div>
-              ))}
-            </div>
-          </div>
-
-          <div style={{ paddingTop: '40px' }}>
-            <p style={{ fontSize: '12px', color: theme.textMuted, fontWeight: 500 }}>
-              Partner Support: <span style={{ color: theme.accent, cursor: 'pointer', fontWeight: 700 }}>support@rapidCloth.luxury</span>
-            </p>
-          </div>
-        </div>
-
-        {/* Right Column: The Form */}
-        <div className="form-col" style={{ padding: '60px' }}>
-          {error && (
-            <div style={{ padding: '16px', marginBottom: '24px', background: 'rgba(239, 68, 68, 0.05)', color: '#ef4444', borderRadius: '12px', fontSize: '14px', fontWeight: 500, border: '1px solid rgba(239, 68, 68, 0.1)' }}>
-              {error}
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '24px' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-              <div>
-                <label style={{ display: 'block', fontSize: '11px', fontWeight: 800, color: theme.textMuted, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>Store Name</label>
-                <input
-                  required name="storeName" value={formData.storeName} onChange={handleChange}
-                  placeholder="e.g., Maison de Mode"
-                  style={{ width: '100%', padding: '14px', borderRadius: '12px', background: 'white', border: `1px solid ${theme.border}`, color: theme.textPrimary, fontSize: '14px', outline: 'none', transition: 'border 0.2s' }}
-                  onFocus={e => e.target.style.borderColor = theme.accent}
-                  onBlur={e => e.target.style.borderColor = theme.border}
-                />
+                <div>
+                  <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: theme.textMuted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>Business Contact</label>
+                  <input
+                    required name="businessPhone" value={formData.businessPhone} onChange={handleChange}
+                    placeholder="e.g., +91 98765 43210"
+                    style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', background: '#ffffff', border: `1px solid ${theme.border}`, color: theme.textPrimary, fontSize: '12px', outline: 'none', boxSizing: 'border-box' }}
+                    onFocus={e => e.target.style.borderColor = theme.accent}
+                    onBlur={e => e.target.style.borderColor = theme.border}
+                  />
+                </div>
               </div>
-              <div>
-                <label style={{ display: 'block', fontSize: '11px', fontWeight: 800, color: theme.textMuted, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>Business Contact</label>
-                <input
-                  required name="businessPhone" value={formData.businessPhone} onChange={handleChange}
-                  placeholder="e.g., +91 98765 43210"
-                  style={{ width: '100%', padding: '14px', borderRadius: '12px', background: 'white', border: `1px solid ${theme.border}`, color: theme.textPrimary, fontSize: '14px', outline: 'none', transition: 'border 0.2s' }}
-                  onFocus={e => e.target.style.borderColor = theme.accent}
-                  onBlur={e => e.target.style.borderColor = theme.border}
-                />
-              </div>
-            </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-              <div>
-                <label style={{ display: 'block', fontSize: '11px', fontWeight: 800, color: theme.textMuted, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>Fashion Category</label>
-                <div className="select-wrapper" style={{ position: 'relative' }}>
+              <div className="form-grid-2">
+                <div>
+                  <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: theme.textMuted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>Fashion Category</label>
                   <select
                     required name="categories" value={formData.categories} onChange={handleChange}
-                    style={{ width: '100%', padding: '14px 36px 14px 14px', borderRadius: '12px', background: 'white', border: `1px solid ${theme.border}`, color: theme.textPrimary, fontSize: '14px', outline: 'none', appearance: 'none', cursor: 'pointer' }}
+                    style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', background: '#ffffff', border: `1px solid ${theme.border}`, color: theme.textPrimary, fontSize: '12px', outline: 'none', cursor: 'pointer', boxSizing: 'border-box' }}
                   >
-                    <option value="" disabled>Select a category</option>
+                    <option value="" disabled>Select category</option>
                     <option value="clothing">Clothing & Apparel</option>
-                    <option value="footwear">Exotic Footwear</option>
+                    <option value="footwear">Footwear</option>
                     <option value="accessories">Accessories</option>
-                    <option value="jewelry">Fine Jewelry</option>
+                    <option value="jewelry">Jewelry & Watches</option>
                   </select>
-                  <svg className="select-arrow" style={{ position: 'absolute', right: '14px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', width: '12px', height: '12px' }} viewBox="0 0 12 12" fill="none"><path d="M2 4L6 8L10 4" stroke={theme.textMuted} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                </div>
+
+                {/* Apply for Operational Zone Field */}
+                <div>
+                  <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: '#2563eb', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <MapIcon sx={{ fontSize: 14 }} />
+                    Apply for Zone
+                  </label>
+                  <select
+                    required name="zone" value={formData.zone} onChange={handleChange}
+                    style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', background: 'rgba(37, 99, 235, 0.03)', border: '1px solid rgba(37, 99, 235, 0.3)', color: theme.textPrimary, fontSize: '12px', fontWeight: 600, outline: 'none', cursor: 'pointer', boxSizing: 'border-box' }}
+                  >
+                    <option value="" disabled>Select target zone</option>
+                    {zones.length === 0 ? (
+                      <option value="default">Barrackpore Zone (101)</option>
+                    ) : (
+                      zones.map(z => (
+                        <option key={z._id} value={z._id}>
+                          {z.name} ({z.zoneId || z.code}) - {z.city}
+                        </option>
+                      ))
+                    )}
+                  </select>
                 </div>
               </div>
-            </div>
 
-            <div>
-              <label style={{ display: 'block', fontSize: '11px', fontWeight: 800, color: theme.textMuted, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>Brand Narrative</label>
-              <textarea
-                required name="description" value={formData.description} onChange={handleChange}
-                placeholder="Share the story behind your brand..."
-                rows="3"
-                style={{ width: '100%', padding: '14px', borderRadius: '12px', background: 'white', border: `1px solid ${theme.border}`, color: theme.textPrimary, fontSize: '14px', outline: 'none', resize: 'none', fontFamily: 'inherit' }}
-                onFocus={e => e.target.style.borderColor = theme.accent}
-                onBlur={e => e.target.style.borderColor = theme.border}
-              />
-            </div>
+              <div>
+                <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: theme.textMuted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>Brand Description</label>
+                <textarea
+                  required name="description" value={formData.description} onChange={handleChange}
+                  placeholder="Share a short description of your store and products..."
+                  rows="2"
+                  style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', background: '#ffffff', border: `1px solid ${theme.border}`, color: theme.textPrimary, fontSize: '12px', outline: 'none', resize: 'none', fontFamily: 'inherit', boxSizing: 'border-box' }}
+                  onFocus={e => e.target.style.borderColor = theme.accent}
+                  onBlur={e => e.target.style.borderColor = theme.border}
+                />
+              </div>
 
-            <div>
-              <label style={{ display: 'block', fontSize: '11px', fontWeight: 800, color: theme.textMuted, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>Business Headquarters</label>
-              <input
-                required name="address" value={formData.address} onChange={handleChange}
-                placeholder="Full address of your boutique or office"
-                style={{ width: '100%', padding: '14px', borderRadius: '12px', background: 'white', border: `1px solid ${theme.border}`, color: theme.textPrimary, fontSize: '14px', outline: 'none' }}
-                onFocus={e => e.target.style.borderColor = theme.accent}
-                onBlur={e => e.target.style.borderColor = theme.border}
-              />
-            </div>
+              <div>
+                <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: theme.textMuted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>Business Headquarters / Address</label>
+                <input
+                  required name="address" value={formData.address} onChange={handleChange}
+                  placeholder="Full store/office address"
+                  style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', background: '#ffffff', border: `1px solid ${theme.border}`, color: theme.textPrimary, fontSize: '12px', outline: 'none', boxSizing: 'border-box' }}
+                  onFocus={e => e.target.style.borderColor = theme.accent}
+                  onBlur={e => e.target.style.borderColor = theme.border}
+                />
+              </div>
 
-            <div>
-              <label style={{ display: 'block', fontSize: '11px', fontWeight: 800, color: theme.textMuted, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>Identity Verification</label>
-              <div className="select-wrapper" style={{ position: 'relative' }}>
-                <select
-                  required name="documentType" value={formData.documentType} onChange={handleChange}
-                  style={{ width: '100%', padding: '14px 36px 14px 14px', borderRadius: '12px', background: 'white', border: `1px solid ${theme.border}`, color: theme.textPrimary, fontSize: '14px', outline: 'none', appearance: 'none', cursor: 'pointer' }}
+              <div className="form-grid-2">
+                <div>
+                  <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: theme.textMuted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>Identity Verification Document</label>
+                  <select
+                    required name="documentType" value={formData.documentType} onChange={handleChange}
+                    style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', background: '#ffffff', border: `1px solid ${theme.border}`, color: theme.textPrimary, fontSize: '12px', outline: 'none', cursor: 'pointer', boxSizing: 'border-box' }}
+                  >
+                    <option value="" disabled>Select document type</option>
+                    <option value="Aadhar Card">Aadhar Card</option>
+                    <option value="PAN Card">PAN Card</option>
+                    <option value="Voter ID">Voter ID</option>
+                    <option value="Passport">International Passport</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: theme.textMuted, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>Proof of Identity Document</label>
+                <div 
+                  onClick={() => fileInputRef.current?.click()}
+                  onDragOver={(e) => e.preventDefault()}
+                  onDrop={(e) => { e.preventDefault(); setFile(e.dataTransfer.files[0]); }}
+                  style={{ border: `1.5px dashed ${theme.border}`, borderRadius: '12px', padding: '18px 12px', textAlign: 'center', cursor: 'pointer', transition: 'all 0.2s', background: '#f8fafc' }}
+                  onMouseEnter={(e) => { e.currentTarget.style.borderColor = theme.accent; e.currentTarget.style.background = 'rgba(37, 99, 235, 0.03)'; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.borderColor = theme.border; e.currentTarget.style.background = '#f8fafc'; }}
                 >
-                  <option value="" disabled>Select document type</option>
-                  <option value="Aadhar Card">Aadhar Card</option>
-                  <option value="PAN Card">PAN Card</option>
-                  <option value="Voter ID">Voter ID</option>
-                  <option value="Passport">International Passport</option>
-                </select>
-                <svg className="select-arrow" style={{ position: 'absolute', right: '14px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none', width: '12px', height: '12px' }} viewBox="0 0 12 12" fill="none"><path d="M2 4L6 8L10 4" stroke={theme.textMuted} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                  <input type="file" ref={fileInputRef} onChange={(e) => setFile(e.target.files?.[0])} style={{ display: 'none' }} accept=".pdf,.jpg,.png" />
+                  
+                  {file ? (
+                    <div style={{ color: theme.textPrimary }}>
+                      <CheckCircleOutlineIcon sx={{ fontSize: 28, color: '#10b981', marginBottom: '4px' }} />
+                      <p style={{ fontWeight: 700, fontSize: '12px', margin: 0, fontFamily: theme.fontDisplay }}>{file.name}</p>
+                      <p style={{ color: theme.textMuted, fontSize: '10px', margin: 0 }}>{(file.size / 1024 / 1024).toFixed(2)} MB</p>
+                    </div>
+                  ) : (
+                    <div style={{ color: theme.textMuted }}>
+                      <CloudUploadOutlinedIcon sx={{ fontSize: 28, color: theme.accent, marginBottom: '4px' }} />
+                      <p style={{ fontWeight: 700, fontSize: '12px', color: theme.textPrimary, margin: 0, fontFamily: theme.fontDisplay }}>Upload Official Document</p>
+                      <p style={{ fontSize: '10px', margin: 0, marginTop: '2px' }}>PDF, PNG, or JPG (max. 5MB)</p>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
 
-            <div>
-              <label style={{ display: 'block', fontSize: '11px', fontWeight: 800, color: theme.textMuted, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>Proof of Identity</label>
-              <div 
-                onClick={() => fileInputRef.current.click()}
-                onDragOver={(e) => e.preventDefault()}
-                onDrop={(e) => { e.preventDefault(); setFile(e.dataTransfer.files[0]); }}
-                style={{ border: `2px dashed ${theme.border}`, borderRadius: '16px', padding: '40px', textAlign: 'center', cursor: 'pointer', transition: 'all 0.3s', background: 'rgba(201, 169, 110, 0.02)' }}
-                onMouseEnter={(e) => { e.currentTarget.style.borderColor = theme.accent; e.currentTarget.style.background = 'rgba(201, 169, 110, 0.05)'; }}
-                onMouseLeave={(e) => { e.currentTarget.style.borderColor = theme.border; e.currentTarget.style.background = 'rgba(201, 169, 110, 0.02)'; }}
+              <button
+                type="submit" disabled={isSubmitting || !file}
+                style={{ 
+                  width: '100%', padding: '12px', marginTop: '6px', fontWeight: 700,
+                  background: theme.accentGrad, color: '#ffffff', border: 'none', borderRadius: '10px',
+                  cursor: (isSubmitting || !file) ? 'not-allowed' : 'pointer', opacity: (isSubmitting || !file) ? 0.6 : 1,
+                  transition: 'all 0.2s ease', boxShadow: `0 4px 14px rgba(37, 99, 235, 0.3)`,
+                  fontSize: '13px'
+                }}
               >
-                <input type="file" ref={fileInputRef} onChange={(e) => setFile(e.target.files?.[0])} style={{ display: 'none' }} accept=".pdf,.jpg,.png" />
-                
-                {file ? (
-                  <div style={{ color: theme.textPrimary }}>
-                    <CheckCircleOutlineIcon sx={{ fontSize: 40, color: '#10b981', marginBottom: '12px' }} />
-                    <p style={{ fontWeight: 700, fontSize: '15px', fontFamily: theme.fontDisplay }}>{file.name}</p>
-                    <p style={{ color: theme.textMuted, fontSize: '12px' }}>{(file.size / 1024 / 1024).toFixed(2)} MB</p>
-                  </div>
-                ) : (
-                  <div style={{ color: theme.textMuted }}>
-                    <CloudUploadOutlinedIcon sx={{ fontSize: 40, color: theme.accent, marginBottom: '12px', opacity: 0.7 }} />
-                    <p style={{ fontWeight: 700, fontSize: '15px', color: theme.textPrimary, fontFamily: theme.fontDisplay }}>Upload Official Document</p>
-                    <p style={{ fontSize: '12px', marginTop: '4px' }}>PDF, PNG, or JPG (max. 5MB)</p>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <button
-              type="submit" disabled={isSubmitting || !file}
-              style={{ 
-                width: '100%', padding: '18px', marginTop: '10px', fontWeight: 800, letterSpacing: '2px',
-                background: theme.accent, color: '#1a1a1a', border: 'none', borderRadius: '100px',
-                cursor: (isSubmitting || !file) ? 'not-allowed' : 'pointer', opacity: (isSubmitting || !file) ? 0.6 : 1,
-                transition: 'all 0.3s ease', boxShadow: `0 8px 25px ${theme.accent}33`,
-                textTransform: 'uppercase', fontSize: '13px'
-              }}
-              onMouseEnter={e => !isSubmitting && file && (e.currentTarget.style.transform = 'translateY(-2px)', e.currentTarget.style.boxShadow = `0 12px 30px ${theme.accent}44`)}
-              onMouseLeave={e => (e.currentTarget.style.transform = 'translateY(0)', e.currentTarget.style.boxShadow = `0 8px 25px ${theme.accent}33`)}
-            >
-              {isSubmitting ? 'Verifying...' : 'Submit For Curation'}
-            </button>
-          </form>
-        </div>
-      </motion.div>
+                {isSubmitting ? 'Submitting Application...' : 'Submit Seller Application'}
+              </button>
+            </form>
+          </div>
+        </motion.div>
       </div>
     </>
   );

@@ -80,11 +80,16 @@ const sellerDetailSchema = new mongoose.Schema({
   applicationId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'SellerApplication',
-    required: true
+    required: false
   },
   isActive: {
     type: Boolean,
     default: true
+  },
+  zone: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Zone',
+    default: null
   }
 }, {
   timestamps: true,

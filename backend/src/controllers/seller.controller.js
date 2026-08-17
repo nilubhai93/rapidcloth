@@ -1,9 +1,10 @@
 import SellerApplication from '../models/SellerApplication.js';
 import User from '../models/User.js';
+import Zone from '../models/Zone.js';
 
 export const applySeller = async (req, res) => {
   try {
-    const { storeName, description, address, categories, documentType, businessPhone } = req.body;
+    const { storeName, description, address, categories, documentType, businessPhone, zone } = req.body;
     const userId = req.user._id;
 
     // Validate required fields
@@ -30,8 +31,9 @@ export const applySeller = async (req, res) => {
       categories,
       businessPhone,
       documentType,
-      status: 'pending', // Set to pending, requires admin approval
-      documentPath: req.file.path // Path where multer saved the file
+      zone: zone || null,
+      status: 'pending',
+      documentPath: req.file.path
     });
 
     await application.save();
@@ -49,8 +51,7 @@ export const applySeller = async (req, res) => {
 export const getSellerStatus = async (req, res) => {
   try {
     const userId = req.user._id;
-    // Find the latest application for this user
-    const application = await SellerApplication.findOne({ userId }).sort({ createdAt: -1 });
+    const application = await SellerApplication.findOne({ userId }).populate('zone').sort({ createdAt: -1 });
 
     if (!application) {
       return res.status(200).json({ application: null });
@@ -60,5 +61,15 @@ export const getSellerStatus = async (req, res) => {
   } catch (error) {
     console.error('Error fetching seller status:', error);
     res.status(500).json({ error: 'An error occurred while fetching your application status.' });
+  }
+};
+
+export const getPublicZones = async (req, res) => {
+  try {
+    const zones = await Zone.find({ status: 'active' }).select('name code city polygon radiusKm zoneId').sort({ name: 1 });
+    res.json({ zones });
+  } catch (error) {
+    console.error('Error fetching public zones:', error);
+    res.status(500).json({ error: 'Failed to fetch zones' });
   }
 };

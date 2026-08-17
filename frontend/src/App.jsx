@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 import Navbar from './components/Navbar';
+import LoginModal from './components/LoginModal';
 import Home from './pages/user/Home';
 import Products from './pages/user/Products';
 import ProductDetail from './pages/user/ProductDetail';
@@ -184,6 +185,7 @@ export default function App() {
         <CartProvider>
           <LanguageProvider>
             <AppContent />
+            <LoginModal />
           </LanguageProvider>
         </CartProvider>
       </AuthProvider>

@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { authAPI, cartAPI } from '../api';
 import {
@@ -115,6 +115,10 @@ export function AuthProvider({ children }) {
     }
   };
 
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const openLoginModal = () => setIsLoginModalOpen(true);
+  const closeLoginModal = () => setIsLoginModalOpen(false);
+
   return (
     <AuthContext.Provider value={{
       user,
@@ -127,7 +131,10 @@ export function AuthProvider({ children }) {
       updateProfile,
       sendOtp,
       verifyOtp,
-      isAuthenticated
+      isAuthenticated,
+      isLoginModalOpen,
+      openLoginModal,
+      closeLoginModal
     }}>
       {children}
     </AuthContext.Provider>

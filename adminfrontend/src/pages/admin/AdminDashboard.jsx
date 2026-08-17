@@ -27,7 +27,7 @@ export default function AdminDashboard() {
   const fetchApplications = async () => {
     try {
       const res = await api.get('/admin/sellers');
-      setApplications(res.data.applications);
+      setApplications(res.data.applications || []);
     } catch (err) {
       console.error(err);
       setError(err.response?.data?.error || 'Failed to load applications. Make sure you are an admin.');
@@ -54,6 +54,7 @@ export default function AdminDashboard() {
   };
 
   const getFileUrl = (path) => {
+    if (!path) return '';
     const safePath = path.replace(/\\/g, '/');
     const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
     const origin = apiBase.replace(/\/api\/?$/, '');
@@ -62,51 +63,56 @@ export default function AdminDashboard() {
 
   if (isLoading) {
     return (
-      <div style={{ minHeight: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <CircularProgress sx={{ color: 'var(--accent)' }} />
+      <div style={{ minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <CircularProgress size={28} sx={{ color: '#FF6B6B' }} />
       </div>
     );
   }
 
   return (
-    <div style={{ padding: '40px 24px 60px', maxWidth: '1200px', margin: '0 auto', minHeight: '80vh' }}>
-      <div style={{ marginBottom: '40px' }}>
-        <h1 style={{ fontSize: 'clamp(32px, 5vw, 48px)', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.5px' }}>Admin Dashboard</h1>
-        <p style={{ color: 'var(--text-secondary)', fontSize: '16px', marginTop: '8px', fontWeight: 500 }}>Manage user seller applications and store approvals</p>
+    <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
+      <div style={{ marginBottom: '12px' }}>
+        <h1 style={{ fontSize: '17px', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.2px', margin: 0 }}>
+          Seller Approvals
+        </h1>
+        <p style={{ color: 'var(--text-muted)', fontSize: '11px', marginTop: '1px', margin: 0, fontWeight: 500 }}>
+          Manage user seller applications and store approvals
+        </p>
       </div>
 
       {error ? (
-        <div style={{ padding: '20px', background: 'rgba(239, 68, 68, 0.1)', color: 'var(--error)', borderRadius: 'var(--radius-md)', fontWeight: 500 }}>
+        <div style={{ padding: '10px 12px', background: 'rgba(239, 68, 68, 0.1)', color: 'var(--error)', borderRadius: '6px', fontSize: '11px', fontWeight: 600 }}>
           {error}
         </div>
       ) : applications.length === 0 ? (
-        <div style={{ padding: '60px 20px', textAlign: 'center', background: 'var(--bg-elevated)', borderRadius: 'var(--radius-lg)' }}>
-          <p style={{ color: 'var(--text-secondary)' }}>No seller applications currently found.</p>
+        <div style={{ padding: '30px 16px', textAlign: 'center', background: 'var(--bg-elevated)', borderRadius: '10px' }}>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '12px', margin: 0 }}>No seller applications currently found.</p>
         </div>
       ) : (
-        <div style={{ display: 'grid', gap: '20px' }}>
+        <div style={{ display: 'grid', gap: '10px' }}>
           {applications.map((app, i) => (
             <motion.div
               key={app._id}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.05 }}
+              transition={{ delay: i * 0.04 }}
               style={{
                 background: 'var(--bg-card)',
                 border: '1px solid var(--border)',
-                borderRadius: 'var(--radius-lg)',
-                padding: '24px',
+                borderRadius: '10px',
+                padding: '12px 14px',
                 display: 'flex',
                 flexDirection: 'column',
-                gap: '20px'
+                gap: '10px',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.03)'
               }}
             >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '10px' }}>
                 <div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <h2 style={{ fontSize: 'clamp(18px, 3.5vw, 24px)', fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>{app.storeName}</h2>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <h2 style={{ fontSize: '15px', fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>{app.storeName}</h2>
                     <span style={{
-                      padding: '4px 12px', borderRadius: 'var(--radius-full)', fontSize: 'clamp(11px, 2vw, 13px)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.5px',
+                      padding: '2px 8px', borderRadius: '10px', fontSize: '9px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.4px',
                       background: app.status === 'approved' ? 'rgba(16, 185, 129, 0.1)' : app.status === 'rejected' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(245, 158, 11, 0.1)',
                       color: app.status === 'approved' ? '#10b981' : app.status === 'rejected' ? '#ef4444' : '#f59e0b',
                       border: `1px solid ${app.status === 'approved' ? 'rgba(16, 185, 129, 0.2)' : app.status === 'rejected' ? 'rgba(239, 68, 68, 0.2)' : 'rgba(245, 158, 11, 0.2)'}`
@@ -114,87 +120,84 @@ export default function AdminDashboard() {
                       {app.status}
                     </span>
                   </div>
-                  <p style={{ color: 'var(--text-muted)', fontSize: 'clamp(13px, 2.5vw, 15px)', marginTop: '6px' }}>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '11px', marginTop: '2px', margin: 0 }}>
                     Applied by: <strong style={{ color: 'var(--text-primary)' }}>{app.userId?.name}</strong> <span style={{ opacity: 0.7 }}>({app.userId?.email})</span>
                   </p>
                 </div>
 
-                <a
-                  href={getFileUrl(app.documentPath)}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="btn-glass"
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', fontWeight: 600,
-                    color: 'var(--accent-light)', background: 'rgba(255, 255, 255, 0.05)', padding: '10px 20px',
-                    borderRadius: 'var(--radius-lg)', border: '1px solid var(--border)', textDecoration: 'none',
-                    transition: 'all 0.3s ease'
-                  }}
-                >
-                  <LaunchIcon sx={{ fontSize: 18 }} /> View Document
-                </a>
+                {app.documentPath && (
+                  <a
+                    href={getFileUrl(app.documentPath)}
+                    target="_blank"
+                    rel="noreferrer"
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', fontWeight: 600,
+                      color: '#FF6B6B', background: 'rgba(255, 107, 107, 0.08)', padding: '5px 10px',
+                      borderRadius: '6px', border: '1px solid rgba(255, 107, 107, 0.2)', textDecoration: 'none'
+                    }}
+                  >
+                    <LaunchIcon sx={{ fontSize: 14 }} /> View Document
+                  </a>
+                )}
               </div>
 
               <div style={{ 
-                display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
-                gap: '24px', background: 'rgba(255, 255, 255, 0.02)', padding: '24px', 
-                borderRadius: 'var(--radius-xl)', border: '1px solid var(--border)' 
+                display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', 
+                gap: '10px', background: 'var(--bg-elevated)', padding: '10px 12px', 
+                borderRadius: '8px', border: '1px solid var(--border)' 
               }}>
                 <div>
-                  <p style={{ fontSize: '11px', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>Store Narrative</p>
-                  <p style={{ fontSize: '14px', color: 'var(--text-secondary)', lineHeight: 1.6 }}>{app.description}</p>
+                  <p style={{ fontSize: '10px', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '2px' }}>Store Narrative</p>
+                  <p style={{ fontSize: '11px', color: 'var(--text-secondary)', margin: 0, lineHeight: 1.4 }}>{app.description || 'N/A'}</p>
                 </div>
                 <div>
-                  <p style={{ fontSize: '11px', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>Business Address</p>
-                  <p style={{ fontSize: '14px', color: 'var(--text-secondary)', lineHeight: 1.6 }}>{app.address}</p>
+                  <p style={{ fontSize: '10px', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '2px' }}>Business Address</p>
+                  <p style={{ fontSize: '11px', color: 'var(--text-secondary)', margin: 0, lineHeight: 1.4 }}>{app.address || 'N/A'}</p>
                 </div>
                 <div>
-                  <p style={{ fontSize: '11px', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>Main Category</p>
-                  <p style={{ fontSize: '14px', color: 'var(--text-primary)', fontWeight: 600, textTransform: 'capitalize' }}>{app.categories}</p>
+                  <p style={{ fontSize: '10px', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '2px' }}>Main Category</p>
+                  <p style={{ fontSize: '11px', color: 'var(--text-primary)', fontWeight: 600, textTransform: 'capitalize', margin: 0 }}>{app.categories || 'Clothing'}</p>
                 </div>
                 <div>
-                  <p style={{ fontSize: '11px', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>Identity Proof</p>
-                  <p style={{ fontSize: '14px', color: 'var(--accent-light)', fontWeight: 700 }}>{app.documentType || 'Not specified'}</p>
+                  <p style={{ fontSize: '10px', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '2px' }}>Identity Proof</p>
+                  <p style={{ fontSize: '11px', color: '#FF6B6B', fontWeight: 700, margin: 0 }}>{app.documentType || 'Not specified'}</p>
                 </div>
                 <div>
-                  <p style={{ fontSize: '11px', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>Business Contact</p>
-                  <p style={{ fontSize: '14px', color: 'var(--text-primary)', fontWeight: 600 }}>{app.businessPhone || 'Not provided'}</p>
+                  <p style={{ fontSize: '10px', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '2px' }}>Business Contact</p>
+                  <p style={{ fontSize: '11px', color: 'var(--text-primary)', fontWeight: 600, margin: 0 }}>{app.businessPhone || 'Not provided'}</p>
                 </div>
               </div>
 
               {app.status === 'rejected' && app.rejectionReason && (
-                <div style={{ marginTop: '12px', padding: '12px', background: 'rgba(239, 68, 68, 0.05)', borderRadius: 'var(--radius-md)', border: '1px solid rgba(239, 68, 68, 0.1)' }}>
-                  <p style={{ fontSize: '12px', color: '#ef4444', fontWeight: 600 }}>Rejection Reason: <span style={{ fontWeight: 400 }}>{app.rejectionReason}</span></p>
+                <div style={{ padding: '8px 10px', background: 'rgba(239, 68, 68, 0.05)', borderRadius: '6px', border: '1px solid rgba(239, 68, 68, 0.1)' }}>
+                  <p style={{ fontSize: '11px', color: '#ef4444', fontWeight: 600, margin: 0 }}>Rejection Reason: <span style={{ fontWeight: 400 }}>{app.rejectionReason}</span></p>
                 </div>
               )}
 
               {app.status === 'pending' && (
-                <div style={{ display: 'flex', gap: '16px', marginTop: '8px' }}>
+                <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
                   <button
                     onClick={() => handleUpdateStatus(app._id, 'approved')}
-                    className="btn btn-primary"
                     style={{
-                      display: 'flex', alignItems: 'center', gap: '8px',
-                      padding: '12px 28px', borderRadius: 'var(--radius-lg)', 
-                      fontWeight: 700, fontSize: '14px', cursor: 'pointer',
-                      boxShadow: '0 8px 20px rgba(16, 185, 129, 0.2)'
+                      display: 'flex', alignItems: 'center', gap: '4px',
+                      padding: '6px 14px', borderRadius: '6px', border: 'none',
+                      background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', color: 'white',
+                      fontWeight: 700, fontSize: '11px', cursor: 'pointer',
+                      boxShadow: '0 2px 8px rgba(16, 185, 129, 0.2)'
                     }}
                   >
-                    <CheckCircleOutlineIcon sx={{ fontSize: 20 }} /> Approve Application
+                    <CheckCircleOutlineIcon sx={{ fontSize: 15 }} /> Approve Application
                   </button>
                   <button
                     onClick={() => setRejectingApp(app)}
                     style={{
-                      display: 'flex', alignItems: 'center', gap: '8px',
+                      display: 'flex', alignItems: 'center', gap: '4px',
                       background: 'transparent', color: '#ef4444', border: '1px solid rgba(239, 68, 68, 0.3)', 
-                      padding: '12px 28px', borderRadius: 'var(--radius-lg)', 
-                      fontWeight: 700, fontSize: '14px', cursor: 'pointer',
-                      transition: 'all 0.3s ease'
+                      padding: '6px 14px', borderRadius: '6px', 
+                      fontWeight: 700, fontSize: '11px', cursor: 'pointer'
                     }}
-                    onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(239, 68, 68, 0.05)'}
-                    onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                   >
-                    <CloseIcon sx={{ fontSize: 20 }} /> Reject Application
+                    <CloseIcon sx={{ fontSize: 15 }} /> Reject Application
                   </button>
                 </div>
               )}
@@ -203,41 +206,41 @@ export default function AdminDashboard() {
         </div>
       )}
 
-      {/* Rejection Reason Modal */}
+      {/* Rejection Reason Modal (Compact) */}
       <AnimatePresence>
         {rejectingApp && (
           <motion.div
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             style={{
-              position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)',
-              backdropFilter: 'blur(8px)', zIndex: 3000,
-              display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px'
+              position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.65)',
+              backdropFilter: 'blur(4px)', zIndex: 3000,
+              display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '12px'
             }}
           >
             <motion.div
-              initial={{ scale: 0.9, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.9, y: 20 }}
+              initial={{ scale: 0.96, y: 10 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.96, y: 10 }}
               style={{
-                width: '100%', maxWidth: '400px', background: 'var(--bg-card)',
-                borderRadius: 'var(--radius-xl)', border: '1px solid var(--border)',
-                padding: '32px', boxShadow: '0 40px 100px rgba(0,0,0,0.5)'
+                width: '100%', maxWidth: '380px', background: 'var(--bg-card)',
+                borderRadius: '12px', border: '1px solid var(--border)',
+                padding: '16px', boxShadow: '0 20px 60px rgba(0,0,0,0.5)'
               }}
             >
-              <h3 style={{ fontSize: '20px', fontWeight: 800, marginBottom: '8px' }}>Reject Application</h3>
-              <p style={{ color: 'var(--text-muted)', fontSize: '14px', marginBottom: '24px' }}>
+              <h3 style={{ fontSize: '16px', fontWeight: 800, marginBottom: '4px', margin: 0 }}>Reject Application</h3>
+              <p style={{ color: 'var(--text-muted)', fontSize: '11px', marginBottom: '12px', marginTop: '2px' }}>
                 Please select a reason for rejecting <strong style={{ color: 'var(--text-primary)' }}>{rejectingApp.storeName}</strong>
               </p>
 
-              <div style={{ display: 'grid', gap: '8px', marginBottom: '24px' }}>
+              <div style={{ display: 'grid', gap: '6px', marginBottom: '12px' }}>
                 {rejectionReasons.map(reason => (
                   <button
                     key={reason}
                     onClick={() => setRejectionReason(reason)}
                     style={{
-                      padding: '12px 16px', borderRadius: 'var(--radius-md)', textAlign: 'left',
-                      background: rejectionReason === reason ? 'var(--accent-bg)' : 'var(--bg-elevated)',
-                      border: `1px solid ${rejectionReason === reason ? 'var(--accent)' : 'var(--border)'}`,
-                      color: rejectionReason === reason ? 'var(--accent-light)' : 'var(--text-primary)',
-                      fontSize: '13px', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s'
+                      padding: '8px 10px', borderRadius: '6px', textAlign: 'left',
+                      background: rejectionReason === reason ? 'rgba(255, 107, 107, 0.12)' : 'var(--bg-elevated)',
+                      border: `1px solid ${rejectionReason === reason ? '#FF6B6B' : 'var(--border)'}`,
+                      color: rejectionReason === reason ? '#FF6B6B' : 'var(--text-primary)',
+                      fontSize: '11px', fontWeight: 600, cursor: 'pointer'
                     }}
                   >
                     {reason}
@@ -246,42 +249,42 @@ export default function AdminDashboard() {
               </div>
 
               {rejectionReason === 'Custom' && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: 'auto' }}
-                  style={{ marginBottom: '24px' }}
-                >
-                  <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: 'var(--text-muted)', marginBottom: '8px', textTransform: 'uppercase' }}>Custom Reason</label>
+                <div style={{ marginBottom: '12px' }}>
                   <textarea
-                    autoFocus
+                    rows={2}
                     value={customReason}
                     onChange={(e) => setCustomReason(e.target.value)}
-                    placeholder="Type the specific reason for rejection..."
+                    placeholder="Enter custom rejection reason..."
                     style={{
-                      width: '100%', padding: '12px', borderRadius: 'var(--radius-md)',
+                      width: '100%', padding: '6px 8px', borderRadius: '6px',
                       background: 'var(--bg-elevated)', border: '1px solid var(--border)',
-                      color: 'var(--text-primary)', fontSize: '14px', outline: 'none',
-                      resize: 'vertical', minHeight: '80px', fontFamily: 'inherit'
+                      color: 'var(--text-primary)', fontSize: '11px', outline: 'none', boxSizing: 'border-box'
                     }}
                   />
-                </motion.div>
+                </div>
               )}
 
-              <div style={{ display: 'flex', gap: '12px' }}>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '6px' }}>
                 <button
-                  onClick={() => { setRejectingApp(null); setRejectionReason(''); setCustomReason(''); }}
-                  style={{ flex: 1, padding: '12px', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border)', background: 'transparent', color: 'var(--text-secondary)', fontWeight: 700, cursor: 'pointer' }}
-                >Cancel</button>
+                  onClick={() => setRejectingApp(null)}
+                  style={{
+                    padding: '6px 12px', borderRadius: '6px', border: '1px solid var(--border)',
+                    background: 'transparent', color: 'var(--text-secondary)', fontSize: '11px', fontWeight: 700, cursor: 'pointer'
+                  }}
+                >
+                  Cancel
+                </button>
                 <button
-                  onClick={() => handleUpdateStatus(rejectingApp._id, 'rejected', rejectionReason)}
                   disabled={!rejectionReason || (rejectionReason === 'Custom' && !customReason.trim())}
-                  style={{ 
-                    flex: 1, padding: '12px', borderRadius: 'var(--radius-lg)', 
-                    background: '#ef4444', color: 'white', border: 'none', fontWeight: 700, 
-                    cursor: (!rejectionReason || (rejectionReason === 'Custom' && !customReason.trim())) ? 'not-allowed' : 'pointer', 
+                  onClick={() => handleUpdateStatus(rejectingApp._id, 'rejected', rejectionReason)}
+                  style={{
+                    padding: '6px 14px', borderRadius: '6px', border: 'none',
+                    background: '#ef4444', color: 'white', fontSize: '11px', fontWeight: 700, cursor: 'pointer',
                     opacity: (!rejectionReason || (rejectionReason === 'Custom' && !customReason.trim())) ? 0.5 : 1
                   }}
-                >Confirm Reject</button>
+                >
+                  Confirm Rejection
+                </button>
               </div>
             </motion.div>
           </motion.div>

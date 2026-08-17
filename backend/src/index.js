@@ -15,6 +15,7 @@ import orderRoutes from './routes/order.routes.js';
 import cartRoutes from './routes/cart.routes.js';
 import sellerRoutes from './routes/seller.routes.js';
 import adminRoutes from './routes/admin.routes.js';
+import superadminRoutes from './routes/superadmin.routes.js';
 import sellerProductRoutes from './routes/sellerProduct.routes.js';
 import sellerOrderRoutes from './routes/sellerOrder.routes.js';
 import deliveryRoutes from './routes/delivery.routes.js';
@@ -40,6 +41,7 @@ const defaultOrigins = [
   'http://localhost:5174',
   'http://localhost:5175',
   'http://localhost:5176',
+  'http://localhost:5177',
   'https://rapidcloth.vercel.app',
   'https://rapidcloth-admin.vercel.app',
   'https://rapidcloth-partner.vercel.app'
@@ -88,6 +90,7 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/seller', sellerRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/superadmin', superadminRoutes);
 app.use('/api/seller/dashboard', sellerProductRoutes);
 app.use('/api/seller/orders', sellerOrderRoutes);
 app.use('/api/delivery', deliveryRoutes);

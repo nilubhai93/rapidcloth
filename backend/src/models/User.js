@@ -39,7 +39,9 @@ const userSchema = new mongoose.Schema({
   stylePreferences: [{ type: String }],
   chatHistory: [chatMessageSchema],
   wishlist: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Product' }],
-  role: { type: String, enum: ['user', 'seller', 'admin', 'delivery'], default: 'user' },
+  role: { type: String, enum: ['user', 'seller', 'admin', 'superadmin', 'delivery'], default: 'user' },
+  assignedZones: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Zone' }],
+  zone: { type: mongoose.Schema.Types.ObjectId, ref: 'Zone', default: null },
   otp: { type: String, default: null },
   otpExpires: { type: Date, default: null },
   deliveryProfile: {

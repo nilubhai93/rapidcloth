@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { NavLink, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import DashboardIcon from '@mui/icons-material/DashboardRounded';
 import StorefrontIcon from '@mui/icons-material/StorefrontRounded';
 import PeopleIcon from '@mui/icons-material/PeopleRounded';
@@ -12,15 +12,17 @@ import CampaignIcon from '@mui/icons-material/CampaignRounded';
 import SupportAgentIcon from '@mui/icons-material/SupportAgentRounded';
 import LocalShippingIcon from '@mui/icons-material/LocalShippingRounded';
 import CloseIcon from '@mui/icons-material/CloseRounded';
+import MenuIcon from '@mui/icons-material/MenuRounded';
+import CircularProgress from '@mui/material/CircularProgress';
 
 import { useAuth } from '../context/AuthContext';
 import { useEffect, useState } from 'react';
 import AdminNavbar from './AdminNavbar';
-import CircularProgress from '@mui/material/CircularProgress';
 
 export default function AdminLayout() {
   const { user, loading, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -38,8 +40,14 @@ export default function AdminLayout() {
     }
   }, [user, loading, navigate]);
 
+  // Always scroll main window to top on route change
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location.pathname]);
+
   const navItems = [
     { name: 'Dashboard', path: '/admin', icon: <DashboardIcon /> },
+    { name: 'Zone Sellers', path: '/admin/zone-sellers', icon: <StorefrontIcon /> },
     { name: 'Seller Approvals', path: '/admin/sellers', icon: <StorefrontIcon /> },
     { name: 'Users', path: '/admin/users', icon: <PeopleIcon /> },
     { name: 'Orders', path: '/admin/orders', icon: <ShoppingCartIcon /> },
@@ -55,61 +63,64 @@ export default function AdminLayout() {
   const accentGradient = 'linear-gradient(135deg, #FF6B6B 0%, #FF8E53 100%)';
 
   const SidebarContent = () => (
-    <>
-      <div style={{ marginBottom: '40px', paddingLeft: '10px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <h2 style={{ fontSize: '20px', textTransform: 'uppercase', letterSpacing: '1px', color: accentColor, fontWeight: 700 }}>
-          Admin Panel
-        </h2>
-        {isMobile && (
-          <div onClick={() => setSidebarOpen(false)} style={{ cursor: 'pointer', color: 'var(--text-secondary)' }}>
-            <CloseIcon />
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+      {/* Mobile Close Button Header */}
+      {isMobile && (
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '8px' }}>
+          <div onClick={() => setSidebarOpen(false)} style={{ cursor: 'pointer', color: 'var(--text-secondary)', padding: '2px' }}>
+            <CloseIcon sx={{ fontSize: 18 }} />
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
-      <nav style={{ display: 'flex', flexDirection: 'column', gap: '6px', flex: 1, overflowY: 'auto' }}>
+      {/* Navigation List */}
+      <nav style={{ display: 'flex', flexDirection: 'column', gap: '3px', flex: 1, overflowY: 'auto' }}>
         {navItems.map((item) => (
           <NavLink
             key={item.name}
             to={item.path}
             end={item.path === '/admin'}
-            onClick={() => isMobile && setSidebarOpen(false)}
+            onClick={() => {
+              window.scrollTo(0, 0);
+              if (isMobile) setSidebarOpen(false);
+            }}
             style={({ isActive }) => ({
-              display: 'flex', alignItems: 'center', gap: '14px',
-              padding: '11px 16px', borderRadius: '12px',
-              textDecoration: 'none', fontSize: '14px', fontWeight: 600,
+              display: 'flex', alignItems: 'center', gap: '8px',
+              padding: '6px 10px', borderRadius: '8px',
+              textDecoration: 'none', fontSize: '12px', fontWeight: 600,
               color: isActive ? 'white' : 'var(--text-secondary)',
               background: isActive ? accentGradient : 'transparent',
-              transition: 'all 0.2s ease'
+              transition: 'all 0.15s ease'
             })}
           >
-            {item.icon}
-            {item.name}
+            {item.icon && <span style={{ display: 'flex', alignItems: 'center', fontSize: '18px' }}>{item.icon}</span>}
+            <span>{item.name}</span>
           </NavLink>
         ))}
       </nav>
 
-      <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.1)', paddingTop: '20px', marginTop: 'auto' }}>
+      {/* Sign Out Section */}
+      <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.08)', paddingTop: '8px', marginTop: 'auto' }}>
         <button
           onClick={() => { logout(); navigate('/'); }}
           style={{
-            display: 'flex', alignItems: 'center', gap: '14px', width: '100%',
-            padding: '12px 16px', borderRadius: '12px', background: 'transparent',
-            border: 'none', color: 'var(--error)', fontSize: '14px', fontWeight: 600, cursor: 'pointer',
+            display: 'flex', alignItems: 'center', gap: '8px', width: '100%',
+            padding: '7px 10px', borderRadius: '8px', background: 'transparent',
+            border: 'none', color: 'var(--error)', fontSize: '12px', fontWeight: 600, cursor: 'pointer',
             textAlign: 'left'
           }}
         >
-          <LogoutIcon />
-          Sign Out
+          <LogoutIcon sx={{ fontSize: 18 }} />
+          <span>Sign Out</span>
         </button>
       </div>
-    </>
+    </div>
   );
 
   if (loading) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', background: 'var(--bg-secondary)' }}>
-        <CircularProgress sx={{ color: '#FF6B6B' }} />
+        <CircularProgress size={28} sx={{ color: '#FF6B6B' }} />
       </div>
     );
   }
@@ -123,14 +134,23 @@ export default function AdminLayout() {
       <AdminNavbar onMenuClick={() => setSidebarOpen(true)} />
       <div style={{ display: 'flex', minHeight: 'calc(100vh - 64px)', background: 'var(--bg-secondary)', paddingTop: '64px' }}>
 
-        {/* Desktop Sidebar */}
+        {/* Desktop Fixed Sidebar */}
         {!isMobile && (
           <aside
             style={{
-              width: '260px', background: 'var(--bg-card)',
+              width: '210px',
+              height: 'calc(100vh - 64px)',
+              background: 'var(--bg-card)',
               borderRight: '1px solid var(--border)',
-              padding: '30px 20px', display: 'flex', flexDirection: 'column',
-              position: 'fixed', top: '64px', bottom: 0, left: 0, zIndex: 10
+              padding: '12px 8px',
+              display: 'flex',
+              flexDirection: 'column',
+              position: 'fixed',
+              top: '64px',
+              bottom: 0,
+              left: 0,
+              zIndex: 10,
+              overflowY: 'auto'
             }}
           >
             <SidebarContent />
@@ -150,8 +170,8 @@ export default function AdminLayout() {
                 initial={{ x: '-100%' }} animate={{ x: 0 }} exit={{ x: '-100%' }}
                 transition={{ type: 'spring', damping: 25, stiffness: 200 }}
                 style={{
-                  position: 'fixed', top: 0, left: 0, bottom: 0, width: '300px',
-                  background: 'var(--bg-card)', padding: '30px 20px', display: 'flex', flexDirection: 'column',
+                  position: 'fixed', top: 0, left: 0, bottom: 0, width: '230px',
+                  background: 'var(--bg-card)', padding: '14px 10px', display: 'flex', flexDirection: 'column',
                   zIndex: 2001, borderRight: '1px solid var(--border)'
                 }}
               >
@@ -164,10 +184,10 @@ export default function AdminLayout() {
         {/* Main Content Area */}
         <main style={{
           flex: 1,
-          marginLeft: isMobile ? '0px' : '260px',
-          padding: isMobile ? '16px' : '32px 40px',
-          paddingBottom: isMobile ? '80px' : '32px',
-          maxWidth: isMobile ? '100%' : '1200px'
+          marginLeft: isMobile ? '0px' : '210px',
+          padding: isMobile ? '8px' : '20px 24px',
+          paddingBottom: isMobile ? '70px' : '24px',
+          maxWidth: isMobile ? '100%' : '1280px'
         }}>
           <Outlet />
         </main>
@@ -180,7 +200,7 @@ export default function AdminLayout() {
             background: 'var(--bg-card)',
             borderTop: '1px solid var(--border)',
             display: 'flex',
-            justifyContent: 'space-around',
+            justify: 'space-around',
             alignItems: 'center',
             padding: '8px 4px',
             paddingBottom: 'calc(8px + env(safe-area-inset-bottom))',
@@ -216,6 +236,3 @@ export default function AdminLayout() {
     </>
   );
 }
-
-// Added MenuIcon for the mobile bottom bar
-import MenuIcon from '@mui/icons-material/MenuRounded';

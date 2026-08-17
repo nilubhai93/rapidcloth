@@ -17,40 +17,43 @@ export default function AdminNotifications() {
   };
 
   return (
-    <div>
-      <div style={{ marginBottom: '24px' }}>
-        <h1 style={{ fontSize: 'clamp(24px, 4vw, 32px)', fontWeight: 800, color: 'var(--text-primary)' }}>Notifications</h1>
-        <p style={{ color: 'var(--text-muted)', fontSize: '14px', marginTop: '4px' }}>Platform alerts and updates</p>
+    <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
+      <div style={{ marginBottom: '12px' }}>
+        <h1 style={{ fontSize: '17px', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.2px', margin: 0, display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <NotificationsActiveIcon sx={{ fontSize: 18, color: '#FF6B6B' }} />
+          System Notifications
+        </h1>
+        <p style={{ color: 'var(--text-muted)', fontSize: '11px', marginTop: '1px', margin: 0, fontWeight: 500 }}>
+          Platform alerts, user reports, and system updates
+        </p>
       </div>
 
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
         {notifications.map((n, i) => (
           <motion.div
             key={i}
-            initial={{ opacity: 0, x: -10 }}
+            initial={{ opacity: 0, x: -8 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: i * 0.05 }}
+            transition={{ delay: i * 0.03 }}
             style={{
               background: n.unread ? 'rgba(255,107,107,0.04)' : 'var(--bg-card)',
               border: `1px solid ${n.unread ? 'rgba(255,107,107,0.15)' : 'var(--border)'}`,
-              borderRadius: '14px', padding: '18px 22px',
-              display: 'flex', gap: '14px', alignItems: 'flex-start',
-              cursor: 'pointer', transition: 'background 0.2s'
+              borderRadius: '8px', padding: '10px 14px',
+              display: 'flex', gap: '10px', alignItems: 'center',
+              cursor: 'pointer', transition: 'background 0.15s'
             }}
-            onMouseEnter={e => e.currentTarget.style.background = 'var(--bg-elevated)'}
-            onMouseLeave={e => e.currentTarget.style.background = n.unread ? 'rgba(255,107,107,0.04)' : 'var(--bg-card)'}
           >
             <div style={{
-              width: '10px', height: '10px', borderRadius: '50%',
-              background: getTypeColor(n.type), marginTop: '6px', flexShrink: 0,
-              boxShadow: n.unread ? `0 0 10px ${getTypeColor(n.type)}` : 'none'
+              width: '8px', height: '8px', borderRadius: '50%',
+              background: getTypeColor(n.type), flexShrink: 0,
+              boxShadow: n.unread ? `0 0 8px ${getTypeColor(n.type)}` : 'none'
             }} />
             <div style={{ flex: 1 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-                <span style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-primary)' }}>{n.title}</span>
-                <span style={{ fontSize: '11px', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>{n.time}</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2px' }}>
+                <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-primary)' }}>{n.title}</span>
+                <span style={{ fontSize: '10px', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>{n.time}</span>
               </div>
-              <p style={{ fontSize: '13px', color: 'var(--text-muted)', lineHeight: 1.5, margin: 0 }}>{n.message}</p>
+              <p style={{ fontSize: '11px', color: 'var(--text-muted)', lineHeight: 1.4, margin: 0 }}>{n.message}</p>
             </div>
           </motion.div>
         ))}

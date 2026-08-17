@@ -44,6 +44,11 @@ const sellerApplicationSchema = new mongoose.Schema({
   rejectionReason: {
     type: String,
     default: ''
+  },
+  zone: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Zone',
+    default: null
   }
 }, {
   timestamps: true

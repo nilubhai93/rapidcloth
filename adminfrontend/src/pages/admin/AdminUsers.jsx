@@ -1,9 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import CircularProgress from '@mui/material/CircularProgress';
-import PersonIcon from '@mui/icons-material/PersonRounded';
-import BlockIcon from '@mui/icons-material/BlockRounded';
-import VerifiedIcon from '@mui/icons-material/VerifiedRounded';
 import SearchIcon from '@mui/icons-material/SearchRounded';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMoreRounded';
 import ExpandLessIcon from '@mui/icons-material/ExpandLessRounded';
@@ -29,7 +26,6 @@ export default function AdminUsers() {
         const allUsers = usersRes.data.users || [];
         const apps = appsRes.data.applications || [];
         
-        // Find users with pending seller applications
         const pendingUserIds = apps
           .filter(a => a.status === 'pending')
           .map(a => a.userId?._id || a.userId);
@@ -60,7 +56,7 @@ export default function AdminUsers() {
     if (role === 'user' && isPendingSeller) {
       return (
         <span style={{
-          padding: '3px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: 700,
+          padding: '2px 6px', borderRadius: '10px', fontSize: '9px', fontWeight: 800,
           background: 'rgba(59,130,246,0.15)', color: '#3b82f6', textTransform: 'uppercase'
         }}>
           user/seller
@@ -77,7 +73,7 @@ export default function AdminUsers() {
     const c = colors[role] || colors.user;
     return (
       <span style={{
-        padding: '3px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: 700,
+        padding: '2px 6px', borderRadius: '10px', fontSize: '9px', fontWeight: 800,
         background: c.bg, color: c.text, textTransform: 'uppercase'
       }}>
         {role}
@@ -88,38 +84,38 @@ export default function AdminUsers() {
   if (isLoading) {
     return (
       <div style={{ minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <CircularProgress sx={{ color: '#FF6B6B' }} />
+        <CircularProgress size={28} sx={{ color: '#FF6B6B' }} />
       </div>
     );
   }
 
   return (
-    <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '16px' }}>
+    <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
+      <div style={{ marginBottom: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
         <div>
-          <h1 style={{ fontSize: 'clamp(24px, 4vw, 32px)', fontWeight: 800, color: 'var(--text-primary)' }}>Users</h1>
-          <p style={{ color: 'var(--text-muted)', fontSize: '14px', marginTop: '4px' }}>Manage all registered users</p>
+          <h1 style={{ fontSize: '17px', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.2px', margin: 0 }}>Users Directory</h1>
+          <p style={{ color: 'var(--text-muted)', fontSize: '11px', marginTop: '1px', margin: 0, fontWeight: 500 }}>Manage registered platform shoppers and accounts</p>
         </div>
         <div style={{ position: 'relative' }}>
-          <SearchIcon sx={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', fontSize: '20px', color: 'var(--text-muted)' }} />
+          <SearchIcon sx={{ position: 'absolute', left: '8px', top: '50%', transform: 'translateY(-50%)', fontSize: '15px', color: 'var(--text-muted)' }} />
           <input
             type="text" value={search} onChange={e => setSearch(e.target.value)}
             placeholder="Search users..."
             style={{
-              padding: '10px 16px 10px 40px', borderRadius: '10px',
+              padding: '5px 8px 5px 28px', borderRadius: '6px',
               background: 'var(--bg-elevated)', border: '1px solid var(--border)',
-              color: 'var(--text-primary)', fontSize: '14px', outline: 'none', width: '240px'
+              color: 'var(--text-primary)', fontSize: '11px', outline: 'none', width: '200px'
             }}
           />
         </div>
       </div>
 
-      <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '16px', overflow: 'hidden' }}>
+      <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '10px', overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.03)' }}>
         {/* Header */}
         <div style={{
-          display: 'grid', gridTemplateColumns: '2fr 2fr 1fr 1fr',
-          padding: '14px 24px', background: 'var(--bg-elevated)',
-          fontSize: '12px', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px'
+          display: 'grid', gridTemplateColumns: '2fr 2fr 1fr 1fr 30px',
+          padding: '8px 12px', background: 'var(--bg-elevated)',
+          fontSize: '10px', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.4px'
         }}>
           <span>Name</span>
           <span>Email</span>
@@ -130,7 +126,7 @@ export default function AdminUsers() {
 
         {/* Rows */}
         {filteredUsers.length === 0 ? (
-          <div style={{ padding: '40px', textAlign: 'center', color: 'var(--text-muted)' }}>
+          <div style={{ padding: '30px', textAlign: 'center', color: 'var(--text-muted)', fontSize: '11px' }}>
             No users found.
           </div>
         ) : (
@@ -138,20 +134,20 @@ export default function AdminUsers() {
             <div key={u._id} style={{ borderTop: i !== 0 ? '1px solid var(--border)' : 'none' }}>
               <div
                 style={{
-                  display: 'grid', gridTemplateColumns: '2fr 2fr 1fr 1fr 40px',
-                  padding: '14px 24px',
-                  alignItems: 'center', fontSize: '14px', cursor: 'pointer'
+                  display: 'grid', gridTemplateColumns: '2fr 2fr 1fr 1fr 30px',
+                  padding: '8px 12px',
+                  alignItems: 'center', fontSize: '11px', cursor: 'pointer'
                 }}
                 onClick={() => setExpandedUserId(expandedUserId === u._id ? null : u._id)}
               >
-                <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{u.name}</span>
+                <span style={{ fontWeight: 700, color: 'var(--text-primary)' }}>{u.name}</span>
                 <span style={{ color: 'var(--text-muted)' }}>{u.email}</span>
                 <span>{getRoleBadge(u)}</span>
-                <span style={{ color: 'var(--text-muted)', fontSize: '13px' }}>
+                <span style={{ color: 'var(--text-muted)', fontSize: '10px' }}>
                   {new Date(u.createdAt).toLocaleDateString()}
                 </span>
                 <span style={{ display: 'flex', justifyContent: 'flex-end', color: 'var(--text-muted)' }}>
-                  {expandedUserId === u._id ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+                  {expandedUserId === u._id ? <ExpandLessIcon sx={{ fontSize: 16 }} /> : <ExpandMoreIcon sx={{ fontSize: 16 }} />}
                 </span>
               </div>
 
@@ -161,35 +157,27 @@ export default function AdminUsers() {
                 animate={{ height: expandedUserId === u._id ? 'auto' : 0, opacity: expandedUserId === u._id ? 1 : 0 }}
                 style={{ overflow: 'hidden', background: 'var(--bg-secondary)' }}
               >
-                <div style={{ padding: '20px 24px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px', borderTop: '1px dashed var(--border)' }}>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                    <p style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase' }}>Contact Information</p>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-primary)', fontSize: '13px', marginTop: '8px' }}>
-                      <PhoneIcon sx={{ fontSize: '16px', color: '#FF6B6B' }} />
+                <div style={{ padding: '10px 12px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '10px', borderTop: '1px dashed var(--border)' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                    <p style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase', margin: 0 }}>Contact Information</p>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: 'var(--text-primary)', fontSize: '11px', marginTop: '2px' }}>
+                      <PhoneIcon sx={{ fontSize: '13px', color: '#FF6B6B' }} />
                       {u.phone || 'Not provided'}
                     </div>
                   </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                    <p style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase' }}>Residential Address</p>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-primary)', fontSize: '13px', marginTop: '8px' }}>
-                      <HomeIcon sx={{ fontSize: '16px', color: '#3b82f6' }} />
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                    <p style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase', margin: 0 }}>Residential Address</p>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: 'var(--text-primary)', fontSize: '11px', marginTop: '2px' }}>
+                      <HomeIcon sx={{ fontSize: '13px', color: '#3b82f6' }} />
                       {u.address || 'No address saved'}
                     </div>
                   </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                    <p style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase' }}>Account Details</p>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-primary)', fontSize: '13px', marginTop: '8px' }}>
-                      <CalendarTodayIcon sx={{ fontSize: '16px', color: '#a855f7' }} />
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                    <p style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase', margin: 0 }}>Account Details</p>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: 'var(--text-primary)', fontSize: '11px', marginTop: '2px' }}>
+                      <CalendarTodayIcon sx={{ fontSize: '13px', color: '#a855f7' }} />
                       Registered on {new Date(u.createdAt).toLocaleDateString()}
                     </div>
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
-                    <button style={{ 
-                      padding: '8px 16px', borderRadius: '8px', border: '1px solid var(--border)', 
-                      background: 'var(--bg-card)', color: 'var(--text-primary)', fontSize: '12px', fontWeight: 600, cursor: 'pointer'
-                    }}>
-                      View History
-                    </button>
                   </div>
                 </div>
               </motion.div>
