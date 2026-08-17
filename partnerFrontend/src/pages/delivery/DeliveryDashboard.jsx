@@ -181,7 +181,7 @@ export default function DeliveryDashboard() {
     <div style={{
       maxWidth: '640px',
       margin: '0 auto',
-      padding: '8px 8px 60px',
+      padding: '0 0 60px',
       fontFamily: 'Inter, system-ui, -apple-system, sans-serif',
       color: '#0f172a'
     }}>

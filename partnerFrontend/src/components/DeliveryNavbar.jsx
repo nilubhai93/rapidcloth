@@ -313,7 +313,7 @@ export default function DeliveryNavbar() {
       height: '64px',
       display: 'flex',
       alignItems: 'center',
-      padding: '0 24px',
+      padding: isDesktop ? '0 24px' : '0 12px',
       justifyContent: 'space-between',
       boxShadow: '0 2px 20px rgba(0,0,0,0.5)'
     }}>

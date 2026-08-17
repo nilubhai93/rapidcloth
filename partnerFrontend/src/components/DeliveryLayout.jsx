@@ -129,26 +129,26 @@ export default function DeliveryLayout() {
   const weatherAppThemes = {
     rainy: {
       bgDark: 'linear-gradient(180deg, #111827 0%, #1f2937 100%)',
-      bgLight: 'linear-gradient(180deg, #f3f4f6 0%, #e5e7eb 100%)',
-      glow: 'radial-gradient(circle at 50% 0%, rgba(156,163,175,0.15) 0%, rgba(0,0,0,0) 70%)',
+      bgLight: '#f8fafc',
+      glow: 'none',
       pillText: '🌧️ Rain Surge Theme (+₹35)'
     },
     sunny: {
       bgDark: 'linear-gradient(180deg, #1c1917 0%, #292524 100%)',
-      bgLight: 'linear-gradient(180deg, #fafaf9 0%, #f5f5f4 100%)',
-      glow: 'radial-gradient(circle at 50% 0%, rgba(217,119,6,0.12) 0%, rgba(0,0,0,0) 70%)',
+      bgLight: '#f8fafc',
+      glow: 'none',
       pillText: '☀️ Sunny Peak Theme (1.5x Pay)'
     },
     cloudy: {
       bgDark: 'linear-gradient(180deg, #0f172a 0%, #1e293b 100%)',
-      bgLight: 'linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%)',
-      glow: 'radial-gradient(circle at 50% 0%, rgba(148,163,184,0.15) 0%, rgba(0,0,0,0) 70%)',
+      bgLight: '#f8fafc',
+      glow: 'none',
       pillText: '⛅ Cool Breeze Theme (1.3x)'
     },
     stormy: {
       bgDark: 'linear-gradient(180deg, #09090b 0%, #18181b 100%)',
-      bgLight: 'linear-gradient(180deg, #f4f4f5 0%, #e4e4e7 100%)',
-      glow: 'radial-gradient(circle at 50% 0%, rgba(161,161,170,0.18) 0%, rgba(0,0,0,0) 70%)',
+      bgLight: '#f8fafc',
+      glow: 'none',
       pillText: '⛈️ Thunderstorm Theme (+₹50)'
     }
   };
@@ -218,7 +218,6 @@ export default function DeliveryLayout() {
       setShiftCountdown(prev => {
         if (prev <= 1) {
           clearInterval(timer);
-          handleAutoOffline();
           return 0;
         }
         return prev - 1;
@@ -227,6 +226,12 @@ export default function DeliveryLayout() {
 
     return () => clearInterval(timer);
   }, [shiftCompleteModalOpen]);
+
+  useEffect(() => {
+    if (shiftCompleteModalOpen && shiftCountdown === 0) {
+      handleAutoOffline();
+    }
+  }, [shiftCompleteModalOpen, shiftCountdown]);
 
   // Automatic Background Monitor: Checks if booked shift slot time has expired
   useEffect(() => {
@@ -291,11 +296,9 @@ export default function DeliveryLayout() {
   }, [isDarkMode]);
 
   const toggleDarkMode = () => {
-    setIsDarkMode(prev => {
-      const next = !prev;
-      toast.success(next ? 'Dark Mode Activated 🌙' : 'Light Mode Activated ☀️');
-      return next;
-    });
+    const next = !isDarkMode;
+    setIsDarkMode(next);
+    toast.success(next ? 'Dark Mode Activated 🌙' : 'Light Mode Activated ☀️');
   };
 
   const isFeedPage = location.pathname === '/delivery' || location.pathname === '/delivery/';
@@ -425,9 +428,9 @@ export default function DeliveryLayout() {
       {isFeedPage && <DeliveryNavbar />}
       <div style={{
         display: 'flex',
-        minHeight: isFeedPage ? 'calc(100vh - 64px)' : '100vh',
+        minHeight: isFeedPage ? (isMobile ? 'calc(100vh - 56px)' : 'calc(100vh - 64px)') : '100vh',
         background: isDarkMode ? currAppTheme.bgDark : currAppTheme.bgLight,
-        paddingTop: isFeedPage ? '64px' : '0px',
+        paddingTop: isFeedPage ? (isMobile ? '56px' : '64px') : '0px',
         transition: 'background 0.5s ease',
         position: 'relative'
       }}>
@@ -552,8 +555,7 @@ export default function DeliveryLayout() {
           marginLeft: isMobile ? '0px' : '260px',
           width: isMobile ? '100%' : 'calc(100% - 260px)',
           boxSizing: 'border-box',
-          padding: isMobile ? '16px' : '32px 40px',
-          paddingBottom: isMobile ? '90px' : '32px',
+          padding: isMobile ? '10px 10px 80px' : '24px 32px',
           maxWidth: '1200px'
         }}>
           <Outlet />
