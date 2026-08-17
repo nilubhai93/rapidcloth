@@ -80,11 +80,12 @@ export default function RentFooter() {
           left: 0,
           right: 0,
           zIndex: 9999,
-          background: '#0a0a0a',
-          borderTop: '1px solid rgba(255,255,255,0.1)',
+          background: '#070d1e',
+          borderTop: '1px solid rgba(212, 175, 55, 0.25)',
           padding: '0 4px',
           paddingBottom: 'env(safe-area-inset-bottom, 0px)',
-          display: 'none'
+          display: 'none',
+          boxShadow: '0 -4px 20px rgba(0, 0, 0, 0.4)'
         }}
       >
         <div style={{
@@ -123,7 +124,8 @@ export default function RentFooter() {
                   <IconComp
                     sx={{
                       fontSize: '22px',
-                      color: active ? '#ffffff' : 'rgba(255,255,255,0.55)',
+                      color: active ? '#f5d061' : 'rgba(212, 175, 55, 0.55)',
+                      filter: active ? 'drop-shadow(0 0 6px rgba(212, 175, 55, 0.4))' : 'none'
                     }}
                   />
 
@@ -137,15 +139,15 @@ export default function RentFooter() {
                         minWidth: '16px',
                         height: '16px',
                         borderRadius: '50%',
-                        background: '#ef4444',
-                        color: 'white',
+                        background: 'linear-gradient(135deg, #f5d061, #d4af37)',
+                        color: '#070d1e',
                         fontSize: '10px',
                         fontWeight: 900,
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
                         padding: '0 2px',
-                        border: '2px solid #0a0a0a'
+                        border: '2px solid #070d1e'
                       }}
                     >
                       {tab.badge > 99 ? '99+' : tab.badge}
@@ -155,8 +157,8 @@ export default function RentFooter() {
 
                 <span style={{
                   fontSize: '10px',
-                  fontWeight: active ? 700 : 500,
-                  color: active ? '#ffffff' : 'rgba(255,255,255,0.55)',
+                  fontWeight: active ? 800 : 500,
+                  color: active ? '#f5d061' : 'rgba(212, 175, 55, 0.6)',
                   marginTop: '2px',
                   letterSpacing: '0.3px',
                 }}>

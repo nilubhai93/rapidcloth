@@ -9,7 +9,7 @@ export const authenticate = async (req, res, next) => {
     }
 
     const token = authHeader.split(' ')[1];
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'rapidcloth_super_secret_jwt_key_2026');
+    const decoded = jwt.verify(token, process.env.JWT_SECRET );
     
     const user = await User.findById(decoded.userId).select('-password');
     if (!user) {
@@ -31,7 +31,7 @@ export const optionalAuth = async (req, res, next) => {
     const authHeader = req.headers.authorization;
     if (authHeader && authHeader.startsWith('Bearer ')) {
       const token = authHeader.split(' ')[1];
-      const decoded = jwt.verify(token, process.env.JWT_SECRET || 'rapidcloth_super_secret_jwt_key_2026');
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
       req.user = await User.findById(decoded.userId).select('-password');
     }
   } catch (e) {
@@ -39,7 +39,7 @@ export const optionalAuth = async (req, res, next) => {
   }
   next();
 };
-
+ 
 export const adminOnly = (req, res, next) => {
   if (req.user?.role !== 'admin') {
     return res.status(403).json({ error: 'Admin access required.' });

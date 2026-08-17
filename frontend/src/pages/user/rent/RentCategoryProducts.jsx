@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCart } from '../../../context/CartContext';
@@ -25,11 +26,20 @@ import LocationOnOutlinedIcon from '@mui/icons-material/LocationOnOutlined';
 import SearchIcon from '@mui/icons-material/SearchRounded';
 import toast from 'react-hot-toast';
 
-// --- RENTAL BOTTOM SHEET ---
+// --- RENTAL POPUP DRAWER (Left-to-Right on Desktop, Bottom-to-Up on Mobile) ---
 function RentalBottomSheet({ isOpen, onClose, product, onConfirm }) {
   const [selectedDuration, setSelectedDuration] = useState(3);
   const [selectedSize, setSelectedSize] = useState('M');
   const [hasInsurance, setInsurance] = useState(false);
+  const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' ? window.innerWidth <= 768 : false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     if (isOpen) {
@@ -49,54 +59,102 @@ function RentalBottomSheet({ isOpen, onClose, product, onConfirm }) {
     return base + insurance + deposit;
   };
 
-  return (
+  const initialMotion = isMobile ? { y: '100%' } : { x: '-100%' };
+  const animateMotion = isMobile ? { y: 0 } : { x: 0 };
+  const exitMotion = isMobile ? { y: '100%' } : { x: '-100%' };
+
+  return createPortal(
     <AnimatePresence>
       {isOpen && (
         <div
           style={{
             position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
-            background: 'rgba(0,0,0,0.5)', zIndex: 9999,
-            display: 'flex', flexDirection: 'column', justifyContent: 'flex-end'
+            background: 'rgba(5, 10, 25, 0.75)', zIndex: 99999,
+            display: 'flex',
+            justifyContent: isMobile ? 'flex-end' : 'flex-start',
+            alignItems: isMobile ? 'flex-end' : 'stretch',
+            backdropFilter: 'blur(4px)'
           }}
           onClick={(e) => e.target === e.currentTarget && onClose()}
         >
           <motion.div
-            initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
-            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+            initial={initialMotion}
+            animate={animateMotion}
+            exit={exitMotion}
+            transition={{ type: 'spring', damping: 28, stiffness: 220 }}
             style={{
-              background: '#fff', width: '100%', maxWidth: '600px', margin: '0 auto',
-              borderTopLeftRadius: '24px', borderTopRightRadius: '24px',
-              maxHeight: '90vh', overflowY: 'auto', display: 'flex', flexDirection: 'column',
-              boxShadow: '0 -10px 40px rgba(0,0,0,0.1)', position: 'relative',
-              paddingBottom: '100px', color: '#1a1a1a', fontFamily: 'var(--font-sans)'
+              background: '#0a1128',
+              width: '100%',
+              maxWidth: isMobile ? '100%' : '480px',
+              height: isMobile ? 'auto' : '100vh',
+              maxHeight: isMobile ? '88vh' : '100vh',
+              borderTopLeftRadius: isMobile ? '24px' : '0px',
+              borderTopRightRadius: '24px',
+              borderBottomRightRadius: isMobile ? '0px' : '24px',
+              borderBottomLeftRadius: '0px',
+              display: 'flex',
+              flexDirection: 'column',
+              boxShadow: isMobile ? '0 -10px 40px rgba(0,0,0,0.6)' : '10px 0 40px rgba(0,0,0,0.6)',
+              borderRight: isMobile ? 'none' : '1px solid rgba(212, 175, 55, 0.3)',
+              borderTop: isMobile ? '1px solid rgba(212, 175, 55, 0.3)' : 'none',
+              position: 'relative',
+              color: '#ffffff',
+              fontFamily: 'var(--font-sans)',
+              overflow: 'hidden'
             }}
           >
-            {/* Top Navigation */}
-            <div style={{ position: 'sticky', top: 0, background: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(10px)', zIndex: 10, padding: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #f1f5f9' }}>
-              <button onClick={onClose} style={{ background: '#f1f5f9', border: 'none', width: '36px', height: '36px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
-                <CloseIcon sx={{ fontSize: '20px', color: '#475569' }} />
-              </button>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#ecfdf5', color: '#059669', padding: '6px 12px', borderRadius: '20px', fontWeight: 700, fontSize: '12px' }}>
-                <BoltIcon sx={{ fontSize: '14px' }} /> Deliver in 45 mins
+            {/* Top Navigation Bar with Cross Button */}
+            <div style={{
+              flexShrink: 0,
+              background: '#0b132b',
+              padding: '16px 20px',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              borderBottom: '1px solid rgba(212, 175, 55, 0.25)',
+              zIndex: 10
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ fontSize: '16px', fontWeight: 800, color: '#ffffff' }}>Rent Outfit</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'rgba(212, 175, 55, 0.15)', color: '#f5d061', padding: '4px 10px', borderRadius: '20px', fontWeight: 800, fontSize: '11px', border: '1px solid rgba(212, 175, 55, 0.3)' }}>
+                  <BoltIcon sx={{ fontSize: '14px', color: '#f5d061' }} /> 45 mins delivery
+                </div>
               </div>
-              <button style={{ background: '#f1f5f9', border: 'none', width: '36px', height: '36px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
-                <ShareIcon sx={{ fontSize: '18px', color: '#475569' }} />
+              <button
+                onClick={onClose}
+                aria-label="Close popup"
+                style={{
+                  background: 'rgba(212, 175, 55, 0.15)',
+                  border: 'none',
+                  width: '36px',
+                  height: '36px',
+                  borderRadius: '50%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                  color: '#f5d061'
+                }}
+              >
+                <CloseIcon sx={{ fontSize: '20px' }} />
               </button>
             </div>
 
-            <div style={{ padding: '24px 20px' }}>
+            {/* Scrollable Content Body */}
+            <div style={{ flex: 1, overflowY: 'auto', padding: '20px' }}>
               {/* Product Identity */}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
                 <div>
-                  <h2 style={{ fontSize: '22px', fontWeight: 800, color: '#0f172a', marginBottom: '4px' }}>{product.name}</h2>
-                  <p style={{ color: '#64748b', fontSize: '14px', fontWeight: 500 }}>{product.brand || 'Premium Collection'}</p>
+                  <h2 style={{ fontSize: '22px', fontWeight: 800, color: '#ffffff', marginBottom: '4px' }}>{product.name}</h2>
+                  <p style={{ color: '#cbd5e1', fontSize: '14px', fontWeight: 500 }}>{product.brand || 'Premium Collection'}</p>
                 </div>
-                <div style={{ background: '#eef2ff', color: '#4f46e5', padding: '4px 10px', borderRadius: '6px', fontSize: '12px', fontWeight: 700 }}>Available</div>
+                <div style={{ background: 'rgba(212, 175, 55, 0.15)', color: '#f5d061', padding: '4px 10px', borderRadius: '6px', fontSize: '12px', fontWeight: 800, border: '1px solid rgba(212, 175, 55, 0.3)' }}>Available</div>
               </div>
 
               {/* Size Selector */}
               <div style={{ marginBottom: '24px' }}>
-                <h3 style={{ fontSize: '16px', fontWeight: 700, color: '#1e293b', marginBottom: '12px' }}>1. Select Size</h3>
+                <h3 style={{ fontSize: '15px', fontWeight: 800, color: '#f5d061', marginBottom: '12px' }}>1. Select Size</h3>
                 <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
                   {['S', 'M', 'L', 'XL'].map(size => {
                     const isSelected = selectedSize === size;
@@ -105,9 +163,11 @@ function RentalBottomSheet({ isOpen, onClose, product, onConfirm }) {
                         key={size} onClick={() => setSelectedSize(size)}
                         style={{
                           flex: '1 1 calc(25% - 12px)', padding: '12px', borderRadius: '12px',
-                          border: isSelected ? '2px solid #231b1c' : '1px solid #e2e8f0',
-                          background: isSelected ? '#231b1c' : '#fff', color: isSelected ? '#fff' : '#475569',
-                          fontWeight: 700, fontSize: '14px', cursor: 'pointer', transition: 'all 0.2s'
+                          border: isSelected ? '2px solid #d4af37' : '1px solid rgba(212, 175, 55, 0.3)',
+                          background: isSelected ? 'linear-gradient(135deg, #f5d061, #d4af37)' : '#0e1838',
+                          color: isSelected ? '#0a1128' : '#ffffff',
+                          fontWeight: 800, fontSize: '14px', cursor: 'pointer', transition: 'all 0.2s',
+                          boxShadow: isSelected ? '0 2px 10px rgba(212, 175, 55, 0.3)' : 'none'
                         }}
                       >
                         {size}
@@ -119,7 +179,7 @@ function RentalBottomSheet({ isOpen, onClose, product, onConfirm }) {
 
               {/* Duration Picker */}
               <div style={{ marginBottom: '32px' }}>
-                <h3 style={{ fontSize: '16px', fontWeight: 700, color: '#1e293b', marginBottom: '12px' }}>2. Rental Duration</h3>
+                <h3 style={{ fontSize: '15px', fontWeight: 800, color: '#f5d061', marginBottom: '12px' }}>2. Rental Duration</h3>
                 <div style={{ display: 'flex', gap: '12px' }}>
                   {[3, 5, 7].map(days => {
                     const isSelected = selectedDuration === days;
@@ -128,14 +188,15 @@ function RentalBottomSheet({ isOpen, onClose, product, onConfirm }) {
                         key={days} onClick={() => setSelectedDuration(days)}
                         style={{
                           flex: 1, padding: '12px', borderRadius: '12px',
-                          border: isSelected ? '2px solid #8b1e2f' : '1px solid #e2e8f0',
-                          background: isSelected ? '#fdf2f2' : '#fff', color: isSelected ? '#8b1e2f' : '#475569',
-                          fontWeight: 700, fontSize: '14px', cursor: 'pointer', transition: 'all 0.2s',
+                          border: isSelected ? '2px solid #d4af37' : '1px solid rgba(212, 175, 55, 0.25)',
+                          background: isSelected ? 'rgba(212, 175, 55, 0.15)' : '#0e1838',
+                          color: isSelected ? '#f5d061' : '#cbd5e1',
+                          fontWeight: 800, fontSize: '14px', cursor: 'pointer', transition: 'all 0.2s',
                           display: 'flex', flexDirection: 'column', alignItems: 'center'
                         }}
                       >
                         <span>{days} Days</span>
-                        <span style={{ fontSize: '11px', fontWeight: 500, marginTop: '4px' }}>₹{product.rentPricePerDay * days}</span>
+                        <span style={{ fontSize: '11px', fontWeight: 600, marginTop: '4px', color: isSelected ? '#f5d061' : '#94a3b8' }}>₹{product.rentPricePerDay * days}</span>
                       </button>
                     );
                   })}
@@ -143,39 +204,48 @@ function RentalBottomSheet({ isOpen, onClose, product, onConfirm }) {
               </div>
 
               {/* Peace of Mind */}
-              <div style={{ background: '#f8fafc', padding: '20px', borderRadius: '16px', marginBottom: '24px' }}>
-                <h3 style={{ fontSize: '15px', fontWeight: 700, color: '#1e293b', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <VerifiedUserIcon sx={{ color: '#10b981', fontSize: '20px' }} /> Peace of Mind Guarantee
+              <div style={{ background: '#0e1838', padding: '20px', borderRadius: '16px', marginBottom: '24px', border: '1px solid rgba(212, 175, 55, 0.2)' }}>
+                <h3 style={{ fontSize: '15px', fontWeight: 800, color: '#ffffff', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <VerifiedUserIcon sx={{ color: '#f5d061', fontSize: '20px' }} /> Peace of Mind Guarantee
                 </h3>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '12px', background: '#fff', padding: '12px', borderRadius: '10px', border: '1px solid #e2e8f0', cursor: 'pointer' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '12px', background: '#111d40', padding: '12px', borderRadius: '10px', border: '1px solid rgba(212, 175, 55, 0.3)', cursor: 'pointer' }}>
                   <input
                     type="checkbox" checked={hasInsurance} onChange={(e) => setInsurance(e.target.checked)}
-                    style={{ width: '18px', height: '18px', accentColor: '#8b1e2f' }}
+                    style={{ width: '18px', height: '18px', accentColor: '#d4af37' }}
                   />
                   <div style={{ display: 'flex', flexDirection: 'column' }}>
-                    <span style={{ fontSize: '13px', fontWeight: 700, color: '#1e293b' }}>Add Spill & Tear Protection (+₹300)</span>
-                    <span style={{ fontSize: '11px', color: '#64748b' }}>Minor damage insurance for peace of mind.</span>
+                    <span style={{ fontSize: '13px', fontWeight: 700, color: '#ffffff' }}>Add Spill & Tear Protection (+₹300)</span>
+                    <span style={{ fontSize: '11px', color: '#cbd5e1' }}>Minor damage insurance for peace of mind.</span>
                   </div>
                 </label>
               </div>
             </div>
 
-            {/* Sticky Action Bar */}
+            {/* Fixed Footer Action Bar */}
             <div style={{
-              position: 'absolute', bottom: 0, left: 0,
-              width: '100%', background: '#fff', borderTop: '1px solid #f1f5f9',
-              padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', zIndex: 100
+              flexShrink: 0,
+              background: '#0b132b',
+              borderTop: '1px solid rgba(212, 175, 55, 0.25)',
+              padding: '16px 20px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              boxShadow: '0 -4px 15px rgba(0,0,0,0.4)',
+              zIndex: 10
             }}>
               <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <span style={{ fontSize: '18px', fontWeight: 900, color: '#0f172a' }}>₹{calculateTotal()}</span>
-                <span style={{ fontSize: '11px', color: '#64748b' }}>Includes ₹1,500 refundable deposit</span>
+                <span style={{ fontSize: '20px', fontWeight: 900, color: '#f5d061' }}>₹{calculateTotal()}</span>
+                <span style={{ fontSize: '11px', color: '#cbd5e1' }}>Includes ₹1,500 deposit</span>
               </div>
               <button
                 onClick={() => onConfirm(selectedSize, selectedDuration)}
                 style={{
-                  background: '#231b1c', color: '#fff', padding: '14px 32px', borderRadius: '12px',
-                  fontSize: '15px', fontWeight: 800, border: 'none', cursor: 'pointer', boxShadow: '0 4px 12px rgba(15, 23, 42, 0.2)'
+                  background: 'linear-gradient(135deg, #f5d061, #d4af37)', color: '#0a1128', padding: '14px 32px', borderRadius: '12px',
+                  fontSize: '15px', fontWeight: 900, border: 'none', cursor: 'pointer', boxShadow: '0 4px 14px rgba(212, 175, 55, 0.35)',
+                  transition: 'transform 0.2s'
                 }}
+                onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.02)'}
+                onMouseLeave={e => e.currentTarget.style.transform = 'none'}
               >
                 Book Rental Now
               </button>
@@ -183,9 +253,11 @@ function RentalBottomSheet({ isOpen, onClose, product, onConfirm }) {
           </motion.div>
         </div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 }
+
 
 // --- MOCK DATABASE PRODUCTS FOR FALLBACKS ---
 const MOCK_COLLECTIONS = {
@@ -513,22 +585,17 @@ export default function RentCategoryProducts() {
   };
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#eae7e2', color: '#2b2927', fontFamily: 'var(--font-sans)' }}>
-      {/* Dusty Rose Custom Navbar (matching the third picture card color) */}
-      <div style={{
-        background: '#c39a9c',
-        color: '#231b1c',
-        boxShadow: '0 2px 10px rgba(0, 0, 0, 0.05)'
-      }}>
-        <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
-          {/* Top bar with Rent toggle & AI styles */}
+    <div style={{ minHeight: '100vh', backgroundColor: '#0a1128', color: '#ffffff', fontFamily: 'var(--font-sans)' }}>
+      {/* Top Custom Navbar */}
+      <div style={{ maxWidth: '1400px', margin: '0 auto', width: '100%', background: '#0b132b', color: '#ffffff', boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)', borderBottom: '1px solid rgba(212, 175, 55, 0.25)' }}>
+          {/* Top bar with Rent toggle */}
           <div
             style={{
               padding: '16px 24px',
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
-              borderBottom: '1px solid rgba(35, 27, 28, 0.08)'
+              borderBottom: '1px solid rgba(212, 175, 55, 0.15)'
             }}
           >
             <div style={{ display: 'flex', gap: '12px' }}>
@@ -536,25 +603,13 @@ export default function RentCategoryProducts() {
                 onClick={() => navigate('/rent')}
                 style={{
                   padding: '8px 24px', borderRadius: '12px', border: 'none',
-                  background: '#231b1c',
-                  color: '#ffffff',
-                  fontWeight: 700, fontSize: '14px', cursor: 'pointer', transition: 'all 0.2s',
-                  boxShadow: '0 4px 12px rgba(35, 27, 28, 0.2)'
+                  background: 'linear-gradient(135deg, #f5d061, #d4af37)',
+                  color: '#0a1128',
+                  fontWeight: 800, fontSize: '14px', cursor: 'pointer', transition: 'all 0.2s',
+                  boxShadow: '0 4px 12px rgba(212, 175, 55, 0.3)'
                 }}
               >Rent</button>
             </div>
-
-            <button
-              onClick={() => navigate('/rent?ai=true')}
-              style={{
-                padding: '8px 20px', borderRadius: '12px', background: 'linear-gradient(135deg, #a855f7 0%, #ec4899 100%)',
-                color: '#ffffff', fontWeight: 700, fontSize: '14px', border: 'none', display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer',
-                boxShadow: '0 4px 14px rgba(236,72,153,0.3)'
-              }}
-            >
-              <AutoAwesomeIcon sx={{ fontSize: '18px' }} />
-              AI Styles
-            </button>
           </div>
 
           {/* Sub-bar with Delivery, Search, Account, Cart */}
@@ -562,308 +617,84 @@ export default function RentCategoryProducts() {
             <div style={{ display: 'flex', alignItems: 'center', gap: '20px', flexWrap: 'wrap' }}>
               <div 
                 onClick={() => setAddressOpen(true)}
-                style={{ display: 'flex', alignItems: 'center', gap: '8px', background: '#f8fafc', padding: '10px 16px', borderRadius: '12px', minWidth: '200px', flex: '1 1 250px', border: '2px solid #231b1c', cursor: 'pointer' }}
+                style={{ display: 'flex', alignItems: 'center', gap: '8px', background: '#0e1838', padding: '10px 16px', borderRadius: '12px', minWidth: '200px', flex: '1 1 250px', border: '1.5px solid #d4af37', cursor: 'pointer' }}
               >
-                <LocationOnOutlinedIcon sx={{ color: '#8b1e2f', fontSize: '20px' }} />
+                <LocationOnOutlinedIcon sx={{ color: '#f5d061', fontSize: '20px' }} />
                 <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minWidth: 0 }}>
-                  <span style={{ fontSize: '11px', color: '#64748b', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Delivery to</span>
-                  <span style={{ fontSize: '13px', color: '#0f172a', fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  <span style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Delivery to</span>
+                  <span style={{ fontSize: '13px', color: '#ffffff', fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                     {selectedAddress ? (selectedAddress.type === 'pincode' ? selectedAddress.zip : `${selectedAddress.city || 'Saved'} - ${selectedAddress.zip}`) : 'Home - 400001, Mumbai'}
                   </span>
                 </div>
-                <ExpandMoreRoundedIcon sx={{ color: '#64748b', fontSize: '20px', transform: addressOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s', flexShrink: 0 }} />
+                <ExpandMoreRoundedIcon sx={{ color: '#f5d061', fontSize: '20px', transform: addressOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s', flexShrink: 0 }} />
               </div>
 
-              <div style={{ display: 'flex', alignItems: 'center', background: '#f1f5f9', padding: '2px 8px 2px 4px', borderRadius: '14px', flex: '2 1 400px', border: '2px solid #231b1c' }}>
-                <div style={{ padding: '8px 10px', color: '#94a3b8', display: 'flex', alignItems: 'center' }}><SearchIcon /></div>
+              <div style={{ display: 'flex', alignItems: 'center', background: '#0e1838', padding: '2px 8px 2px 4px', borderRadius: '14px', flex: '2 1 400px', border: '1.5px solid #d4af37' }}>
+                <div style={{ padding: '8px 10px', color: '#f5d061', display: 'flex', alignItems: 'center' }}><SearchIcon /></div>
                 <input
                   type="text"
                   placeholder={placeholders[placeholderIndex]}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && navigate(`/rent?search=${encodeURIComponent(searchQuery)}`)}
-                  style={{ flex: 1, border: 'none', background: 'transparent', padding: '10px 0', fontSize: '14px', color: '#334155', outline: 'none', fontWeight: 500 }}
+                  style={{ flex: 1, border: 'none', background: 'transparent', padding: '10px 0', fontSize: '14px', color: '#ffffff', outline: 'none', fontWeight: 500 }}
                 />
-                <button onClick={() => setCameraOpen(true)} title="Visual Search" style={{ border: 'none', background: 'transparent', padding: '6px', cursor: 'pointer', color: '#8b1e2f', display: 'flex', alignItems: 'center' }}>
+                <button onClick={() => setCameraOpen(true)} title="Visual Search" className="rent-mobile-search-btn" style={{ border: 'none', background: 'transparent', padding: '6px', cursor: 'pointer', color: '#f5d061', alignItems: 'center' }}>
                   <CameraAltIcon sx={{ fontSize: 20 }} />
                 </button>
-                <button onClick={() => setVoiceOpen(true)} title="Voice Search" style={{ border: 'none', background: 'transparent', padding: '6px', cursor: 'pointer', color: '#8b1e2f', display: 'flex', alignItems: 'center' }}>
+                <button onClick={() => setVoiceOpen(true)} title="Voice Search" className="rent-mobile-search-btn" style={{ border: 'none', background: 'transparent', padding: '6px', cursor: 'pointer', color: '#f5d061', alignItems: 'center' }}>
                   <MicIcon sx={{ fontSize: 20 }} />
                 </button>
               </div>
 
               {/* Desktop Only Account & Cart (Hidden on Mobile) */}
               <div className="rent-desktop-only-actions" style={{ display: 'flex', alignItems: 'center', gap: '16px', marginLeft: 'auto' }}>
-                <button onClick={() => navigate('/rent/profile')} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', background: 'transparent', border: 'none', cursor: 'pointer', color: '#231b1c' }}>
-                  <PersonOutlineIcon sx={{ fontSize: '26px', color: '#231b1c' }} />
-                  <span style={{ fontSize: '11px', fontWeight: 700, color: '#231b1c' }}>Account</span>
+                <button onClick={() => navigate('/rent/profile')} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', background: 'transparent', border: 'none', cursor: 'pointer', color: '#f5d061' }}>
+                  <PersonOutlineIcon sx={{ fontSize: '26px', color: '#f5d061' }} />
+                  <span style={{ fontSize: '11px', fontWeight: 700, color: '#ffffff' }}>Account</span>
                 </button>
-                <button onClick={() => navigate('/rent/cart')} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', background: 'transparent', border: 'none', cursor: 'pointer', color: '#8b1e2f', position: 'relative' }}>
+                <button onClick={() => navigate('/rent/cart')} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', background: 'transparent', border: 'none', cursor: 'pointer', color: '#f5d061', position: 'relative' }}>
                   {rentalItemCount > 0 && (
-                    <div style={{ position: 'absolute', top: '-4px', right: '-4px', background: '#ef4444', color: 'white', fontSize: '10px', fontWeight: 800, width: '16px', height: '16px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10 }}>
+                    <div style={{ position: 'absolute', top: '-4px', right: '-4px', background: 'linear-gradient(135deg, #f5d061, #d4af37)', color: '#0a1128', fontSize: '10px', fontWeight: 900, width: '18px', height: '18px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10, boxShadow: '0 2px 6px rgba(0,0,0,0.3)' }}>
                       {rentalItemCount}
                     </div>
                   )}
-                  <ShoppingBagOutlinedIcon sx={{ fontSize: '26px', color: '#8b1e2f' }} />
-                  <span style={{ fontSize: '11px', fontWeight: 800, color: '#8b1e2f' }}>Cart</span>
+                  <ShoppingBagOutlinedIcon sx={{ fontSize: '26px', color: '#f5d061' }} />
+                  <span style={{ fontSize: '11px', fontWeight: 800, color: '#f5d061' }}>Cart</span>
                 </button>
               </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <div style={{ display: 'flex', gap: '30px', maxWidth: '1400px', margin: '0 auto', padding: '24px 24px 80px', alignItems: 'flex-start' }}>
-          
-          {/* LEFT SIDEBAR FILTERS (matches first picture styling) */}
-          <div style={{
-            width: '280px',
-            flexShrink: 0,
-            backgroundColor: '#ffffff',
-            border: '1px solid #e8e5e0',
-            borderRadius: '12px',
-            display: 'flex',
-            flexDirection: 'column',
-            fontFamily: 'var(--font-sans)',
-            boxShadow: '0 4px 20px rgba(0,0,0,0.02)',
-            overflow: 'hidden'
-          }}>
-            {/* Header: Filters */}
-            <div style={{ padding: '20px', borderBottom: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontSize: '18px', fontWeight: 800, color: '#0f172a' }}>Filters</span>
-              <button 
-                onClick={() => {
-                  setSelectedSizes([]);
-                  setSelectedFabrics([]);
-                  setSelectedGender('all');
-                  setSelectedBrand('all');
-                  setSelectedFit('all');
-                  setMaxPriceFilter(1000);
-                  setMinRatingFilter(0);
-                  setIsAssuredOnly(false);
-                }}
-                style={{ background: 'transparent', border: 'none', color: '#8b1e2f', fontSize: '12px', fontWeight: 700, cursor: 'pointer' }}
-              >
-                Clear All
-              </button>
-            </div>
-
-            {/* CATEGORIES Accordion */}
-            <div style={{ borderBottom: '1px solid #f1f5f9' }}>
-              <div 
-                onClick={() => toggleSection('categories')}
-                style={{ padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', fontWeight: 700, fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px', color: '#475569' }}
-              >
-                <span>Categories</span>
-                <span>{expandedSections.categories ? '▲' : '▼'}</span>
-              </div>
-              {expandedSections.categories && (
-                <div style={{ padding: '0 20px 20px 20px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  <div style={{ fontSize: '13px', color: '#94a3b8', display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }} onClick={() => navigate('/rent')}>
-                    <span>‹</span> Clothing and Accesso...
-                  </div>
-                  <div style={{ fontSize: '13px', color: '#2b2927', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '6px', paddingLeft: '8px' }}>
-                    <span>‹</span> {categoryName}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* GENDER Accordion */}
-            <div style={{ borderBottom: '1px solid #f1f5f9' }}>
-              <div 
-                onClick={() => toggleSection('gender')}
-                style={{ padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', fontWeight: 700, fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px', color: '#475569' }}
-              >
-                <span>Gender</span>
-                <span>{expandedSections.gender ? '▲' : '▼'}</span>
-              </div>
-              {expandedSections.gender && (
-                <div style={{ padding: '0 20px 20px 20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                  {['all', 'men', 'women', 'kids'].map(gender => (
-                    <label key={gender} style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '13px', fontWeight: 500, textTransform: 'capitalize', cursor: 'pointer' }}>
-                      <input 
-                        type="radio" 
-                        name="genderFilter"
-                        checked={selectedGender === gender} 
-                        onChange={() => setSelectedGender(gender)}
-                        style={{ accentColor: '#8b1e2f' }}
-                      />
-                      {gender === 'all' ? 'All Genders' : gender}
-                    </label>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* PRICE Accordion */}
-            <div style={{ borderBottom: '1px solid #f1f5f9' }}>
-              <div 
-                onClick={() => toggleSection('price')}
-                style={{ padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', fontWeight: 700, fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px', color: '#475569' }}
-              >
-                <span>Price (per day)</span>
-                <span>{expandedSections.price ? '▲' : '▼'}</span>
-              </div>
-              {expandedSections.price && (
-                <div style={{ padding: '0 20px 20px 20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', fontWeight: 600, color: '#64748b' }}>
-                    <span>Min: ₹0</span>
-                    <span>Max: ₹{maxPriceFilter}</span>
-                  </div>
-                  <input 
-                    type="range" 
-                    min="10" 
-                    max="1500" 
-                    step="10"
-                    value={maxPriceFilter}
-                    onChange={(e) => setMaxPriceFilter(Number(e.target.value))}
-                    style={{ width: '100%', accentColor: '#8b1e2f', cursor: 'pointer' }}
-                  />
-                </div>
-              )}
-            </div>
-
-            {/* SIZE Accordion */}
-            <div style={{ borderBottom: '1px solid #f1f5f9' }}>
-              <div 
-                onClick={() => toggleSection('size')}
-                style={{ padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', fontWeight: 700, fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px', color: '#475569' }}
-              >
-                <span>Size</span>
-                <span>{expandedSections.size ? '▲' : '▼'}</span>
-              </div>
-              {expandedSections.size && (
-                <div style={{ padding: '0 20px 20px 20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                  {['S', 'M', 'L', 'XL'].map(size => (
-                    <label key={size} style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '13px', fontWeight: 500, cursor: 'pointer' }}>
-                      <input 
-                        type="checkbox" 
-                        checked={selectedSizes.includes(size)} 
-                        onChange={() => {
-                          setSelectedSizes(prev => prev.includes(size) ? prev.filter(s => s !== size) : [...prev, size]);
-                        }}
-                        style={{ width: '16px', height: '16px', accentColor: '#8b1e2f' }}
-                      />
-                      {size}
-                    </label>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* FABRIC Accordion */}
-            <div style={{ borderBottom: '1px solid #f1f5f9' }}>
-              <div 
-                onClick={() => toggleSection('fabric')}
-                style={{ padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', fontWeight: 700, fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px', color: '#475569' }}
-              >
-                <span>Fabric / Material</span>
-                <span>{expandedSections.fabric ? '▲' : '▼'}</span>
-              </div>
-              {expandedSections.fabric && (
-                <div style={{ padding: '0 20px 20px 20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                  {['Silk', 'Velvet', 'Cotton', 'Linen', 'Satin', 'Georgette', 'Organza'].map(fabric => (
-                    <label key={fabric} style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '13px', fontWeight: 500, cursor: 'pointer' }}>
-                      <input 
-                        type="checkbox" 
-                        checked={selectedFabrics.includes(fabric)} 
-                        onChange={() => {
-                          setSelectedFabrics(prev => prev.includes(fabric) ? prev.filter(f => f !== fabric) : [...prev, fabric]);
-                        }}
-                        style={{ width: '16px', height: '16px', accentColor: '#8b1e2f' }}
-                      />
-                      {fabric}
-                    </label>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* CUSTOMER RATINGS Accordion */}
-            <div style={{ borderBottom: '1px solid #f1f5f9' }}>
-              <div 
-                onClick={() => toggleSection('ratings')}
-                style={{ padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', fontWeight: 700, fontSize: '13px', textTransform: 'uppercase', letterSpacing: '0.5px', color: '#475569' }}
-              >
-                <span>Customer Ratings</span>
-                <span>{expandedSections.ratings ? '▲' : '▼'}</span>
-              </div>
-              {expandedSections.ratings && (
-                <div style={{ padding: '0 20px 20px 20px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                  {[4, 3].map(rating => (
-                    <label key={rating} style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '13px', fontWeight: 500, cursor: 'pointer' }}>
-                      <input 
-                        type="radio" 
-                        name="ratingFilter"
-                        checked={minRatingFilter === rating}
-                        onChange={() => setMinRatingFilter(rating)}
-                        style={{ accentColor: '#8b1e2f' }}
-                      />
-                      {rating}★ & above
-                    </label>
-                  ))}
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '13px', fontWeight: 500, cursor: 'pointer' }}>
-                    <input 
-                      type="radio" 
-                      name="ratingFilter"
-                      checked={minRatingFilter === 0}
-                      onChange={() => setMinRatingFilter(0)}
-                      style={{ accentColor: '#8b1e2f' }}
-                    />
-                    Any Rating
-                  </label>
-                </div>
-              )}
-            </div>
-
-            {/* Assured Flag */}
-            <div style={{ padding: '20px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <input 
-                type="checkbox" 
-                id="assuredCheck"
-                checked={isAssuredOnly} 
-                onChange={(e) => setIsAssuredOnly(e.target.checked)}
-                style={{ width: '18px', height: '18px', accentColor: '#8b1e2f', cursor: 'pointer' }}
-              />
-              <label htmlFor="assuredCheck" style={{ fontSize: '13px', fontWeight: 700, color: '#2b2927', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                🛡️ rapidCloth Assured
-              </label>
-            </div>
-          </div>
-
-          {/* RIGHT PRODUCTS LIST CONTAINER */}
-          <div style={{ flexGrow: 1 }}>
+      <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '24px 24px 80px' }}>
             {/* Title and breadcrumbs right above the products grid */}
             <div style={{ marginBottom: '24px' }}>
-              <div style={{ fontSize: '12px', color: '#8c8a87', fontWeight: 600, marginBottom: '6px' }}>
-                Home &gt; Rentals &gt; <span style={{ color: '#2b2927' }}>{categoryName}</span>
+              <div style={{ fontSize: '12px', color: '#cbd5e1', fontWeight: 600, marginBottom: '6px' }}>
+                Home &gt; Rentals &gt; <span style={{ color: '#f5d061' }}>{categoryName}</span>
               </div>
               <h1 style={{
                 fontFamily: '"Playfair Display", "Georgia", serif',
                 fontSize: '28px',
                 fontWeight: 800,
-                color: '#231b1c',
+                color: '#ffffff',
                 margin: '0 0 4px'
               }}>
                 {categoryName} Collection
               </h1>
-              <p style={{ fontSize: '13px', color: '#8c8a87', margin: 0 }}>
+              <p style={{ fontSize: '13px', color: '#cbd5e1', margin: 0 }}>
                 Premium rentals selected for ultimate style and comfort
               </p>
             </div>
             {loading ? (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '24px' }}>
+              <div className="rent-products-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '24px' }}>
                 {[1, 2, 3].map(i => (
-                  <div key={i} style={{ height: '480px', background: 'rgba(255,255,255,0.5)', borderRadius: '16px', border: '1px solid #e8e5e0' }} />
+                  <div key={i} style={{ height: '480px', background: '#111d40', borderRadius: '16px', border: '1px solid rgba(212, 175, 55, 0.2)' }} />
                 ))}
               </div>
             ) : filteredProducts.length > 0 ? (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '24px' }}>
+              <div className="rent-products-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '24px' }}>
                 {filteredProducts.map((product, index) => {
-                  const bgColors = ['#c39a9c', '#9ab097', '#d1b886'];
-                  const cardBg = bgColors[index % bgColors.length];
-
                   return (
                     <motion.div
                       key={product._id}
@@ -871,28 +702,32 @@ export default function RentCategoryProducts() {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.05 }}
                       style={{
-                        backgroundColor: '#ffffff',
+                        backgroundColor: '#111d40',
                         borderRadius: '16px',
-                        border: '1px solid #e8e5e0',
+                        border: '1px solid rgba(212, 175, 55, 0.25)',
                         padding: '16px',
-                        boxShadow: '0 4px 20px rgba(0,0,0,0.03)',
+                        boxShadow: '0 4px 20px rgba(0,0,0,0.3)',
                         display: 'flex',
                         flexDirection: 'column',
-                        justifyContent: 'space-between'
+                        justifyContent: 'space-between',
+                        transition: 'all 0.25s'
                       }}
+                      onMouseEnter={e => { e.currentTarget.style.borderColor = '#d4af37'; e.currentTarget.style.transform = 'translateY(-3px)'; }}
+                      onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(212, 175, 55, 0.25)'; e.currentTarget.style.transform = 'none'; }}
                     >
                       <div 
                         onClick={() => navigate(`/rent/product/${product._id}`)}
                         style={{
                           aspectRatio: '3/4',
                           borderRadius: '12px',
-                          background: cardBg,
+                          background: '#0e1838',
                           position: 'relative',
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
                           overflow: 'hidden',
-                          cursor: 'pointer'
+                          cursor: 'pointer',
+                          border: '1px solid rgba(212, 175, 55, 0.15)'
                         }}
                       >
                         <button 
@@ -900,23 +735,23 @@ export default function RentCategoryProducts() {
                           style={{
                             position: 'absolute', top: '12px', left: '12px',
                             width: '32px', height: '32px', borderRadius: '50%',
-                            background: 'white', border: 'none', display: 'flex',
+                            background: 'rgba(10, 17, 40, 0.85)', backdropFilter: 'blur(4px)', border: '1px solid rgba(212, 175, 55, 0.3)', display: 'flex',
                             alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
-                            boxShadow: '0 2px 8px rgba(0,0,0,0.1)', zIndex: 5
+                            boxShadow: '0 2px 8px rgba(0,0,0,0.3)', zIndex: 5
                           }}
                         >
-                          <FavoriteBorderIcon sx={{ fontSize: '18px', color: '#8b1e2f' }} />
+                          <FavoriteBorderIcon sx={{ fontSize: '18px', color: '#f5d061' }} />
                         </button>
 
                         <div style={{
                           position: 'absolute', top: '12px', right: '12px',
-                          background: '#8b1e2f', color: 'white', padding: '6px 12px',
-                          borderRadius: '4px', transform: 'rotate(2deg)',
-                          boxShadow: '0 2px 8px rgba(0,0,0,0.15)', zIndex: 5,
+                          background: 'linear-gradient(135deg, #f5d061, #d4af37)', color: '#0a1128', padding: '6px 12px',
+                          borderRadius: '6px', transform: 'rotate(2deg)',
+                          boxShadow: '0 2px 10px rgba(212, 175, 55, 0.35)', zIndex: 5,
                           display: 'flex', flexDirection: 'column', alignItems: 'center'
                         }}>
-                          <span style={{ fontSize: '13px', fontWeight: 800 }}>₹{product.rentPricePerDay}</span>
-                          <span style={{ fontSize: '8px', fontWeight: 700, textTransform: 'uppercase', opacity: 0.8 }}>/ DAY</span>
+                          <span style={{ fontSize: '13px', fontWeight: 900 }}>₹{product.rentPricePerDay}</span>
+                          <span style={{ fontSize: '8px', fontWeight: 800, textTransform: 'uppercase', opacity: 0.85 }}>/ DAY</span>
                         </div>
 
                         {product.images && product.images[0] ? (
@@ -931,8 +766,9 @@ export default function RentCategoryProducts() {
 
                         <div style={{
                           position: 'absolute', bottom: '12px', left: '12px',
-                          background: index % 2 === 0 ? '#8b1e2f' : '#2b2d2f',
-                          color: 'white', padding: '4px 8px', borderRadius: '4px',
+                          background: index % 2 === 0 ? 'rgba(212, 175, 55, 0.2)' : 'rgba(255, 255, 255, 0.1)',
+                          border: index % 2 === 0 ? '1px solid #d4af37' : '1px solid rgba(255,255,255,0.2)',
+                          color: index % 2 === 0 ? '#f5d061' : '#ffffff', padding: '4px 8px', borderRadius: '4px',
                           fontSize: '9px', fontWeight: 800, textTransform: 'uppercase',
                           letterSpacing: '0.5px', zIndex: 5
                         }}>
@@ -941,22 +777,22 @@ export default function RentCategoryProducts() {
                       </div>
 
                       <div style={{ padding: '16px 0 0 0', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                        <div style={{ fontSize: '10px', fontWeight: 700, color: '#8c8a87', letterSpacing: '1px', textTransform: 'uppercase' }}>
+                        <div style={{ fontSize: '10px', fontWeight: 800, color: '#f5d061', letterSpacing: '1px', textTransform: 'uppercase' }}>
                           {product.brand || 'PREMIUM COLLECTION'} · {product.material || 'SILK'}
                         </div>
                         <h3 
                           onClick={() => navigate(`/rent/product/${product._id}`)}
                           style={{
                             fontFamily: '"Playfair Display", "Georgia", serif',
-                            fontSize: '18px', fontWeight: 700, color: '#2b2927',
+                            fontSize: '18px', fontWeight: 700, color: '#ffffff',
                             margin: 0, textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap',
                             cursor: 'pointer'
                           }}
                         >
                           {product.name}
                         </h3>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '12px', color: '#64748b' }}>
-                          <span style={{ color: '#8b1e2f', fontWeight: 700 }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '12px', color: '#cbd5e1' }}>
+                          <span style={{ color: '#f5d061', fontWeight: 700 }}>
                             ★ {product.rating || '4.9'} <span style={{ color: '#94a3b8', fontWeight: 500 }}>({product.numReviews || 36})</span>
                           </span>
                           <span style={{ fontWeight: 600 }}>
@@ -969,20 +805,21 @@ export default function RentCategoryProducts() {
                           style={{
                             width: '100%',
                             padding: '12px',
-                            background: '#231b1c',
-                            color: 'white',
+                            background: 'linear-gradient(135deg, #f5d061 0%, #d4af37 100%)',
+                            color: '#0a1128',
                             border: 'none',
                             borderRadius: '8px',
-                            fontWeight: 800,
+                            fontWeight: 900,
                             fontSize: '12px',
                             letterSpacing: '1px',
                             textTransform: 'uppercase',
                             cursor: 'pointer',
                             marginTop: '8px',
-                            transition: 'background 0.2s'
+                            boxShadow: '0 4px 12px rgba(212, 175, 55, 0.3)',
+                            transition: 'transform 0.2s'
                           }}
-                          onMouseEnter={(e) => e.currentTarget.style.background = '#3c2e30'}
-                          onMouseLeave={(e) => e.currentTarget.style.background = '#231b1c'}
+                          onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
+                          onMouseLeave={(e) => e.currentTarget.style.transform = 'none'}
                         >
                           RENT THIS OUTFIT
                         </button>
@@ -992,14 +829,13 @@ export default function RentCategoryProducts() {
                 })}
               </div>
             ) : (
-              <div style={{ textAlign: 'center', padding: '80px 20px', background: '#ffffff', borderRadius: '16px', border: '1px dashed #e8e5e0' }}>
+              <div style={{ textAlign: 'center', padding: '80px 20px', background: '#111d40', borderRadius: '16px', border: '1px dashed rgba(212, 175, 55, 0.3)' }}>
                 <div style={{ fontSize: '48px', marginBottom: '16px' }}>👗</div>
-                <h3 style={{ fontSize: '20px', fontWeight: 700, color: '#2b2927', marginBottom: '8px' }}>No matches found</h3>
-                <p style={{ color: '#64748b' }}>Try clearing some filters or searching for another outfit.</p>
+                <h3 style={{ fontSize: '20px', fontWeight: 700, color: '#ffffff', marginBottom: '8px' }}>No matches found</h3>
+                <p style={{ color: '#cbd5e1' }}>Try clearing some filters or searching for another outfit.</p>
               </div>
             )}
-          </div>
-        </div>
+      </div>
 
       <RentalBottomSheet
         isOpen={!!selectedProduct}
@@ -1013,8 +849,18 @@ export default function RentCategoryProducts() {
       <RentVoiceSearchModal isOpen={voiceOpen} onClose={() => setVoiceOpen(false)} onQuerySubmit={(q) => setSearchQuery(q)} />
       
       <style>{`
+        .rent-mobile-search-btn {
+          display: none !important;
+        }
+        @media (max-width: 640px) {
+          .rent-products-grid {
+            grid-template-columns: 1fr !important;
+            gap: 16px !important;
+          }
+        }
         @media (max-width: 768px) {
           .rent-desktop-only-actions { display: none !important; }
+          .rent-mobile-search-btn { display: flex !important; }
         }
       `}</style>
     </div>

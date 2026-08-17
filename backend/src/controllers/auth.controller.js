@@ -1,11 +1,12 @@
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 import BankDetail from '../models/BankDetail.js';
+import cookiParser from "cookie-parser";
 
 
 
 const generateToken = (userId) => {
-  return jwt.sign({ userId }, process.env.JWT_SECRET || 'rapidcloth_super_secret_jwt_key_2026', {
+  return jwt.sign({ userId }, process.env.JWT_SECRET , {
     expiresIn: process.env.JWT_EXPIRES_IN || '7d'
   });
 };
@@ -49,6 +50,13 @@ export const register = async (req, res) => {
 
     const user = await User.create(userData);
     const token = generateToken(user._id);
+
+    res.cookie("token", token,{
+      httpOnly:true,
+      sameSite:"strict",
+      maxAge:24*60*60*1000,
+      
+    })
 
     res.status(201).json({
       message: 'Registration successful',

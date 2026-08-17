@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { productAPI } from '../../../api';
@@ -36,11 +37,20 @@ import ChevronLeftRoundedIcon from '@mui/icons-material/ChevronLeftRounded';
 import ChevronRightRoundedIcon from '@mui/icons-material/ChevronRightRounded';
 import { useCart } from '../../../context/CartContext';
 
-// --- BOTTOM SHEET COMPONENT (INLINE FOR SIMPLICITY) ---
+// --- BOTTOM SHEET COMPONENT (Left-to-Right on Desktop, Bottom-to-Up on Mobile) ---
 function RentalBottomSheet({ isOpen, onClose, product }) {
   const [selectedDuration, setSelectedDuration] = useState(3);
   const [selectedSize, setSelectedSize] = useState('');
   const [hasInsurance, setInsurance] = useState(false);
+  const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' ? window.innerWidth <= 768 : false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     if (isOpen) {
@@ -67,49 +77,98 @@ function RentalBottomSheet({ isOpen, onClose, product }) {
     return base + cleaning + insurance + deposit;
   };
 
-  return (
+  const initialMotion = isMobile ? { y: '100%' } : { x: '-100%' };
+  const animateMotion = isMobile ? { y: 0 } : { x: 0 };
+  const exitMotion = isMobile ? { y: '100%' } : { x: '-100%' };
+
+  return createPortal(
     <AnimatePresence>
       {isOpen && (
         <div
           style={{
             position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
-            background: 'rgba(0,0,0,0.5)', zIndex: 9999,
-            display: 'flex', flexDirection: 'column', justifyContent: 'flex-end'
+            background: 'rgba(5, 10, 25, 0.75)', zIndex: 99999,
+            display: 'flex',
+            justifyContent: isMobile ? 'flex-end' : 'flex-start',
+            alignItems: isMobile ? 'flex-end' : 'stretch',
+            backdropFilter: 'blur(4px)'
           }}
           onClick={handleBackdropClick}
         >
           <motion.div
-            initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
-            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+            initial={initialMotion}
+            animate={animateMotion}
+            exit={exitMotion}
+            transition={{ type: 'spring', damping: 28, stiffness: 220 }}
             style={{
-              background: '#fff', width: '100%', maxWidth: '800px', margin: '0 auto',
-              borderTopLeftRadius: '24px', borderTopRightRadius: '24px',
-              maxHeight: '90vh', overflowY: 'auto', display: 'flex', flexDirection: 'column',
-              boxShadow: '0 -10px 40px rgba(0,0,0,0.1)', position: 'relative'
+              background: '#0a1128',
+              width: '100%',
+              maxWidth: isMobile ? '100%' : '480px',
+              height: isMobile ? 'auto' : '100vh',
+              maxHeight: isMobile ? '88vh' : '100vh',
+              borderTopLeftRadius: isMobile ? '24px' : '0px',
+              borderTopRightRadius: '24px',
+              borderBottomRightRadius: isMobile ? '0px' : '24px',
+              borderBottomLeftRadius: '0px',
+              display: 'flex',
+              flexDirection: 'column',
+              boxShadow: isMobile ? '0 -10px 40px rgba(0,0,0,0.6)' : '10px 0 40px rgba(0,0,0,0.6)',
+              borderRight: isMobile ? 'none' : '1px solid rgba(212, 175, 55, 0.3)',
+              borderTop: isMobile ? '1px solid rgba(212, 175, 55, 0.3)' : 'none',
+              position: 'relative',
+              overflow: 'hidden',
+              fontFamily: 'var(--font-sans)',
+              color: '#ffffff'
             }}
           >
             {/* Top Navigation */}
-            <div style={{ position: 'sticky', top: 0, background: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(10px)', zIndex: 10, padding: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #f1f5f9' }}>
-              <button onClick={onClose} style={{ background: '#f1f5f9', border: 'none', width: '36px', height: '36px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
-                <CloseRoundedIcon sx={{ fontSize: '20px', color: '#475569' }} />
-              </button>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#ecfdf5', color: '#059669', padding: '6px 12px', borderRadius: '20px', fontWeight: 700, fontSize: '12px' }}>
-                <BoltRoundedIcon sx={{ fontSize: '14px' }} /> Deliver to Home - In 45 mins
+            <div style={{
+              flexShrink: 0,
+              background: '#0b132b',
+              padding: '16px 20px',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              borderBottom: '1px solid rgba(212, 175, 55, 0.25)',
+              zIndex: 10
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ fontSize: '16px', fontWeight: 800, color: '#ffffff' }}>Rent Outfit</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'rgba(212, 175, 55, 0.15)', color: '#f5d061', padding: '4px 10px', borderRadius: '20px', fontWeight: 800, fontSize: '11px', border: '1px solid rgba(212, 175, 55, 0.3)' }}>
+                  <BoltRoundedIcon sx={{ fontSize: '14px', color: '#f5d061' }} /> 45 mins delivery
+                </div>
               </div>
-              <button style={{ background: '#f1f5f9', border: 'none', width: '36px', height: '36px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
-                <ShareRoundedIcon sx={{ fontSize: '18px', color: '#475569' }} />
+              <button
+                onClick={onClose}
+                aria-label="Close popup"
+                style={{
+                  background: 'rgba(212, 175, 55, 0.15)',
+                  border: 'none',
+                  width: '36px',
+                  height: '36px',
+                  borderRadius: '50%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                  color: '#f5d061'
+                }}
+              >
+                <CloseRoundedIcon sx={{ fontSize: '20px' }} />
               </button>
             </div>
 
-            <div style={{ padding: '0 0 100px 0' }}>
+            {/* Scrollable Content Body */}
+            <div style={{ flex: 1, overflowY: 'auto', padding: '0 0 24px 0' }}>
               {/* Hero Media */}
-              <div style={{ position: 'relative', width: '100%', aspectRatio: '4/5', background: '#f8fafc' }}>
+              <div style={{ position: 'relative', width: '100%', aspectRatio: '4/5', background: '#0e1838' }}>
                 <img
                   src={product.images?.[0] || 'https://placehold.co/600x800'}
                   alt={product.name}
                   style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                 />
-                <div style={{ position: 'absolute', bottom: '16px', left: '16px', background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(5px)', padding: '6px 12px', borderRadius: '8px', color: '#fff', fontSize: '11px', fontWeight: 600 }}>
+                <div style={{ position: 'absolute', bottom: '16px', left: '16px', background: 'rgba(10, 17, 40, 0.85)', backdropFilter: 'blur(5px)', padding: '6px 12px', borderRadius: '8px', color: '#f5d061', fontSize: '11px', fontWeight: 700, border: '1px solid rgba(212, 175, 55, 0.3)' }}>
                   Model is 5'8" wearing Size S
                 </div>
               </div>
@@ -118,20 +177,20 @@ function RentalBottomSheet({ isOpen, onClose, product }) {
                 {/* Product Identity */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
                   <div>
-                    <h2 style={{ fontSize: '22px', fontWeight: 800, color: '#0f172a', marginBottom: '4px' }}>{product.name}</h2>
-                    <p style={{ color: '#64748b', fontSize: '14px', fontWeight: 500 }}>{product.brand || 'Premium Collection'}</p>
+                    <h2 style={{ fontSize: '22px', fontWeight: 800, color: '#ffffff', marginBottom: '4px' }}>{product.name}</h2>
+                    <p style={{ color: '#cbd5e1', fontSize: '14px', fontWeight: 500 }}>{product.brand || 'Premium Collection'}</p>
                   </div>
-                  <div style={{ background: '#eef2ff', color: '#4f46e5', padding: '4px 10px', borderRadius: '6px', fontSize: '12px', fontWeight: 700 }}>Available Now</div>
+                  <div style={{ background: 'rgba(212, 175, 55, 0.15)', color: '#f5d061', padding: '4px 10px', borderRadius: '6px', fontSize: '12px', fontWeight: 800, border: '1px solid rgba(212, 175, 55, 0.3)' }}>Available Now</div>
                 </div>
 
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '24px', background: '#fef2f2', padding: '10px 14px', borderRadius: '10px' }}>
-                  <AccessTimeRoundedIcon sx={{ color: '#ef4444', fontSize: '18px' }} />
-                  <span style={{ fontSize: '13px', color: '#b91c1c', fontWeight: 600 }}>Only 2 left in your local dark store!</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '24px', background: 'rgba(212, 175, 55, 0.15)', padding: '10px 14px', borderRadius: '10px', border: '1px solid rgba(212, 175, 55, 0.25)' }}>
+                  <AccessTimeRoundedIcon sx={{ color: '#f5d061', fontSize: '18px' }} />
+                  <span style={{ fontSize: '13px', color: '#f5d061', fontWeight: 700 }}>Only 2 left in your local dark store!</span>
                 </div>
 
                 {/* Size Selector */}
                 <div style={{ marginBottom: '24px' }}>
-                  <h3 style={{ fontSize: '16px', fontWeight: 700, color: '#1e293b', marginBottom: '12px' }}>1. Select Size</h3>
+                  <h3 style={{ fontSize: '15px', fontWeight: 800, color: '#f5d061', marginBottom: '12px' }}>1. Select Size</h3>
                   <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginBottom: '12px' }}>
                     {['S', 'M', 'L', 'XL'].map(size => {
                       const isSelected = selectedSize === size;
@@ -140,9 +199,11 @@ function RentalBottomSheet({ isOpen, onClose, product }) {
                           key={size} onClick={() => setSelectedSize(size)}
                           style={{
                             flex: '1 1 calc(25% - 12px)', padding: '12px', borderRadius: '12px',
-                            border: isSelected ? '2px solid #111827' : '1px solid #e2e8f0',
-                            background: isSelected ? '#111827' : '#fff', color: isSelected ? '#fff' : '#475569',
-                            fontWeight: 700, fontSize: '14px', cursor: 'pointer', transition: 'all 0.2s'
+                            border: isSelected ? '2px solid #d4af37' : '1px solid rgba(212, 175, 55, 0.3)',
+                            background: isSelected ? 'linear-gradient(135deg, #f5d061, #d4af37)' : '#0e1838',
+                            color: isSelected ? '#0a1128' : '#ffffff',
+                            fontWeight: 800, fontSize: '14px', cursor: 'pointer', transition: 'all 0.2s',
+                            boxShadow: isSelected ? '0 2px 10px rgba(212, 175, 55, 0.3)' : 'none'
                           }}
                         >
                           {size}
@@ -150,14 +211,14 @@ function RentalBottomSheet({ isOpen, onClose, product }) {
                       );
                     })}
                   </div>
-                  <button style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'none', border: 'none', color: '#4f46e5', fontSize: '13px', fontWeight: 600, cursor: 'pointer' }}>
-                    <CheckroomRoundedIcon sx={{ fontSize: '16px' }} /> Find Your Fit Quiz
+                  <button style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'none', border: 'none', color: '#f5d061', fontSize: '13px', fontWeight: 700, cursor: 'pointer' }}>
+                    <CheckroomRoundedIcon sx={{ fontSize: '16px', color: '#f5d061' }} /> Find Your Fit Quiz
                   </button>
                 </div>
 
                 {/* Duration Picker */}
                 <div style={{ marginBottom: '32px' }}>
-                  <h3 style={{ fontSize: '16px', fontWeight: 700, color: '#1e293b', marginBottom: '12px' }}>2. Rental Duration</h3>
+                  <h3 style={{ fontSize: '15px', fontWeight: 800, color: '#f5d061', marginBottom: '12px' }}>2. Rental Duration</h3>
                   <div style={{ display: 'flex', gap: '12px' }}>
                     {[3, 5, 7].map(days => {
                       const isSelected = selectedDuration === days;
@@ -166,14 +227,15 @@ function RentalBottomSheet({ isOpen, onClose, product }) {
                           key={days} onClick={() => setSelectedDuration(days)}
                           style={{
                             flex: 1, padding: '12px', borderRadius: '12px',
-                            border: isSelected ? '2px solid #6366f1' : '1px solid #e2e8f0',
-                            background: isSelected ? '#eef2ff' : '#fff', color: isSelected ? '#4f46e5' : '#475569',
-                            fontWeight: 700, fontSize: '14px', cursor: 'pointer', transition: 'all 0.2s',
+                            border: isSelected ? '2px solid #d4af37' : '1px solid rgba(212, 175, 55, 0.25)',
+                            background: isSelected ? 'rgba(212, 175, 55, 0.15)' : '#0e1838',
+                            color: isSelected ? '#f5d061' : '#cbd5e1',
+                            fontWeight: 800, fontSize: '14px', cursor: 'pointer', transition: 'all 0.2s',
                             display: 'flex', flexDirection: 'column', alignItems: 'center'
                           }}
                         >
                           <span>{days} Days</span>
-                          <span style={{ fontSize: '11px', fontWeight: 500, marginTop: '4px' }}>₹{product.rentPricePerDay * days}</span>
+                          <span style={{ fontSize: '11px', fontWeight: 600, marginTop: '4px', color: isSelected ? '#f5d061' : '#94a3b8' }}>₹{product.rentPricePerDay * days}</span>
                         </button>
                       );
                     })}
@@ -181,80 +243,61 @@ function RentalBottomSheet({ isOpen, onClose, product }) {
                 </div>
 
                 {/* Peace of Mind */}
-                <div style={{ background: '#f8fafc', padding: '20px', borderRadius: '16px', marginBottom: '24px' }}>
-                  <h3 style={{ fontSize: '15px', fontWeight: 700, color: '#1e293b', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <VerifiedUserRoundedIcon sx={{ color: '#10b981', fontSize: '20px' }} /> Peace of Mind Guarantee
+                <div style={{ background: '#0e1838', padding: '20px', borderRadius: '16px', marginBottom: '24px', border: '1px solid rgba(212, 175, 55, 0.2)' }}>
+                  <h3 style={{ fontSize: '15px', fontWeight: 800, color: '#ffffff', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <VerifiedUserRoundedIcon sx={{ color: '#f5d061', fontSize: '20px' }} /> Peace of Mind Guarantee
                   </h3>
-                  <p style={{ fontSize: '13px', color: '#475569', marginBottom: '16px', lineHeight: 1.5 }}>
+                  <p style={{ fontSize: '13px', color: '#cbd5e1', marginBottom: '16px', lineHeight: 1.5 }}>
                     Professionally dry-cleaned and sanitized before every delivery. Arrives in a sealed, premium garment bag.
                   </p>
 
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '12px', background: '#fff', padding: '12px', borderRadius: '10px', border: '1px solid #e2e8f0', cursor: 'pointer' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '12px', background: '#111d40', padding: '12px', borderRadius: '10px', border: '1px solid rgba(212, 175, 55, 0.3)', cursor: 'pointer' }}>
                     <input
                       type="checkbox" checked={hasInsurance} onChange={(e) => setInsurance(e.target.checked)}
-                      style={{ width: '18px', height: '18px', accentColor: '#4f46e5' }}
+                      style={{ width: '18px', height: '18px', accentColor: '#d4af37' }}
                     />
                     <div style={{ display: 'flex', flexDirection: 'column' }}>
-                      <span style={{ fontSize: '13px', fontWeight: 700, color: '#1e293b' }}>Add Spill & Tear Protection (+₹300)</span>
-                      <span style={{ fontSize: '11px', color: '#64748b' }}>Minor damage insurance for peace of mind.</span>
+                      <span style={{ fontSize: '13px', fontWeight: 700, color: '#ffffff' }}>Add Spill & Tear Protection (+₹300)</span>
+                      <span style={{ fontSize: '11px', color: '#cbd5e1' }}>Minor damage insurance for peace of mind.</span>
                     </div>
                   </label>
-                </div>
-
-                {/* Return Logistics */}
-                <div style={{ marginBottom: '24px' }}>
-                  <h3 style={{ fontSize: '16px', fontWeight: 700, color: '#1e293b', marginBottom: '16px' }}>Return Logistics</h3>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                    <div style={{ display: 'flex', gap: '16px' }}>
-                      <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#4f46e5', fontWeight: 800 }}>1</div>
-                      <div>
-                        <h4 style={{ fontSize: '14px', fontWeight: 700, color: '#0f172a' }}>Wear & Enjoy</h4>
-                        <p style={{ fontSize: '13px', color: '#64748b', marginTop: '2px' }}>Keep it for your selected {selectedDuration} days.</p>
-                      </div>
-                    </div>
-                    <div style={{ display: 'flex', gap: '16px' }}>
-                      <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#4f46e5', fontWeight: 800 }}>2</div>
-                      <div>
-                        <h4 style={{ fontSize: '14px', fontWeight: 700, color: '#0f172a' }}>Pack It Up</h4>
-                        <p style={{ fontSize: '13px', color: '#64748b', marginTop: '2px' }}>Place it back in the provided reusable QR-coded bag (no washing required!).</p>
-                      </div>
-                    </div>
-                    <div style={{ display: 'flex', gap: '16px' }}>
-                      <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#4f46e5', fontWeight: 800 }}>3</div>
-                      <div>
-                        <h4 style={{ fontSize: '14px', fontWeight: 700, color: '#0f172a' }}>Instant Pickup</h4>
-                        <p style={{ fontSize: '13px', color: '#64748b', marginTop: '2px' }}>A delivery rider will pick it up automatically on Day {selectedDuration}.</p>
-                      </div>
-                    </div>
-                  </div>
                 </div>
               </div>
             </div>
 
-            {/* Sticky Action Bar */}
+            {/* Fixed Footer Action Bar */}
             <div style={{
-              position: 'fixed', bottom: 0, left: '50%', transform: 'translateX(-50%)',
-              width: '100%', maxWidth: '800px', background: '#fff', borderTop: '1px solid #f1f5f9',
-              padding: '16px 20px', boxShadow: '0 -4px 20px rgba(0,0,0,0.05)',
-              display: 'flex', alignItems: 'center', justifyContent: 'space-between', zIndex: 100
+              flexShrink: 0,
+              background: '#0b132b',
+              borderTop: '1px solid rgba(212, 175, 55, 0.25)',
+              padding: '16px 20px',
+              boxShadow: '0 -4px 15px rgba(0,0,0,0.4)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              zIndex: 10
             }}>
               <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <span style={{ fontSize: '18px', fontWeight: 900, color: '#0f172a' }}>₹{calculateTotal()}</span>
-                <span style={{ fontSize: '11px', color: '#64748b', textDecoration: 'underline', cursor: 'pointer' }}>View Price Breakdown</span>
+                <span style={{ fontSize: '20px', fontWeight: 900, color: '#f5d061' }}>₹{calculateTotal()}</span>
+                <span style={{ fontSize: '11px', color: '#cbd5e1' }}>Includes ₹1,500 deposit</span>
               </div>
               <button
                 style={{
-                  background: 'linear-gradient(135deg, #111827 0%, #334155 100%)', color: '#fff', padding: '14px 32px', borderRadius: '12px',
-                  fontSize: '15px', fontWeight: 800, border: 'none', cursor: 'pointer', boxShadow: '0 4px 12px rgba(15, 23, 42, 0.2)'
+                  background: 'linear-gradient(135deg, #f5d061, #d4af37)', color: '#0a1128', padding: '14px 32px', borderRadius: '12px',
+                  fontSize: '15px', fontWeight: 900, border: 'none', cursor: 'pointer', boxShadow: '0 4px 14px rgba(212, 175, 55, 0.35)',
+                  transition: 'transform 0.2s'
                 }}
+                onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.02)'}
+                onMouseLeave={e => e.currentTarget.style.transform = 'none'}
               >
-                Rent Now
+                Book Rental Now
               </button>
             </div>
           </motion.div>
         </div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 }
 // --- END BOTTOM SHEET ---
@@ -448,7 +491,15 @@ export default function Rent() {
   const inactiveColor = '#6b7280';
 
   return (
-    <div style={{ minHeight: '100vh', background: 'linear-gradient(180deg, #044b58 0%, #01151a 100%)', fontFamily: 'var(--font-sans)' }}>
+    <div style={{ minHeight: '100vh', backgroundColor: '#0a1128', color: '#ffffff', fontFamily: 'var(--font-sans)' }}>
+      <div style={{
+        maxWidth: '1440px',
+        margin: '0 auto',
+        width: '100%',
+        minHeight: '100vh',
+        backgroundColor: '#0a1128',
+        position: 'relative'
+      }}>
       {/* Responsive Mixed-Shape Grid Styles */}
       <style>{`
         .men-formal-grid {
@@ -502,11 +553,14 @@ export default function Rent() {
           border-radius: 16px;
           overflow: hidden;
           cursor: pointer;
-          box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-          transition: box-shadow 0.3s ease;
+          box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+          border: 1px solid rgba(212, 175, 55, 0.25);
+          transition: all 0.3s ease;
         }
         .formal-card:hover {
-          box-shadow: 0 16px 40px rgba(0,0,0,0.18);
+          box-shadow: 0 16px 40px rgba(0,0,0,0.5);
+          border-color: #d4af37;
+          transform: translateY(-3px);
         }
         .formal-card img {
           width: 100%; height: 100%; object-fit: cover;
@@ -514,37 +568,38 @@ export default function Rent() {
         }
         .formal-card-overlay {
           position: absolute; inset: 0;
-          background: linear-gradient(to top, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.15) 55%, transparent 100%);
+          background: linear-gradient(to top, rgba(10,17,40,0.92) 0%, rgba(10,17,40,0.3) 55%, transparent 100%);
           display: flex; flex-direction: column; justify-content: flex-end;
           padding: 18px;
         }
         .formal-card-tag {
           display: inline-block;
           padding: 3px 10px; border-radius: 20px;
-          background: rgba(255,255,255,0.15); backdrop-filter: blur(6px);
-          border: 1px solid rgba(255,255,255,0.25);
-          font-size: 10px; font-weight: 700; color: #fff;
+          background: rgba(212, 175, 55, 0.2); backdrop-filter: blur(6px);
+          border: 1px solid rgba(212, 175, 55, 0.4);
+          font-size: 10px; font-weight: 800; color: #f5d061;
           text-transform: uppercase; letter-spacing: 0.8px;
           margin-bottom: 8px; width: fit-content;
         }
         .formal-card-title {
           font-size: clamp(14px, 2vw, 18px); font-weight: 800;
-          color: #fff; line-height: 1.2; margin: 0 0 4px;
+          color: #ffffff; line-height: 1.2; margin: 0 0 4px;
         }
         .formal-card-sub {
-          font-size: 12px; color: rgba(255,255,255,0.75); font-weight: 500; margin: 0;
+          font-size: 12px; color: #cbd5e1; font-weight: 500; margin: 0;
         }
         .formal-card-btn {
           margin-top: 10px;
           display: inline-flex; align-items: center; gap: 6px;
-          background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3);
-          backdrop-filter: blur(8px); color: #fff;
+          background: linear-gradient(135deg, #f5d061 0%, #d4af37 100%); border: none;
+          color: #0a1128;
           padding: 6px 14px; border-radius: 20px;
-          font-size: 12px; font-weight: 700; cursor: pointer;
-          transition: background 0.2s;
+          font-size: 12px; font-weight: 800; cursor: pointer;
+          box-shadow: 0 2px 8px rgba(212, 175, 55, 0.3);
+          transition: transform 0.2s;
           width: fit-content;
         }
-        .formal-card-btn:hover { background: rgba(255,255,255,0.3); }
+        .formal-card-btn:hover { transform: scale(1.05); }
       `}</style>
 
       {/* NAVBAR SECTION */}
@@ -553,85 +608,73 @@ export default function Rent() {
           initial={{ y: -60, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-          style={{ padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: '0 2px 10px rgba(0,0,0,0.02)' }}
+          style={{ padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#0b132b', borderBottom: '1px solid rgba(212, 175, 55, 0.25)' }}
         >
           <div style={{ display: 'flex', gap: '12px' }}>
             <button
               onClick={() => navigate('/shop')}
               style={{
-                padding: '8px 24px', borderRadius: '12px', border: activeTab === 'buy' ? 'none' : '1px solid #cbd5e1',
-                background: activeTab === 'buy' ? 'linear-gradient(135deg, #0047ab 0%, #002f75 100%)' : '#f8fafc',
-                color: activeTab === 'buy' ? '#ffffff' : '#475569',
-                fontWeight: 700, fontSize: '14px', cursor: 'pointer', transition: 'all 0.2s',
-                boxShadow: activeTab === 'buy' ? '0 4px 12px rgba(0, 71, 171, 0.2)' : 'none'
+                padding: '8px 24px', borderRadius: '12px', border: activeTab === 'buy' ? 'none' : '1px solid rgba(212, 175, 55, 0.3)',
+                background: activeTab === 'buy' ? 'linear-gradient(135deg, #f5d061 0%, #d4af37 100%)' : '#0e1838',
+                color: activeTab === 'buy' ? '#0a1128' : '#cbd5e1',
+                fontWeight: 800, fontSize: '14px', cursor: 'pointer', transition: 'all 0.2s',
+                boxShadow: activeTab === 'buy' ? '0 4px 12px rgba(212, 175, 55, 0.3)' : 'none'
               }}
             >Buy</button>
             <button
               onClick={() => navigate('/rent')}
               style={{
-                padding: '8px 24px', borderRadius: '12px', border: activeTab === 'rent' ? 'none' : '1px solid #cbd5e1',
-                background: activeTab === 'rent' ? 'linear-gradient(135deg, #0047ab 0%, #002f75 100%)' : '#f8fafc',
-                color: activeTab === 'rent' ? '#ffffff' : '#475569',
-                fontWeight: 700, fontSize: '14px', cursor: 'pointer', transition: 'all 0.2s',
-                boxShadow: activeTab === 'rent' ? '0 4px 12px rgba(0, 71, 171, 0.2)' : 'none'
+                padding: '8px 24px', borderRadius: '12px', border: activeTab === 'rent' ? 'none' : '1px solid rgba(212, 175, 55, 0.3)',
+                background: activeTab === 'rent' ? 'linear-gradient(135deg, #f5d061 0%, #d4af37 100%)' : '#0e1838',
+                color: activeTab === 'rent' ? '#0a1128' : '#cbd5e1',
+                fontWeight: 800, fontSize: '14px', cursor: 'pointer', transition: 'all 0.2s',
+                boxShadow: activeTab === 'rent' ? '0 4px 12px rgba(212, 175, 55, 0.3)' : 'none'
               }}
             >Rent</button>
           </div>
-
-          <button
-            onClick={() => setSearchParams({ ai: 'true' })}
-            style={{
-              padding: '8px 20px', borderRadius: '12px', background: 'linear-gradient(135deg, #a855f7 0%, #ec4899 100%)',
-              color: '#ffffff', fontWeight: 700, fontSize: '14px', border: 'none', display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer',
-              boxShadow: '0 4px 14px rgba(236,72,153,0.3)'
-            }}
-          >
-            <AutoAwesomeIcon sx={{ fontSize: '18px' }} />
-            AI Styles
-          </button>
         </motion.div>
 
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2, duration: 0.5 }} style={{ padding: '16px 24px' }}>
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2, duration: 0.5 }} style={{ padding: '16px 24px', background: '#0b132b' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '20px', flexWrap: 'wrap' }}>
             <div 
               onClick={() => setAddressOpen(true)}
-              style={{ display: 'flex', alignItems: 'center', gap: '8px', background: '#f8fafc', padding: '10px 16px', borderRadius: '12px', border: '2px solid #0047ab', minWidth: '200px', flex: '1 1 250px', cursor: 'pointer' }}
+              style={{ display: 'flex', alignItems: 'center', gap: '8px', background: '#0e1838', padding: '10px 16px', borderRadius: '12px', border: '1.5px solid #d4af37', minWidth: '200px', flex: '1 1 250px', cursor: 'pointer' }}
             >
-              <LocationOnOutlinedIcon sx={{ color: '#ec4899', fontSize: '20px' }} />
+              <LocationOnOutlinedIcon sx={{ color: '#f5d061', fontSize: '20px' }} />
               <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minWidth: 0 }}>
-                <span style={{ fontSize: '11px', color: '#64748b', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Delivery to</span>
-                <span style={{ fontSize: '13px', color: '#0f172a', fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                <span style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Delivery to</span>
+                <span style={{ fontSize: '13px', color: '#ffffff', fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                   {selectedAddress ? (selectedAddress.type === 'pincode' ? selectedAddress.zip : `${selectedAddress.city || 'Saved'} - ${selectedAddress.zip}`) : 'Home - 400001, Mumbai'}
                 </span>
               </div>
-              <ExpandMoreRoundedIcon sx={{ color: '#64748b', fontSize: '20px', transform: addressOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s', flexShrink: 0 }} />
+              <ExpandMoreRoundedIcon sx={{ color: '#f5d061', fontSize: '20px', transform: addressOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s', flexShrink: 0 }} />
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', background: '#f1f5f9', padding: '2px 8px 2px 4px', borderRadius: '14px', flex: '2 1 400px', border: '2px solid #0047ab' }}>
-              <div style={{ padding: '8px 10px', color: '#94a3b8', display: 'flex', alignItems: 'center' }}><SearchIcon /></div>
-              <input type="text" placeholder="Search for designer lehengas, suits..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} style={{ flex: 1, border: 'none', background: 'transparent', padding: '10px 0', fontSize: '14px', color: '#334155', outline: 'none', fontWeight: 500 }} />
-              <button onClick={() => setCameraOpen(true)} title="Visual Search" style={{ border: 'none', background: 'transparent', padding: '6px', cursor: 'pointer', color: '#8b1e2f', display: 'flex', alignItems: 'center' }}>
+            <div style={{ display: 'flex', alignItems: 'center', background: '#0e1838', padding: '2px 8px 2px 4px', borderRadius: '14px', flex: '2 1 400px', border: '1.5px solid #d4af37' }}>
+              <div style={{ padding: '8px 10px', color: '#f5d061', display: 'flex', alignItems: 'center' }}><SearchIcon /></div>
+              <input type="text" placeholder="Search for designer lehengas, suits..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} style={{ flex: 1, border: 'none', background: 'transparent', padding: '10px 0', fontSize: '14px', color: '#ffffff', outline: 'none', fontWeight: 500 }} />
+              <button onClick={() => setCameraOpen(true)} title="Visual Search" className="rent-mobile-search-btn" style={{ border: 'none', background: 'transparent', padding: '6px', cursor: 'pointer', color: '#f5d061', alignItems: 'center' }}>
                 <CameraAltIcon sx={{ fontSize: 20 }} />
               </button>
-              <button onClick={() => setVoiceOpen(true)} title="Voice Search" style={{ border: 'none', background: 'transparent', padding: '6px', cursor: 'pointer', color: '#8b1e2f', display: 'flex', alignItems: 'center' }}>
+              <button onClick={() => setVoiceOpen(true)} title="Voice Search" className="rent-mobile-search-btn" style={{ border: 'none', background: 'transparent', padding: '6px', cursor: 'pointer', color: '#f5d061', alignItems: 'center' }}>
                 <MicIcon sx={{ fontSize: 20 }} />
               </button>
             </div>
 
             {/* Desktop Only Account & Cart (Hidden on Mobile) */}
             <div className="rent-desktop-only-actions" style={{ display: 'flex', alignItems: 'center', gap: '16px', marginLeft: 'auto' }}>
-              <button onClick={() => navigate('/rent/profile')} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', background: 'transparent', border: 'none', cursor: 'pointer', color: '#475569' }}>
-                <PersonOutlineIcon sx={{ fontSize: '26px' }} />
-                <span style={{ fontSize: '11px', fontWeight: 600 }}>Account</span>
+              <button onClick={() => navigate('/rent/profile')} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', background: 'transparent', border: 'none', cursor: 'pointer', color: '#f5d061' }}>
+                <PersonOutlineIcon sx={{ fontSize: '26px', color: '#f5d061' }} />
+                <span style={{ fontSize: '11px', fontWeight: 700, color: '#ffffff' }}>Account</span>
               </button>
-              <button onClick={() => navigate('/rent/cart')} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', background: 'transparent', border: 'none', cursor: 'pointer', color: '#4f46e5', position: 'relative' }}>
+              <button onClick={() => navigate('/rent/cart')} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', background: 'transparent', border: 'none', cursor: 'pointer', color: '#f5d061', position: 'relative' }}>
                 {rentalItemCount > 0 && (
-                  <div style={{ position: 'absolute', top: '-4px', right: '-4px', background: '#ef4444', color: 'white', fontSize: '10px', fontWeight: 800, width: '16px', height: '16px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10 }}>
+                  <div style={{ position: 'absolute', top: '-4px', right: '-4px', background: 'linear-gradient(135deg, #f5d061, #d4af37)', color: '#0a1128', fontSize: '10px', fontWeight: 900, width: '18px', height: '18px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10, boxShadow: '0 2px 6px rgba(0,0,0,0.3)' }}>
                     {rentalItemCount}
                   </div>
                 )}
-                <ShoppingBagOutlinedIcon sx={{ fontSize: '26px' }} />
-                <span style={{ fontSize: '11px', fontWeight: 700 }}>Cart</span>
+                <ShoppingBagOutlinedIcon sx={{ fontSize: '26px', color: '#f5d061' }} />
+                <span style={{ fontSize: '11px', fontWeight: 800, color: '#f5d061' }}>Cart</span>
               </button>
             </div>
           </div>
@@ -641,11 +684,12 @@ export default function Rent() {
           position: 'sticky',
           top: 0,
           zIndex: 100,
-          background: 'rgba(4, 75, 88, 0.85)',
-          backdropFilter: 'blur(12px)'
+          background: 'rgba(10, 17, 40, 0.96)',
+          backdropFilter: 'blur(12px)',
+          borderBottom: '1px solid rgba(212, 175, 55, 0.25)'
         }}>
-          <div style={{ height: '1px', background: 'rgba(255, 255, 255, 0.1)', width: '100%' }} />
-          <div style={{ padding: '16px 24px 24px', boxShadow: '0 4px 20px rgba(0,0,0,0.03)' }}>
+          <div style={{ height: '1px', background: 'rgba(212, 175, 55, 0.15)', width: '100%' }} />
+          <div style={{ padding: '16px 24px 24px', boxShadow: '0 4px 20px rgba(0,0,0,0.2)' }}>
             <div style={{ display: 'flex', gap: '16px', overflowX: 'auto', paddingBottom: '8px' }}>
               {['All', 'Men', 'Women', 'Kids'].map((cat) => {
                 const isSelected = activeCategory === cat.toLowerCase();
@@ -654,11 +698,11 @@ export default function Rent() {
                     key={cat} onClick={() => setActiveCategory(cat.toLowerCase())}
                     style={{
                       padding: '10px 28px', borderRadius: '10px',
-                      background: isSelected ? 'rgba(255, 255, 255, 0.25)' : 'rgba(255, 255, 255, 0.08)',
-                      color: isSelected ? '#ffffff' : 'rgba(255, 255, 255, 0.7)',
-                      border: isSelected ? '1px solid rgba(255, 255, 255, 0.4)' : '1px solid rgba(255, 255, 255, 0.15)',
-                      fontWeight: 700, fontSize: '14px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px',
-                      backdropFilter: 'blur(4px)',
+                      background: isSelected ? 'linear-gradient(135deg, #f5d061 0%, #d4af37 100%)' : '#0e1838',
+                      color: isSelected ? '#0a1128' : '#cbd5e1',
+                      border: isSelected ? 'none' : '1px solid rgba(212, 175, 55, 0.3)',
+                      fontWeight: 800, fontSize: '14px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px',
+                      boxShadow: isSelected ? '0 4px 12px rgba(212, 175, 55, 0.35)' : '0 2px 6px rgba(0,0,0,0.2)',
                       transition: 'all 0.2s ease'
                     }}
                   >
@@ -672,7 +716,7 @@ export default function Rent() {
             <AnimatePresence>
               {activeCategory !== 'all' && (
                 <motion.div initial={{ height: 0, opacity: 0, marginTop: 0 }} animate={{ height: 'auto', opacity: 1, marginTop: 16 }} exit={{ height: 0, opacity: 0, marginTop: 0 }} style={{ overflow: 'hidden' }}>
-                  <div style={{ height: '2px', background: '#e2e8f0', width: '100%', marginBottom: '0px' }} />
+                  <div style={{ height: '2px', background: 'rgba(212, 175, 55, 0.25)', width: '100%', marginBottom: '0px' }} />
                   <div className="hide-scrollbar" style={{ display: 'flex', gap: '16px', overflowX: 'auto', paddingBottom: '16px', scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
                     <style>{`.hide-scrollbar::-webkit-scrollbar { display: none; }`}</style>
                     {subCategories[activeCategory].map((subCat, index) => {
@@ -706,7 +750,7 @@ export default function Rent() {
                             transition={{ delay: index * 0.03, duration: 0.3 }}
                             style={{
                               width: '2px',
-                              background: 'linear-gradient(to bottom, #cbd5e1 0%, #94a3b8 100%)',
+                              background: 'linear-gradient(to bottom, #d4af37 0%, rgba(212, 175, 55, 0.3) 100%)',
                               opacity: 0.7
                             }}
                           />
@@ -745,7 +789,7 @@ export default function Rent() {
                                 display: 'flex',
                                 alignItems: 'center',
                                 gap: '6px',
-                                boxShadow: '0 8px 16px rgba(0, 0, 0, 0.1)',
+                                boxShadow: '0 8px 16px rgba(0, 0, 0, 0.3)',
                                 position: 'relative',
                                 zIndex: 1,
                                 whiteSpace: 'nowrap'
@@ -764,17 +808,18 @@ export default function Rent() {
               )}
             </AnimatePresence>
           </div>
-          <div style={{ height: '1px', background: '#e5e7eb', width: '100%' }} />
+          <div style={{ height: '1px', background: 'rgba(212, 175, 55, 0.25)', width: '100%' }} />
         </div>
       </div>
 
       {/* SLIDER SECTION */}
       <div style={{ maxWidth: '1440px', margin: '0 auto', width: '100%' }}>
-        <div style={{ padding: '24px', background: '#fafafb', overflow: 'hidden' }}>
+        <div style={{ padding: '24px', background: 'transparent', overflow: 'hidden' }}>
           <div
             style={{
               position: 'relative', width: '100%', height: '320px', borderRadius: '20px',
-              overflow: 'hidden', boxShadow: '0 10px 30px rgba(0,0,0,0.1)'
+              overflow: 'hidden', boxShadow: '0 10px 30px rgba(0,0,0,0.4)',
+              border: '1px solid rgba(212, 175, 55, 0.25)'
             }}
           >
             <AnimatePresence initial={false} custom={slideDirection}>
@@ -799,7 +844,7 @@ export default function Rent() {
                     prevSlide();
                   }
                 }}
-                style={{ position: 'absolute', inset: 0, background: '#1e293b', cursor: 'grab' }}
+                style={{ position: 'absolute', inset: 0, background: '#0a1128', cursor: 'grab' }}
                 whileTap={{ cursor: 'grabbing' }}
               >
                 <div style={{ position: 'relative', width: '100%', height: '100%', borderRadius: '20px', overflow: 'hidden' }}>
@@ -814,7 +859,7 @@ export default function Rent() {
                   {/* Gradient Overlay for Text Readability (left side) */}
                   <div style={{
                     position: 'absolute', inset: 0,
-                    background: 'linear-gradient(to right, rgba(15, 23, 42, 0.95) 0%, rgba(15, 23, 42, 0.6) 40%, transparent 100%)',
+                    background: 'linear-gradient(to right, rgba(10, 17, 40, 0.95) 0%, rgba(10, 17, 40, 0.65) 45%, transparent 100%)',
                     pointerEvents: 'none'
                   }} />
 
@@ -823,9 +868,9 @@ export default function Rent() {
                     {/* Title (Tag) */}
                     {adSlides[currentSlide]?.title && (
                       <div style={{ 
-                        background: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(10px)', padding: '6px 14px', borderRadius: '8px', 
+                        background: 'rgba(212, 175, 55, 0.2)', backdropFilter: 'blur(10px)', padding: '6px 14px', borderRadius: '8px', 
                         fontSize: '11px', fontWeight: 800, letterSpacing: '1px', display: 'inline-block', marginBottom: '16px', 
-                        color: '#fff', width: 'fit-content', textTransform: 'uppercase' 
+                        color: '#f5d061', width: 'fit-content', textTransform: 'uppercase', border: '1px solid rgba(212, 175, 55, 0.4)'
                       }}>
                         {adSlides[currentSlide].title}
                       </div>
@@ -834,26 +879,26 @@ export default function Rent() {
                     {/* Headline (Font like 2nd picture) */}
                     <h2 style={{ 
                       fontSize: 'clamp(32px, 5vw, 48px)', fontWeight: 900, marginBottom: '12px', lineHeight: 1.1, 
-                      color: '#fff', fontFamily: '"Playfair Display", "Georgia", serif' 
+                      color: '#ffffff', fontFamily: '"Playfair Display", "Georgia", serif' 
                     }}>
                       {adSlides[currentSlide]?.headline || ''}
                     </h2>
                     
                     {/* Subtitle */}
-                    <p style={{ fontSize: '18px', color: 'rgba(255,255,255,0.9)', fontWeight: 500, marginBottom: '32px', maxWidth: '400px' }}>
+                    <p style={{ fontSize: '18px', color: '#cbd5e1', fontWeight: 500, marginBottom: '32px', maxWidth: '400px' }}>
                       {adSlides[currentSlide]?.subtitle || ''}
                     </p>
                     
                     {/* Explore Button */}
                     <button
                       style={{
-                        padding: '14px 32px', background: '#fff', color: '#0f172a',
-                        border: 'none', borderRadius: '12px', fontSize: '15px', fontWeight: 800, cursor: 'pointer',
-                        boxShadow: '0 4px 12px rgba(255,255,255,0.2)', pointerEvents: 'auto', width: 'fit-content',
+                        padding: '14px 32px', background: 'linear-gradient(135deg, #f5d061 0%, #d4af37 100%)', color: '#0a1128',
+                        border: 'none', borderRadius: '12px', fontSize: '15px', fontWeight: 900, cursor: 'pointer',
+                        boxShadow: '0 4px 14px rgba(212, 175, 55, 0.35)', pointerEvents: 'auto', width: 'fit-content',
                         transition: 'transform 0.2s, background 0.2s'
                       }}
-                      onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.05)'; e.currentTarget.style.background = '#f8fafc'; }}
-                      onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.background = '#fff'; }}
+                      onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.05)'; }}
+                      onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; }}
                     >
                       Explore Now
                     </button>
@@ -867,14 +912,14 @@ export default function Rent() {
               onClick={(e) => { e.stopPropagation(); prevSlide(); }}
               style={{
                 position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)',
-                width: '40px', height: '40px', borderRadius: '50%', background: 'rgba(255, 255, 255, 0.2)',
-                backdropFilter: 'blur(8px)', border: '1px solid rgba(255, 255, 255, 0.3)',
-                color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                width: '40px', height: '40px', borderRadius: '50%', background: 'rgba(10, 17, 40, 0.7)',
+                backdropFilter: 'blur(8px)', border: '1px solid rgba(212, 175, 55, 0.4)',
+                color: '#f5d061', display: 'flex', alignItems: 'center', justifyContent: 'center',
                 cursor: 'pointer', zIndex: 10, transition: 'all 0.2s',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+                boxShadow: '0 4px 12px rgba(0,0,0,0.3)'
               }}
-              onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.4)'}
-              onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)'}
+              onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(212, 175, 55, 0.3)'}
+              onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(10, 17, 40, 0.7)'}
             >
               <ChevronLeftRoundedIcon sx={{ fontSize: '24px' }} />
             </button>
@@ -884,14 +929,14 @@ export default function Rent() {
               onClick={(e) => { e.stopPropagation(); nextSlide(); }}
               style={{
                 position: 'absolute', right: '16px', top: '50%', transform: 'translateY(-50%)',
-                width: '40px', height: '40px', borderRadius: '50%', background: 'rgba(255, 255, 255, 0.2)',
-                backdropFilter: 'blur(8px)', border: '1px solid rgba(255, 255, 255, 0.3)',
-                color: '#ffffff', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                width: '40px', height: '40px', borderRadius: '50%', background: 'rgba(10, 17, 40, 0.7)',
+                backdropFilter: 'blur(8px)', border: '1px solid rgba(212, 175, 55, 0.4)',
+                color: '#f5d061', display: 'flex', alignItems: 'center', justifyContent: 'center',
                 cursor: 'pointer', zIndex: 10, transition: 'all 0.2s',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+                boxShadow: '0 4px 12px rgba(0,0,0,0.3)'
               }}
-              onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.4)'}
-              onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)'}
+              onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(212, 175, 55, 0.3)'}
+              onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(10, 17, 40, 0.7)'}
             >
               <ChevronRightRoundedIcon sx={{ fontSize: '24px' }} />
             </button>
@@ -910,7 +955,7 @@ export default function Rent() {
                   }}
                   style={{
                     width: i === currentSlide ? '24px' : '8px', height: '8px',
-                    borderRadius: '4px', background: i === currentSlide ? '#fff' : 'rgba(255,255,255,0.4)',
+                    borderRadius: '4px', background: i === currentSlide ? '#f5d061' : 'rgba(212, 175, 55, 0.35)',
                     transition: 'all 0.3s ease', border: 'none', padding: 0, cursor: 'pointer'
                   }}
                 />
@@ -934,26 +979,26 @@ export default function Rent() {
             <div style={{ marginBottom: '24px' }}>
               <div style={{
                 display: 'inline-flex', alignItems: 'center', gap: '8px',
-                background: 'linear-gradient(135deg, rgba(17,24,39,0.06), rgba(99,102,241,0.08))',
-                border: '1px solid rgba(17,24,39,0.1)', borderRadius: '50px',
+                background: 'rgba(212, 175, 55, 0.15)',
+                border: '1px solid rgba(212, 175, 55, 0.35)', borderRadius: '50px',
                 padding: '5px 14px', marginBottom: '12px'
               }}>
-                <span style={{ fontSize: '11px', fontWeight: 800, color: '#111827', letterSpacing: '1px', textTransform: 'uppercase' }}>
+                <span style={{ fontSize: '11px', fontWeight: 800, color: '#f5d061', letterSpacing: '1px', textTransform: 'uppercase' }}>
                   🎩 Men's Formal Collection
                 </span>
               </div>
               <h2 style={{
-                fontSize: 'clamp(20px, 4vw, 28px)', fontWeight: 900, color: '#0f172a',
+                fontSize: 'clamp(20px, 4vw, 28px)', fontWeight: 900, color: '#ffffff',
                 margin: 0, lineHeight: 1.2,
                 fontFamily: '"Playfair Display", "Georgia", serif'
               }}>
                 Party, Formal &amp;{' '}
                 <span style={{
-                  backgroundImage: 'linear-gradient(135deg, #111827, #6366f1)',
+                  backgroundImage: 'linear-gradient(135deg, #f5d061, #d4af37)',
                   WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text'
                 }}>Special Occasions</span>
               </h2>
-              <p style={{ fontSize: '14px', color: '#64748b', marginTop: '8px', margin: '8px 0 0' }}>
+              <p style={{ fontSize: '14px', color: '#cbd5e1', marginTop: '8px', margin: '8px 0 0' }}>
                 Dress sharp for every milestone — from boardrooms to black-tie galas
               </p>
             </div>
@@ -1021,26 +1066,26 @@ export default function Rent() {
             <div style={{ marginTop: '48px', marginBottom: '24px' }}>
               <div style={{
                 display: 'inline-flex', alignItems: 'center', gap: '8px',
-                background: 'linear-gradient(135deg, rgba(17,24,39,0.06), rgba(99,102,241,0.08))',
-                border: '1px solid rgba(17,24,39,0.1)', borderRadius: '50px',
+                background: 'rgba(212, 175, 55, 0.15)',
+                border: '1px solid rgba(212, 175, 55, 0.35)', borderRadius: '50px',
                 padding: '5px 14px', marginBottom: '12px'
               }}>
-                <span style={{ fontSize: '11px', fontWeight: 800, color: '#111827', letterSpacing: '1px', textTransform: 'uppercase' }}>
+                <span style={{ fontSize: '11px', fontWeight: 800, color: '#f5d061', letterSpacing: '1px', textTransform: 'uppercase' }}>
                   🕌 Heritage Collection
                 </span>
               </div>
               <h2 style={{
-                fontSize: 'clamp(20px, 4vw, 28px)', fontWeight: 900, color: '#0f172a',
+                fontSize: 'clamp(20px, 4vw, 28px)', fontWeight: 900, color: '#ffffff',
                 margin: 0, lineHeight: 1.2,
                 fontFamily: '"Playfair Display", "Georgia", serif'
               }}>
                 Traditional &amp;{' '}
                 <span style={{
-                  backgroundImage: 'linear-gradient(135deg, #111827, #6366f1)',
+                  backgroundImage: 'linear-gradient(135deg, #f5d061, #d4af37)',
                   WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text'
                 }}>Festive Wear</span>
               </h2>
-              <p style={{ fontSize: '14px', color: '#64748b', marginTop: '8px', margin: '8px 0 0' }}>
+              <p style={{ fontSize: '14px', color: '#cbd5e1', marginTop: '8px', margin: '8px 0 0' }}>
                 Embrace your roots with exquisite cultural ensembles
               </p>
             </div>
@@ -1130,11 +1175,11 @@ export default function Rent() {
             <div style={{ marginBottom: '24px' }}>
               <div style={{
                 display: 'inline-flex', alignItems: 'center', gap: '8px',
-                background: 'linear-gradient(135deg, rgba(236,72,153,0.1), rgba(99,102,241,0.08))',
-                border: '1px solid rgba(236,72,153,0.2)', borderRadius: '50px',
+                background: 'rgba(212, 175, 55, 0.15)',
+                border: '1px solid rgba(212, 175, 55, 0.35)', borderRadius: '50px',
                 padding: '5px 14px', marginBottom: '12px'
               }}>
-                <span style={{ fontSize: '11px', fontWeight: 800, color: '#f43f5e', letterSpacing: '1px', textTransform: 'uppercase' }}>
+                <span style={{ fontSize: '11px', fontWeight: 800, color: '#f5d061', letterSpacing: '1px', textTransform: 'uppercase' }}>
                   ✨ Women's Luxury Collection
                 </span>
               </div>
@@ -1145,11 +1190,11 @@ export default function Rent() {
               }}>
                 Party, Evening &amp;{' '}
                 <span style={{
-                  backgroundImage: 'linear-gradient(135deg, #f43f5e, #a855f7)',
+                  backgroundImage: 'linear-gradient(135deg, #f5d061, #d4af37)',
                   WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text'
                 }}>Special Occasions</span>
               </h2>
-              <p style={{ fontSize: '14px', color: '#94a3b8', marginTop: '8px', margin: '8px 0 0' }}>
+              <p style={{ fontSize: '14px', color: '#cbd5e1', marginTop: '8px', margin: '8px 0 0' }}>
                 Stunning silhouettes for gala nights, cocktail soirées, and red carpet moments
               </p>
             </div>
@@ -1239,11 +1284,11 @@ export default function Rent() {
             <div style={{ marginBottom: '24px' }}>
               <div style={{
                 display: 'inline-flex', alignItems: 'center', gap: '8px',
-                background: 'linear-gradient(135deg, rgba(236,72,153,0.1), rgba(99,102,241,0.08))',
-                border: '1px solid rgba(236,72,153,0.2)', borderRadius: '50px',
+                background: 'rgba(212, 175, 55, 0.15)',
+                border: '1px solid rgba(212, 175, 55, 0.35)', borderRadius: '50px',
                 padding: '5px 14px', marginBottom: '12px'
               }}>
-                <span style={{ fontSize: '11px', fontWeight: 800, color: '#f43f5e', letterSpacing: '1px', textTransform: 'uppercase' }}>
+                <span style={{ fontSize: '11px', fontWeight: 800, color: '#f5d061', letterSpacing: '1px', textTransform: 'uppercase' }}>
                   ✨ Women's Heritage Collection
                 </span>
               </div>
@@ -1254,11 +1299,11 @@ export default function Rent() {
               }}>
                 Traditional &amp;{' '}
                 <span style={{
-                  backgroundImage: 'linear-gradient(135deg, #f43f5e, #a855f7)',
+                  backgroundImage: 'linear-gradient(135deg, #f5d061, #d4af37)',
                   WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text'
                 }}>Festive Wear</span>
               </h2>
-              <p style={{ fontSize: '14px', color: '#94a3b8', marginTop: '8px', margin: '8px 0 0' }}>
+              <p style={{ fontSize: '14px', color: '#cbd5e1', marginTop: '8px', margin: '8px 0 0' }}>
                 Timeless elegance and cultural grace for festivals, weddings, and traditional celebrations
               </p>
             </div>
@@ -1348,26 +1393,26 @@ export default function Rent() {
             <div style={{ marginBottom: '24px' }}>
               <div style={{
                 display: 'inline-flex', alignItems: 'center', gap: '8px',
-                background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.05))',
-                border: '1px solid rgba(16, 185, 129, 0.2)', borderRadius: '50px',
+                background: 'rgba(212, 175, 55, 0.15)',
+                border: '1px solid rgba(212, 175, 55, 0.35)', borderRadius: '50px',
                 padding: '5px 14px', marginBottom: '12px'
               }}>
-                <span style={{ fontSize: '11px', fontWeight: 800, color: '#059669', letterSpacing: '1px', textTransform: 'uppercase' }}>
+                <span style={{ fontSize: '11px', fontWeight: 800, color: '#f5d061', letterSpacing: '1px', textTransform: 'uppercase' }}>
                   🧸 Kids' Collection
                 </span>
               </div>
               <h2 style={{
-                fontSize: 'clamp(20px, 4vw, 28px)', fontWeight: 900, color: '#0f172a',
+                fontSize: 'clamp(20px, 4vw, 28px)', fontWeight: 900, color: '#ffffff',
                 margin: 0, lineHeight: 1.2,
                 fontFamily: '"Playfair Display", "Georgia", serif'
               }}>
                 Party, Formal &amp;{' '}
                 <span style={{
-                  backgroundImage: 'linear-gradient(135deg, #10b981, #3b82f6)',
+                  backgroundImage: 'linear-gradient(135deg, #f5d061, #d4af37)',
                   WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text'
                 }}>Special Occasions</span>
               </h2>
-              <p style={{ fontSize: '14px', color: '#64748b', marginTop: '8px', margin: '8px 0 0' }}>
+              <p style={{ fontSize: '14px', color: '#cbd5e1', marginTop: '8px', margin: '8px 0 0' }}>
                 Adorable &amp; comfortable party wear for your little ones
               </p>
             </div>
@@ -1482,10 +1527,15 @@ export default function Rent() {
       <RentVoiceSearchModal isOpen={voiceOpen} onClose={() => setVoiceOpen(false)} onQuerySubmit={(q) => setSearchQuery(q)} />
       
       <style>{`
+        .rent-mobile-search-btn {
+          display: none !important;
+        }
         @media (max-width: 768px) {
           .rent-desktop-only-actions { display: none !important; }
+          .rent-mobile-search-btn { display: flex !important; }
         }
       `}</style>
+      </div>
     </div>
   );
 }
