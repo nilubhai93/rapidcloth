@@ -48,10 +48,10 @@ export default function DeliveryLayout() {
     };
 
     window.addEventListener('storage', handleStorageChange);
-    const interval = setInterval(handleStorageChange, 1000);
+    window.addEventListener('delivery_weather_updated', handleStorageChange);
     return () => {
       window.removeEventListener('storage', handleStorageChange);
-      clearInterval(interval);
+      window.removeEventListener('delivery_weather_updated', handleStorageChange);
     };
   }, []);
 

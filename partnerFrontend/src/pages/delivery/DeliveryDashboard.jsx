@@ -20,12 +20,54 @@ import CreditCardIcon from '@mui/icons-material/CreditCardRounded';
 import CloseIcon from '@mui/icons-material/CloseRounded';
 import { formatDutyTime, getLocalDateStr } from '../../utils/dutyTime';
 
+// Isolated 1-Second Duty Ticker (Prevents Full Dashboard Re-Renders)
+const DutyTimer = React.memo(({ user, isOnline }) => {
+  const [dutySeconds, setDutySeconds] = useState(0);
+
+  useEffect(() => {
+    const calcSeconds = () => {
+      if (!user?.deliveryProfile) return 0;
+      const now = new Date();
+      const todayStr = getLocalDateStr(now);
+      const profileDate = user.deliveryProfile.lastOnlineDate;
+
+      const baseSec = (profileDate === todayStr) ? (user.deliveryProfile.onlineSecondsToday || 0) : 0;
+
+      if (user.deliveryProfile.isOnline && user.deliveryProfile.lastOnlineStartTime) {
+        let startMs = new Date(user.deliveryProfile.lastOnlineStartTime).getTime();
+        const startOfTodayMs = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+
+        if (startMs < startOfTodayMs) {
+          startMs = startOfTodayMs;
+        }
+
+        const elapsedSec = Math.floor((now.getTime() - startMs) / 1000);
+        return baseSec + Math.max(0, elapsedSec);
+      }
+      return baseSec;
+    };
+
+    setDutySeconds(calcSeconds());
+
+    const timer = setInterval(() => {
+      setDutySeconds(calcSeconds());
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [user?.deliveryProfile?.lastOnlineDate, user?.deliveryProfile?.lastOnlineStartTime, user?.deliveryProfile?.onlineSecondsToday, isOnline]);
+
+  return (
+    <span style={{ fontSize: '13px', fontWeight: 800, color: '#0f172a', fontFamily: 'monospace', whiteSpace: 'nowrap' }}>
+      {formatDutyTime(dutySeconds)}
+    </span>
+  );
+});
+
 export default function DeliveryDashboard() {
-  const { user, setUser } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [dutySeconds, setDutySeconds] = useState(0);
   const [showHotspotModal, setShowHotspotModal] = useState(false);
 
   // Live real-time temperature state
@@ -122,58 +164,6 @@ export default function DeliveryDashboard() {
     }
   };
 
-  // Live real-time duty seconds ticker and 12:00 AM auto-reset
-  useEffect(() => {
-    const calcSeconds = () => {
-      if (!user?.deliveryProfile) return 0;
-      const now = new Date();
-      const todayStr = getLocalDateStr(now);
-      const profileDate = user.deliveryProfile.lastOnlineDate;
-
-      // Auto-reset when date changes past midnight (12:00 AM)
-      if (profileDate && profileDate !== todayStr) {
-        const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-        const updatedUser = {
-          ...user,
-          deliveryProfile: {
-            ...user.deliveryProfile,
-            onlineSecondsToday: 0,
-            lastOnlineDate: todayStr,
-            lastOnlineStartTime: user.deliveryProfile.isOnline ? startOfToday.toISOString() : null
-          }
-        };
-        setUser(updatedUser);
-        return 0;
-      }
-
-      const baseSec = (profileDate === todayStr) ? (user.deliveryProfile.onlineSecondsToday || 0) : 0;
-
-      if (user.deliveryProfile.isOnline && user.deliveryProfile.lastOnlineStartTime) {
-        let startMs = new Date(user.deliveryProfile.lastOnlineStartTime).getTime();
-        const startOfTodayMs = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-
-        if (startMs < startOfTodayMs) {
-          startMs = startOfTodayMs;
-        }
-
-        const elapsedSec = Math.floor((now.getTime() - startMs) / 1000);
-        return baseSec + Math.max(0, elapsedSec);
-      }
-      return baseSec;
-    };
-
-    setDutySeconds(calcSeconds());
-
-    const timer = setInterval(() => {
-      setDutySeconds(prev => {
-        const val = calcSeconds();
-        return prev !== val ? val : prev;
-      });
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, [user?.deliveryProfile, isOnline]);
-
   if (loading) {
     return (
       <div style={{ padding: '40px', textAlign: 'center', color: '#64748b', fontWeight: 600 }}>
@@ -212,29 +202,49 @@ export default function DeliveryDashboard() {
           transition: 'all 0.4s ease'
         }}
       >
-        {/* Dynamic Animated Weather FX Overlay */}
+        {/* Hardware-Accelerated CSS Weather FX Overlay */}
+        <style>{`
+          @keyframes rainDropKeyframe {
+            0% { transform: translate3d(0, -30px, 0); opacity: 0; }
+            50% { opacity: 0.85; }
+            100% { transform: translate3d(0, 220px, 0); opacity: 0; }
+          }
+          @keyframes cloudDriftKeyframe1 {
+            0% { transform: translate3d(-30%, 0, 0); opacity: 0.15; }
+            50% { opacity: 0.45; }
+            100% { transform: translate3d(120%, 0, 0); opacity: 0.15; }
+          }
+          @keyframes cloudDriftKeyframe2 {
+            0% { transform: translate3d(-30%, 0, 0); opacity: 0.12; }
+            50% { opacity: 0.38; }
+            100% { transform: translate3d(120%, 0, 0); opacity: 0.12; }
+          }
+          @keyframes sunGlowKeyframe {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+          @keyframes stormFlashKeyframe {
+            0%, 90%, 100% { opacity: 0; }
+            92%, 96% { opacity: 0.85; }
+          }
+        `}</style>
         <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none', zIndex: 0 }}>
           {weatherMode === 'rainy' && (
             <div>
-              {[...Array(14)].map((_, i) => (
-                <motion.div
+              {[...Array(10)].map((_, i) => (
+                <div
                   key={`rain-${i}`}
-                  initial={{ y: -30, opacity: 0 }}
-                  animate={{ y: 240, opacity: [0, 0.85, 0] }}
-                  transition={{
-                    repeat: Infinity,
-                    duration: 0.7 + (i % 5) * 0.15,
-                    delay: (i % 7) * 0.12,
-                    ease: 'linear'
-                  }}
                   style={{
                     position: 'absolute',
-                    left: `${4 + i * 7}%`,
+                    left: `${5 + i * 9.5}%`,
                     width: '2px',
-                    height: '26px',
+                    height: '24px',
                     background: 'linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(96,165,250,0.85) 100%)',
                     borderRadius: '2px',
-                    transform: 'rotate(15deg)'
+                    transform: 'rotate(15deg)',
+                    willChange: 'transform, opacity',
+                    animation: `rainDropKeyframe ${0.7 + (i % 4) * 0.15}s linear infinite`,
+                    animationDelay: `${(i % 5) * 0.12}s`
                   }}
                 />
               ))}
@@ -243,9 +253,7 @@ export default function DeliveryDashboard() {
 
           {weatherMode === 'sunny' && (
             <div>
-              <motion.div
-                animate={{ rotate: 360, scale: [1, 1.06, 1] }}
-                transition={{ repeat: Infinity, duration: 25, ease: 'linear' }}
+              <div
                 style={{
                   position: 'absolute',
                   top: '-40px',
@@ -253,113 +261,50 @@ export default function DeliveryDashboard() {
                   width: '180px',
                   height: '180px',
                   borderRadius: '50%',
-                  background: 'radial-gradient(circle, rgba(251,146,60,0.45) 0%, rgba(245,158,11,0.2) 50%, rgba(0,0,0,0) 70%)'
+                  background: 'radial-gradient(circle, rgba(251,146,60,0.45) 0%, rgba(245,158,11,0.2) 50%, rgba(0,0,0,0) 70%)',
+                  willChange: 'transform',
+                  animation: 'sunGlowKeyframe 25s linear infinite'
                 }}
               />
-              {[...Array(5)].map((_, i) => (
-                <motion.div
-                  key={`sun-${i}`}
-                  animate={{ opacity: [0.2, 0.6, 0.2], scale: [0.95, 1.15, 0.95] }}
-                  transition={{ repeat: Infinity, duration: 3 + i, delay: i * 0.4 }}
-                  style={{
-                    position: 'absolute',
-                    top: `${10 + i * 14}%`,
-                    right: `${15 + i * 12}%`,
-                    width: '36px',
-                    height: '36px',
-                    borderRadius: '50%',
-                    background: 'radial-gradient(circle, rgba(253,224,71,0.3) 0%, rgba(0,0,0,0) 70%)'
-                  }}
-                />
-              ))}
             </div>
           )}
 
           {weatherMode === 'cloudy' && (
             <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', overflow: 'hidden' }}>
-              {/* Realistic Fluffy Cloud 1 - Top Drift */}
-              <motion.div
-                initial={{ x: -160, opacity: 0.15 }}
-                animate={{ x: ['-20%', '115%'], opacity: [0.15, 0.45, 0.15] }}
-                transition={{ repeat: Infinity, duration: 24, ease: 'linear' }}
-                style={{ position: 'absolute', top: '8px', width: '170px', filter: 'blur(1px)' }}
+              <div
+                style={{
+                  position: 'absolute', top: '8px', width: '160px',
+                  willChange: 'transform',
+                  animation: 'cloudDriftKeyframe1 24s linear infinite'
+                }}
               >
                 <svg viewBox="0 0 100 50" fill="currentColor" style={{ color: 'rgba(255, 255, 255, 0.22)', width: '100%', height: 'auto' }}>
                   <path d="M 20 40 A 15 15 0 0 1 30 18 A 20 20 0 0 1 65 15 A 18 18 0 0 1 85 30 A 12 12 0 0 1 82 40 Z" />
                 </svg>
-              </motion.div>
-
-              {/* Realistic Fluffy Cloud 2 - Lower Center Drift */}
-              <motion.div
-                initial={{ x: -200, opacity: 0.12 }}
-                animate={{ x: ['-30%', '120%'], opacity: [0.12, 0.38, 0.12] }}
-                transition={{ repeat: Infinity, duration: 32, delay: 7, ease: 'linear' }}
-                style={{ position: 'absolute', top: '50px', width: '210px', filter: 'blur(1px)' }}
+              </div>
+              <div
+                style={{
+                  position: 'absolute', top: '50px', width: '190px',
+                  willChange: 'transform',
+                  animation: 'cloudDriftKeyframe2 32s linear infinite 7s'
+                }}
               >
                 <svg viewBox="0 0 120 50" fill="currentColor" style={{ color: 'rgba(255, 255, 255, 0.18)', width: '100%', height: 'auto' }}>
                   <path d="M 15 42 A 18 18 0 0 1 32 20 A 24 24 0 0 1 78 16 A 22 22 0 0 1 105 32 A 15 15 0 0 1 102 42 Z" />
                 </svg>
-              </motion.div>
-
-              {/* Realistic Fluffy Cloud 3 - Soft Upper Puff */}
-              <motion.div
-                initial={{ x: -140, opacity: 0.1 }}
-                animate={{ x: ['-25%', '110%'], opacity: [0.1, 0.3, 0.1] }}
-                transition={{ repeat: Infinity, duration: 28, delay: 15, ease: 'linear' }}
-                style={{ position: 'absolute', top: '95px', width: '150px', filter: 'blur(1.5px)' }}
-              >
-                <svg viewBox="0 0 100 50" fill="currentColor" style={{ color: 'rgba(226, 232, 240, 0.18)', width: '100%', height: 'auto' }}>
-                  <path d="M 20 40 A 14 14 0 0 1 32 20 A 18 18 0 0 1 68 18 A 16 16 0 0 1 84 32 A 12 12 0 0 1 80 40 Z" />
-                </svg>
-              </motion.div>
-
-              {/* Gentle Cool Breeze Trails */}
-              {[...Array(2)].map((_, i) => (
-                <motion.div
-                  key={`wind-${i}`}
-                  initial={{ x: -120, opacity: 0 }}
-                  animate={{ x: '130%', opacity: [0, 0.35, 0] }}
-                  transition={{ repeat: Infinity, duration: 9 + i * 4, delay: i * 3.5, ease: 'easeInOut' }}
-                  style={{
-                    position: 'absolute',
-                    top: `${35 + i * 42}px`,
-                    width: '110px',
-                    height: '1.5px',
-                    background: 'linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(203,213,225,0.4) 50%, rgba(255,255,255,0) 100%)',
-                    borderRadius: '2px'
-                  }}
-                />
-              ))}
+              </div>
             </div>
           )}
 
           {weatherMode === 'stormy' && (
             <div>
-              <motion.div
-                animate={{ opacity: [0, 0, 0.85, 0, 0.95, 0, 0] }}
-                transition={{ repeat: Infinity, duration: 3.5, times: [0, 0.35, 0.37, 0.39, 0.41, 0.43, 1] }}
+              <div
                 style={{
-                  position: 'absolute',
-                  inset: 0,
-                  background: 'radial-gradient(circle at 75% 25%, rgba(192,132,252,0.4) 0%, rgba(124,58,237,0) 70%)'
+                  position: 'absolute', inset: 0,
+                  background: 'radial-gradient(circle at 75% 25%, rgba(192,132,252,0.4) 0%, rgba(124,58,237,0) 70%)',
+                  animation: 'stormFlashKeyframe 3.5s ease-in-out infinite'
                 }}
               />
-              {[...Array(16)].map((_, i) => (
-                <motion.div
-                  key={`storm-${i}`}
-                  initial={{ y: -30, opacity: 0 }}
-                  animate={{ y: 250, opacity: [0, 0.95, 0] }}
-                  transition={{ repeat: Infinity, duration: 0.45 + (i % 4) * 0.08, delay: (i % 6) * 0.08, ease: 'linear' }}
-                  style={{
-                    position: 'absolute',
-                    left: `${3 + i * 6}%`,
-                    width: '2px',
-                    height: '32px',
-                    background: 'linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(192,132,252,0.95) 100%)',
-                    transform: 'rotate(24deg)'
-                  }}
-                />
-              ))}
             </div>
           )}
         </div>
@@ -464,9 +409,7 @@ export default function DeliveryDashboard() {
           <div style={{ fontSize: '10px', color: '#94a3b8', fontWeight: 800, textTransform: 'uppercase', marginBottom: '2px' }}>
             Online Time
           </div>
-          <div style={{ fontSize: '13px', fontWeight: 800, color: '#0f172a', fontFamily: 'monospace', whiteSpace: 'nowrap' }}>
-            {formatDutyTime(dutySeconds)}
-          </div>
+          <DutyTimer user={user} isOnline={isOnline} />
         </div>
 
         <div>
