@@ -64,6 +64,10 @@ const Zones = () => {
     setEditingZone(null);
     setShapeType('circle');
     setPolygonPoints([]);
+    
+    const defaultLat = zones.length > 0 && zones[0].coordinates?.lat ? zones[0].coordinates.lat : 22.7634;
+    const defaultLng = zones.length > 0 && zones[0].coordinates?.lng ? zones[0].coordinates.lng : 88.3700;
+
     setFormData({
       name: '',
       zoneId: '',
@@ -73,8 +77,8 @@ const Zones = () => {
       description: '',
       assignedAdmins: [],
       status: 'active',
-      lat: 19.0760,
-      lng: 72.8777,
+      lat: defaultLat,
+      lng: defaultLng,
       radiusKm: 5
     });
     setIsModalOpen(true);

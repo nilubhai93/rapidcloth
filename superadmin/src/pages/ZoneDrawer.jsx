@@ -13,7 +13,8 @@ import {
   Edit3,
   Circle as CircleIcon,
   CheckCircle,
-  Sparkles
+  Sparkles,
+  Navigation
 } from 'lucide-react';
 
 const ZoneDrawer = () => {
@@ -108,6 +109,29 @@ const ZoneDrawer = () => {
     } finally {
       setSearching(false);
     }
+  };
+
+  const handleLocateUserGPS = () => {
+    if (!navigator.geolocation) {
+      alert('Geolocation is not supported by your browser.');
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const userLat = parseFloat(pos.coords.latitude.toFixed(4));
+        const userLng = parseFloat(pos.coords.longitude.toFixed(4));
+        setFormData(prev => ({
+          ...prev,
+          lat: userLat,
+          lng: userLng
+        }));
+        if (shapeType === 'polygon' && polygonPoints.length === 0) {
+          setPolygonPoints([{ lat: userLat, lng: userLng }]);
+        }
+      },
+      () => alert('Could not access your location. Please grant browser location permission.'),
+      { enableHighAccuracy: true }
+    );
   };
 
   const handleAddPolygonPoint = (lat, lng) => {
@@ -220,6 +244,10 @@ const ZoneDrawer = () => {
             </div>
             <button type="submit" className="btn btn-secondary" disabled={searching}>
               {searching ? 'Searching...' : 'Go'}
+            </button>
+            <button type="button" onClick={handleLocateUserGPS} className="btn btn-secondary" title="Use My Current GPS Location">
+              <Navigation size={16} style={{ color: 'var(--accent)' }} />
+              <span>GPS</span>
             </button>
           </form>
 

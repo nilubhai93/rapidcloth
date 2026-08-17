@@ -1,6 +1,7 @@
-import React from 'react';
-import { MapContainer, TileLayer, Marker, Popup, Circle, Polygon, useMapEvents } from 'react-leaflet';
+import React, { useEffect, useState } from 'react';
+import { MapContainer, TileLayer, Marker, Popup, Circle, Polygon, useMapEvents, useMap } from 'react-leaflet';
 import L from 'leaflet';
+import { Navigation } from 'lucide-react';
 
 // Fix Leaflet default icon paths in React Vite
 delete L.Icon.Default.prototype._getIconUrl;
@@ -26,6 +27,17 @@ const MapClickHandler = ({ mode, onLocationSelect, onAddPolygonPoint }) => {
   return null;
 };
 
+// Helper component to fly/re-center map dynamically when center coordinates change
+const MapRecenter = ({ center, zoom }) => {
+  const map = useMap();
+  useEffect(() => {
+    if (center && center[0] && center[1]) {
+      map.flyTo(center, zoom || 13, { duration: 1.2 });
+    }
+  }, [center[0], center[1], zoom]);
+  return null;
+};
+
 const ZoneMapView = ({
   zones = [],
   selectedZoneId,
@@ -35,14 +47,44 @@ const ZoneMapView = ({
   currentPolygonPoints = [],
   height = '450px'
 }) => {
+  const [locating, setLocating] = useState(false);
+
   // Determine center of map
   const validZones = zones.filter(z => z.coordinates && z.coordinates.lat && z.coordinates.lng);
-  let center = [19.0760, 72.8777]; // Default Mumbai
+  let center = [19.0760, 72.8777]; // Default fallback
   if (validZones.length > 0) {
     center = [validZones[0].coordinates.lat, validZones[0].coordinates.lng];
   } else if (currentPolygonPoints.length > 0) {
     center = [currentPolygonPoints[0].lat, currentPolygonPoints[0].lng];
   }
+
+  const handleLocateUser = () => {
+    if (!navigator.geolocation) {
+      alert('Geolocation is not supported by your browser.');
+      return;
+    }
+    setLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const lat = parseFloat(pos.coords.latitude.toFixed(4));
+        const lng = parseFloat(pos.coords.longitude.toFixed(4));
+        if (mode === 'picker' && onSelectLocation) {
+          onSelectLocation(lat, lng);
+        } else if (mode === 'polygon' && onAddPolygonPoint) {
+          onAddPolygonPoint(lat, lng);
+        } else if (onSelectLocation) {
+          onSelectLocation(lat, lng);
+        }
+        setLocating(false);
+      },
+      (err) => {
+        console.warn('Geolocation Error:', err);
+        alert('Could not access your location. Please grant browser location permission.');
+        setLocating(false);
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  };
 
   return (
     <div style={{
@@ -53,9 +95,40 @@ const ZoneMapView = ({
       border: '1px solid var(--border-color)',
       position: 'relative'
     }}>
+      {/* GPS Locate Button overlay */}
+      {(mode === 'picker' || mode === 'polygon' || onSelectLocation) && (
+        <button
+          type="button"
+          onClick={handleLocateUser}
+          style={{
+            position: 'absolute',
+            top: '10px',
+            right: '10px',
+            zIndex: 1000,
+            background: '#ffffff',
+            color: 'var(--text-primary)',
+            border: '1px solid var(--border-color)',
+            padding: '0.45rem 0.85rem',
+            borderRadius: '9999px',
+            boxShadow: '0 4px 14px rgba(0, 0, 0, 0.15)',
+            fontSize: '0.78rem',
+            fontWeight: 700,
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.4rem',
+            transition: 'all 0.2s ease'
+          }}
+          title="Pan map to my current GPS location"
+        >
+          <Navigation size={14} style={{ color: '#FF6B6B' }} />
+          <span>{locating ? 'Locating...' : '🎯 My GPS Location'}</span>
+        </button>
+      )}
+
       <MapContainer
         center={center}
-        zoom={11}
+        zoom={mode === 'view' ? 11 : 13}
         scrollWheelZoom={true}
         style={{ height: '100%', width: '100%', background: '#f5f0eb' }}
       >
@@ -63,6 +136,8 @@ const ZoneMapView = ({
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
+
+        <MapRecenter center={center} zoom={mode === 'view' ? 11 : 13} />
 
         <MapClickHandler
           mode={mode}
