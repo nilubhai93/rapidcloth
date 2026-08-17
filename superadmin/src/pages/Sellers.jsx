@@ -156,20 +156,20 @@ const Sellers = () => {
       <Navbar title="Sellers Directory" subtitle="Inspect registered sellers, vendor stores & customer seller applications" onToggleSidebar={toggleSidebar} />
 
       <div className="content-body">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '0.75rem' }}>
           <div>
-            <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--text-primary)' }}>Registered Sellers & Vendor Applicants</h2>
-            <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>All active vendors and customer seller applications across operational zones</p>
+            <h2 className="page-title" style={{ fontSize: '1.35rem', fontWeight: 800, color: 'var(--text-primary)' }}>Registered Sellers & Vendor Applicants</h2>
+            <p className="page-subtitle" style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>All active vendors and customer seller applications across operational zones</p>
           </div>
 
           {/* Filter, Search & Create Bar */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
-            <div style={{ position: 'relative', width: '180px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap', width: '100%', maxWidth: '100%' }}>
+            <div style={{ position: 'relative', flex: '1 1 140px' }}>
               <select
                 className="form-select"
                 value={selectedZone}
                 onChange={(e) => setSelectedZone(e.target.value)}
-                style={{ paddingLeft: '2.2rem' }}
+                style={{ paddingLeft: '2rem', fontSize: '0.8rem' }}
               >
                 <option value="">All Zones</option>
                 {zones.map((zone) => (
@@ -178,37 +178,37 @@ const Sellers = () => {
                   </option>
                 ))}
               </select>
-              <Filter size={16} color="var(--text-muted)" style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)' }} />
+              <Filter size={14} color="var(--text-muted)" style={{ position: 'absolute', left: '0.65rem', top: '50%', transform: 'translateY(-50%)' }} />
             </div>
 
-            <form onSubmit={handleSearch} style={{ display: 'flex', gap: '0.5rem' }}>
-              <div style={{ position: 'relative', width: '200px' }}>
+            <form onSubmit={handleSearch} style={{ display: 'flex', gap: '0.4rem', flex: '2 1 200px' }}>
+              <div style={{ position: 'relative', width: '100%' }}>
                 <input
                   type="text"
                   className="form-input"
-                  placeholder="Search store or name..."
+                  placeholder="Search store/name..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  style={{ paddingLeft: '2.2rem' }}
+                  style={{ paddingLeft: '2rem', fontSize: '0.8rem' }}
                 />
-                <Search size={16} color="var(--text-muted)" style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)' }} />
+                <Search size={14} color="var(--text-muted)" style={{ position: 'absolute', left: '0.65rem', top: '50%', transform: 'translateY(-50%)' }} />
               </div>
-              <button type="submit" className="btn btn-secondary">Search</button>
+              <button type="submit" className="btn btn-secondary btn-sm">Search</button>
             </form>
 
-            <button onClick={fetchData} className="btn btn-secondary">
-              <RefreshCw size={16} />
+            <button onClick={fetchData} className="btn btn-secondary btn-sm" title="Refresh">
+              <RefreshCw size={14} />
             </button>
 
-            <button onClick={handleOpenCreateModal} className="btn btn-primary">
-              <Plus size={18} />
-              <span>Add New Seller</span>
+            <button onClick={handleOpenCreateModal} className="btn btn-primary btn-sm" style={{ flex: '1 1 auto' }}>
+              <Plus size={16} />
+              <span>Add Seller</span>
             </button>
           </div>
         </div>
 
         {error && (
-          <div style={{ padding: '1rem', background: 'rgba(239, 68, 68, 0.1)', borderRadius: 'var(--radius-md)', color: '#dc2626', marginBottom: '1.5rem' }}>
+          <div style={{ padding: '0.75rem 1rem', background: 'rgba(239, 68, 68, 0.1)', borderRadius: 'var(--radius-md)', color: '#dc2626', marginBottom: '1.25rem', fontSize: '0.8rem' }}>
             {error}
           </div>
         )}
@@ -220,121 +220,162 @@ const Sellers = () => {
             No sellers or seller applications found under the selected zone. Click <strong>"+ Add New Seller"</strong> above to register a new vendor.
           </div>
         ) : (
-          <div className="table-container">
-            <table className="custom-table">
-              <thead>
-                <tr>
-                  <th>Store & Owner Name</th>
-                  <th>Contact Info</th>
-                  <th>Assigned Zone</th>
-                  <th>Business Address</th>
-                  <th>Categories</th>
-                  <th>Approval Status</th>
-                  <th style={{ textAlign: 'right' }}>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {sellers.map((seller) => {
-                  const isPending = seller.approvalStatus === 'pending';
-                  return (
-                    <tr key={seller._id}>
-                      <td>
-                        <div>
-                          <strong style={{ color: 'var(--text-primary)', fontSize: '0.95rem' }}>
-                            {seller.sellerProfile?.storeName || seller.name}
-                          </strong>
-                          <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-                            Owner: {seller.name}
+          <>
+            {/* Desktop Table View */}
+            <div className="desktop-table table-container">
+              <table className="custom-table">
+                <thead>
+                  <tr>
+                    <th>Store & Owner Name</th>
+                    <th>Contact Info</th>
+                    <th>Assigned Zone</th>
+                    <th>Business Address</th>
+                    <th>Categories</th>
+                    <th>Approval Status</th>
+                    <th style={{ textAlign: 'right' }}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {sellers.map((seller) => {
+                    const isPending = seller.approvalStatus === 'pending';
+                    return (
+                      <tr key={seller._id}>
+                        <td>
+                          <div>
+                            <strong style={{ color: 'var(--text-primary)', fontSize: '0.95rem' }}>
+                              {seller.sellerProfile?.storeName || seller.name}
+                            </strong>
+                            <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                              Owner: {seller.name}
+                            </div>
                           </div>
-                        </div>
-                      </td>
-                      <td>
-                        <div>
-                          <div>{seller.email}</div>
-                          <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{seller.phone || seller.sellerProfile?.businessPhone || 'N/A'}</div>
-                        </div>
-                      </td>
-                      <td>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', alignItems: 'flex-start' }}>
-                          {seller.zone ? (
-                            <span className="badge badge-purple">
-                              🗺️ {seller.zone.name} ({seller.zone.code})
-                            </span>
-                          ) : (
-                            <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Unassigned</span>
-                          )}
-                          <select
-                            value={seller.zone?._id || ''}
-                            onChange={(e) => handleAssignZone(seller._id, e.target.value)}
-                            className="form-select"
-                            style={{
-                              padding: '0.2rem 0.5rem',
-                              fontSize: '0.75rem',
-                              background: 'var(--bg-secondary)',
-                              border: '1px solid var(--border-color)',
-                              color: 'var(--text-primary)',
-                              borderRadius: '6px',
-                              cursor: 'pointer'
-                            }}
-                          >
-                            <option value="" disabled>-- Edit / Assign Zone --</option>
-                            {zones.map((z) => (
-                              <option key={z._id} value={z._id} style={{ background: '#ffffff', color: '#1a1a1a' }}>
-                                {z.name} ({z.code})
-                              </option>
+                        </td>
+                        <td>
+                          <div>
+                            <div>{seller.email}</div>
+                            <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{seller.phone || seller.sellerProfile?.businessPhone || 'N/A'}</div>
+                          </div>
+                        </td>
+                        <td>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', alignItems: 'flex-start' }}>
+                            {seller.zone ? (
+                              <span className="badge badge-purple">
+                                🗺️ {seller.zone.name}
+                              </span>
+                            ) : (
+                              <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Unassigned Zone</span>
+                            )}
+                          </div>
+                        </td>
+                        <td>
+                          <div style={{ fontSize: '0.85rem', maxWidth: '200px' }}>
+                            {seller.sellerProfile?.businessAddress || seller.sellerProfile?.city ? (
+                              <div>
+                                {seller.sellerProfile?.businessAddress || ''}
+                                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                                  {seller.sellerProfile?.city || ''} {seller.sellerProfile?.pincode ? `[${seller.sellerProfile.pincode}]` : ''}
+                                </div>
+                              </div>
+                            ) : (
+                              <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Address N/A</span>
+                            )}
+                          </div>
+                        </td>
+                        <td>
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.2rem', maxWidth: '160px' }}>
+                            {(seller.sellerProfile?.categories || []).map((cat, i) => (
+                              <span key={i} style={{ background: 'rgba(255, 255, 255, 0.06)', padding: '0.1rem 0.35rem', borderRadius: '4px', fontSize: '0.7rem' }}>
+                                {cat}
+                              </span>
                             ))}
-                          </select>
-                        </div>
-                      </td>
-                      <td style={{ maxWidth: '200px' }}>
-                        <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-                          {seller.sellerProfile?.businessAddress || 'N/A'}
-                        </span>
-                      </td>
-                      <td>
-                        <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-                          {seller.sellerProfile?.categories || 'Clothing'}
-                        </span>
-                      </td>
-                      <td>
-                        {isPending ? (
-                          <span className="badge badge-warning" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
-                            <Clock size={13} />
-                            Pending Approval
+                          </div>
+                        </td>
+                        <td>
+                          <span className={`badge ${seller.approvalStatus === 'approved' ? 'badge-active' : seller.approvalStatus === 'rejected' ? 'badge-inactive' : 'badge-purple'}`}>
+                            {seller.approvalStatus || 'approved'}
                           </span>
-                        ) : (
-                          <span className="badge badge-active">
-                            Active Seller
-                          </span>
-                        )}
-                      </td>
-                      <td style={{ textAlign: 'right' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '0.5rem' }}>
-                          {isPending && (
-                            <button
-                              onClick={() => handleApproveSeller(seller._id, seller.sellerProfile?.applicationId)}
-                              className="btn btn-primary btn-sm"
-                              disabled={approvingId === seller._id}
-                            >
-                              <CheckCircle size={14} />
-                              <span>{approvingId === seller._id ? 'Approving...' : 'Approve'}</span>
+                        </td>
+                        <td style={{ textAlign: 'right' }}>
+                          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.4rem' }}>
+                            {isPending && (
+                              <>
+                                <button onClick={() => handleApprove(seller._id)} className="btn btn-primary btn-sm" title="Approve Seller Application">
+                                  <Check size={14} />
+                                  <span>Approve</span>
+                                </button>
+                                <button onClick={() => handleReject(seller._id)} className="btn btn-danger btn-sm" title="Reject Seller Application">
+                                  <X size={14} />
+                                  <span>Reject</span>
+                                </button>
+                              </>
+                            )}
+                            <button onClick={() => handleOpenEditModal(seller)} className="btn btn-secondary btn-sm" title="Edit Seller">
+                              <Edit2 size={14} />
                             </button>
-                          )}
-                          <button
-                            onClick={() => handleOpenEditModal(seller)}
-                            className="btn btn-secondary btn-sm"
-                            style={{ background: 'rgba(255, 107, 107, 0.1)', color: 'var(--accent)', border: '1px solid rgba(255, 107, 107, 0.3)' }}
-                          >
-                            ✏️ Edit Seller
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Mobile Card List View (< 768px) */}
+            <div className="mobile-only" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              {sellers.map((seller) => {
+                const isPending = seller.approvalStatus === 'pending';
+                return (
+                  <div key={seller._id} className="glass-card" style={{ padding: '0.9rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.4rem' }}>
+                      <div>
+                        <h4 style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>
+                          {seller.sellerProfile?.storeName || seller.name}
+                        </h4>
+                        <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Owner: {seller.name}</div>
+                      </div>
+                      <span className={`badge ${seller.approvalStatus === 'approved' ? 'badge-active' : seller.approvalStatus === 'rejected' ? 'badge-inactive' : 'badge-purple'}`} style={{ fontSize: '0.7rem' }}>
+                        {seller.approvalStatus || 'approved'}
+                      </span>
+                    </div>
+
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '0.4rem' }}>
+                      📧 {seller.email} • 📞 {seller.phone || 'N/A'}
+                    </div>
+
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem', margin: '0.4rem 0' }}>
+                      {seller.zone ? (
+                        <span className="badge badge-purple" style={{ fontSize: '0.7rem' }}>
+                          🗺️ {seller.zone.name}
+                        </span>
+                      ) : (
+                        <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Unassigned Zone</span>
+                      )}
+                    </div>
+
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.4rem', marginTop: '0.5rem' }}>
+                      {isPending && (
+                        <>
+                          <button onClick={() => handleApprove(seller._id)} className="btn btn-primary btn-sm">
+                            <Check size={13} />
+                            <span>Approve</span>
                           </button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+                          <button onClick={() => handleReject(seller._id)} className="btn btn-danger btn-sm">
+                            <X size={13} />
+                            <span>Reject</span>
+                          </button>
+                        </>
+                      )}
+                      <button onClick={() => handleOpenEditModal(seller)} className="btn btn-secondary btn-sm">
+                        <Edit2 size={13} />
+                        <span>Edit Seller</span>
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </>
         )}
       </div>
 

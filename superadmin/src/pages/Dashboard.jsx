@@ -69,36 +69,37 @@ const Dashboard = () => {
 
       <div className="content-body">
         {/* Header Action Bar */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '0.75rem' }}>
           <div>
-            <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--text-primary)' }}>System Overview</h2>
-            <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Manage zones, admins, sellers, delivery fleets, and customer accounts</p>
+            <h2 style={{ fontSize: '1.35rem', fontWeight: 800, color: 'var(--text-primary)' }}>System Overview</h2>
+            <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Manage zones, admins, sellers, delivery fleets, and customer accounts</p>
           </div>
           <button onClick={fetchAnalytics} className="btn btn-secondary btn-sm">
-            <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
-            <span>Refresh Data</span>
+            <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
+            <span>Refresh</span>
           </button>
         </div>
 
         {error && (
           <div style={{
-            padding: '1rem',
+            padding: '0.75rem 1rem',
             background: 'rgba(239, 68, 68, 0.1)',
             border: '1px solid rgba(239, 68, 68, 0.25)',
             borderRadius: 'var(--radius-md)',
             color: '#dc2626',
-            marginBottom: '2rem'
+            marginBottom: '1.25rem',
+            fontSize: '0.8rem'
           }}>
             {error}
           </div>
         )}
 
-        {/* Top Summary Stat Cards */}
+        {/* Top Summary Stat Cards Grid */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-          gap: '1.25rem',
-          marginBottom: '2.5rem'
+          gridTemplateColumns: 'repeat(auto-fill, minmax(145px, 1fr))',
+          gap: '0.75rem',
+          marginBottom: '1.75rem'
         }}>
           {statCards.map((card, idx) => {
             const Icon = card.icon;
@@ -107,38 +108,45 @@ const Dashboard = () => {
                 key={idx}
                 className="glass-card glass-card-interactive"
                 onClick={() => navigate(card.path)}
-                style={{ borderLeft: `4px solid ${card.color}` }}
+                style={{
+                  borderLeft: `4px solid ${card.color}`,
+                  padding: '0.85rem 0.9rem'
+                }}
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                  <div>
-                    <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 600 }}>{card.title}</span>
-                    <h3 style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--text-primary)', marginTop: '0.35rem' }}>
+                  <div style={{ minWidth: 0, flex: 1 }}>
+                    <span style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', fontWeight: 600, display: 'block', lineHeight: 1.25, height: '2.5em', overflow: 'hidden' }}>
+                      {card.title}
+                    </span>
+                    <h3 style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--text-primary)', marginTop: '0.2rem', lineHeight: 1.1 }}>
                       {loading ? '...' : card.count}
                     </h3>
                   </div>
                   <div style={{
-                    width: '42px',
-                    height: '42px',
-                    borderRadius: '12px',
+                    width: '32px',
+                    height: '32px',
+                    borderRadius: '8px',
                     background: `${card.color}15`,
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    color: card.color
+                    color: card.color,
+                    flexShrink: 0,
+                    marginLeft: '0.3rem'
                   }}>
-                    <Icon size={22} />
+                    <Icon size={16} />
                   </div>
                 </div>
                 <div style={{
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '0.3rem',
-                  marginTop: '1rem',
-                  fontSize: '0.75rem',
+                  gap: '0.2rem',
+                  marginTop: '0.5rem',
+                  fontSize: '0.7rem',
                   color: 'var(--text-muted)'
                 }}>
-                  <span>Manage in directory</span>
-                  <ArrowUpRight size={14} />
+                  <span>Manage</span>
+                  <ArrowUpRight size={12} />
                 </div>
               </div>
             );

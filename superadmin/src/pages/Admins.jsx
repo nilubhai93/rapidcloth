@@ -183,24 +183,24 @@ const Admins = () => {
       <Navbar title="Admin Management" subtitle="Create, assign, and manage Zone Admin accounts" onToggleSidebar={toggleSidebar} />
 
       <div className="content-body">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '0.75rem' }}>
           <div>
-            <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--text-primary)' }}>Zone Admins</h2>
-            <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Assign administrative control over specific operational zones</p>
+            <h2 className="page-title" style={{ fontSize: '1.35rem', fontWeight: 800, color: 'var(--text-primary)' }}>Zone Admins</h2>
+            <p className="page-subtitle" style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Assign administrative control over specific operational zones</p>
           </div>
-          <div style={{ display: 'flex', gap: '0.75rem' }}>
-            <button onClick={fetchData} className="btn btn-secondary">
-              <RefreshCw size={16} />
+          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', width: '100%', maxWidth: '100%' }}>
+            <button onClick={fetchData} className="btn btn-secondary btn-sm" title="Refresh">
+              <RefreshCw size={14} />
             </button>
-            <button onClick={openCreateModal} className="btn btn-primary">
-              <Plus size={18} />
+            <button onClick={openCreateModal} className="btn btn-primary btn-sm" style={{ flex: '1 1 auto' }}>
+              <Plus size={16} />
               <span>Create New Admin</span>
             </button>
           </div>
         </div>
 
         {error && (
-          <div style={{ padding: '1rem', background: 'rgba(239, 68, 68, 0.1)', borderRadius: 'var(--radius-md)', color: '#dc2626', marginBottom: '1.5rem' }}>
+          <div style={{ padding: '0.75rem 1rem', background: 'rgba(239, 68, 68, 0.1)', borderRadius: 'var(--radius-md)', color: '#dc2626', marginBottom: '1.25rem', fontSize: '0.8rem' }}>
             {error}
           </div>
         )}
@@ -208,56 +208,100 @@ const Admins = () => {
         {loading ? (
           <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-secondary)' }}>Loading admins...</div>
         ) : (
-          <div className="table-container">
-            <table className="custom-table">
-              <thead>
-                <tr>
-                  <th>Admin Name & Email</th>
-                  <th>Phone Number</th>
-                  <th>Assigned Operational Zones</th>
-                  <th>Role</th>
-                  <th>Created Date</th>
-                  <th style={{ textAlign: 'right' }}>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {admins.map((admin) => (
-                  <tr key={admin._id}>
-                    <td>
-                      <div>
-                        <strong style={{ color: 'var(--text-primary)', fontSize: '0.95rem' }}>{admin.name}</strong>
-                        <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{admin.email}</div>
-                      </div>
-                    </td>
-                    <td>{admin.phone || 'N/A'}</td>
-                    <td>
-                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
-                        {getAdminZones(admin).length === 0 ? (
-                          <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>No Zone Assigned</span>
-                        ) : (
-                          getAdminZones(admin).map((zone) => (
-                            <span key={zone._id || zone} className="badge badge-purple">
-                              🗺️ {typeof zone === 'object' ? zone.name : 'Zone'} {typeof zone === 'object' && zone.code ? `(${zone.code})` : ''}
-                            </span>
-                          ))
-                        )}
-                      </div>
-                    </td>
-                    <td>
-                      <span className="badge badge-blue">ADMIN</span>
-                    </td>
-                    <td>{new Date(admin.createdAt).toLocaleDateString()}</td>
-                    <td style={{ textAlign: 'right' }}>
-                      <button onClick={() => openEditModal(admin)} className="btn btn-secondary btn-sm">
-                        <Edit2 size={15} />
-                        <span>Edit</span>
-                      </button>
-                    </td>
+          <>
+            {/* Desktop Table View */}
+            <div className="desktop-table table-container">
+              <table className="custom-table">
+                <thead>
+                  <tr>
+                    <th>Admin Name & Email</th>
+                    <th>Phone Number</th>
+                    <th>Assigned Operational Zones</th>
+                    <th>Role</th>
+                    <th>Created Date</th>
+                    <th style={{ textAlign: 'right' }}>Actions</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {admins.map((admin) => (
+                    <tr key={admin._id}>
+                      <td>
+                        <div>
+                          <strong style={{ color: 'var(--text-primary)', fontSize: '0.95rem' }}>{admin.name}</strong>
+                          <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{admin.email}</div>
+                        </div>
+                      </td>
+                      <td>{admin.phone || 'N/A'}</td>
+                      <td>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
+                          {getAdminZones(admin).length === 0 ? (
+                            <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>No Zone Assigned</span>
+                          ) : (
+                            getAdminZones(admin).map((zone) => (
+                              <span key={zone._id || zone} className="badge badge-purple">
+                                🗺️ {typeof zone === 'object' ? zone.name : 'Zone'} {typeof zone === 'object' && zone.code ? `(${zone.code})` : ''}
+                              </span>
+                            ))
+                          )}
+                        </div>
+                      </td>
+                      <td>
+                        <span className="badge badge-blue">ADMIN</span>
+                      </td>
+                      <td>{new Date(admin.createdAt).toLocaleDateString()}</td>
+                      <td style={{ textAlign: 'right' }}>
+                        <button onClick={() => openEditModal(admin)} className="btn btn-secondary btn-sm">
+                          <Edit2 size={15} />
+                          <span>Edit</span>
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Mobile Card List View (< 768px) */}
+            <div className="mobile-only" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              {admins.map((admin) => (
+                <div key={admin._id} className="glass-card" style={{ padding: '0.9rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.4rem' }}>
+                    <div>
+                      <h4 style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>{admin.name}</h4>
+                      <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{admin.email}</div>
+                    </div>
+                    <span className="badge badge-blue" style={{ fontSize: '0.7rem' }}>ADMIN</span>
+                  </div>
+
+                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '0.4rem' }}>
+                    📞 Phone: {admin.phone || 'N/A'}
+                  </div>
+
+                  <div style={{ margin: '0.4rem 0' }}>
+                    <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', display: 'block', marginBottom: '0.2rem' }}>Assigned Zones:</span>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.3rem' }}>
+                      {getAdminZones(admin).length === 0 ? (
+                        <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>No Zone Assigned</span>
+                      ) : (
+                        getAdminZones(admin).map((zone) => (
+                          <span key={zone._id || zone} className="badge badge-purple" style={{ fontSize: '0.7rem' }}>
+                            🗺️ {typeof zone === 'object' ? zone.name : 'Zone'}
+                          </span>
+                        ))
+                      )}
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '0.5rem' }}>
+                    <button onClick={() => openEditModal(admin)} className="btn btn-secondary btn-sm">
+                      <Edit2 size={13} />
+                      <span>Edit Account</span>
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
         )}
       </div>
 

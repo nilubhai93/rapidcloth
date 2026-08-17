@@ -206,77 +206,82 @@ const Zones = () => {
       <Navbar title="Zone Management" subtitle="Create, edit, and draw custom operational delivery boundaries" onToggleSidebar={toggleSidebar} />
 
       <div className="content-body">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '0.75rem' }}>
           <div>
-            <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--text-primary)' }}>Operational Zones</h2>
-            <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Define custom irregular delivery shapes or radius geofences</p>
+            <h2 className="page-title" style={{ fontSize: '1.35rem', fontWeight: 800, color: 'var(--text-primary)' }}>Operational Zones</h2>
+            <p className="page-subtitle" style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Define custom irregular delivery shapes or radius geofences</p>
           </div>
 
-          <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap', width: '100%', maxWidth: '100%' }}>
             {/* View Mode Toggle */}
             <div style={{
               display: 'flex',
               background: 'var(--bg-secondary)',
               border: '1px solid var(--border-color)',
               borderRadius: 'var(--radius-md)',
-              padding: '0.2rem'
+              padding: '0.2rem',
+              flex: '1 1 auto'
             }}>
               <button
                 onClick={() => setViewMode('list')}
                 style={{
-                  padding: '0.45rem 0.9rem',
+                  flex: 1,
+                  padding: '0.4rem 0.6rem',
                   borderRadius: 'var(--radius-sm)',
                   border: 'none',
-                  fontSize: '0.85rem',
+                  fontSize: '0.78rem',
                   fontWeight: 700,
                   cursor: 'pointer',
                   background: viewMode === 'list' ? 'var(--gradient-primary)' : 'transparent',
                   color: viewMode === 'list' ? '#ffffff' : 'var(--text-secondary)',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '0.4rem'
+                  justifyContent: 'center',
+                  gap: '0.3rem'
                 }}
               >
-                <List size={16} />
-                <span>Table List</span>
+                <List size={14} />
+                <span>List</span>
               </button>
               <button
                 onClick={() => setViewMode('map')}
                 style={{
-                  padding: '0.45rem 0.9rem',
+                  flex: 1,
+                  padding: '0.4rem 0.6rem',
                   borderRadius: 'var(--radius-sm)',
                   border: 'none',
-                  fontSize: '0.85rem',
+                  fontSize: '0.78rem',
                   fontWeight: 700,
                   cursor: 'pointer',
                   background: viewMode === 'map' ? 'var(--gradient-primary)' : 'transparent',
                   color: viewMode === 'map' ? '#ffffff' : 'var(--text-secondary)',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '0.4rem'
+                  justifyContent: 'center',
+                  gap: '0.3rem'
                 }}
               >
-                <Map size={16} />
-                <span>Interactive Map View</span>
+                <Map size={14} />
+                <span>Map</span>
               </button>
             </div>
 
-            <button onClick={fetchData} className="btn btn-secondary">
-              <RefreshCw size={16} />
+            <button onClick={fetchData} className="btn btn-secondary btn-sm" title="Refresh">
+              <RefreshCw size={14} />
             </button>
-            <button onClick={() => navigate('/zones/draw')} className="btn btn-secondary" title="Open Fullscreen Map Boundary Editor">
-              <Maximize2 size={16} />
-              <span>Full-Screen Map Drawer</span>
+            <button onClick={() => navigate('/zones/draw')} className="btn btn-secondary btn-sm" title="Open Fullscreen Map Boundary Editor">
+              <Maximize2 size={14} />
+              <span className="desktop-only">Map Drawer</span>
             </button>
-            <button onClick={openCreateModal} className="btn btn-primary">
-              <Plus size={18} />
-              <span>Create New Zone</span>
+            <button onClick={openCreateModal} className="btn btn-primary btn-sm" style={{ flex: '1 1 auto' }}>
+              <Plus size={16} />
+              <span>New Zone</span>
             </button>
           </div>
         </div>
 
         {error && (
-          <div style={{ padding: '1rem', background: 'rgba(239, 68, 68, 0.1)', borderRadius: 'var(--radius-md)', color: '#dc2626', marginBottom: '1.5rem' }}>
+          <div style={{ padding: '0.75rem 1rem', background: 'rgba(239, 68, 68, 0.1)', borderRadius: 'var(--radius-md)', color: '#dc2626', marginBottom: '1.25rem', fontSize: '0.8rem' }}>
             {error}
           </div>
         )}
@@ -286,12 +291,12 @@ const Zones = () => {
         ) : viewMode === 'map' ? (
           /* Interactive Map View */
           <div>
-            <div style={{ marginBottom: '1rem', display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-              <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: 600 }}>Filter Highlight Zone:</span>
+            <div style={{ marginBottom: '1rem', display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
+              <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontWeight: 600 }}>Filter Zone:</span>
               <button
                 onClick={() => setSelectedZoneId(null)}
                 style={{
-                  padding: '0.2rem 0.6rem',
+                  padding: '0.2rem 0.5rem',
                   borderRadius: '12px',
                   fontSize: '0.75rem',
                   cursor: 'pointer',
@@ -307,7 +312,7 @@ const Zones = () => {
                   key={z._id}
                   onClick={() => setSelectedZoneId(z._id)}
                   style={{
-                    padding: '0.2rem 0.6rem',
+                    padding: '0.2rem 0.5rem',
                     borderRadius: '12px',
                     fontSize: '0.75rem',
                     cursor: 'pointer',
@@ -320,111 +325,179 @@ const Zones = () => {
                 </button>
               ))}
             </div>
-            <ZoneMapView zones={zones} selectedZoneId={selectedZoneId} height="560px" />
+            <ZoneMapView zones={zones} selectedZoneId={selectedZoneId} height="480px" />
           </div>
         ) : (
-          /* Table List View */
-          <div className="table-container">
-            <table className="custom-table">
-              <thead>
-                <tr>
-                  <th>Zone ID</th>
-                  <th>Zone Code & Name</th>
-                  <th>City</th>
-                  <th>Geofence Boundary Type</th>
-                  <th>Covered Pincodes</th>
-                  <th>Assigned Admins</th>
-                  <th>Metrics (Sellers / Drivers / Users)</th>
-                  <th>Status</th>
-                  <th style={{ textAlign: 'right' }}>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {zones.map((zone) => {
-                  const hasPoly = zone.polygon && zone.polygon.length >= 3;
-                  return (
-                    <tr key={zone._id}>
-                      <td>
-                        <span className="badge badge-purple" style={{ fontFamily: 'monospace', fontWeight: 800, letterSpacing: '0.04em' }}>
-                          {zone.zoneId || `ZONE-${zone.code}`}
-                        </span>
-                      </td>
-                      <td>
-                        <div>
-                          <strong style={{ color: 'var(--text-primary)', fontSize: '0.95rem' }}>{zone.name}</strong>
-                          <div style={{ fontSize: '0.75rem', color: 'var(--accent-purple)', fontWeight: 700 }}>
-                            {zone.code}
+          <>
+            {/* Desktop Table View */}
+            <div className="desktop-table table-container">
+              <table className="custom-table">
+                <thead>
+                  <tr>
+                    <th>Zone ID</th>
+                    <th>Zone Code & Name</th>
+                    <th>City</th>
+                    <th>Geofence Boundary Type</th>
+                    <th>Covered Pincodes</th>
+                    <th>Assigned Admins</th>
+                    <th>Metrics (Sellers / Drivers / Users)</th>
+                    <th>Status</th>
+                    <th style={{ textAlign: 'right' }}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {zones.map((zone) => {
+                    const hasPoly = zone.polygon && zone.polygon.length >= 3;
+                    return (
+                      <tr key={zone._id}>
+                        <td>
+                          <span className="badge badge-purple" style={{ fontFamily: 'monospace', fontWeight: 800, letterSpacing: '0.04em' }}>
+                            {zone.zoneId || `ZONE-${zone.code}`}
+                          </span>
+                        </td>
+                        <td>
+                          <div>
+                            <strong style={{ color: 'var(--text-primary)', fontSize: '0.95rem' }}>{zone.name}</strong>
+                            <div style={{ fontSize: '0.75rem', color: 'var(--accent-purple)', fontWeight: 700 }}>
+                              {zone.code}
+                            </div>
                           </div>
-                        </div>
-                      </td>
-                      <td>{zone.city}</td>
-                      <td>
-                        {hasPoly ? (
-                          <span className="badge badge-purple">
-                            ✏️ Custom {zone.polygon.length}-Point Polygon
-                          </span>
-                        ) : zone.coordinates?.lat ? (
-                          <span className="badge badge-blue">
-                            ⭕ Circle Radius ({zone.coordinates.radiusKm || 5} km)
-                          </span>
-                        ) : (
-                          <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>No Geofence</span>
-                        )}
-                      </td>
-                      <td>
-                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.3rem', maxWidth: '220px' }}>
-                          {(zone.pincodes || []).map((pin, i) => (
-                            <span key={i} style={{ background: 'rgba(255, 255, 255, 0.06)', padding: '0.15rem 0.45rem', borderRadius: '4px', fontSize: '0.75rem' }}>
-                              {pin}
+                        </td>
+                        <td>{zone.city}</td>
+                        <td>
+                          {hasPoly ? (
+                            <span className="badge badge-purple">
+                              ✏️ Custom {zone.polygon.length}-Point Polygon
                             </span>
-                          ))}
-                        </div>
-                      </td>
-                      <td>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
-                          {(zone.assignedAdmins || []).length === 0 ? (
-                            <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Unassigned</span>
+                          ) : zone.coordinates?.lat ? (
+                            <span className="badge badge-blue">
+                              ⭕ Circle Radius ({zone.coordinates.radiusKm || 5} km)
+                            </span>
                           ) : (
-                            (zone.assignedAdmins || []).map((admin) => (
-                              <span key={admin._id || admin} style={{ fontSize: '0.8rem', color: '#60a5fa' }}>
-                                👤 {admin.name || 'Admin'}
-                              </span>
-                            ))
+                            <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>No Geofence</span>
                           )}
-                        </div>
-                      </td>
-                      <td>
-                        <div style={{ fontSize: '0.85rem' }}>
-                          <span style={{ color: '#34d399', fontWeight: 700 }}>{zone.metrics?.sellersCount || 0} Sellers</span> •{' '}
-                          <span style={{ color: '#38bdf8', fontWeight: 700 }}>{zone.metrics?.deliveryCount || 0} Drivers</span> •{' '}
-                          <span style={{ color: '#fbbf24', fontWeight: 700 }}>{zone.metrics?.customersCount || 0} Users</span>
-                        </div>
-                      </td>
-                      <td>
-                        <span className={`badge ${zone.status === 'active' ? 'badge-active' : 'badge-inactive'}`}>
-                          {zone.status}
+                        </td>
+                        <td>
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.3rem', maxWidth: '220px' }}>
+                            {(zone.pincodes || []).map((pin, i) => (
+                              <span key={i} style={{ background: 'rgba(255, 255, 255, 0.06)', padding: '0.15rem 0.45rem', borderRadius: '4px', fontSize: '0.75rem' }}>
+                                {pin}
+                              </span>
+                            ))}
+                          </div>
+                        </td>
+                        <td>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
+                            {(zone.assignedAdmins || []).length === 0 ? (
+                              <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Unassigned</span>
+                            ) : (
+                              (zone.assignedAdmins || []).map((admin) => (
+                                <span key={admin._id || admin} style={{ fontSize: '0.8rem', color: '#60a5fa' }}>
+                                  👤 {admin.name || 'Admin'}
+                                </span>
+                              ))
+                            )}
+                          </div>
+                        </td>
+                        <td>
+                          <div style={{ fontSize: '0.85rem' }}>
+                            <span style={{ color: '#34d399', fontWeight: 700 }}>{zone.metrics?.sellersCount || 0} Sellers</span> •{' '}
+                            <span style={{ color: '#38bdf8', fontWeight: 700 }}>{zone.metrics?.deliveryCount || 0} Drivers</span> •{' '}
+                            <span style={{ color: '#fbbf24', fontWeight: 700 }}>{zone.metrics?.customersCount || 0} Users</span>
+                          </div>
+                        </td>
+                        <td>
+                          <span className={`badge ${zone.status === 'active' ? 'badge-active' : 'badge-inactive'}`}>
+                            {zone.status}
+                          </span>
+                        </td>
+                        <td style={{ textAlign: 'right' }}>
+                          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
+                            <button onClick={() => navigate(`/zones/draw?id=${zone._id}`)} className="btn btn-secondary btn-sm" title="Draw Zone on Fullscreen Map">
+                              <Maximize2 size={15} />
+                              <span>Draw Map</span>
+                            </button>
+                            <button onClick={() => openEditModal(zone)} className="btn btn-secondary btn-sm" title="Edit Zone">
+                              <Edit2 size={15} />
+                            </button>
+                            <button onClick={() => handleDelete(zone._id)} className="btn btn-danger btn-sm" title="Delete Zone">
+                              <Trash2 size={15} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Mobile Card List View (< 768px) */}
+            <div className="mobile-only" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              {zones.map((zone) => {
+                const hasPoly = zone.polygon && zone.polygon.length >= 3;
+                return (
+                  <div key={zone._id} className="glass-card" style={{ padding: '0.9rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.4rem' }}>
+                      <div>
+                        <h4 style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>{zone.name}</h4>
+                        <span style={{ fontSize: '0.75rem', color: 'var(--accent)', fontWeight: 700 }}>
+                          {zone.code} • {zone.city}
                         </span>
-                      </td>
-                      <td style={{ textAlign: 'right' }}>
-                        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
-                          <button onClick={() => navigate(`/zones/draw?id=${zone._id}`)} className="btn btn-secondary btn-sm" title="Draw Zone on Fullscreen Map">
-                            <Maximize2 size={15} />
-                            <span>Draw Map</span>
-                          </button>
-                          <button onClick={() => openEditModal(zone)} className="btn btn-secondary btn-sm" title="Edit Zone">
-                            <Edit2 size={15} />
-                          </button>
-                          <button onClick={() => handleDelete(zone._id)} className="btn btn-danger btn-sm" title="Delete Zone">
-                            <Trash2 size={15} />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+                      </div>
+                      <span className={`badge ${zone.status === 'active' ? 'badge-active' : 'badge-inactive'}`}>
+                        {zone.status}
+                      </span>
+                    </div>
+
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem', margin: '0.4rem 0' }}>
+                      <span className="badge badge-purple" style={{ fontFamily: 'monospace', fontSize: '0.7rem' }}>
+                        {zone.zoneId || `ZONE-${zone.code}`}
+                      </span>
+                      {hasPoly ? (
+                        <span className="badge badge-purple" style={{ fontSize: '0.7rem' }}>
+                          ✏️ {zone.polygon.length}-Pt Poly
+                        </span>
+                      ) : (
+                        <span className="badge badge-blue" style={{ fontSize: '0.7rem' }}>
+                          ⭕ Circle ({zone.coordinates?.radiusKm || 5} km)
+                        </span>
+                      )}
+                    </div>
+
+                    <div style={{
+                      display: 'flex',
+                      justify: 'space-between',
+                      alignItems: 'center',
+                      padding: '0.45rem 0.65rem',
+                      background: 'var(--bg-secondary)',
+                      borderRadius: 'var(--radius-sm)',
+                      fontSize: '0.75rem',
+                      margin: '0.4rem 0'
+                    }}>
+                      <span style={{ color: '#16a34a', fontWeight: 700 }}>{zone.metrics?.sellersCount || 0} Sellers</span>
+                      <span style={{ color: '#0284c7', fontWeight: 700 }}>{zone.metrics?.deliveryCount || 0} Drivers</span>
+                      <span style={{ color: '#d97706', fontWeight: 700 }}>{zone.metrics?.customersCount || 0} Users</span>
+                    </div>
+
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.4rem', marginTop: '0.5rem' }}>
+                      <button onClick={() => navigate(`/zones/draw?id=${zone._id}`)} className="btn btn-secondary btn-sm" title="Draw Zone">
+                        <Maximize2 size={13} />
+                        <span>Draw</span>
+                      </button>
+                      <button onClick={() => openEditModal(zone)} className="btn btn-secondary btn-sm" title="Edit">
+                        <Edit2 size={13} />
+                        <span>Edit</span>
+                      </button>
+                      <button onClick={() => handleDelete(zone._id)} className="btn btn-danger btn-sm" title="Delete">
+                        <Trash2 size={13} />
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </>
         )}
       </div>
 

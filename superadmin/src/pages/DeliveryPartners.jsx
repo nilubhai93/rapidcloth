@@ -98,18 +98,19 @@ const DeliveryPartners = () => {
 
       <div className="content-body">
         {/* Header & Controls */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '0.75rem' }}>
           <div>
-            <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--text-primary)' }}>Delivery Fleet Directory</h2>
-            <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Live zone breakdown, driver availability, and fleet statistics</p>
+            <h2 className="page-title" style={{ fontSize: '1.35rem', fontWeight: 800, color: 'var(--text-primary)' }}>Delivery Fleet Directory</h2>
+            <p className="page-subtitle" style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Live zone breakdown, driver availability, and fleet statistics</p>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
-            <div style={{ position: 'relative', width: '180px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap', width: '100%', maxWidth: '100%' }}>
+            <div style={{ position: 'relative', flex: '1 1 130px' }}>
               <select
                 className="form-select"
                 value={selectedZone}
                 onChange={(e) => setSelectedZone(e.target.value)}
+                style={{ fontSize: '0.8rem' }}
               >
                 <option value="">All Zones</option>
                 {zones.map((zone) => (
@@ -120,68 +121,69 @@ const DeliveryPartners = () => {
               </select>
             </div>
 
-            <div style={{ position: 'relative', width: '140px' }}>
+            <div style={{ position: 'relative', flex: '1 1 110px' }}>
               <select
                 className="form-select"
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
+                style={{ fontSize: '0.8rem' }}
               >
                 <option value="">All Statuses</option>
-                <option value="online">Online Only</option>
-                <option value="offline">Offline Only</option>
+                <option value="online">Online</option>
+                <option value="offline">Offline</option>
               </select>
             </div>
 
-            <form onSubmit={handleSearch} style={{ display: 'flex', gap: '0.5rem' }}>
+            <form onSubmit={handleSearch} style={{ display: 'flex', gap: '0.4rem', flex: '2 1 180px' }}>
               <input
                 type="text"
                 className="form-input"
-                placeholder="Search driver or plate..."
+                placeholder="Search driver/plate..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                style={{ width: '180px' }}
+                style={{ width: '100%', fontSize: '0.8rem' }}
               />
-              <button type="submit" className="btn btn-secondary">Search</button>
+              <button type="submit" className="btn btn-secondary btn-sm">Search</button>
             </form>
 
-            <button onClick={fetchData} className="btn btn-secondary">
-              <RefreshCw size={16} />
+            <button onClick={fetchData} className="btn btn-secondary btn-sm" title="Refresh">
+              <RefreshCw size={14} />
             </button>
 
-            <button onClick={handleOpenCreateModal} className="btn btn-primary">
-              <Plus size={18} />
-              <span>Add Delivery Partner</span>
+            <button onClick={handleOpenCreateModal} className="btn btn-primary btn-sm" style={{ flex: '1 1 auto' }}>
+              <Plus size={16} />
+              <span>Add Driver</span>
             </button>
           </div>
         </div>
 
         {/* Zone Breakdown Stats Cards Grid */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(145px, 1fr))', gap: '0.75rem', marginBottom: '1.5rem' }}>
           {/* Card for All Zones */}
           <div
             className="glass-card"
             onClick={() => setSelectedZone('')}
             style={{
-              padding: '1.25rem',
+              padding: '0.85rem',
               cursor: 'pointer',
               border: selectedZone === '' ? '2px solid var(--accent)' : '1px solid var(--border-color)',
               background: selectedZone === '' ? 'rgba(255, 107, 107, 0.12)' : 'var(--bg-card)',
-              borderRadius: 'var(--radius-lg)',
+              borderRadius: 'var(--radius-md)',
               transition: 'all 0.2s ease'
             }}
           >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-              <span style={{ fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--accent)', fontWeight: 700 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.3rem' }}>
+              <span style={{ fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '0.5px', color: 'var(--accent)', fontWeight: 700 }}>
                 GLOBAL FLEET
               </span>
-              <Truck size={20} color="var(--accent)" />
+              <Truck size={16} color="var(--accent)" />
             </div>
-            <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-primary)' }}>All Operational Zones</h3>
-            <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.75rem' }}>
-              <span className="badge badge-purple" style={{ fontSize: '0.8rem' }}>
+            <h3 style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>All Zones</h3>
+            <div style={{ display: 'flex', gap: '0.35rem', marginTop: '0.5rem', flexWrap: 'wrap' }}>
+              <span className="badge badge-purple" style={{ fontSize: '0.7rem' }}>
                 🛵 {zoneSummary.reduce((acc, z) => acc + z.totalPartners, 0) + unassignedStats.total} Drivers
               </span>
-              <span className="badge badge-success" style={{ fontSize: '0.8rem' }}>
+              <span className="badge badge-success" style={{ fontSize: '0.7rem' }}>
                 🟢 {zoneSummary.reduce((acc, z) => acc + z.onlinePartners, 0) + unassignedStats.online} Online
               </span>
             </div>
@@ -196,32 +198,32 @@ const DeliveryPartners = () => {
                 className="glass-card"
                 onClick={() => setSelectedZone(z.zoneId)}
                 style={{
-                  padding: '1.25rem',
+                  padding: '0.85rem',
                   cursor: 'pointer',
                   border: isSelected ? '2px solid var(--accent)' : '1px solid var(--border-color)',
                   background: isSelected ? 'rgba(255, 107, 107, 0.12)' : 'var(--bg-card)',
-                  borderRadius: 'var(--radius-lg)',
+                  borderRadius: 'var(--radius-md)',
                   transition: 'all 0.2s ease'
                 }}
               >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-                  <span style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--accent)', background: 'rgba(255, 107, 107, 0.15)', padding: '2px 8px', borderRadius: '4px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.3rem' }}>
+                  <span style={{ fontSize: '0.7rem', fontWeight: 800, color: 'var(--accent)', background: 'rgba(255, 107, 107, 0.15)', padding: '1px 6px', borderRadius: '4px' }}>
                     {z.readableZoneId}
                   </span>
-                  <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>📍 {z.city}</span>
+                  <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>📍 {z.city}</span>
                 </div>
-                <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                <h3 style={{ fontSize: '0.95rem', fontWeight: 800, color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', margin: 0 }}>
                   {z.name}
                 </h3>
-                <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.75rem', flexWrap: 'wrap' }}>
-                  <span className="badge badge-purple" style={{ fontSize: '0.75rem' }}>
-                    👥 {z.totalPartners} Drivers
+                <div style={{ display: 'flex', gap: '0.35rem', marginTop: '0.5rem', flexWrap: 'wrap' }}>
+                  <span className="badge badge-purple" style={{ fontSize: '0.7rem' }}>
+                    👥 {z.totalPartners}
                   </span>
-                  <span className="badge badge-success" style={{ fontSize: '0.75rem' }}>
-                    🟢 {z.onlinePartners} Online
+                  <span className="badge badge-success" style={{ fontSize: '0.7rem' }}>
+                    🟢 {z.onlinePartners}
                   </span>
-                  <span className="badge badge-inactive" style={{ fontSize: '0.75rem' }}>
-                    🔴 {z.offlinePartners} Offline
+                  <span className="badge badge-inactive" style={{ fontSize: '0.7rem' }}>
+                    🔴 {z.offlinePartners}
                   </span>
                 </div>
               </div>
@@ -230,7 +232,7 @@ const DeliveryPartners = () => {
         </div>
 
         {error && (
-          <div style={{ padding: '1rem', background: 'rgba(239, 68, 68, 0.1)', borderRadius: 'var(--radius-md)', color: '#dc2626', marginBottom: '1.5rem' }}>
+          <div style={{ padding: '0.75rem 1rem', background: 'rgba(239, 68, 68, 0.1)', borderRadius: 'var(--radius-md)', color: '#dc2626', marginBottom: '1.25rem', fontSize: '0.8rem' }}>
             {error}
           </div>
         )}
@@ -242,7 +244,9 @@ const DeliveryPartners = () => {
             No delivery partners registered in this zone. Click <strong>"+ Add Delivery Partner"</strong> above to add a new driver.
           </div>
         ) : (
-          <div className="table-container">
+          <>
+            {/* Desktop Table View */}
+            <div className="desktop-table table-container">
             <table className="custom-table">
               <thead>
                 <tr>
@@ -311,12 +315,60 @@ const DeliveryPartners = () => {
                           ₹{driver.deliveryProfile?.totalEarnings || 0}
                         </span>
                       </td>
-                    </tr>
                   );
                 })}
               </tbody>
             </table>
           </div>
+
+            {/* Mobile Card List View (< 768px) */}
+            <div className="mobile-only" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              {deliveryPartners.map((driver) => {
+                const isOnline = driver.deliveryProfile?.isOnline;
+                const zoneInfo = driver.zone;
+                return (
+                  <div key={driver._id} className="glass-card" style={{ padding: '0.9rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.4rem' }}>
+                      <div>
+                        <h4 style={{ fontSize: '1rem', fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>{driver.name}</h4>
+                        <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>📞 {driver.phone || 'N/A'} • {driver.email}</div>
+                      </div>
+                      <span className={`badge ${isOnline ? 'badge-success' : 'badge-inactive'}`} style={{ fontSize: '0.7rem' }}>
+                        {isOnline ? 'ONLINE' : 'OFFLINE'}
+                      </span>
+                    </div>
+
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem', margin: '0.4rem 0' }}>
+                      {zoneInfo ? (
+                        <span className="badge badge-purple" style={{ fontSize: '0.7rem' }}>
+                          📍 {zoneInfo.name}
+                        </span>
+                      ) : (
+                        <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>Unassigned Zone</span>
+                      )}
+                      <span className="badge badge-blue" style={{ fontSize: '0.7rem' }}>
+                        🛵 {driver.deliveryProfile?.vehicleType || 'Bike'} ({driver.deliveryProfile?.vehicleNumber || 'No Plate'})
+                      </span>
+                    </div>
+
+                    <div style={{
+                      display: 'flex',
+                      justify: 'space-between',
+                      alignItems: 'center',
+                      padding: '0.45rem 0.65rem',
+                      background: 'var(--bg-secondary)',
+                      borderRadius: 'var(--radius-sm)',
+                      fontSize: '0.75rem',
+                      marginTop: '0.4rem'
+                    }}>
+                      <span>COD Held: <strong style={{ color: '#d97706' }}>₹{driver.deliveryProfile?.cashCollected || 0}</strong></span>
+                      <span>Earnings: <strong style={{ color: '#16a34a' }}>₹{driver.deliveryProfile?.totalEarnings || 0}</strong></span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </>
         )}
       </div>
 
