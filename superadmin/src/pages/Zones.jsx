@@ -520,7 +520,7 @@ const Zones = () => {
             />
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '0.75rem' }}>
             <div className="form-group">
               <label className="form-label">Zone ID (Readable)</label>
               <input
@@ -557,7 +557,7 @@ const Zones = () => {
 
           {/* Boundary Shape Type Selection */}
           <div className="form-group">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem', flexWrap: 'wrap', gap: '0.4rem' }}>
               <label className="form-label" style={{ marginBottom: 0 }}>Select Delivery Boundary Shape Type</label>
               <button
                 type="button"
@@ -577,60 +577,60 @@ const Zones = () => {
                 }}
               >
                 <Maximize2 size={13} />
-                <span>↗️ Fullscreen Map Editor</span>
+                <span>Fullscreen Editor</span>
               </button>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(135px, 1fr))', gap: '0.5rem' }}>
               <button
                 type="button"
                 onClick={() => setShapeType('circle')}
                 style={{
-                  padding: '0.65rem 1rem',
+                  padding: '0.5rem 0.75rem',
                   borderRadius: 'var(--radius-md)',
                   border: shapeType === 'circle' ? '2px solid var(--accent)' : '1px solid var(--border-color)',
                   background: shapeType === 'circle' ? 'rgba(255, 107, 107, 0.12)' : 'var(--bg-secondary)',
                   color: shapeType === 'circle' ? 'var(--text-primary)' : 'var(--text-secondary)',
                   fontWeight: 700,
-                  fontSize: '0.85rem',
+                  fontSize: '0.78rem',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: '0.4rem'
+                  gap: '0.35rem'
                 }}
               >
-                <CircleIcon size={16} />
-                <span>Circle Radius Geofence</span>
+                <CircleIcon size={15} />
+                <span>Circle Radius</span>
               </button>
               <button
                 type="button"
                 onClick={() => setShapeType('polygon')}
                 style={{
-                  padding: '0.65rem 1rem',
+                  padding: '0.5rem 0.75rem',
                   borderRadius: 'var(--radius-md)',
                   border: shapeType === 'polygon' ? '2px solid var(--accent)' : '1px solid var(--border-color)',
                   background: shapeType === 'polygon' ? 'rgba(255, 107, 107, 0.12)' : 'var(--bg-secondary)',
                   color: shapeType === 'polygon' ? 'var(--text-primary)' : 'var(--text-secondary)',
                   fontWeight: 700,
-                  fontSize: '0.85rem',
+                  fontSize: '0.78rem',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: '0.4rem'
+                  gap: '0.35rem'
                 }}
               >
-                <Edit3 size={16} />
-                <span>✏️ Draw Custom Polygon Boundary</span>
+                <Edit3 size={15} />
+                <span>✏️ Custom Polygon</span>
               </button>
             </div>
           </div>
 
           {/* Interactive Map Canvas */}
           <div className="form-group">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem', flexWrap: 'wrap', gap: '0.3rem' }}>
               <label className="form-label" style={{ marginBottom: 0 }}>
-                {shapeType === 'polygon' ? '✏️ Click Map to Draw Custom Boundary Points' : '📍 Click Map to Pick Center Point'}
+                {shapeType === 'polygon' ? '✏️ Click Map to Draw Points' : '📍 Click Map to Pick Center'}
               </label>
               {shapeType === 'polygon' && (
                 <div style={{ display: 'flex', gap: '0.5rem' }}>
@@ -671,7 +671,7 @@ const Zones = () => {
               onSelectLocation={handleMapLocationPick}
               onAddPolygonPoint={handleAddPolygonPoint}
               currentPolygonPoints={shapeType === 'polygon' ? polygonPoints : []}
-              height="220px"
+              height="200px"
             />
 
             {shapeType === 'polygon' && (
@@ -682,7 +682,7 @@ const Zones = () => {
           </div>
 
           {shapeType === 'circle' && (
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '0.75rem' }}>
               <div className="form-group">
                 <label className="form-label">Latitude</label>
                 <input

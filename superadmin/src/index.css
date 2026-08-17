@@ -594,8 +594,9 @@ body::before {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.55);
   backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -614,6 +615,22 @@ body::before {
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
   animation: modalFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   color: var(--text-primary);
+}
+
+@media (max-width: 768px) {
+  .modal-overlay {
+    padding: 0 !important;
+    align-items: flex-end !important;
+  }
+
+  .modal-content {
+    width: 100% !important;
+    max-width: 100% !important;
+    max-height: 92vh !important;
+    border-bottom-left-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+    border-radius: 20px 20px 0 0 !important;
+  }
 }
 
 @keyframes modalFadeIn {
