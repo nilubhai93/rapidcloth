@@ -315,6 +315,7 @@ const DeliveryPartners = () => {
                           ₹{driver.deliveryProfile?.totalEarnings || 0}
                         </span>
                       </td>
+                    </tr>
                   );
                 })}
               </tbody>
