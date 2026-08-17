@@ -41,8 +41,8 @@ const ZoneDrawer = () => {
     pincodesStr: '',
     description: '',
     status: 'active',
-    lat: 19.0760,
-    lng: 72.8777,
+    lat: null,
+    lng: null,
     radiusKm: 5
   });
 
@@ -57,6 +57,17 @@ const ZoneDrawer = () => {
             const hasPoly = zone.polygon && zone.polygon.length >= 3;
             setShapeType(hasPoly ? 'polygon' : 'circle');
             setPolygonPoints(zone.polygon || []);
+
+            let zoneLat = zone.coordinates?.lat;
+            let zoneLng = zone.coordinates?.lng;
+
+            if (hasPoly && zone.polygon.length > 0) {
+              const avgLat = zone.polygon.reduce((sum, p) => sum + p.lat, 0) / zone.polygon.length;
+              const avgLng = zone.polygon.reduce((sum, p) => sum + p.lng, 0) / zone.polygon.length;
+              zoneLat = parseFloat(avgLat.toFixed(4));
+              zoneLng = parseFloat(avgLng.toFixed(4));
+            }
+
             setFormData({
               name: zone.name,
               zoneId: zone.zoneId || `ZONE-${zone.code}`,
@@ -65,8 +76,8 @@ const ZoneDrawer = () => {
               pincodesStr: (zone.pincodes || []).join(', '),
               description: zone.description || '',
               status: zone.status || 'active',
-              lat: zone.coordinates?.lat || 19.0760,
-              lng: zone.coordinates?.lng || 72.8777,
+              lat: zoneLat || null,
+              lng: zoneLng || null,
               radiusKm: zone.coordinates?.radiusKm || 5
             });
           }
@@ -408,11 +419,11 @@ const ZoneDrawer = () => {
               name: formData.name || 'Drafting Zone Area',
               code: formData.code || 'ZONE',
               city: formData.city || '',
-              coordinates: {
-                lat: parseFloat(formData.lat) || 19.0760,
-                lng: parseFloat(formData.lng) || 72.8777,
+              coordinates: formData.lat && formData.lng ? {
+                lat: parseFloat(formData.lat),
+                lng: parseFloat(formData.lng),
                 radiusKm: parseFloat(formData.radiusKm) || 5
-              }
+              } : null
             }]}
             mode={shapeType === 'polygon' ? 'polygon' : 'picker'}
             onSelectLocation={(lat, lng) => setFormData(prev => ({ ...prev, lat, lng }))}

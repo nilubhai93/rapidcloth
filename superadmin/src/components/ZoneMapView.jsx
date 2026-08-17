@@ -49,13 +49,41 @@ const ZoneMapView = ({
 }) => {
   const [locating, setLocating] = useState(false);
 
-  // Determine center of map
-  const validZones = zones.filter(z => z.coordinates && z.coordinates.lat && z.coordinates.lng);
-  let center = [19.0760, 72.8777]; // Default fallback
-  if (validZones.length > 0) {
-    center = [validZones[0].coordinates.lat, validZones[0].coordinates.lng];
-  } else if (currentPolygonPoints.length > 0) {
-    center = [currentPolygonPoints[0].lat, currentPolygonPoints[0].lng];
+  // Determine center of map accurately based on polygon, zone coordinates, or active region
+  let center = null;
+
+  // 1. If live polygon points exist, center on polygon centroid
+  if (currentPolygonPoints && currentPolygonPoints.length > 0 && currentPolygonPoints[0].lat) {
+    const avgLat = currentPolygonPoints.reduce((sum, p) => sum + p.lat, 0) / currentPolygonPoints.length;
+    const avgLng = currentPolygonPoints.reduce((sum, p) => sum + p.lng, 0) / currentPolygonPoints.length;
+    center = [avgLat, avgLng];
+  } 
+  // 2. If a specific zone has polygon or coordinates
+  else if (zones && zones.length > 0) {
+    const activeZone = selectedZoneId 
+      ? zones.find(z => z._id === selectedZoneId) || zones[0]
+      : zones[0];
+
+    if (activeZone) {
+      if (activeZone.polygon && activeZone.polygon.length >= 3) {
+        const poly = activeZone.polygon;
+        const avgLat = poly.reduce((sum, p) => sum + p.lat, 0) / poly.length;
+        const avgLng = poly.reduce((sum, p) => sum + p.lng, 0) / poly.length;
+        center = [avgLat, avgLng];
+      } else if (activeZone.coordinates?.lat && activeZone.coordinates?.lng) {
+        center = [activeZone.coordinates.lat, activeZone.coordinates.lng];
+      }
+    }
+  }
+
+  // 3. Fallback: check any valid zone, or default to Kolkata/Barrackpore area (22.5726, 88.3639)
+  if (!center) {
+    const validZone = zones.find(z => z.coordinates?.lat && z.coordinates?.lng);
+    if (validZone) {
+      center = [validZone.coordinates.lat, validZone.coordinates.lng];
+    } else {
+      center = [22.5726, 88.3639];
+    }
   }
 
   const handleLocateUser = () => {

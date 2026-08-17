@@ -89,6 +89,17 @@ const Zones = () => {
     const hasPolygon = zone.polygon && zone.polygon.length >= 3;
     setShapeType(hasPolygon ? 'polygon' : 'circle');
     setPolygonPoints(zone.polygon || []);
+
+    let editLat = zone.coordinates?.lat;
+    let editLng = zone.coordinates?.lng;
+
+    if (hasPolygon && zone.polygon.length > 0) {
+      const avgLat = zone.polygon.reduce((sum, p) => sum + p.lat, 0) / zone.polygon.length;
+      const avgLng = zone.polygon.reduce((sum, p) => sum + p.lng, 0) / zone.polygon.length;
+      editLat = parseFloat(avgLat.toFixed(4));
+      editLng = parseFloat(avgLng.toFixed(4));
+    }
+
     setFormData({
       name: zone.name,
       zoneId: zone.zoneId || `ZONE-${zone.code}`,
@@ -98,8 +109,8 @@ const Zones = () => {
       description: zone.description || '',
       assignedAdmins: (zone.assignedAdmins || []).map(a => a._id || a),
       status: zone.status || 'active',
-      lat: zone.coordinates?.lat || 19.0760,
-      lng: zone.coordinates?.lng || 72.8777,
+      lat: editLat || null,
+      lng: editLng || null,
       radiusKm: zone.coordinates?.radiusKm || 5
     });
     setIsModalOpen(true);
@@ -665,11 +676,11 @@ const Zones = () => {
                 name: formData.name || 'Selected Zone Area',
                 code: formData.code || 'ZONE',
                 city: formData.city || '',
-                coordinates: {
-                  lat: parseFloat(formData.lat) || 19.0760,
-                  lng: parseFloat(formData.lng) || 72.8777,
+                coordinates: formData.lat && formData.lng ? {
+                  lat: parseFloat(formData.lat),
+                  lng: parseFloat(formData.lng),
                   radiusKm: parseFloat(formData.radiusKm) || 5
-                }
+                } : null
               }]}
               mode={shapeType === 'polygon' ? 'polygon' : 'picker'}
               onSelectLocation={handleMapLocationPick}
