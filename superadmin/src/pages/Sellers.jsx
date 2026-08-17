@@ -52,6 +52,15 @@ const Sellers = () => {
     fetchData();
   }, [selectedZone]);
 
+  const getCategoriesArray = (seller) => {
+    const cats = seller.sellerProfile?.categories;
+    if (Array.isArray(cats)) return cats;
+    if (typeof cats === 'string' && cats.trim()) {
+      return cats.split(',').map(c => c.trim()).filter(Boolean);
+    }
+    return [];
+  };
+
   const handleSearch = (e) => {
     e.preventDefault();
     fetchData();
@@ -283,11 +292,15 @@ const Sellers = () => {
                         </td>
                         <td>
                           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.2rem', maxWidth: '160px' }}>
-                            {(seller.sellerProfile?.categories || []).map((cat, i) => (
-                              <span key={i} style={{ background: 'rgba(255, 255, 255, 0.06)', padding: '0.1rem 0.35rem', borderRadius: '4px', fontSize: '0.7rem' }}>
-                                {cat}
-                              </span>
-                            ))}
+                            {getCategoriesArray(seller).length === 0 ? (
+                              <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Clothing</span>
+                            ) : (
+                              getCategoriesArray(seller).map((cat, i) => (
+                                <span key={i} style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border-color)', padding: '0.1rem 0.35rem', borderRadius: '4px', fontSize: '0.7rem' }}>
+                                  {cat}
+                                </span>
+                              ))
+                            )}
                           </div>
                         </td>
                         <td>
