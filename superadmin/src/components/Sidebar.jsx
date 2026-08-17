@@ -66,11 +66,11 @@ const Sidebar = ({ isOpen, onClose }) => {
               <ShieldCheck size={20} color="#ffffff" />
             </div>
             <div>
-              <h2 style={{ fontSize: '1.05rem', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
+              <h2 className="sidebar-brand-title" style={{ fontSize: '0.95rem', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.02em', margin: 0 }}>
                 RapidCloth
               </h2>
               <span style={{
-                fontSize: '0.68rem',
+                fontSize: '0.62rem',
                 color: 'var(--accent)',
                 fontWeight: 800,
                 textTransform: 'uppercase',
@@ -94,24 +94,24 @@ const Sidebar = ({ isOpen, onClose }) => {
               borderRadius: '6px'
             }}
           >
-            <X size={20} />
+            <X size={18} />
           </button>
         </div>
 
         {/* Nav Menu */}
-        <nav style={{ padding: '1.25rem 0.85rem', flex: 1, overflowY: 'auto' }}>
+        <nav style={{ padding: '1rem 0.65rem', flex: 1, overflowY: 'auto' }}>
           <p style={{
-            fontSize: '0.68rem',
+            fontSize: '0.64rem',
             fontWeight: 800,
             color: 'var(--text-muted)',
             textTransform: 'uppercase',
             letterSpacing: '0.08em',
-            paddingLeft: '0.75rem',
-            marginBottom: '0.75rem'
+            paddingLeft: '0.6rem',
+            marginBottom: '0.6rem'
           }}>
             Core Systems
           </p>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
             {navItems.map((item) => {
               const Icon = item.icon;
               return (
@@ -119,22 +119,23 @@ const Sidebar = ({ isOpen, onClose }) => {
                   key={item.path}
                   to={item.path}
                   onClick={onClose}
+                  className="sidebar-nav-item"
                   style={({ isActive }) => ({
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '0.85rem',
-                    padding: '0.7rem 1rem',
+                    gap: '0.65rem',
+                    padding: '0.55rem 0.85rem',
                     borderRadius: 'var(--radius-md)',
                     color: isActive ? '#ffffff' : 'var(--text-secondary)',
                     background: isActive ? 'var(--gradient-primary)' : 'transparent',
                     boxShadow: isActive ? '0 4px 15px rgba(255, 107, 107, 0.3)' : 'none',
                     fontWeight: isActive ? 700 : 600,
-                    fontSize: '0.85rem',
+                    fontSize: '0.8rem',
                     textDecoration: 'none',
                     transition: 'all 0.15s ease'
                   })}
                 >
-                  <Icon size={18} />
+                  <Icon size={16} />
                   <span>{item.name}</span>
                 </NavLink>
               );

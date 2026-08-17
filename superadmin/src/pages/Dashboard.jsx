@@ -69,26 +69,31 @@ const Dashboard = () => {
 
       <div className="content-body">
         {/* Header Action Bar */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '0.75rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', flexWrap: 'wrap', gap: '8px' }}>
           <div>
-            <h2 style={{ fontSize: '1.35rem', fontWeight: 800, color: 'var(--text-primary)' }}>System Overview</h2>
-            <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Manage zones, admins, sellers, delivery fleets, and customer accounts</p>
+            <h1 style={{ fontSize: '17px', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.2px', margin: 0 }}>
+              System Overview
+            </h1>
+            <p style={{ color: 'var(--text-muted)', fontSize: '11px', marginTop: '1px', margin: 0, fontWeight: 500 }}>
+              Manage zones, admins, sellers, delivery fleets, and customer accounts
+            </p>
           </div>
-          <button onClick={fetchAnalytics} className="btn btn-secondary btn-sm">
-            <RefreshCw size={14} className={loading ? 'animate-spin' : ''} />
+          <button onClick={fetchAnalytics} className="btn btn-secondary btn-sm" style={{ padding: '5px 10px', fontSize: '11px' }}>
+            <RefreshCw size={13} className={loading ? 'animate-spin' : ''} />
             <span>Refresh</span>
           </button>
         </div>
 
         {error && (
           <div style={{
-            padding: '0.75rem 1rem',
+            padding: '8px 12px',
             background: 'rgba(239, 68, 68, 0.1)',
             border: '1px solid rgba(239, 68, 68, 0.25)',
-            borderRadius: 'var(--radius-md)',
+            borderRadius: '8px',
             color: '#dc2626',
-            marginBottom: '1.25rem',
-            fontSize: '0.8rem'
+            marginBottom: '12px',
+            fontSize: '11px',
+            fontWeight: 600
           }}>
             {error}
           </div>
@@ -97,9 +102,9 @@ const Dashboard = () => {
         {/* Top Summary Stat Cards Grid */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(145px, 1fr))',
-          gap: '0.75rem',
-          marginBottom: '1.75rem'
+          gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))',
+          gap: '10px',
+          marginBottom: '16px'
         }}>
           {statCards.map((card, idx) => {
             const Icon = card.icon;
@@ -109,44 +114,41 @@ const Dashboard = () => {
                 className="glass-card glass-card-interactive"
                 onClick={() => navigate(card.path)}
                 style={{
-                  borderLeft: `4px solid ${card.color}`,
-                  padding: '0.85rem 0.9rem'
+                  padding: '12px 14px',
+                  borderRadius: '10px',
+                  border: '1px solid var(--border-color)',
+                  position: 'relative',
+                  overflow: 'hidden',
+                  background: 'var(--bg-card)',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.03)'
                 }}
               >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                  <div style={{ minWidth: 0, flex: 1 }}>
-                    <span style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', fontWeight: 600, display: 'block', lineHeight: 1.25, height: '2.5em', overflow: 'hidden' }}>
-                      {card.title}
-                    </span>
-                    <h3 style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--text-primary)', marginTop: '0.2rem', lineHeight: 1.1 }}>
-                      {loading ? '...' : card.count}
-                    </h3>
-                  </div>
-                  <div style={{
-                    width: '32px',
-                    height: '32px',
-                    borderRadius: '8px',
-                    background: `${card.color}15`,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: card.color,
-                    flexShrink: 0,
-                    marginLeft: '0.3rem'
-                  }}>
-                    <Icon size={16} />
-                  </div>
-                </div>
                 <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.2rem',
-                  marginTop: '0.5rem',
-                  fontSize: '0.7rem',
-                  color: 'var(--text-muted)'
+                  position: 'absolute', top: '-8px', right: '-8px',
+                  width: '45px', height: '45px', borderRadius: '50%',
+                  background: card.color, opacity: 0.08
+                }} />
+                <div style={{
+                  width: '28px', height: '28px', borderRadius: '6px',
+                  background: `${card.color}20`, color: card.color,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  marginBottom: '8px'
                 }}>
-                  <span>Manage</span>
-                  <ArrowUpRight size={12} />
+                  <Icon size={16} />
+                </div>
+                <div style={{ fontSize: '20px', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '2px', lineHeight: 1.1 }}>
+                  {loading ? '...' : card.count}
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 600, overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
+                    {card.title}
+                  </span>
+                  <span style={{
+                    fontSize: '9px', fontWeight: 800, padding: '2px 6px', borderRadius: '10px',
+                    background: `${card.color}15`, color: card.color, display: 'inline-flex', alignItems: 'center', gap: '2px'
+                  }}>
+                    Manage <ArrowUpRight size={10} />
+                  </span>
                 </div>
               </div>
             );
@@ -154,34 +156,34 @@ const Dashboard = () => {
         </div>
 
         {/* Zone Overview Section */}
-        <div style={{ marginBottom: '2.5rem' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
-            <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--text-primary)' }}>Operational Zone Breakdown</h3>
-            <button onClick={() => navigate('/zones')} className="btn btn-secondary btn-sm">
+        <div style={{ marginBottom: '2rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+            <h3 style={{ fontSize: '14px', fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>Operational Zone Breakdown</h3>
+            <button onClick={() => navigate('/zones')} className="btn btn-secondary btn-sm" style={{ padding: '4px 10px', fontSize: '11px' }}>
               Manage All Zones
             </button>
           </div>
 
           {loading ? (
-            <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-secondary)' }}>
+            <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-muted)', fontSize: '12px' }}>
               Loading Zone Metrics...
             </div>
           ) : zoneOverview.length === 0 ? (
-            <div className="glass-card" style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-secondary)' }}>
+            <div className="glass-card" style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-muted)', fontSize: '12px', borderRadius: '10px' }}>
               No operational zones configured yet.
             </div>
           ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', gap: '1.5rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '10px' }}>
               {zoneOverview.map((zone) => (
-                <div key={zone.zoneId} className="glass-card">
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
+                <div key={zone.zoneId} className="glass-card" style={{ padding: '12px 14px', borderRadius: '10px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
                     <div>
-                      <h4 style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--text-primary)' }}>{zone.zoneName}</h4>
-                      <span style={{ fontSize: '0.75rem', color: 'var(--accent)', fontWeight: 700 }}>
+                      <h4 style={{ fontSize: '13px', fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>{zone.zoneName}</h4>
+                      <span style={{ fontSize: '11px', color: 'var(--accent)', fontWeight: 700 }}>
                         {zone.code} • {zone.city}
                       </span>
                     </div>
-                    <span className={`badge ${zone.status === 'active' ? 'badge-active' : 'badge-inactive'}`}>
+                    <span className={`badge ${zone.status === 'active' ? 'badge-active' : 'badge-inactive'}`} style={{ fontSize: '9px', padding: '2px 7px' }}>
                       {zone.status}
                     </span>
                   </div>
@@ -189,27 +191,27 @@ const Dashboard = () => {
                   <div style={{
                     display: 'grid',
                     gridTemplateColumns: '1fr 1fr',
-                    gap: '1rem',
-                    padding: '1rem',
+                    gap: '8px',
+                    padding: '8px 10px',
                     background: 'var(--bg-secondary)',
-                    borderRadius: 'var(--radius-md)',
+                    borderRadius: '8px',
                     border: '1px solid var(--border-color)'
                   }}>
                     <div>
-                      <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Sellers</span>
-                      <p style={{ fontSize: '1.2rem', fontWeight: 800, color: '#16a34a' }}>{zone.sellersCount}</p>
+                      <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase' }}>Sellers</span>
+                      <p style={{ fontSize: '16px', fontWeight: 800, color: '#16a34a', margin: 0, lineHeight: 1.2 }}>{zone.sellersCount}</p>
                     </div>
                     <div>
-                      <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Delivery Boys</span>
-                      <p style={{ fontSize: '1.2rem', fontWeight: 800, color: '#0284c7' }}>{zone.deliveryCount}</p>
+                      <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase' }}>Delivery Boys</span>
+                      <p style={{ fontSize: '16px', fontWeight: 800, color: '#0284c7', margin: 0, lineHeight: 1.2 }}>{zone.deliveryCount}</p>
                     </div>
                     <div>
-                      <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Customers</span>
-                      <p style={{ fontSize: '1.2rem', fontWeight: 800, color: '#d97706' }}>{zone.customersCount}</p>
+                      <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase' }}>Customers</span>
+                      <p style={{ fontSize: '16px', fontWeight: 800, color: '#d97706', margin: 0, lineHeight: 1.2 }}>{zone.customersCount}</p>
                     </div>
                     <div>
-                      <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Total Orders</span>
-                      <p style={{ fontSize: '1.2rem', fontWeight: 800, color: '#db2777' }}>{zone.ordersCount}</p>
+                      <span style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase' }}>Total Orders</span>
+                      <p style={{ fontSize: '16px', fontWeight: 800, color: '#db2777', margin: 0, lineHeight: 1.2 }}>{zone.ordersCount}</p>
                     </div>
                   </div>
                 </div>

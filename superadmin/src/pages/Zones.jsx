@@ -223,8 +223,8 @@ const Zones = () => {
       <div className="content-body">
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', flexWrap: 'wrap', gap: '0.75rem' }}>
           <div>
-            <h2 className="page-title" style={{ fontSize: '1.35rem', fontWeight: 800, color: 'var(--text-primary)' }}>Operational Zones</h2>
-            <p className="page-subtitle" style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Define custom irregular delivery shapes or radius geofences</p>
+            <h2 className="page-title">Operational Zones</h2>
+            <p className="page-subtitle">Define custom irregular delivery shapes or radius geofences</p>
           </div>
 
           <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap', width: '100%', maxWidth: '100%' }}>
