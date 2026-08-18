@@ -65,6 +65,7 @@ import AdminNotifications from './pages/admin/AdminNotifications';
 import AdminProfile from './pages/admin/AdminProfile';
 import AdminDelivery from './pages/admin/AdminDelivery';
 
+import Categories from './pages/user/Categories';
 import AIStylist from './components/AIStylist';
 import Footer from './components/Footer';
 import { Toaster } from 'react-hot-toast';
@@ -79,6 +80,7 @@ function AppContent() {
   const isAuthPage = location.pathname === '/login' || location.pathname === '/register';
   const isHomePage = location.pathname === '/' || location.pathname === '/shop' || location.pathname === '/ai-stylist';
   const isCartPage = location.pathname === '/cart' || location.pathname === '/rent/cart';
+  const isCategoriesPage = location.pathname === '/categories';
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -86,11 +88,12 @@ function AppContent() {
 
   return (
     <div className="app-page-wrapper" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', width: '100%', overflowX: 'hidden' }}>
-      {!isRentPage && !isDashboard && <Navbar />}
+      {!isRentPage && !isDashboard && !isCategoriesPage && <Navbar />}
       <main className={`app-main ${isCartPage ? 'cart-page-main' : isHomePage ? 'has-categories-nav' : 'standard-nav'}`} style={{ flex: 1, width: '100%' }}>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/shop" element={<Home />} />
+          <Route path="/categories" element={<Categories />} />
           <Route path="/products" element={<Products />} />
           <Route path="/products/:id" element={<ProductDetail />} />
           <Route path="/cart" element={<CartPage />} />

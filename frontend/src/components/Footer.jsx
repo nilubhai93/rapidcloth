@@ -48,10 +48,10 @@ export default function Footer() {
     {
       id: 'categories',
       label: t('footer.categories'),
-      path: '/products',
+      path: '/categories',
       icon: CategoryOutlinedIcon,
       activeIcon: CategoryIcon,
-      match: (p) => p === '/products' || p.startsWith('/products?')
+      match: (p) => p === '/categories'
     },
     {
       id: 'rent',

@@ -479,11 +479,11 @@ export default function Navbar() {
 
   return (
     <>
-      <header className="navbar-fixed-container fixed top-0 left-0 right-0 z-[100] bg-white border-b border-gray-200/90 shadow-xs transition-all duration-300 font-sans">
+      <header className="navbar-fixed-container fixed top-0 left-0 right-0 z-[100] bg-white max-md:rounded-b-[6px] border-b border-gray-200/90 shadow-xs transition-all duration-300 font-sans">
 
         {/* MOBILE VIEW ONLY: 4 STACKED ROWS FOR ALL MOBILE DIMENSION DEVICES (md:hidden) */}
         {!isCartPage && (
-          <div className="md:hidden bg-[olive] pt-3.5 pb-4 flex flex-col gap-3 border-b border-slate-200/80 shadow-xs box-border">
+          <div className="md:hidden bg-[#FF7518] rounded-b-[6px] pt-3.5 pb-4 flex flex-col gap-3 border-b border-slate-200/80 shadow-xs box-border">
 
             {/* ROW 1 & ROW 2: ANIMATED COLLAPSIBLE CONTAINER ON SCROLL */}
             <div
@@ -623,7 +623,7 @@ export default function Navbar() {
                       {cat.isActive && (
                         <motion.div
                           layoutId="flipkartCategoryIndicatorMobile"
-                          className="h-0.5 bg-white rounded-full w-full mt-0.5 shadow-2xs"
+                          className="h-[2px] bg-blue-600 rounded-full w-full mt-[2px] shadow-2xs"
                           transition={{ type: "spring", stiffness: 380, damping: 30 }}
                         />
                       )}
