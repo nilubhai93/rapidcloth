@@ -296,157 +296,45 @@ export default function Navbar() {
     return null;
   }
 
-  // Desktop 13 category list with bespoke SVG icons
+  // Desktop 14 dress-related category list with human-crafted SVG icons
   const desktopCategories = [
     {
       id: 'all',
-      title: 'All',
-      link: '/products',
-      isActive: location.pathname === '/products' && !location.search,
+      title: 'For You',
+      link: '/shop',
+      isActive: location.pathname === '/' || location.pathname === '/shop' || (location.pathname === '/products' && !location.search),
       icon: (
-        <svg className="w-5 h-5 md:w-6 md:h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect x="3" y="3" width="8" height="8" rx="2.5" fill="#ffe500" stroke="#1d4ed8" strokeWidth="2" />
-          <rect x="13" y="3" width="8" height="8" rx="2.5" fill="#1d4ed8" stroke="#1d4ed8" strokeWidth="2" />
-          <rect x="3" y="13" width="8" height="8" rx="2.5" fill="#1d4ed8" stroke="#1d4ed8" strokeWidth="2" />
-          <rect x="13" y="13" width="8" height="8" rx="2.5" fill="#ffe500" stroke="#1d4ed8" strokeWidth="2" />
+        <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="3" y="3" width="7" height="7" rx="2" fill="#2874f0" fillOpacity="0.2" stroke="#2874f0" />
+          <rect x="14" y="3" width="7" height="7" rx="2" fill="#14327a" fillOpacity="0.2" stroke="#14327a" />
+          <rect x="3" y="14" width="7" height="7" rx="2" fill="#14327a" fillOpacity="0.2" stroke="#14327a" />
+          <rect x="14" y="14" width="7" height="7" rx="2" fill="#2874f0" fillOpacity="0.2" stroke="#2874f0" />
         </svg>
       )
     },
     {
-      id: 'm-tshirt',
-      title: 'M-Tshirt',
-      link: '/products?category=tshirt&gender=men',
-      isActive: location.search.includes('tshirt') && location.search.includes('men'),
+      id: 'dresses',
+      title: 'Dresses',
+      link: '/products?category=dress',
+      isActive: location.search.includes('category=dress'),
       icon: (
-        <svg className="w-5 h-5 md:w-6 md:h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M4 6L8 3H16L20 6V9L17 8V21H7V8L4 9V6Z" fill="#3b82f6" fillOpacity="0.2" stroke="#1e293b" strokeWidth="2" strokeLinejoin="round" />
-          <path d="M9 3C9 4.65685 10.3431 6 12 6C13.6569 6 15 4.65685 15 3" stroke="#2874f0" strokeWidth="2" strokeLinecap="round" />
+        <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M9 3h6l1.5 4.5h-9L9 3z" fill="#ec4899" fillOpacity="0.2" stroke="#db2777" />
+          <path d="M7.5 7.5l-4 13.5h17l-4-13.5h-9z" fill="#f472b6" fillOpacity="0.2" stroke="#db2777" />
+          <path d="M12 7.5v13.5" stroke="#db2777" strokeDasharray="1 2" />
         </svg>
       )
     },
     {
-      id: 'm-shirts',
-      title: 'M-Shirts',
-      link: '/products?category=shirt&gender=men',
-      isActive: location.search.includes('category=shirt') && location.search.includes('men'),
+      id: 'indo-western',
+      title: 'Indo-Western',
+      link: '/products?category=indo-western',
+      isActive: location.search.includes('category=indo-western'),
       icon: (
-        <svg className="w-5 h-5 md:w-6 md:h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M6 4L9 2H15L18 4V9L15.5 8V21H8.5V8L6 9V4Z" fill="#0284c7" fillOpacity="0.2" stroke="#0f172a" strokeWidth="2" strokeLinejoin="round" />
-          <path d="M9 2L12 6L15 2" stroke="#2874f0" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-          <circle cx="12" cy="10" r="0.8" fill="#1d4ed8" />
-          <circle cx="12" cy="14" r="0.8" fill="#1d4ed8" />
-          <circle cx="12" cy="18" r="0.8" fill="#1d4ed8" />
-        </svg>
-      )
-    },
-    {
-      id: 'm-jeans',
-      title: 'M-Jeans',
-      link: '/products?category=jeans&gender=men',
-      isActive: location.search.includes('jeans') && location.search.includes('men'),
-      icon: (
-        <svg className="w-5 h-5 md:w-6 md:h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M5 4C5 3.44772 5.44772 3 6 3H18C18.5523 3 19 3.44772 19 4V7L16.5 21H12.5L12 11L11.5 21H7.5L5 7V4Z" fill="#2563eb" fillOpacity="0.2" stroke="#1e293b" strokeWidth="2" strokeLinejoin="round" />
-          <path d="M5 7H19" stroke="#1e293b" strokeWidth="1.8" />
-          <path d="M8 7V9M16 7V9" stroke="#ffe500" strokeWidth="2" strokeLinecap="round" />
-        </svg>
-      )
-    },
-    {
-      id: 'w-shirts',
-      title: 'W-Shirts',
-      link: '/products?category=shirt&gender=women',
-      isActive: location.search.includes('category=shirt') && location.search.includes('women'),
-      icon: (
-        <svg className="w-5 h-5 md:w-6 md:h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M5 5L8 3H16L19 5V8.5L16.5 7.5V20C16.5 20.5523 16.0523 21 15.5 21H8.5C7.94772 21 7.5 20.5523 7.5 20V7.5L5 8.5V5Z" fill="#ec4899" fillOpacity="0.2" stroke="#0f172a" strokeWidth="2" strokeLinejoin="round" />
-          <path d="M9 3C9 5 10.5 7 12 7C13.5 7 15 5 15 3" stroke="#ec4899" strokeWidth="2" strokeLinecap="round" />
-        </svg>
-      )
-    },
-    {
-      id: 'baba-suits',
-      title: 'Baba suits',
-      link: '/products?category=baba-suit',
-      isActive: location.search.includes('baba-suit'),
-      icon: (
-        <svg className="w-5 h-5 md:w-6 md:h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M6 3H18V9L16 8V14H8V8L6 9V3Z" fill="#f59e0b" fillOpacity="0.2" stroke="#1e293b" strokeWidth="2" strokeLinejoin="round" />
-          <rect x="7" y="14" width="10" height="7" rx="1.5" fill="#ffe500" stroke="#1e293b" strokeWidth="2" />
-          <path d="M10 5L12 7L14 5" stroke="#ea580c" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-      )
-    },
-    {
-      id: 'frocks',
-      title: 'Frocks',
-      link: '/products?category=frock',
-      isActive: location.search.includes('frock'),
-      icon: (
-        <svg className="w-5 h-5 md:w-6 md:h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M9 3H15L17 8L21 20C21.3 21 20 21.5 19 21.5H5C4 21.5 2.7 21 3 20L7 8L9 3Z" fill="#a855f7" fillOpacity="0.2" stroke="#0f172a" strokeWidth="2" strokeLinejoin="round" />
-          <path d="M7 8H17" stroke="#a855f7" strokeWidth="2" />
-        </svg>
-      )
-    },
-    {
-      id: 'w-jeans',
-      title: 'W-Jeans',
-      link: '/products?category=jeans&gender=women',
-      isActive: location.search.includes('jeans') && location.search.includes('women'),
-      icon: (
-        <svg className="w-5 h-5 md:w-6 md:h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M6 3H18V6L16.5 21H12.5L12 12L11.5 21H7.5L6 6V3Z" fill="#6366f1" fillOpacity="0.2" stroke="#1e293b" strokeWidth="2" strokeLinejoin="round" />
-          <path d="M6 6H18" stroke="#1e293b" strokeWidth="1.8" />
-          <path d="M9 6C9 8 10 9 12 9C14 9 15 8 15 6" stroke="#6366f1" strokeWidth="1.8" />
-        </svg>
-      )
-    },
-    {
-      id: 'kurta-pyjama',
-      title: 'Kurta-Pyjama',
-      link: '/products?category=kurta',
-      isActive: location.search.includes('kurta'),
-      icon: (
-        <svg className="w-5 h-5 md:w-6 md:h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M7 3L10 2H14L17 3V7L15 6.5V17L17 18V21H7V18L9 17V6.5L7 7V3Z" fill="#14327a" fillOpacity="0.2" stroke="#14327a" strokeWidth="2" strokeLinejoin="round" />
-          <path d="M12 2V10" stroke="#ffe500" strokeWidth="2" strokeLinecap="round" />
-        </svg>
-      )
-    },
-    {
-      id: 'lehenga-choli',
-      title: 'Lehenga Choli',
-      link: '/products?category=lehenga-choli',
-      isActive: location.search.includes('lehenga-choli'),
-      icon: (
-        <svg className="w-5 h-5 md:w-6 md:h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M8 3H16L18 8H6L8 3Z" fill="#e11d48" fillOpacity="0.25" stroke="#9f1239" strokeWidth="2" strokeLinejoin="round" />
-          <path d="M9 11H15L19 21H5L9 11Z" fill="#e11d48" fillOpacity="0.2" stroke="#9f1239" strokeWidth="2" strokeLinejoin="round" />
-        </svg>
-      )
-    },
-    {
-      id: 'saree',
-      title: 'Saree',
-      link: '/products?category=saree',
-      isActive: location.search.includes('saree'),
-      icon: (
-        <svg className="w-5 h-5 md:w-6 md:h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M5 4C5 4 8 3 12 5C16 7 19 4 19 4V20C19 20 16 21 12 19C8 17 5 20 5 20V4Z" fill="#d97706" fillOpacity="0.2" stroke="#78350f" strokeWidth="2" strokeLinejoin="round" />
-          <path d="M5 4L19 14" stroke="#d97706" strokeWidth="2" strokeLinecap="round" />
-        </svg>
-      )
-    },
-    {
-      id: 'top',
-      title: 'Top',
-      link: '/products?category=top',
-      isActive: location.search.includes('category=top'),
-      icon: (
-        <svg className="w-5 h-5 md:w-6 md:h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M6 4L9 2H15L18 4V8L15 7V16C15 16.5523 14.5523 17 14 17H10C9.44772 17 9 16.5523 9 16V7L6 8V4Z" fill="#06b6d4" fillOpacity="0.25" stroke="#0e7490" strokeWidth="2" strokeLinejoin="round" />
-          <path d="M9 2C9 4 10.5 5.5 12 5.5C13.5 5.5 15 2 15 2" stroke="#06b6d4" strokeWidth="2" strokeLinecap="round" />
+        <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M8 3h8l1.5 5h-11L8 3z" fill="#8b5cf6" fillOpacity="0.2" stroke="#7c3aed" />
+          <path d="M6.5 8h11l2 13h-15l2-13z" fill="#a78bfa" fillOpacity="0.2" stroke="#7c3aed" />
+          <path d="M12 3v18" stroke="#7c3aed" strokeWidth="1.5" />
         </svg>
       )
     },
@@ -454,11 +342,136 @@ export default function Navbar() {
       id: 'lehengas',
       title: 'Lehengas',
       link: '/products?category=lehenga',
-      isActive: location.search.includes('category=lehenga') && !location.search.includes('lehenga-choli'),
+      isActive: location.search.includes('category=lehenga'),
       icon: (
-        <svg className="w-5 h-5 md:w-6 md:h-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M8 4H16L20 20C20.3 21 19 21.5 18 21.5H6C5 21.5 3.7 21 4 20L8 4Z" fill="#c026d3" fillOpacity="0.2" stroke="#701a75" strokeWidth="2" strokeLinejoin="round" />
-          <path d="M8 4H16" stroke="#ffe500" strokeWidth="2.5" />
+        <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M7 3h10l1.5 4.5h-13L7 3z" fill="#e11d48" fillOpacity="0.25" stroke="#be123c" />
+          <path d="M8 9.5h8l3.5 11.5h-15L8 9.5z" fill="#fda4af" fillOpacity="0.25" stroke="#be123c" />
+          <path d="M4.5 21c5-2 10-2 15 0" stroke="#be123c" strokeWidth="1.6" />
+        </svg>
+      )
+    },
+    {
+      id: 'saree',
+      title: 'Sarees',
+      link: '/products?category=saree',
+      isActive: location.search.includes('category=saree'),
+      icon: (
+        <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M5 4c3-1 6 1 9 1s5-2 5-2v15c0 0-2 2-5 2s-6-2-9-1V4z" fill="#f59e0b" fillOpacity="0.2" stroke="#b45309" />
+          <path d="M5 4l14 12" stroke="#d97706" strokeWidth="1.8" />
+          <path d="M8 20c3-1 6 0 9 0" stroke="#b45309" strokeWidth="1.5" />
+        </svg>
+      )
+    },
+    {
+      id: 'gowns',
+      title: 'Gowns',
+      link: '/products?category=gown',
+      isActive: location.search.includes('category=gown'),
+      icon: (
+        <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M9 3h6l1.5 4h-9L9 3z" fill="#06b6d4" fillOpacity="0.2" stroke="#0891b2" />
+          <path d="M7.5 7h9l3 14H4.5l3-14z" fill="#67e8f9" fillOpacity="0.2" stroke="#0891b2" />
+          <path d="M9 11c3 1.5 6 1.5 6 0" stroke="#0891b2" strokeWidth="1.5" />
+        </svg>
+      )
+    },
+    {
+      id: 'anarkali',
+      title: 'Anarkalis',
+      link: '/products?category=anarkali',
+      isActive: location.search.includes('category=anarkali'),
+      icon: (
+        <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M8 3h8l1.5 4.5h-11L8 3z" fill="#10b981" fillOpacity="0.2" stroke="#047857" />
+          <path d="M6.5 7.5h11l2.5 13.5h-16l2.5-13.5z" fill="#6ee7b7" fillOpacity="0.2" stroke="#047857" />
+        </svg>
+      )
+    },
+    {
+      id: 'kurta',
+      title: 'Kurtas & Suits',
+      link: '/products?category=kurta',
+      isActive: location.search.includes('category=kurta'),
+      icon: (
+        <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M8 3h8l2 4v11l-2 1v2H8v-2l-2-1V7l2-4z" fill="#0284c7" fillOpacity="0.2" stroke="#0369a1" />
+          <path d="M12 3v8" stroke="#0284c7" strokeWidth="2" />
+        </svg>
+      )
+    },
+    {
+      id: 'mens-ethnic',
+      title: "Men's Ethnic",
+      link: '/products?category=sherwani',
+      isActive: location.search.includes('category=sherwani'),
+      icon: (
+        <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M7 4h10l2 5v12H5V9l2-5z" fill="#d97706" fillOpacity="0.2" stroke="#b45309" />
+          <path d="M12 4v17" stroke="#b45309" strokeWidth="1.6" />
+          <path d="M10 4l2 3 2-3" stroke="#b45309" strokeWidth="1.6" />
+        </svg>
+      )
+    },
+    {
+      id: 'tshirts',
+      title: 'T-Shirts',
+      link: '/products?category=tshirt',
+      isActive: location.search.includes('category=tshirt'),
+      icon: (
+        <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M7 4L4 7v3h3v10h10V10h3V7l-3-3-3 2a4 4 0 0 1-8 0L7 4z" fill="#2563eb" fillOpacity="0.18" stroke="#1d4ed8" />
+          <path d="M10 4a2 2 0 0 0 4 0" stroke="#1d4ed8" strokeWidth="2" />
+        </svg>
+      )
+    },
+    {
+      id: 'shirts',
+      title: 'Shirts',
+      link: '/products?category=shirt',
+      isActive: location.search.includes('category=shirt'),
+      icon: (
+        <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M6 4l-3 4v3h3v9h12V11h3V8l-3-4-3 2a3 3 0 0 1-6 0L6 4z" fill="#0284c7" fillOpacity="0.18" stroke="#0369a1" />
+          <path d="M12 6v14" stroke="#0284c7" strokeDasharray="1 2" />
+          <path d="M9 4l3 3 3-3" stroke="#0369a1" strokeWidth="1.8" />
+        </svg>
+      )
+    },
+    {
+      id: 'jeans',
+      title: 'Jeans & Bottoms',
+      link: '/products?category=jeans',
+      isActive: location.search.includes('category=jeans'),
+      icon: (
+        <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M5 4h14v3l-2.2 14h-4L12 12l-0.8 9h-4L5 7V4z" fill="#3b82f6" fillOpacity="0.18" stroke="#1d4ed8" />
+          <path d="M5 7h14" stroke="#1d4ed8" strokeWidth="1.8" />
+        </svg>
+      )
+    },
+    {
+      id: 'kids',
+      title: 'Kids Wear',
+      link: '/products?category=kids',
+      isActive: location.search.includes('category=kids'),
+      icon: (
+        <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M7 3l-2 3v3h2v3h10V9h2V6l-2-3-3 1.5a3 3 0 0 1-4 0L7 3z" fill="#f59e0b" fillOpacity="0.2" stroke="#d97706" />
+          <rect x="7.5" y="12" width="9" height="8" rx="1.5" fill="#fef08a" stroke="#d97706" strokeWidth="1.8" />
+        </svg>
+      )
+    },
+    {
+      id: 'rentals',
+      title: 'Rental Outfits',
+      link: '/rent',
+      isActive: location.pathname === '/rent',
+      icon: (
+        <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M12 3a3 3 0 0 0-3 3c0 1.2.7 2.2 1.7 2.7L4 12v2h16v-2l-6.7-3.3A3 3 0 0 0 15 6a3 3 0 0 0-3-3z" fill="#6366f1" fillOpacity="0.2" stroke="#4f46e5" />
+          <path d="M12 14v7" stroke="#4f46e5" strokeWidth="2" />
         </svg>
       )
     }
@@ -470,7 +483,7 @@ export default function Navbar() {
 
         {/* MOBILE VIEW ONLY: 4 STACKED ROWS FOR ALL MOBILE DIMENSION DEVICES (md:hidden) */}
         {!isCartPage && (
-          <div className="md:hidden bg-white px-3.5 py-2.5 flex flex-col gap-2.5 border-b border-slate-200/80 shadow-xs">
+          <div className="md:hidden bg-[olive] pt-3.5 pb-4 flex flex-col gap-3 border-b border-slate-200/80 shadow-xs box-border">
 
             {/* ROW 1 & ROW 2: ANIMATED COLLAPSIBLE CONTAINER ON SCROLL */}
             <div
@@ -482,153 +495,138 @@ export default function Navbar() {
               }}
             >
               <div style={{ minHeight: 0, overflow: 'hidden' }}>
-                <div className="flex flex-col gap-2.5 pb-2">
-                  {/* ROW 1: BRAND LOGO ON LEFT & AI STYLIST HEADING/BUTTON ON RIGHT */}
-                  <div className="flex items-center justify-between w-full min-w-0" style={{ padding: '10px' }}>
-                    <Link to="/shop" className="flex items-center gap-1.5 text-[#14327a] font-black tracking-tight text-decoration-none shrink min-w-0">
-                      <div className="w-7 h-7 rounded-xl bg-gradient-to-tr from-[#14327a] via-[#2874f0] to-[#ffe500] text-white flex items-center justify-center font-black shadow-xs text-xs shrink-0">
-                        R
-                      </div>
-                      <div className="flex flex-col leading-none text-left min-w-0">
-                        <span className="font-black text-sm tracking-tight bg-gradient-to-r from-[#14327a] via-[#2874f0] to-[#14327a] bg-clip-text text-transparent truncate">
-                          RapidCloth
-                        </span>
-                        <span className="text-[7.5px] font-extrabold text-slate-400 tracking-wider uppercase mt-0.5 truncate">
-                          Fashion &amp; Apparel Hub
-                        </span>
-                      </div>
+                <div className="flex flex-col gap-3 pb-2.5">
+                  {/* ROW 1: BRAND LOGO ROW WITH EXPLICIT HORIZONTAL MARGIN MATCHING MAIN PAGE */}
+                  <div className="flex items-center justify-between w-full min-w-0 px-3.5 sm:px-5 pt-5 pb-2 box-border">
+                    <Link to="/shop" className="flex items-center text-decoration-none shrink min-w-0" style={{ margin: '4px 8px' }}>
+                      <span className="font-black text-base tracking-tight truncate bg-[#000080] text-[#FFD700] inline-block rounded-full shadow-sm" style={{ padding: '5px 10px' }}>
+                        RapidCloth
+                      </span>
                     </Link>
-
-                    {/* AI Stylist Button / Heading */}
-                    <button
-                      type="button"
-                      onClick={() => window.dispatchEvent(new CustomEvent('open-ai-stylist'))}
-                      className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-black text-white cursor-pointer border-none shadow-md hover:shadow-lg transition-all duration-200 shrink-0 whitespace-nowrap active:scale-95 ml-2"
-                      style={{
-                        background: 'linear-gradient(135deg, #14327a 0%, #2874f0 50%, #8b5cf6 100%)'
-                      }}
-                    >
-                      <AutoAwesomeIcon style={{ fontSize: '13px', color: '#ffe500' }} />
-                      <span>AI Stylist</span>
-                    </button>
                   </div>
 
-                  {/* ROW 2: ADDRESS BAR ONLY */}
-                  <div
-                    onClick={() => setAddressOpen(true)}
-                    style={{ padding: '10px' }}
-                    className="flex items-center gap-2.5 cursor-pointer bg-[#f0f5ff] hover:bg-[#e4edff] active:bg-[#dbeafe] border border-blue-200/90 rounded-2xl transition-all w-full shadow-2xs box-sizing-border"
-                  >
-                    <div className="w-6.5 h-6.5 rounded-xl bg-gradient-to-tr from-[#2874f0] to-[#1e4db7] text-white flex items-center justify-center shrink-0 shadow-2xs">
-                      <PlaceIcon style={{ fontSize: '15px' }} />
+                  {/* ROW 2: ADDRESS BAR WITH EXPLICIT HORIZONTAL MARGIN MATCHING MAIN PAGE */}
+                  <div className="px-3.5 sm:px-5 w-full box-border">
+                    <div
+                      onClick={() => setAddressOpen(true)}
+                      style={{
+                        paddingLeft: '16px',
+                        paddingRight: '16px',
+                        paddingTop: '9px',
+                        paddingBottom: '9px',
+                        boxSizing: 'border-box',
+                        margin: '0 5px'
+                      }}
+                      className="flex items-center gap-3 cursor-pointer bg-[#f0f5ff] hover:bg-[#e4edff] active:bg-[#dbeafe] border border-[#14327a] rounded-2xl transition-all shadow-2xs"
+                    >
+                      <div className="w-7 h-7 rounded-xl bg-gradient-to-tr from-[#14327a] to-[#2874f0] text-white flex items-center justify-center shrink-0 shadow-2xs">
+                        <PlaceIcon style={{ fontSize: '16px' }} />
+                      </div>
+                      <div className="flex flex-col min-w-0 text-left flex-1" style={{ paddingLeft: '2px', paddingRight: '2px' }}>
+                        <span className="text-[9.5px] text-[#14327a] font-black uppercase tracking-wider leading-none">
+                          Deliver to
+                        </span>
+                        <span className="text-xs font-extrabold text-slate-900 truncate leading-tight mt-0.5">
+                          {(() => {
+                            const active = selectedAddress || user?.addresses?.find(a => a.isDefault) || user?.addresses?.[0];
+                            if (active) {
+                              if (active.type === 'pincode') return `Pincode: ${active.zip}`;
+                              return `${active.city || active.street || ''} ${active.zip || ''}`.trim();
+                            }
+                            return t('navbar.selectAddress') || 'Select delivery location';
+                          })()}
+                        </span>
+                      </div>
+                      <ExpandMoreIcon style={{ fontSize: '18px', color: '#14327a' }} className={`transform transition-transform duration-200 shrink-0 ${addressOpen ? 'rotate-180' : ''}`} />
                     </div>
-                    <div className="flex flex-col min-w-0 text-left flex-1">
-                      <span className="text-[9px] text-[#2874f0] font-black uppercase tracking-wider leading-none">
-                        Deliver to
-                      </span>
-                      <span className="text-[11.5px] font-extrabold text-slate-900 truncate leading-tight mt-0.5">
-                        {(() => {
-                          const active = selectedAddress || user?.addresses?.find(a => a.isDefault) || user?.addresses?.[0];
-                          if (active) {
-                            if (active.type === 'pincode') return `Pincode: ${active.zip}`;
-                            return `${active.city || active.street || ''} ${active.zip || ''}`.trim();
-                          }
-                          return t('navbar.selectAddress') || 'Select delivery location';
-                        })()}
-                      </span>
-                    </div>
-                    <ExpandMoreIcon style={{ fontSize: '18px', color: '#2874f0' }} className={`transform transition-transform duration-200 ${addressOpen ? 'rotate-180' : ''}`} />
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* ROW 3: SEARCH BAR WITH CAMERA & MICROPHONE OPTIONS */}
-            <form onSubmit={handleSearch} className="w-full relative">
-              <div style={{ padding: '10px' }} className="relative flex items-center w-full bg-[#f8fafc] border border-slate-200/90 focus-within:border-[#2874f0] focus-within:bg-white rounded-2xl shadow-2xs transition-all">
-                <SearchIcon style={{ fontSize: '19px', color: '#94a3b8' }} className="shrink-0 mr-1.5" />
-                <input
-                  type="text"
-                  className="w-full bg-transparent text-xs text-slate-900 placeholder-slate-400 font-semibold focus:outline-none min-w-0"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onFocus={() => searchQuery.trim() && setShowSuggestions(true)}
-                  onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-                  placeholder={SEARCH_PLACEHOLDERS[placeholderIndex]}
-                />
+            {/* ROW 3: SEARCH BAR WITH EXPLICIT HORIZONTAL MARGIN MATCHING MAIN PAGE */}
+            <div className="flex items-center w-full px-3.5 sm:px-5 box-border">
+              <form onSubmit={handleSearch} className="flex-1 relative min-w-0" style={{ margin: '0 5px' }}>
+                <div
+                  style={{ height: '44px', paddingLeft: '16px', paddingRight: '16px', boxSizing: 'border-box' }}
+                  className="relative flex items-center w-full bg-[#f8fafc] border border-[#14327a] focus-within:border-[#14327a] focus-within:bg-white rounded-2xl shadow-2xs transition-all"
+                >
+                  <SearchIcon style={{ fontSize: '19px', color: '#14327a' }} className="shrink-0 mr-2" />
+                  <input
+                    type="text"
+                    className="w-full bg-transparent text-xs text-slate-900 placeholder-slate-400 font-semibold focus:outline-none min-w-0"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onFocus={() => searchQuery.trim() && setShowSuggestions(true)}
+                    onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+                    placeholder={SEARCH_PLACEHOLDERS[placeholderIndex]}
+                  />
 
-                {/* Camera & Microphone Option Icons */}
-                <div className="flex items-center gap-1.5 shrink-0 pl-1">
-                  <button
-                    type="button"
-                    title="Camera Visual Search"
-                    onClick={() => setCameraSheetOpen(true)}
-                    className="w-7.5 h-7.5 rounded-full text-slate-600 hover:text-[#2874f0] hover:bg-blue-50 bg-slate-100/80 border-none cursor-pointer flex items-center justify-center transition-all active:scale-90"
-                  >
-                    <PhotoCameraRoundedIcon style={{ fontSize: '17px' }} />
-                  </button>
-                  <button
-                    type="button"
-                    title="Voice Search"
-                    onClick={handleVoiceSearch}
-                    className={`w-7.5 h-7.5 rounded-full border-none cursor-pointer flex items-center justify-center transition-all active:scale-90 ${isListening ? 'bg-red-500 text-white animate-pulse' : 'text-slate-600 hover:text-[#2874f0] hover:bg-blue-50 bg-slate-100/80'}`}
-                  >
-                    <MicRoundedIcon style={{ fontSize: '17px' }} />
-                  </button>
-                  <button
-                    type="submit"
-                    className="w-7.5 h-7.5 rounded-full bg-[#2874f0] text-white hover:bg-[#1e4db7] border-none cursor-pointer flex items-center justify-center shadow-xs transition-all active:scale-90"
-                  >
-                    <SearchIcon style={{ fontSize: '15px' }} />
-                  </button>
+                  {/* Fixed Camera & Microphone Position INSIDE search bar */}
+                  <div className="flex items-center gap-1.5 shrink-0 ml-1">
+                    <button
+                      type="button"
+                      title="Camera Visual Search"
+                      onClick={() => setCameraSheetOpen(true)}
+                      className="w-7 h-7 rounded-full text-[#14327a] hover:text-[#2874f0] hover:bg-blue-50/80 border-none bg-transparent cursor-pointer flex items-center justify-center transition-all active:scale-90"
+                    >
+                      <PhotoCameraRoundedIcon style={{ fontSize: '18px' }} />
+                    </button>
+                    <button
+                      type="button"
+                      title="Voice Search"
+                      onClick={handleVoiceSearch}
+                      className={`w-7 h-7 rounded-full border-none cursor-pointer flex items-center justify-center transition-all active:scale-90 ${isListening ? 'bg-red-500 text-white animate-pulse' : 'text-[#14327a] hover:text-[#2874f0] hover:bg-blue-50/80 bg-transparent'}`}
+                    >
+                      <MicRoundedIcon style={{ fontSize: '18px' }} />
+                    </button>
+                  </div>
                 </div>
-              </div>
-            </form>
+              </form>
+            </div>
 
-            {/* ROW 4: BOTTOM PORTION PRODUCT CATEGORIES STRIP WITH BESPOKE ICONS */}
+            {/* ROW 4: FLIPKART-STYLED PRODUCT CATEGORIES STRIP WITH TOP THIN BORDER & UPPER/LOWER PADDING */}
             {!isCartPage && (
-              <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none py-1 border-t border-slate-100/80 mt-0.5 -mx-1 px-1 transition-all duration-300">
+              <div className="flex items-center gap-2.5 overflow-x-auto scrollbar-none pb-5 mt-2 px-4 sm:px-6 transition-all duration-300" style={{ margin: '0 5px', paddingTop: '3px' }}>
                 {desktopCategories.map((cat) => (
                   <motion.div
                     key={cat.id}
-                    animate={clickedCatId === cat.id ? { rotateX: [0, 90, 0], scale: [1, 0.92, 1] } : { rotateX: 0, scale: 1 }}
-                    transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
-                    style={{ perspective: 600, transformStyle: 'preserve-3d' }}
+                    whileHover={{ scale: 1.05, y: -1 }}
+                    whileTap={{ scale: 0.95 }}
+                    transition={{ duration: 0.18, ease: "easeOut" }}
+                    className="relative shrink-0"
                   >
                     <Link
                       to={cat.link}
                       onClick={() => handleCategoryClick(cat.id)}
-                      className={`flex flex-col items-center justify-center gap-0.5 px-2 py-1 rounded-xl transition-colors duration-200 shrink-0 text-decoration-none min-w-[50px] ${cat.isActive
-                        ? 'bg-blue-50 text-[#2874f0] font-bold shadow-2xs'
-                        : 'text-slate-700 font-medium hover:bg-slate-50'
+                      className={`flex flex-col items-center justify-center gap-1 px-2.5 py-1 rounded-xl transition-all duration-200 shrink-0 text-decoration-none min-w-[56px] ${cat.isActive
+                        ? 'text-white font-black'
+                        : 'text-white/90 font-semibold hover:text-white'
                         }`}
                     >
-                      {/* ICON CONTAINER: Collapses to text-only on scroll */}
+                      {/* ICON CONTAINER: FLIPKART STYLE LIGHT BLUE PILL ON ACTIVE */}
                       <div
-                        style={{
-                          height: showFullHeader ? '24px' : '0px',
-                          opacity: showFullHeader ? 1 : 0,
-                          overflow: 'hidden',
-                          transition: 'all 0.28s cubic-bezier(0.4, 0, 0.2, 1)',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          marginBottom: showFullHeader ? '2px' : '0px'
-                        }}
-                      >
-                        <div className="w-6 h-6 rounded-xl flex items-center justify-center">
-                          {cat.icon}
-                        </div>
-                      </div>
-
-                      {/* TEXT LABEL */}
-                      <span
-                        style={{ transition: 'all 0.28s cubic-bezier(0.4, 0, 0.2, 1)' }}
-                        className={`font-bold whitespace-nowrap leading-none ${showFullHeader ? 'text-[10px]' : 'text-[11px] py-0.5 px-1'
+                        className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-200 ${cat.isActive
+                          ? 'bg-white/20 border border-white/40 shadow-2xs scale-105'
+                          : 'bg-transparent hover:bg-white/10'
                           }`}
                       >
+                        {cat.icon}
+                      </div>
+
+                      {/* CATEGORY TITLE */}
+                      <span className={`text-[11px] whitespace-nowrap leading-tight tracking-tight ${cat.isActive ? 'font-black text-white' : 'font-semibold text-white/90'}`}>
                         {cat.title}
                       </span>
+
+                      {/* FLIPKART STYLE ACTIVE BLUE UNDERLINE BAR */}
+                      {cat.isActive && (
+                        <motion.div
+                          layoutId="flipkartCategoryIndicatorMobile"
+                          className="h-0.5 bg-white rounded-full w-full mt-0.5 shadow-2xs"
+                          transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                        />
+                      )}
                     </Link>
                   </motion.div>
                 ))}
@@ -638,28 +636,28 @@ export default function Navbar() {
           </div>
         )}
 
-        {/* MOBILE VIEW ONLY WHEN ON CART PAGE: BACK ARROW, SEARCH BAR & CART OPTION */}
+        {/* MOBILE VIEW ONLY WHEN ON CART PAGE: BACK ARROW, SEARCH BAR & LANGUAGE OPTION */}
         {isCartPage && (
-          <div className="md:hidden bg-white px-3.5 py-2.5 flex items-center justify-between gap-2 border-b border-slate-200/80 shadow-xs">
+          <div className="md:hidden bg-white px-2.5 sm:px-3.5 py-2 sm:py-2.5 flex items-center justify-between gap-1.5 sm:gap-2 border-b border-slate-200/80 shadow-xs">
             {/* Back Arrow Icon */}
             <motion.button
               type="button"
-              onClick={() => navigate('/shop')}
-              whileHover={{ scale: 1.08, x: -3 }}
-              whileTap={{ scale: 0.93 }}
-              title="Back to Home"
-              className="w-9.5 h-9.5 rounded-2xl bg-[#f0f5ff] active:bg-[#2874f0] text-[#2874f0] active:text-white border border-blue-200 flex items-center justify-center shrink-0 cursor-pointer transition-colors shadow-2xs"
+              onClick={() => navigate(-1)}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.92 }}
+              title="Go back"
+              className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl sm:rounded-2xl bg-[#f0f5ff] active:bg-[#2874f0] text-[#2874f0] active:text-white border border-blue-200 flex items-center justify-center shrink-0 cursor-pointer transition-colors shadow-2xs"
             >
-              <ArrowBackRoundedIcon style={{ fontSize: '20px' }} />
+              <ArrowBackRoundedIcon style={{ fontSize: '18px' }} />
             </motion.button>
 
-            {/* Search Bar */}
+            {/* Search Bar - Responsive Padding */}
             <form onSubmit={handleSearch} className="flex-1 min-w-0 relative">
-              <div className="relative flex items-center w-full bg-[#f8fafc] border border-slate-200 focus-within:border-[#2874f0] focus-within:bg-white rounded-2xl px-2.5 py-1.5 shadow-2xs transition-all">
-                <SearchIcon style={{ fontSize: '17px', color: '#94a3b8' }} className="shrink-0 mr-1" />
+              <div className="relative flex items-center w-full bg-[#f8fafc] border border-slate-200 focus-within:border-[#2874f0] focus-within:bg-white rounded-xl sm:rounded-2xl px-2 sm:px-2.5 py-1 sm:py-1.5 shadow-2xs transition-all">
+                <SearchIcon style={{ fontSize: '15px', color: '#94a3b8' }} className="shrink-0 mr-1" />
                 <input
                   type="text"
-                  className="w-full bg-transparent text-xs text-slate-900 placeholder-slate-400 font-semibold focus:outline-none min-w-0"
+                  className="w-full bg-transparent text-[11px] sm:text-xs text-slate-900 placeholder-slate-400 font-semibold focus:outline-none min-w-0"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder={SEARCH_PLACEHOLDERS[placeholderIndex]}
@@ -667,19 +665,53 @@ export default function Navbar() {
               </div>
             </form>
 
-            {/* Redesigned Cart Option */}
-            <Link
-              to="/cart"
-              className="flex items-center gap-1.5 py-1.5 px-3 bg-gradient-to-r from-[#2874f0] to-[#14327a] text-white rounded-2xl shadow-xs shrink-0 text-decoration-none"
+            {/* Language Switcher (replaces Cart button) */}
+            <div
+              ref={langRef}
+              onClick={(e) => { e.stopPropagation(); setLangOpen(!langOpen); }}
+              className="flex items-center gap-1 sm:gap-1.5 cursor-pointer bg-[#f8fafc] hover:bg-[#ebf2fe] border border-slate-200/90 hover:border-blue-300 transition-all text-gray-800 font-bold text-[10px] sm:text-xs relative shrink-0 shadow-2xs whitespace-nowrap rounded-xl sm:rounded-2xl px-2 sm:px-3 py-1.5 sm:py-2"
             >
-              <div className="relative flex items-center justify-center">
-                <ShoppingCartIcon className="!text-lg text-white" />
-                <span className="absolute -top-2 -right-2 bg-[#ffe500] text-[#14327a] text-[9px] font-black rounded-full min-w-[16px] h-[16px] px-0.5 flex items-center justify-center border border-white">
-                  {itemCount}
-                </span>
+              <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-md sm:rounded-lg bg-blue-100/90 text-[#2874f0] flex items-center justify-center shrink-0">
+                <TranslateIcon className="!text-xs sm:!text-sm text-[#2874f0]" style={{ fontSize: '13px' }} />
               </div>
-              <span className="text-xs font-black text-white">Cart</span>
-            </Link>
+              <span className="font-extrabold text-[10px] sm:text-xs text-gray-900">{language}</span>
+              <motion.div animate={{ rotate: langOpen ? 180 : 0 }} transition={{ duration: 0.2 }}>
+                <ExpandMoreIcon className="!text-sm text-gray-500" style={{ fontSize: '16px' }} />
+              </motion.div>
+
+              {/* Language Modal Menu */}
+              <AnimatePresence>
+                {langOpen && (
+                  <div className="book-container" style={{ position: 'absolute', top: '100%', right: 0, zIndex: 2000, marginTop: '8px' }}>
+                    <motion.div
+                      initial={{ scaleY: 0, opacity: 0, transformOrigin: 'top right' }}
+                      animate={{ scaleY: 1, opacity: 1 }}
+                      exit={{ scaleY: 0, opacity: 0 }}
+                      transition={{ duration: 0.2, ease: "easeOut" }}
+                      className="book-popup"
+                      onClick={(e) => e.stopPropagation()}
+                      style={{ background: 'white', padding: '16px', borderRadius: '14px', boxShadow: '0 10px 30px rgba(0,0,0,0.15)', border: '1px solid #e2e8f0', minWidth: '160px' }}
+                    >
+                      <h3 style={{ marginBottom: '12px', borderBottom: '1px solid #eee', paddingBottom: '8px', fontSize: '13px', fontWeight: 800 }}>{t('navbar.selectLanguage')}</h3>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                        <div onClick={() => { setLanguage('EN'); setLangOpen(false); }} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', color: language === 'EN' ? '#2874f0' : '#444', fontWeight: language === 'EN' ? 700 : 500, fontSize: '12px' }}>
+                          <input type="radio" checked={language === 'EN'} readOnly style={{ accentColor: '#2874f0', cursor: 'pointer' }} /> <span>English - EN</span>
+                        </div>
+                        <div onClick={() => { setLanguage('HI'); setLangOpen(false); }} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', color: language === 'HI' ? '#2874f0' : '#444', fontWeight: language === 'HI' ? 700 : 500, fontSize: '12px' }}>
+                          <input type="radio" checked={language === 'HI'} readOnly style={{ accentColor: '#2874f0', cursor: 'pointer' }} /> <span>Hindi - HI</span>
+                        </div>
+                        <div onClick={() => { setLanguage('BN'); setLangOpen(false); }} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', color: language === 'BN' ? '#2874f0' : '#444', fontWeight: language === 'BN' ? 700 : 500, fontSize: '12px' }}>
+                          <input type="radio" checked={language === 'BN'} readOnly style={{ accentColor: '#2874f0', cursor: 'pointer' }} /> <span>Bengali - BN</span>
+                        </div>
+                        <div onClick={() => { setLanguage('MR'); setLangOpen(false); }} style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', color: language === 'MR' ? '#2874f0' : '#444', fontWeight: language === 'MR' ? 700 : 500, fontSize: '12px' }}>
+                          <input type="radio" checked={language === 'MR'} readOnly style={{ accentColor: '#2874f0', cursor: 'pointer' }} /> <span>Marathi - MR</span>
+                        </div>
+                      </div>
+                    </motion.div>
+                  </div>
+                )}
+              </AnimatePresence>
+            </div>
           </div>
         )}
 
@@ -698,68 +730,74 @@ export default function Navbar() {
             <div style={{ minHeight: 0, overflow: 'hidden' }}>
               <div
                 className="hidden md:flex items-center"
-              style={{
-                width: '100%',
-                maxWidth: '1440px',
-                margin: '0 auto',
-                paddingLeft: '24px',
-                paddingRight: '24px',
-                paddingTop: '10px',
-                paddingBottom: '6px',
-                boxSizing: 'border-box'
-              }}
-            >
-              {/* Brand Logo */}
-              <Link to="/shop" className="flex items-center gap-2 text-[#14327a] font-black tracking-tight text-decoration-none shrink-0 group">
-                <div className="w-8.5 h-8.5 rounded-xl bg-gradient-to-tr from-[#14327a] via-[#2874f0] to-[#ffe500] text-white flex items-center justify-center font-black shadow-xs text-base group-hover:scale-105 transition-transform">
-                  R
-                </div>
-                <div className="flex flex-col leading-none text-left">
-                  <span className="font-extrabold text-lg lg:text-xl bg-gradient-to-r from-[#14327a] via-[#2874f0] to-[#14327a] bg-clip-text text-transparent">
-                    RapidCloth
-                  </span>
-                  <span className="text-[9px] lg:text-[9.5px] font-bold text-gray-400 tracking-wider uppercase mt-0.5">
-                    Fashion &amp; Apparel Hub
-                  </span>
-                </div>
-              </Link>
-
-              {/* Address Bar Widget (Slides to Brand Logo when addressOpen is true) */}
-              <div
-                ref={addressRef}
-                onClick={(e) => { e.stopPropagation(); setAddressOpen(!addressOpen); }}
-                className={`flex items-center gap-2.5 cursor-pointer py-1.5 px-4 rounded-2xl transition-all text-gray-700 font-medium group shrink-0 min-w-[280px] lg:min-w-[340px] max-w-[380px] ${addressOpen
-                  ? 'bg-[#e4edff] border-2 border-[#2874f0] shadow-md ring-4 ring-blue-100/80'
-                  : 'bg-[#f0f5ff] hover:bg-[#e4edff] border border-blue-200/90 shadow-2xs'
-                  }`}
                 style={{
-                  marginLeft: addressOpen ? '28px' : 'auto',
-                  transition: 'all 0.35s cubic-bezier(0.4, 0, 0.2, 1)'
+                  width: '100%',
+                  maxWidth: '1440px',
+                  margin: '0 auto',
+                  paddingLeft: '24px',
+                  paddingRight: '24px',
+                  paddingTop: '10px',
+                  paddingBottom: '6px',
+                  boxSizing: 'border-box'
                 }}
               >
-                <div className="w-8 h-8 rounded-xl bg-[#2874f0] text-white flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform shadow-xs">
-                  <PlaceIcon className="!text-lg text-white" />
+                {/* Brand Logo */}
+                <Link to="/shop" className="flex items-center gap-2 text-[#14327a] font-black tracking-tight text-decoration-none shrink-0 group">
+                  <div className="w-8.5 h-8.5 rounded-xl bg-gradient-to-tr from-[#14327a] via-[#2874f0] to-[#ffe500] text-white flex items-center justify-center font-black shadow-xs text-base group-hover:scale-105 transition-transform">
+                    R
+                  </div>
+                  <div className="flex flex-col leading-none text-left">
+                    <span className="font-extrabold text-lg lg:text-xl bg-gradient-to-r from-[#14327a] via-[#2874f0] to-[#14327a] bg-clip-text text-transparent">
+                      RapidCloth
+                    </span>
+                    <span className="text-[9px] lg:text-[9.5px] font-bold text-gray-400 tracking-wider uppercase mt-0.5">
+                      Fashion &amp; Apparel Hub
+                    </span>
+                  </div>
+                </Link>
+
+                {/* Address Bar Widget (Slides to Brand Logo when addressOpen is true) */}
+                <div
+                  ref={addressRef}
+                  onClick={(e) => { e.stopPropagation(); setAddressOpen(!addressOpen); }}
+                  className={`flex items-center gap-3 cursor-pointer transition-all text-gray-700 font-medium group shrink-0 min-w-[290px] lg:min-w-[350px] max-w-[400px] ${addressOpen
+                    ? 'bg-[#e4edff] border-2 border-[#2874f0] shadow-md ring-4 ring-blue-100/80'
+                    : 'bg-[#f0f5ff] hover:bg-[#e4edff] border border-blue-200/90 shadow-2xs'
+                    }`}
+                  style={{
+                    paddingLeft: '16px',
+                    paddingRight: '18px',
+                    paddingTop: '8px',
+                    paddingBottom: '8px',
+                    borderRadius: '16px',
+                    boxSizing: 'border-box',
+                    marginLeft: addressOpen ? '28px' : 'auto',
+                    transition: 'all 0.35s cubic-bezier(0.4, 0, 0.2, 1)'
+                  }}
+                >
+                  <div className="w-8 h-8 rounded-xl bg-[#2874f0] text-white flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform shadow-xs">
+                    <PlaceIcon className="!text-lg text-white" />
+                  </div>
+                  <div className="flex flex-col min-w-0 text-left flex-1">
+                    <span className="text-[10px] text-blue-600 font-extrabold leading-none uppercase tracking-wider">
+                      Deliver to
+                    </span>
+                    <span className="text-xs lg:text-[13px] font-bold text-gray-900 truncate leading-tight group-hover:text-[#2874f0] transition-colors mt-0.5">
+                      {(() => {
+                        const active = selectedAddress || user?.addresses?.find(a => a.isDefault) || user?.addresses?.[0];
+                        if (active) {
+                          if (active.type === 'pincode') return `Pincode: ${active.zip}`;
+                          return `${active.city || active.street || ''} ${active.zip || ''}`.trim();
+                        }
+                        return t('navbar.selectAddress') || 'Select delivery location';
+                      })()}
+                    </span>
+                  </div>
+                  <ExpandMoreIcon className={`!text-lg text-gray-500 group-hover:text-[#2874f0] transition-transform duration-200 shrink-0 ${addressOpen ? 'rotate-180' : ''}`} />
                 </div>
-                <div className="flex flex-col min-w-0 text-left flex-1">
-                  <span className="text-[10px] text-blue-600 font-extrabold leading-none uppercase tracking-wider">
-                    Deliver to
-                  </span>
-                  <span className="text-xs lg:text-[13px] font-bold text-gray-900 truncate leading-tight group-hover:text-[#2874f0] transition-colors mt-0.5">
-                    {(() => {
-                      const active = selectedAddress || user?.addresses?.find(a => a.isDefault) || user?.addresses?.[0];
-                      if (active) {
-                        if (active.type === 'pincode') return `Pincode: ${active.zip}`;
-                        return `${active.city || active.street || ''} ${active.zip || ''}`.trim();
-                      }
-                      return t('navbar.selectAddress') || 'Select delivery location';
-                    })()}
-                  </span>
-                </div>
-                <ExpandMoreIcon className={`!text-lg text-gray-500 group-hover:text-[#2874f0] transition-transform duration-200 shrink-0 ${addressOpen ? 'rotate-180' : ''}`} />
               </div>
             </div>
           </div>
-        </div>
         )}
 
         {/* PART 2 (DESKTOP MIDDLE PORTION): SEARCH BAR & ACCOUNT, LANGUAGE, CART */}
@@ -961,7 +999,7 @@ export default function Navbar() {
           </form>
 
           {/* Rent, Account & Lists, Language, Cart Buttons */}
-          <div className="flex items-center gap-2.5 lg:gap-3.5 shrink-0">
+          <div className="flex items-center gap-3 lg:gap-4 shrink-0">
             {/* Rent Dropdown Button */}
             {!isCartPage && (
               <div
@@ -969,9 +1007,19 @@ export default function Navbar() {
                 className="relative shrink-0"
               >
                 <div
-                  className={`flex items-center py-1 pl-3 pr-1 lg:pl-3.5 rounded-2xl transition-all shadow-2xs font-sans border text-decoration-none ${isRentPage
-                      ? 'bg-gradient-to-r from-[#14327a] via-[#2874f0] to-[#14327a] text-white border-blue-600 shadow-md ring-2 ring-blue-200'
-                      : 'bg-[#f8fafc] hover:bg-[#ebf2fe] border border-slate-200/90 hover:border-blue-300 text-gray-800'
+                  style={{
+                    paddingLeft: '14px',
+                    paddingRight: '16px',
+                    paddingTop: '8px',
+                    paddingBottom: '8px',
+                    borderRadius: '16px',
+                    boxSizing: 'border-box',
+                    display: 'flex',
+                    alignItems: 'center'
+                  }}
+                  className={`transition-all shadow-2xs font-sans border text-decoration-none ${isRentPage
+                    ? 'bg-gradient-to-r from-[#14327a] via-[#2874f0] to-[#14327a] text-white border-blue-600 shadow-md ring-2 ring-blue-200'
+                    : 'bg-[#f8fafc] hover:bg-[#ebf2fe] border border-slate-200/90 hover:border-blue-300 text-gray-800'
                     }`}
                 >
                   <button
@@ -981,17 +1029,17 @@ export default function Navbar() {
                       setRentOpen(false);
                       navigate('/rent');
                     }}
-                    className="flex items-center gap-2.5 cursor-pointer pr-1"
+                    className="flex items-center gap-2 cursor-pointer border-none bg-transparent"
                   >
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center font-extrabold text-xs overflow-hidden shadow-xs shrink-0 ${isRentPage ? 'bg-white/20 text-white' : 'bg-blue-100 text-[#2874f0]'
+                    <div className={`w-7 h-7 rounded-xl flex items-center justify-center font-extrabold text-xs overflow-hidden shadow-xs shrink-0 ${isRentPage ? 'bg-white/20 text-white' : 'bg-blue-100 text-[#2874f0]'
                       }`}>
-                      <CheckroomIcon className="!text-lg" />
+                      <CheckroomIcon className="!text-base" />
                     </div>
                     <div className="flex flex-col text-left">
-                      <span className={`text-[10px] font-semibold leading-none ${isRentPage ? 'text-blue-100' : 'text-gray-500'}`}>
+                      <span className={`text-[9.5px] font-semibold leading-none ${isRentPage ? 'text-blue-100' : 'text-gray-500'}`}>
                         Fashion
                       </span>
-                      <span className={`text-xs lg:text-[13px] font-extrabold leading-tight mt-0.5 transition-colors ${isRentPage ? 'text-white' : 'text-gray-900 group-hover:text-[#2874f0]'}`}>Rent</span>
+                      <span className={`text-xs lg:text-[12.5px] font-extrabold leading-tight mt-0.5 transition-colors ${isRentPage ? 'text-white' : 'text-gray-900 group-hover:text-[#2874f0]'}`}>Rent</span>
                     </div>
                   </button>
                   <button
@@ -1000,7 +1048,7 @@ export default function Navbar() {
                       e.stopPropagation();
                       setRentOpen(!rentOpen);
                     }}
-                    className={`flex items-center justify-center p-1.5 ml-1 rounded-full cursor-pointer transition-colors ${isRentPage ? 'text-white hover:bg-white/20' : 'text-gray-500 hover:bg-blue-100 hover:text-[#2874f0]'}`}
+                    className={`flex items-center justify-center p-1 ml-0.5 rounded-full cursor-pointer transition-colors border-none bg-transparent ${isRentPage ? 'text-white hover:bg-white/20' : 'text-gray-500 hover:bg-blue-100 hover:text-[#2874f0]'}`}
                   >
                     <motion.div animate={{ rotate: rentOpen ? 180 : 0 }} transition={{ duration: 0.2 }}>
                       <ExpandMoreIcon className="!text-base" />
@@ -1012,7 +1060,7 @@ export default function Navbar() {
                 <AnimatePresence>
                   {rentOpen && (
                     <div className="book-container" style={{ position: 'absolute', top: '100%', left: 0, zIndex: 2000, marginTop: '8px' }}>
-                        <motion.div
+                      <motion.div
                         className="book-popup"
                         onClick={(e) => e.stopPropagation()}
                         initial={{ scaleY: 0, opacity: 0, transformOrigin: 'top left' }}
@@ -1087,21 +1135,29 @@ export default function Navbar() {
               <div
                 ref={profileRef}
                 onClick={(e) => { e.stopPropagation(); setProfileOpen(!profileOpen); }}
-                className="relative group cursor-pointer py-2 px-3.5 lg:px-4 bg-[#f8fafc] hover:bg-[#ebf2fe] border border-slate-200/90 hover:border-blue-300 rounded-2xl transition-all shadow-2xs shrink-0"
+                style={{
+                  paddingLeft: '16px',
+                  paddingRight: '18px',
+                  paddingTop: '8px',
+                  paddingBottom: '8px',
+                  borderRadius: '16px',
+                  boxSizing: 'border-box'
+                }}
+                className="relative group cursor-pointer bg-[#f8fafc] hover:bg-[#ebf2fe] border border-slate-200/90 hover:border-blue-300 transition-all shadow-2xs shrink-0 whitespace-nowrap"
               >
                 <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-full bg-[#2874f0] text-white flex items-center justify-center font-extrabold text-xs overflow-hidden shadow-xs border border-blue-200 shrink-0">
+                  <div className="w-7 h-7 rounded-xl bg-[#2874f0] text-white flex items-center justify-center font-extrabold text-xs overflow-hidden shadow-xs border border-blue-200 shrink-0">
                     {isAuthenticated && user?.avatar ? (
                       <img src={user.avatar} className="w-full h-full object-cover" />
                     ) : (
-                      <PersonOutlineIcon className="!text-lg text-white" />
+                      <PersonOutlineIcon style={{ fontSize: '16px', color: '#ffffff' }} />
                     )}
                   </div>
                   <div className="flex flex-col text-left">
-                    <span className="text-[10px] text-gray-500 font-semibold leading-none">
+                    <span className="text-[9.5px] text-gray-500 font-semibold leading-none">
                       {t('navbar.hello')}, {isAuthenticated ? user?.name?.split(' ')[0] : t('navbar.signIn')}
                     </span>
-                    <div className="flex items-center gap-1 text-xs lg:text-[13px] font-bold text-gray-900 leading-tight mt-0.5 group-hover:text-[#2874f0] transition-colors">
+                    <div className="flex items-center gap-1.5 text-xs lg:text-[12.5px] font-extrabold text-gray-900 leading-tight mt-0.5 group-hover:text-[#2874f0] transition-colors whitespace-nowrap">
                       <span>{t('navbar.accountAndLists')}</span>
                       <motion.div animate={{ rotate: profileOpen ? 180 : 0 }} transition={{ duration: 0.2 }}>
                         <ExpandMoreIcon className="!text-base text-gray-500 group-hover:text-[#2874f0]" />
@@ -1178,9 +1234,17 @@ export default function Navbar() {
               <div
                 ref={langRef}
                 onClick={(e) => { e.stopPropagation(); setLangOpen(!langOpen); }}
-                className="flex items-center gap-1.5 cursor-pointer py-2 px-3 lg:px-3.5 bg-[#f8fafc] hover:bg-[#ebf2fe] border border-slate-200/90 hover:border-blue-300 rounded-2xl transition-all text-gray-800 font-bold text-xs relative shrink-0 shadow-2xs"
+                style={{
+                  paddingLeft: '14px',
+                  paddingRight: '16px',
+                  paddingTop: '8px',
+                  paddingBottom: '8px',
+                  borderRadius: '16px',
+                  boxSizing: 'border-box'
+                }}
+                className="flex items-center gap-2 cursor-pointer bg-[#f8fafc] hover:bg-[#ebf2fe] border border-slate-200/90 hover:border-blue-300 transition-all text-gray-800 font-bold text-xs relative shrink-0 shadow-2xs whitespace-nowrap"
               >
-                <div className="w-6 h-6 rounded-lg bg-blue-100/90 text-[#2874f0] flex items-center justify-center shrink-0">
+                <div className="w-6.5 h-6.5 rounded-lg bg-blue-100/90 text-[#2874f0] flex items-center justify-center shrink-0">
                   <TranslateIcon className="!text-sm text-[#2874f0]" />
                 </div>
                 <span className="font-extrabold text-xs text-gray-900">{language}</span>
@@ -1226,124 +1290,103 @@ export default function Navbar() {
             {/* Redesigned Shopping Cart Button */}
             <Link
               to={isRentPage ? '/rent/cart' : '/cart'}
-              className={`flex items-center gap-2.5 py-2 px-4 lg:px-5 text-white rounded-2xl transition-all duration-200 shadow-md hover:shadow-lg hover:scale-105 group text-decoration-none shrink-0 ${isCartPage
+              style={{
+                paddingLeft: '16px',
+                paddingRight: '22px',
+                paddingTop: '9px',
+                paddingBottom: '9px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                borderRadius: '16px',
+                boxSizing: 'border-box'
+              }}
+              className={`text-white transition-all duration-200 shadow-md hover:shadow-lg hover:scale-[1.03] group text-decoration-none shrink-0 whitespace-nowrap ml-2 overflow-visible relative ${isCartPage
                 ? 'bg-gradient-to-r from-[#14327a] via-[#2874f0] to-[#14327a] ring-2 ring-blue-300 border border-blue-400'
-                : 'bg-gradient-to-r from-[#2874f0] to-[#14327a] hover:from-[#1e4db7] hover:to-[#0f2456]'
+                : 'bg-gradient-to-r from-[#2874f0] via-[#1e4db7] to-[#14327a] hover:from-[#1e4db7] hover:to-[#0f2456]'
                 }`}
             >
-              <div className="relative flex items-center justify-center">
-                <ShoppingCartIcon className="!text-xl text-white group-hover:-rotate-12 transition-transform duration-300" />
-                <span className="absolute -top-2.5 -right-2.5 bg-[#ffe500] text-[#14327a] text-[10px] font-black rounded-full min-w-[19px] h-[19px] px-1 flex items-center justify-center shadow-xs border-2 border-white">
+              <div className="relative flex items-center justify-center shrink-0 w-6 h-6">
+                <ShoppingCartIcon style={{ fontSize: '20px', color: '#ffffff' }} className="group-hover:-rotate-12 transition-transform duration-300" />
+                <span
+                  style={{
+                    minWidth: '22px',
+                    height: '22px',
+                    paddingLeft: '6px',
+                    paddingRight: '6px',
+                    paddingTop: '2px',
+                    paddingBottom: '2px',
+                    boxSizing: 'border-box',
+                    fontSize: '11px',
+                    fontWeight: 900
+                  }}
+                  className="absolute -top-2.5 -right-3 bg-[#ffe500] text-[#14327a] rounded-full flex items-center justify-center shadow-xs border-2 border-white leading-none z-10"
+                >
                   {itemCount}
                 </span>
               </div>
-              <span className="text-xs lg:text-sm font-black text-white tracking-wide">
+              <span
+                style={{ paddingLeft: '6px', paddingRight: '12px' }}
+                className="text-xs lg:text-sm font-black text-white tracking-wide whitespace-nowrap shrink-0"
+              >
                 {isCartPage ? 'Your Bag' : 'Cart'}
               </span>
             </Link>
           </div>
         </div>
 
-        {/* THIN LINE DIVIDER (CONTAINED TO MAIN PAGE WIDTH) */}
+        {/* PART 3 (DESKTOP BOTTOM PORTION): FLIPKART-STYLED PRODUCT CATEGORIES STRIP */}
         {!isCartPage && (
-          <div
-            className="hidden md:block"
-            style={{
-              width: '100%',
-              maxWidth: '1440px',
-              margin: '0 auto',
-              paddingLeft: '24px',
-              paddingRight: '24px',
-              boxSizing: 'border-box'
-            }}
-          >
-            <div style={{ width: '100%', borderTop: '1px solid rgba(229, 231, 235, 0.8)' }} />
-          </div>
-        )}
-
-        {/* PART 3 (DESKTOP BOTTOM PORTION): 13 PRODUCT CATEGORIES WITH BESPOKE ICONS */}
-        {!isCartPage && (
-          <div
-            className="hidden md:block bg-white transition-all duration-300"
-            style={{
-              paddingTop: showFullHeader ? '4px' : '2px',
-              paddingBottom: showFullHeader ? '2px' : '2px'
-            }}
-          >
+          <div className="hidden md:block bg-white border-t border-slate-100/90 transition-all">
             <div
               className="flex items-center justify-between overflow-x-auto scrollbar-none"
               style={{
                 width: '100%',
                 maxWidth: '1440px',
                 margin: '0 auto',
-                paddingLeft: '24px',
-                paddingRight: '24px',
-                gap: '4px',
+                padding: '10px 24px 5px 24px',
+                gap: '12px',
                 boxSizing: 'border-box'
               }}
             >
               {desktopCategories.map((cat) => (
                 <motion.div
                   key={cat.id}
-                  animate={clickedCatId === cat.id ? { rotateX: [0, 90, 0], scale: [1, 0.92, 1] } : { rotateX: 0, scale: 1 }}
-                  transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
-                  style={{ perspective: 600, transformStyle: 'preserve-3d' }}
+                  whileHover={{ y: -2, scale: 1.04 }}
+                  whileTap={{ scale: 0.95 }}
+                  transition={{ duration: 0.18, ease: "easeOut" }}
+                  className="relative shrink-0"
                 >
                   <Link
                     to={cat.link}
                     onClick={() => handleCategoryClick(cat.id)}
-                    className={`group flex flex-col items-center justify-center gap-0.5 px-2 lg:px-2.5 py-1 rounded-xl transition-colors duration-200 relative text-decoration-none shrink-0 ${cat.isActive ? 'bg-blue-50/90 text-[#2874f0] font-bold shadow-2xs' : 'text-gray-700 hover:text-[#2874f0] font-semibold hover:bg-gray-50'
+                    className={`group flex flex-col items-center justify-center gap-1 px-3 py-1 rounded-xl transition-all duration-200 relative text-decoration-none shrink-0 ${cat.isActive ? 'text-[#2874f0] font-black' : 'text-slate-800 hover:text-[#2874f0] font-semibold'
                       }`}
                   >
-                    {/* ICON CONTAINER: Smooth height & opacity transition */}
+                    {/* ICON CONTAINER: FLIPKART STYLE LIGHT BLUE PILL ON ACTIVE */}
                     <div
-                      style={{
-                        height: showFullHeader ? '28px' : '0px',
-                        opacity: showFullHeader ? 1 : 0,
-                        overflow: 'hidden',
-                        transition: 'all 0.28s cubic-bezier(0.4, 0, 0.2, 1)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        marginBottom: showFullHeader ? '2px' : '0px'
-                      }}
-                    >
-                      <div className="w-7.5 h-7.5 lg:w-8.5 lg:h-8.5 rounded-xl flex items-center justify-center text-gray-800 group-hover:text-[#2874f0] transition-all duration-300 transform group-hover:-translate-y-0.5 group-hover:scale-110">
-                        {cat.icon}
-                      </div>
-                    </div>
-
-                    {/* TEXT LABEL (TEXT ONLY WHEN SCROLLED) */}
-                    <span
-                      style={{ transition: 'all 0.28s cubic-bezier(0.4, 0, 0.2, 1)' }}
-                      className={`whitespace-nowrap tracking-tight ${showFullHeader
-                        ? 'text-[10px] lg:text-[11px]'
-                        : 'text-[11px] lg:text-[12px] font-bold py-0.5 px-1.5'
+                      className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-200 ${cat.isActive
+                        ? 'bg-[#e0edff] border border-blue-200/80 shadow-2xs text-[#2874f0] scale-105'
+                        : 'bg-transparent text-slate-700 group-hover:bg-slate-100/80 group-hover:text-[#2874f0]'
                         }`}
                     >
+                      {cat.icon}
+                    </div>
+
+                    <span className={`text-[11.5px] lg:text-[12px] whitespace-nowrap tracking-tight leading-none transition-colors ${cat.isActive ? 'font-black text-[#2874f0]' : 'font-semibold text-slate-800 group-hover:text-[#2874f0]'}`}>
                       {cat.title}
                     </span>
 
                     {cat.isActive && (
-                      <div className="absolute bottom-0 left-1 right-1 h-0.5 bg-[#2874f0] rounded-full transition-all duration-300" />
+                      <motion.div
+                        layoutId="flipkartCategoryIndicator"
+                        className="absolute -bottom-1 left-2 right-2 h-0.5 bg-[#2874f0] rounded-full shadow-2xs"
+                        transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                      />
                     )}
                   </Link>
                 </motion.div>
               ))}
-            </div>
-
-            {/* THIN LINE DIVIDER AFTER CATEGORIES (MATCHING IMAGE 1) */}
-            <div
-              style={{
-                width: '100%',
-                maxWidth: '1440px',
-                margin: '4px auto 0 auto',
-                paddingLeft: '24px',
-                paddingRight: '24px',
-                boxSizing: 'border-box'
-              }}
-            >
-              <div style={{ width: '100%', borderTop: '1px solid rgba(229, 231, 235, 0.9)' }} />
             </div>
           </div>
         )}

@@ -64,10 +64,7 @@ export default function Products() {
   const { data, isFetching } = useGetProductsQuery(params);
   const products = data?.products || [];
 
-  const showRecommendations = !isFetching && products.length === 0;
-  const { data: featuredData } = useGetFeaturedProductsQuery(undefined, {
-    skip: !showRecommendations
-  });
+  const { data: featuredData } = useGetFeaturedProductsQuery();
   const recommendations = featuredData?.products || [];
   const loading = isFetching;
 
@@ -114,115 +111,9 @@ export default function Products() {
   const activeFilterCount = Object.entries(filters).filter(([k, v]) => v && k !== 'sort' && k !== 'page').length;
 
   return (
-    <div className="products-page-container" style={{ maxWidth: '1440px', margin: '0 auto' }}>
+    <div className="products-page-container" style={{ maxWidth: '1440px', margin: '30px auto' }}>
 
-      {/* 1. TOP SINGLE HORIZONTAL SLIDING FILTER & SORT BAR (Filter Options + Sort Items) */}
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: '8px',
-        overflowX: 'auto',
-        whiteSpace: 'nowrap',
-        paddingBottom: '10px',
-        marginBottom: '8px',
-        scrollbarWidth: 'none',
-        msOverflowStyle: 'none',
-        WebkitOverflowScrolling: 'touch'
-      }}>
-        {/* Filter Options Button (Always First on Left) */}
-        <button
-          onClick={() => setSidebarOpen(true)}
-          style={{
-            display: 'inline-flex', alignItems: 'center', gap: '6px',
-            padding: '8px 16px', borderRadius: '24px',
-            background: sidebarOpen || activeFilterCount > 0 ? '#14327a' : '#ffffff',
-            color: sidebarOpen || activeFilterCount > 0 ? '#ffffff' : '#0f172a',
-            border: `1.5px solid ${sidebarOpen || activeFilterCount > 0 ? '#14327a' : '#cbd5e1'}`,
-            fontSize: '13px', fontWeight: 700,
-            cursor: 'pointer', flexShrink: 0,
-            boxShadow: '0 2px 6px rgba(0,0,0,0.06)',
-            transition: 'all 0.2s'
-          }}
-        >
-          <TuneIcon sx={{ fontSize: '18px' }} />
-          <span>Filter Options</span>
-          {activeFilterCount > 0 && (
-            <span style={{
-              background: '#ffffff',
-              color: '#14327a',
-              fontSize: '11px', fontWeight: 800, borderRadius: '50%',
-              width: '20px', height: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center'
-            }}>
-              {activeFilterCount}
-            </span>
-          )}
-        </button>
-
-        {/* Sort Options Pills (Latest Trends, Top Rated, Price Low/High...) */}
-        {sortItems.map(item => {
-          const isActive = filters.sort === item.id;
-          return (
-            <button
-              key={item.id}
-              onClick={() => updateFilter('sort', item.id)}
-              style={{
-                display: 'inline-flex', alignItems: 'center', gap: '6px',
-                padding: '8px 16px', borderRadius: '24px',
-                background: isActive ? '#14327a' : '#f8fafc',
-                color: isActive ? '#ffffff' : '#334155',
-                border: `1.5px solid ${isActive ? '#14327a' : '#e2e8f0'}`,
-                fontSize: '13px', fontWeight: 700,
-                cursor: 'pointer', flexShrink: 0,
-                boxShadow: isActive ? '0 3px 10px rgba(20, 50, 122, 0.25)' : 'none',
-                transition: 'all 0.2s'
-              }}
-            >
-              {item.icon}
-              <span>{item.label}</span>
-            </button>
-          );
-        })}
-      </div>
-
-      {/* 2. HORIZONTAL SLIDING CATEGORIES CHIPS BAR */}
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: '6px',
-        overflowX: 'auto',
-        whiteSpace: 'nowrap',
-        paddingBottom: '10px',
-        marginBottom: '16px',
-        scrollbarWidth: 'none',
-        msOverflowStyle: 'none',
-        WebkitOverflowScrolling: 'touch'
-      }}>
-        <span style={{ fontSize: '11px', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', paddingRight: '4px', flexShrink: 0 }}>
-          CATEGORIES:
-        </span>
-        {categories.map(cat => {
-          const isActive = (filters.category || '').toLowerCase() === cat.id || (cat.id === 'saree' && (filters.search || '').toLowerCase().includes('saree'));
-          return (
-            <button
-              key={cat.id}
-              onClick={() => updateFilter('category', cat.id)}
-              style={{
-                padding: '6px 14px', borderRadius: '18px',
-                background: isActive ? '#e0e7ff' : '#ffffff',
-                color: isActive ? '#14327a' : '#475569',
-                border: `1px solid ${isActive ? '#14327a' : '#cbd5e1'}`,
-                fontSize: '12px', fontWeight: isActive ? 800 : 600,
-                cursor: 'pointer', flexShrink: 0,
-                transition: 'all 0.15s'
-              }}
-            >
-              {cat.label}
-            </button>
-          );
-        })}
-      </div>
-
-      {/* 3. RESULTS TITLE HEADER (Shown BELOW the Filter & Category Rows) */}
+      {/* 1. RESULTS TITLE HEADER */}
       <div style={{ marginBottom: '16px' }}>
         <h1 style={{ fontSize: 'clamp(20px, 4vw, 26px)', fontWeight: 800, color: '#0f172a', margin: '0 0 2px 0', letterSpacing: '-0.3px' }}>
           {filters.search ? `Results for "${filters.search}"` : filters.category ? `${filters.category.toUpperCase()} Collection` : 'Explore Fashion'}
@@ -232,7 +123,7 @@ export default function Products() {
         </p>
       </div>
 
-      {/* 4. MOBILE & DESKTOP SLIDE-OVER FILTER SIDEBAR / DRAWER */}
+      {/* 2. MOBILE & DESKTOP SLIDE-OVER FILTER SIDEBAR / DRAWER */}
       <AnimatePresence>
         {sidebarOpen && (
           <>
@@ -455,7 +346,7 @@ export default function Products() {
         )}
       </AnimatePresence>
 
-      {/* 5. PRODUCT GRID DISPLAY */}
+      {/* 3. PRODUCT GRID DISPLAY */}
       {loading ? (
         <div className="product-grid">
           {[1, 2, 3, 4, 5, 6, 7, 8].map(i => (
@@ -501,7 +392,7 @@ export default function Products() {
 
           {/* DIV 2: Featured & Trending Items Section */}
           {recommendations.length > 0 && (
-            <div style={{ marginTop: '8px' }}>
+            <div style={{ marginTop: '8px', marginBottom: '24px' }}>
               <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#0f172a', marginBottom: '16px' }}>
                 Featured & Trending Items
               </h3>
@@ -514,7 +405,89 @@ export default function Products() {
           )}
         </>
       )}
+        {/* 4. PICTURE 2: EXPLORE MORE RECOMMENDATIONS SECTION */}
+      {recommendations.length > 0 && (
+        <div style={{ marginTop: '28px', marginBottom: '32px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '18px' }}>
+            <h2 style={{ fontSize: 'clamp(18px, 3.5vw, 22px)', fontWeight: 800, color: '#0f172a', margin: 0, letterSpacing: '-0.3px' }}>
+              Explore More Recommendations
+            </h2>
+            <span style={{ fontSize: '11px', fontWeight: 800, color: '#2874f0', background: '#eff6ff', border: '1px solid #bfdbfe', padding: '4px 12px', borderRadius: '16px' }}>
+              CURATED FOR YOU ✨
+            </span>
+          </div>
 
+          <div className="product-grid">
+            {recommendations.map((p, i) => (
+              <ProductCard key={`random-card-${p._id}-${i}`} product={p} index={i} showButtons={false} />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* 5. PICTURE 1: CATEGORIES CHIPS BAR (RENDERED DIRECTLY AFTER PICTURE 2 RECOMMENDATIONS) */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '6px',
+        overflowX: 'auto',
+        whiteSpace: 'nowrap',
+        paddingBottom: '10px',
+        marginTop: '16px',
+        marginBottom: '16px',
+        scrollbarWidth: 'none',
+        msOverflowStyle: 'none',
+        WebkitOverflowScrolling: 'touch'
+      }}>
+        <span style={{ fontSize: '11px', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', paddingRight: '4px', flexShrink: 0 }}>
+          CATEGORIES:
+        </span>
+        {categories.map(cat => {
+          const isActive = (filters.category || '').toLowerCase() === cat.id || (cat.id === 'saree' && (filters.search || '').toLowerCase().includes('saree'));
+          return (
+            <button
+              key={`after-pic2-cat-${cat.id}`}
+              onClick={() => updateFilter('category', cat.id)}
+              style={{
+                padding: '6px 14px', borderRadius: '18px',
+                background: isActive ? '#14327a' : '#ffffff',
+                color: isActive ? '#ffffff' : '#475569',
+                border: `1.5px solid ${isActive ? '#14327a' : '#cbd5e1'}`,
+                fontSize: '12px', fontWeight: isActive ? 800 : 600,
+                cursor: 'pointer', flexShrink: 0,
+                boxShadow: isActive ? '0 2px 8px rgba(20,50,122,0.25)' : 'none',
+                transition: 'all 0.15s'
+              }}
+            >
+              {cat.label}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* 6. CATEGORY FILTERED PRODUCTS DISPLAY SECTION (PRODUCTS AFTER CLICKING ANY CATEGORY) */}
+      {products.length > 0 && (
+        <div style={{ marginTop: '12px', marginBottom: '40px' }}>
+          {filters.category && (
+            <div style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#0f172a', margin: 0, letterSpacing: '-0.3px' }}>
+                {categories.find(c => c.id === filters.category)?.label || filters.category.toUpperCase()} Collection ({products.length})
+              </h3>
+              <button
+                onClick={() => updateFilter('category', '')}
+                style={{ fontSize: '12px', fontWeight: 700, color: '#dc2626', background: '#fef2f2', border: '1px solid #fecaca', padding: '4px 12px', borderRadius: '12px', cursor: 'pointer' }}
+              >
+                Clear Category ✕
+              </button>
+            </div>
+          )}
+          <div className="product-grid">
+            {products.map((p, i) => (
+              <ProductCard key={`filtered-cat-prod-${p._id}-${i}`} product={p} index={i} showButtons={false} />
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

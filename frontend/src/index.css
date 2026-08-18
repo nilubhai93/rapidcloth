@@ -77,6 +77,8 @@ body {
 html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* Responsive base font-size: scales from 14px at 320px to 16px at 1024px+ */
+  font-size: clamp(13.5px, calc(12px + 0.5vw), 16px);
 }
 
 body {
@@ -85,7 +87,7 @@ body {
   color: var(--text-primary);
   line-height: 1.6;
   overflow-x: hidden;
-  font-size: calc(16px * var(--font-scale, 1));
+  font-size: 1rem;
 }
 
 .navbar-fixed-container {

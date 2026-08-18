@@ -776,8 +776,8 @@ export default function Home() {
           </div>
 
           {/* Card 3: 50% Off  */}
-          <div className="promo-card" style={{
-            background: 'var(--bg-elevated)', borderRadius: '12px', padding: '20px',
+          <div className="promo-card bg-[var(--bg-elevated)] max-md:!bg-gradient-to-b max-md:!from-[olive] max-md:!to-[var(--bg-elevated)]" style={{
+            borderRadius: '12px', padding: '20px',
             display: 'flex', flexDirection: 'column', minHeight: '380px',
             boxShadow: '0 4px 20px rgba(0,0,0,0.05)', border: '1px solid var(--border)'
           }}>
@@ -1009,8 +1009,8 @@ export default function Home() {
           padding: '0 24px'
         }}>
           {/* Card 5: Already Visited */}
-          <div className="promo-card" style={{
-            background: '#ffffff', borderRadius: '16px', padding: '20px',
+          <div className="promo-card bg-[#ffffff] max-md:!bg-gradient-to-b max-md:!from-[orchid] max-md:!to-[#ffffff]" style={{
+            borderRadius: '16px', padding: '20px',
             display: 'flex', flexDirection: 'column', minHeight: '360px',
             boxShadow: '0 4px 18px rgba(0,0,0,0.04)', border: '1px solid rgba(0,0,0,0.06)'
           }}>
@@ -1069,8 +1069,8 @@ export default function Home() {
           </div>
 
           {/* Card 8: Best from Best */}
-          <div className="promo-card" style={{
-            background: '#ffffff', borderRadius: '16px', padding: '20px',
+          <div className="promo-card bg-[#ffffff] max-md:!bg-gradient-to-b max-md:!from-[cornflowerblue] max-md:!to-[#ffffff]" style={{
+            borderRadius: '16px', padding: '20px',
             display: 'flex', flexDirection: 'column', minHeight: '360px',
             boxShadow: '0 4px 18px rgba(0,0,0,0.04)', border: '1px solid rgba(0,0,0,0.06)'
           }}>
@@ -1244,7 +1244,7 @@ export default function Home() {
             </div>
 
             {/* Top Deals on | Men's Underwear */}
-            <div style={{ background: '#fff', padding: '20px', borderRadius: '4px', display: 'flex', flexDirection: 'column', height: '100%', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+            <div className="bg-[#fff] max-md:!bg-gradient-to-b max-md:!from-rose-300 max-md:!to-[#fff]" style={{ padding: '20px', borderRadius: '4px', display: 'flex', flexDirection: 'column', height: '100%', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
               <h2 style={{ fontSize: '18px', fontWeight: 700, marginBottom: '12px', color: '#0F1111', fontFamily: 'var(--font-sans)' }}>{t('home.topDealsMenUnderwear')}</h2>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', flexGrow: 1 }}>
                 {getCardProducts(p => p.gender === 'men' && p.discountPrice !== null).map(p => (
@@ -1414,7 +1414,7 @@ export default function Home() {
             </div>
 
             {/* Festival */}
-            <div style={{ background: '#fff', padding: '20px', borderRadius: '4px', display: 'flex', flexDirection: 'column', height: '100%', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+            <div className="bg-[#fff] max-md:!bg-gradient-to-b max-md:!from-[#d28e46] max-md:!to-[#fff]" style={{ padding: '20px', borderRadius: '4px', display: 'flex', flexDirection: 'column', height: '100%', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
               <h2 style={{ fontSize: '18px', fontWeight: 700, marginBottom: '12px', color: '#0F1111', fontFamily: 'var(--font-sans)' }}>Festival</h2>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', flexGrow: 1 }}>
                 {getCardProducts(p => p.occasion && p.occasion.includes('festival')).map(p => (
@@ -1520,7 +1520,7 @@ export default function Home() {
             </div>
 
             {/* Levi's */}
-            <div style={{ background: '#fff', padding: '20px', borderRadius: '4px', display: 'flex', flexDirection: 'column', height: '100%', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+            <div className="bg-[#fff] max-md:!bg-gradient-to-b max-md:!from-[#e35335] max-md:!to-[#fff]" style={{ padding: '20px', borderRadius: '4px', display: 'flex', flexDirection: 'column', height: '100%', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
               <h2 style={{ fontSize: '18px', fontWeight: 700, marginBottom: '12px', color: '#0F1111', fontFamily: 'var(--font-sans)' }}>Levi's</h2>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', flexGrow: 1 }}>
                 {getCardProducts(p => p.brand && p.brand.toLowerCase() === "levi's").map(p => (
@@ -1801,7 +1801,7 @@ export default function Home() {
         .fk-hero-container {
           max-width: 1440px;
           margin: 0 auto;
-          padding: 12px 0 20px;
+          padding: 16px 24px 20px;
           display: flex;
           flex-direction: column;
           align-items: center;

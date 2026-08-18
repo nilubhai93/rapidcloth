@@ -1,17 +1,79 @@
 /* ── Responsive main content padding for fixed navbar ── */
 .app-main {
-  padding-top: 130px;
+  padding-top: 168px;
   transition: padding-top 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.app-main.standard-nav {
+  padding-top: 112px;
+}
+
+.app-main.cart-page-main {
+  padding-top: 70px;
+}
+
+.products-page-container {
+  margin: 30px auto !important;
+}
+
+/* ── Responsive typography scaling for all devices ── */
+h1,
+.text-heading-xl {
+  font-size: clamp(1.25rem, 1rem + 1.5vw, 2.25rem);
+}
+
+h2,
+.text-heading-lg {
+  font-size: clamp(1.1rem, 0.9rem + 1.2vw, 1.875rem);
+}
+
+h3,
+.text-heading-md {
+  font-size: clamp(0.95rem, 0.85rem + 0.8vw, 1.5rem);
+}
+
+h4,
+.text-heading-sm {
+  font-size: clamp(0.875rem, 0.8rem + 0.5vw, 1.25rem);
+}
+
+p,
+.text-body {
+  font-size: clamp(0.8125rem, 0.75rem + 0.35vw, 1rem);
+}
+
+.text-body-sm {
+  font-size: clamp(0.6875rem, 0.65rem + 0.25vw, 0.875rem);
+}
+
+.text-caption {
+  font-size: clamp(0.625rem, 0.6rem + 0.2vw, 0.75rem);
 }
 
 @media (max-width: 768px) {
   .app-main {
-    padding-top: 225px;
+    padding-top: 310px;
+  }
+
+  .app-main.standard-nav {
+    padding-top: 310px;
+  }
+
+  .app-main.cart-page-main {
+    padding-top: 55px;
   }
 }
 
 @media (max-width: 480px) {
   .app-main {
-    padding-top: 225px;
+    padding-top: 310px;
+  }
+
+  .app-main.standard-nav {
+    padding-top: 310px;
+  }
+
+  .app-main.cart-page-main {
+    padding-top: 50px;
   }
 }

@@ -78,6 +78,7 @@ function AppContent() {
   const isRentPage = location.pathname.startsWith('/rent');
   const isAuthPage = location.pathname === '/login' || location.pathname === '/register';
   const isHomePage = location.pathname === '/' || location.pathname === '/shop' || location.pathname === '/ai-stylist';
+  const isCartPage = location.pathname === '/cart' || location.pathname === '/rent/cart';
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -86,7 +87,7 @@ function AppContent() {
   return (
     <div className="app-page-wrapper" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', width: '100%', overflowX: 'hidden' }}>
       {!isRentPage && !isDashboard && <Navbar />}
-      <main className={`app-main ${isHomePage ? 'has-categories-nav' : 'standard-nav'}`} style={{ flex: 1, width: '100%' }}>
+      <main className={`app-main ${isCartPage ? 'cart-page-main' : isHomePage ? 'has-categories-nav' : 'standard-nav'}`} style={{ flex: 1, width: '100%' }}>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/shop" element={<Home />} />
