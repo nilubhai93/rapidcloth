@@ -82,6 +82,8 @@ export default function RentFooter() {
           zIndex: 9999,
           background: '#070d1e',
           borderTop: '1px solid rgba(212, 175, 55, 0.25)',
+          borderTopLeftRadius: '10px',
+          borderTopRightRadius: '10px',
           padding: '0 4px',
           paddingBottom: 'env(safe-area-inset-bottom, 0px)',
           display: 'none',

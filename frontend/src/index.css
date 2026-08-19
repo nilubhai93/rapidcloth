@@ -747,3 +747,10 @@ html {
     font-size: 88%;
   }
 }
+
+/* Hide Product Card action buttons on mobile devices */
+@media (max-width: 768px) {
+  .pc-action-buttons {
+    display: none !important;
+  }
+}

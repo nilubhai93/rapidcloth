@@ -439,9 +439,7 @@ export default function Products() {
         msOverflowStyle: 'none',
         WebkitOverflowScrolling: 'touch'
       }}>
-        <span style={{ fontSize: '11px', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', paddingRight: '4px', flexShrink: 0 }}>
-          CATEGORIES:
-        </span>
+
         {categories.map(cat => {
           const isActive = (filters.category || '').toLowerCase() === cat.id || (cat.id === 'saree' && (filters.search || '').toLowerCase().includes('saree'));
           return (
@@ -467,7 +465,7 @@ export default function Products() {
 
       {/* 6. CATEGORY FILTERED PRODUCTS DISPLAY SECTION (PRODUCTS AFTER CLICKING ANY CATEGORY) */}
       {products.length > 0 && (
-        <div style={{ marginTop: '12px', marginBottom: '40px' }}>
+        <div style={{ marginTop: '12px', marginBottom: '10px' }}>
           {filters.category && (
             <div style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#0f172a', margin: 0, letterSpacing: '-0.3px' }}>

@@ -131,6 +131,7 @@ export default function Navbar() {
   const isCartPage = location.pathname === '/cart' || location.pathname === '/rent/cart';
   const isAuthPage = location.pathname === '/login' || location.pathname === '/register';
   const isHomePage = location.pathname === '/' || location.pathname === '/shop' || location.pathname === '/ai-stylist';
+  const isProfilePage = location.pathname === '/profile';
 
   const [searchQuery, setSearchQuery] = useState('');
   const [searchCategory, setSearchCategory] = useState('All');
@@ -479,11 +480,11 @@ export default function Navbar() {
 
   return (
     <>
-      <header className="navbar-fixed-container fixed top-0 left-0 right-0 z-[100] bg-white max-md:rounded-b-[6px] border-b border-gray-200/90 shadow-xs transition-all duration-300 font-sans">
+      <header className={`navbar-fixed-container fixed top-0 left-0 right-0 z-[100] bg-white max-md:rounded-b-[6px] border-b border-gray-200/90 shadow-xs transition-all duration-300 font-sans ${isProfilePage ? 'max-md:hidden' : ''}`}>
 
         {/* MOBILE VIEW ONLY: 4 STACKED ROWS FOR ALL MOBILE DIMENSION DEVICES (md:hidden) */}
         {!isCartPage && (
-          <div className="md:hidden bg-[#FF7518] rounded-b-[6px] pt-3.5 pb-4 flex flex-col gap-3 border-b border-slate-200/80 shadow-xs box-border">
+          <div className="md:hidden rounded-b-[6px] pt-3.5 pb-4 flex flex-col gap-3 border-b border-slate-200/80 shadow-xs box-border" style={{ background: 'linear-gradient(135deg, #ff69b4, #d68a59)' }}>
 
             {/* ROW 1 & ROW 2: ANIMATED COLLAPSIBLE CONTAINER ON SCROLL */}
             <div
@@ -1131,7 +1132,7 @@ export default function Navbar() {
             )}
 
             {/* Account Dropdown */}
-            {!isCartPage && (
+            {!isCartPage && !isProfilePage && (
               <div
                 ref={profileRef}
                 onClick={(e) => { e.stopPropagation(); setProfileOpen(!profileOpen); }}
@@ -1230,7 +1231,7 @@ export default function Navbar() {
             )}
 
             {/* Language Switcher */}
-            {!isCartPage && (
+            {!isCartPage && !isProfilePage && (
               <div
                 ref={langRef}
                 onClick={(e) => { e.stopPropagation(); setLangOpen(!langOpen); }}

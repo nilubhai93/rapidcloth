@@ -170,13 +170,17 @@ export const getProducts = async (req, res) => {
 
     return res.json({
       products,
+
       pagination: {
         page: parseInt(page),
         limit: parseInt(limit),
         total,
         pages: Math.ceil(total / parseInt(limit))
-      }
+      },
+      nbHits:products.length
     });
+
+     
   } catch (error) {
     console.error('Get products error:', error);
     res.status(500).json({ error: 'Failed to fetch products.' });

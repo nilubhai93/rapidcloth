@@ -61,13 +61,13 @@ const CarouselCard = memo(({ item }) => {
             <img src={item.images?.[0] || '/images/placeholder.png'} alt={item.name} loading="lazy" decoding="async" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', mixBlendMode: 'multiply' }} />
           </div>
           <div style={{ padding: '8px', flexGrow: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-            <div style={{ fontSize: '13px', fontWeight: 600, color: '#0F1111', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            <div style={{ fontSize: '14px', fontWeight: 400, fontFamily: 'var(--font-sans)', color: '#0F1111', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
               {item.name}
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '4px' }}>
-              <span style={{ fontSize: '15px', fontWeight: 700, color: '#0F1111' }}>₹{(item.discountPrice || item.price || 85).toLocaleString()}</span>
-              <span style={{ fontSize: '11px', color: '#555', display: 'flex', alignItems: 'center', gap: '2px', background: '#f8f8f8', padding: '2px 4px', borderRadius: '4px' }}>
-                <span style={{ color: '#FFA41C' }}>★</span> {item.rating || 4.8}
+              <span style={{ fontSize: '16px', fontWeight: 700, fontFamily: 'var(--font-sans)', color: '#0F1111' }}>₹{(item.discountPrice || item.price || 85).toLocaleString()}</span>
+              <span style={{ fontSize: '12px', fontWeight: 700, color: '#0F1111', display: 'flex', alignItems: 'center', gap: '2px', background: '#f8f8f8', padding: '2px 4px', borderRadius: '4px' }}>
+                {item.rating || 4.8} <span style={{ color: '#FFA41C' }}>★</span>
               </span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '6px' }}>
@@ -279,7 +279,7 @@ export default function Home() {
     videoRefs.current.forEach((el, idx) => {
       if (el) {
         if (idx === stylistVideoIndex) {
-          el.play().catch(() => {});
+          el.play().catch(() => { });
         } else {
           el.pause();
         }
@@ -551,7 +551,8 @@ export default function Home() {
       '--font-display': '"Inter", sans-serif',
       fontFamily: 'var(--font-sans)',
       minHeight: '100vh',
-      paddingBottom: '40px'
+      paddingBottom: '40px',
+      paddingTop: '24px'
     }}>
 
       {/* ═══ Multi-Banner Slider (Rendered Direct on Root Page) ═══ */}
@@ -882,7 +883,7 @@ export default function Home() {
               const price = p.discountPrice || p.price || 0;
               const mrp = p.price || 0;
               const discount = mrp && price < mrp ? Math.round(((mrp - price) / mrp) * 100) : 0;
-              
+
               // Stable deterministic rating and review count per product ID (never changes automatically on re-render)
               const getStableRating = (id) => {
                 if (!id) return '4.3';
@@ -1017,11 +1018,11 @@ export default function Home() {
             <h3 style={{ fontSize: '16px', fontWeight: 700, marginBottom: '14px', color: '#111827', fontFamily: 'var(--font-sans)', minHeight: '44px', display: 'flex', alignItems: 'center' }}>view already visit products</h3>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', flex: 1 }}>
               {visitedProducts.map(p => (
-                <Link key={p._id} to="/products" style={{ textDecoration: 'none' }}>
-                  <div style={{ background: '#f3f4f6', borderRadius: '10px', overflow: 'hidden', height: '110px' }}>
+                <Link key={p._id} to="/products" style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+                  <div style={{ background: '#f3f4f6', borderRadius: '10px', overflow: 'hidden', height: '110px', width: '100%' }}>
                     <img src={p.images?.[0] || '/images/placeholder.png'} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={p.name} />
                   </div>
-                  <p style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '6px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.name}</p>
+                  <p style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '6px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100%' }}>{p.name}</p>
                 </Link>
               ))}
             </div>
@@ -1037,11 +1038,11 @@ export default function Home() {
             <h3 style={{ fontSize: '16px', fontWeight: 700, marginBottom: '14px', color: '#111827', fontFamily: 'var(--font-sans)', minHeight: '44px', display: 'flex', alignItems: 'center' }}>pick up where you left off</h3>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', flex: 1 }}>
               {leftOffProducts.map(p => (
-                <Link key={p._id} to="/products" style={{ textDecoration: 'none' }}>
-                  <div style={{ background: '#f3f4f6', borderRadius: '10px', overflow: 'hidden', height: '110px' }}>
+                <Link key={p._id} to="/products" style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+                  <div style={{ background: '#f3f4f6', borderRadius: '10px', overflow: 'hidden', height: '110px', width: '100%' }}>
                     <img src={p.images?.[0] || '/images/placeholder.png'} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={p.name} />
                   </div>
-                  <p style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '6px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.name}</p>
+                  <p style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '6px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100%' }}>{p.name}</p>
                 </Link>
               ))}
             </div>
@@ -1057,11 +1058,11 @@ export default function Home() {
             <h3 style={{ fontSize: '16px', fontWeight: 700, marginBottom: '14px', color: '#111827', fontFamily: 'var(--font-sans)', minHeight: '44px', display: 'flex', alignItems: 'center' }}>under 300 | bestsells of men's dresses.</h3>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', flex: 1 }}>
               {under300Men.map(p => (
-                <Link key={p._id} to="/products" style={{ textDecoration: 'none' }}>
-                  <div style={{ background: '#f3f4f6', borderRadius: '10px', overflow: 'hidden', height: '110px' }}>
+                <Link key={p._id} to="/products" style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+                  <div style={{ background: '#f3f4f6', borderRadius: '10px', overflow: 'hidden', height: '110px', width: '100%' }}>
                     <img src={p.images?.[0] || '/images/placeholder.png'} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={p.name} />
                   </div>
-                  <p style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '6px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.name}</p>
+                  <p style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '6px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100%' }}>{p.name}</p>
                 </Link>
               ))}
             </div>
@@ -1077,18 +1078,18 @@ export default function Home() {
             <h3 style={{ fontSize: '16px', fontWeight: 700, marginBottom: '14px', color: '#111827', fontFamily: 'var(--font-sans)', minHeight: '44px', display: 'flex', alignItems: 'center' }}>choose your best from best.</h3>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', flex: 1 }}>
               {bestProducts.map(p => (
-                <Link key={p._id} to="/products" style={{ textDecoration: 'none' }}>
-                  <div style={{ background: '#f3f4f6', borderRadius: '10px', overflow: 'hidden', height: '110px' }}>
+                <Link key={p._id} to="/products" style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+                  <div style={{ background: '#f3f4f6', borderRadius: '10px', overflow: 'hidden', height: '110px', width: '100%' }}>
                     <img src={p.images?.[0] || '/images/placeholder.png'} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={p.name} />
                   </div>
-                  <p style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '6px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.name}</p>
+                  <p style={{ fontSize: '11px', color: 'var(--text-secondary)', marginTop: '6px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', width: '100%' }}>{p.name}</p>
                 </Link>
               ))}
             </div>
             <Link to="/products" style={{ color: '#007185', fontWeight: 600, fontSize: '13px', marginTop: '14px', textDecoration: 'none' }}>Explore top collection</Link>
           </div>
         </div>
-      </section> 
+      </section>
 
       {/* Trending Now Section */}
       <section style={{ padding: '12px 0 10px' }}>
@@ -1848,14 +1849,17 @@ export default function Home() {
         .fk-track {
           display: flex;
           gap: 16px;
-          overflow-x: auto;
+          overflow-x: hidden;
           scrollbar-width: none;
           -ms-overflow-style: none;
           padding: 10px 0 20px 0;
           width: 100%;
           box-sizing: border-box;
-          -webkit-overflow-scrolling: touch;
-          scroll-snap-type: x mandatory;
+          pointer-events: none; /* Disable manual scrolling interactions on track */
+        }
+        /* Re-enable pointer events on the cards themselves so they can be clicked */
+        .fk-track > * {
+          pointer-events: auto;
         }
         .fk-track::-webkit-scrollbar { display: none; }
         .fk-card {
@@ -2018,6 +2022,9 @@ export default function Home() {
 
         /* Responsive behavior for mobile */
         @media (max-width: 768px) {
+          .fk-nav-btn {
+            display: none;
+          }
           .fk-hero-section {
             padding: 2px 0 10px;
           }
@@ -2034,6 +2041,7 @@ export default function Home() {
             padding: 6px 0px 14px 0px;
             margin: 0;
             width: 100%;
+            pointer-events: auto; /* Re-enable scroll for mobile */
           }
           .fk-card {
             flex: 0 0 85vw;

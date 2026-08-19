@@ -334,7 +334,7 @@ export default function AIStylist() {
         id="ai-stylist-fab"
         onClick={() => setOpen(!open)}
         animate={{ 
-          boxShadow: open ? 'none' : '0 0 30px rgba(168, 85, 247, 0.4)',
+          boxShadow: open ? 'none' : '0 0 30px rgba(218, 165, 32, 0.5)',
           y: open ? 0 : [0, -5, 0]
         }}
         transition={{ y: { repeat: Infinity, duration: 2, ease: "easeInOut" } }}
@@ -344,14 +344,14 @@ export default function AIStylist() {
           right: 'calc(max(24px, (100vw - 1440px) / 2 + 24px))',
           width: '56px', height: '56px',
           borderRadius: '50%',
-          background: 'var(--gradient-primary)',
+          background: 'linear-gradient(135deg, #6495ED 0%, #DAA520 100%)',
           color: 'white',
           display: open ? 'none' : 'flex',
           alignItems: 'center', justifyContent: 'center',
           zIndex: 1001,
           cursor: 'pointer',
           border: 'none',
-          boxShadow: '0 8px 32px rgba(168, 85, 247, 0.4)'
+          boxShadow: '0 8px 32px rgba(218, 165, 32, 0.4)'
         }}
       >
         <AutoAwesomeIcon sx={{ fontSize: 'clamp(20px, 4vw, 28px)' }} />

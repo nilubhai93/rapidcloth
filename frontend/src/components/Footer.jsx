@@ -88,6 +88,8 @@ export default function Footer() {
               zIndex: 999,
               background: '#0a0a0a',
               borderTop: '1px solid rgba(255,255,255,0.1)',
+              borderTopLeftRadius: '28px',
+              borderTopRightRadius: '28px',
               padding: '0 4px',
               paddingBottom: 'env(safe-area-inset-bottom, 0px)',
             }}

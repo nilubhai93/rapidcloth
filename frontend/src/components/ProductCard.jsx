@@ -1,5 +1,5 @@
 import { useState, memo } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
@@ -7,6 +7,10 @@ import ShoppingBagOutlinedIcon from '@mui/icons-material/ShoppingBagRounded';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteRounded';
 import StarIcon from '@mui/icons-material/StarRounded';
 import LocalShippingOutlinedIcon from '@mui/icons-material/LocalShippingRounded';
+import CloseIcon from '@mui/icons-material/CloseRounded';
+import AddIcon from '@mui/icons-material/AddRounded';
+import RemoveIcon from '@mui/icons-material/RemoveRounded';
+import ShareOutlinedIcon from '@mui/icons-material/ShareRounded';
 
 const ProductCard = memo(function ProductCard({ product, index = 0, showButtons = true, linkTo }) {
   const { addToCart, items, updateItem, removeItem } = useCart();
@@ -14,6 +18,8 @@ const ProductCard = memo(function ProductCard({ product, index = 0, showButtons 
   const [selectedSize, setSelectedSize] = useState('');
   const [adding, setAdding] = useState(false);
   const [liked, setLiked] = useState(false);
+  const [showPopup, setShowPopup] = useState(false);
+  const [quantity, setQuantity] = useState(1);
 
   const price = product.discountPrice || product.price;
   const hasDiscount = product.discountPrice && product.discountPrice < product.price;
@@ -26,11 +32,33 @@ const ProductCard = memo(function ProductCard({ product, index = 0, showButtons 
     if (!sizeToUse) return;
     setAdding(true);
     try {
-      await addToCart(product._id, sizeToUse, product.colors?.[0], 1, false, 0, product);
+      await addToCart(product._id, sizeToUse, product.colors?.[0], quantity, false, 0, product);
+      window.alert("Your bag updated");
+      setTimeout(() => setShowPopup(false), 600);
     } catch (err) {
       console.error('Add to cart failed:', err);
     } finally {
       setTimeout(() => setAdding(false), 500);
+    }
+  };
+
+  const handleShare = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const url = `${window.location.origin}/products/${product._id}`;
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: product.name,
+          text: `Check out ${product.name} on RapidCloth!`,
+          url: url,
+        });
+      } catch (err) {
+        console.error('Share failed:', err);
+      }
+    } else {
+      navigator.clipboard.writeText(url);
+      window.alert("Link copied to clipboard!");
     }
   };
 
@@ -55,7 +83,9 @@ const ProductCard = memo(function ProductCard({ product, index = 0, showButtons 
         transition: 'all var(--transition-base)',
         position: 'relative'
       }}
-      whileHover={{ borderColor: 'rgba(20, 50, 122, 0.5)' }}
+      whileHover={{ borderColor: 'rgba(40, 116, 240, 0.4)', boxShadow: '0 8px 24px rgba(0,0,0,0.08)' }}
+      onMouseEnter={() => window.innerWidth > 768 && setShowPopup(true)}
+      onMouseLeave={() => window.innerWidth > 768 && setShowPopup(false)}
     >
       <Link to={linkTo || `/products/${product._id}`} style={{ textDecoration: 'none', color: 'inherit', flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
         {/* Image */}
@@ -78,7 +108,7 @@ const ProductCard = memo(function ProductCard({ product, index = 0, showButtons 
               <span style={{
                 padding: '4px 10px', borderRadius: 'var(--radius-full)',
                 background: 'var(--gradient-secondary)',
-                fontSize: '12px', fontWeight: 800, color: 'white'
+                fontSize: '12px', fontWeight: 400, fontFamily: 'var(--font-sans)', color: 'white'
               }}>Rent</span>
             )}
           </div>
@@ -91,48 +121,78 @@ const ProductCard = memo(function ProductCard({ product, index = 0, showButtons 
               width: '36px', height: '36px', borderRadius: '50%',
               background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(10px)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              color: liked ? '#ef4444' : 'white', border: 'none', cursor: 'pointer'
+              color: liked ? '#ef4444' : 'white', border: 'none', cursor: 'pointer', zIndex: 5
             }}
           >
             <FavoriteBorderIcon sx={{ fontSize: 20 }} />
           </motion.button>
+
+          {/* Share */}
+          <motion.button
+            onClick={handleShare}
+            style={{
+              position: 'absolute', top: '56px', right: '12px',
+              width: '36px', height: '36px', borderRadius: '50%',
+              background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(10px)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              color: 'white', border: 'none', cursor: 'pointer', zIndex: 5
+            }}
+          >
+            <ShareOutlinedIcon sx={{ fontSize: 18 }} />
+          </motion.button>
+
+          {/* Quick Add Mobile Trigger (visible only on mobile) */}
+          <motion.button
+            className="md:hidden flex items-center justify-center"
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowPopup(true); }}
+            style={{
+              position: 'absolute', bottom: '12px', right: '12px',
+              width: '40px', height: '40px', borderRadius: '50%',
+              background: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(4px)',
+              color: '#2874f0', border: '1px solid rgba(40, 116, 240, 0.2)', cursor: 'pointer',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.1)', zIndex: 5
+            }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <ShoppingBagOutlinedIcon sx={{ fontSize: 20 }} />
+          </motion.button>
         </div>
 
         {/* Info */}
-        <div style={{ padding: '16px', flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
+        <div style={{ padding: '12px', flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
           <h3 style={{
-            fontSize: '16px', fontWeight: 700, color: 'var(--text-primary)',
-            lineHeight: 1.4, marginBottom: '4px',
+            fontSize: '14px', fontWeight: 400, color: 'var(--text-primary)',
+            fontFamily: 'var(--font-sans)',
+            lineHeight: 1.4, marginBottom: '2px',
             display: '-webkit-box', WebkitLineClamp: 1, WebkitBoxOrient: 'vertical',
             overflow: 'hidden'
           }}>{product.name}</h3>
 
           <p style={{
-            fontSize: '13px', color: 'var(--text-muted)', marginBottom: '8px',
-            display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical',
+            fontSize: '13px', color: 'var(--text-muted)', marginBottom: '4px',
+            whiteSpace: 'nowrap', textOverflow: 'ellipsis',
             overflow: 'hidden'
           }}>{product.description}</p>
 
-          <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+          <div className="max-md:hidden flex items-center" style={{ fontSize: '11px', color: 'var(--text-muted)', marginBottom: '4px', gap: '4px' }}>
             <LocalShippingOutlinedIcon sx={{ fontSize: 14 }} />
             <span>{fastDelivery ? 'Fast Delivery' : 'Standard Delivery'}</span>
           </div>
 
           {/* Star Rating Emojis */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '2px', marginBottom: '12px' }}>
-            {Array.from({ length: 5 }).map((_, i) => (
-              <span key={i} style={{ fontSize: '14px', opacity: i < Math.floor(product.rating || 4) ? 1 : 0.2 }}>⭐</span>
-            ))}
-            <span style={{ fontSize: '12px', color: 'var(--text-muted)', marginLeft: '4px' }}>({product.reviewCount || 0})</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '6px' }}>
+            <span style={{ fontSize: '12px', fontWeight: 700, color: '#0F1111' }}>{product.rating || 4.8} ★</span>
+            <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>({product.reviewCount || 0})</span>
           </div>
 
           <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginTop: 'auto' }}>
-            <span style={{ fontSize: '18px', fontWeight: 900, color: 'var(--text-primary)' }}>
+            <span style={{ fontSize: '16px', fontWeight: 700, fontFamily: 'var(--font-sans)', color: 'var(--text-primary)' }}>
               ₹{(product.isAvailableForRent ? product.rentPricePerDay : price).toLocaleString()}
               {product.isAvailableForRent && <span style={{ fontSize: '12px', fontWeight: 500, color: 'var(--text-muted)', marginLeft: '4px' }}>/ day</span>}
             </span>
             {!product.isAvailableForRent && hasDiscount && (
-              <span style={{ fontSize: '14px', color: 'var(--text-muted)', textDecoration: 'line-through' }}>
+              <span style={{ fontSize: '13px', fontWeight: 400, color: '#878787', textDecoration: 'line-through' }}>
                 ₹{product.price.toLocaleString()}
               </span>
             )}
@@ -142,82 +202,26 @@ const ProductCard = memo(function ProductCard({ product, index = 0, showButtons 
 
       {/* Add to Cart & Buy Now */}
       {showButtons && (
-        <div style={{ padding: '0 16px 16px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-          {qtyInCart > 0 ? (
-            <div style={{
-              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-              background: 'linear-gradient(135deg, rgba(20,50,122,0.08), rgba(201,169,110,0.08))', borderRadius: 'var(--radius-md)',
-              padding: '4px', border: '1px solid rgba(20,50,122,0.3)'
-            }}>
-              <button
-                onClick={(e) => {
-                  e.preventDefault(); e.stopPropagation();
-                  if (qtyInCart > 1) updateItem(cartItem._id, qtyInCart - 1);
-                  else removeItem(cartItem._id);
-                }}
-                style={{
-                  width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  background: 'white', color: '#111',
-                  border: 'none', borderRadius: 'var(--radius-sm)', cursor: 'pointer',
-                  fontSize: '16px', fontWeight: 'bold'
-                }}
-              >-</button>
-              <span style={{ fontWeight: 800, color: '#111', fontSize: '13px' }}>
-                {qtyInCart} in {product.isAvailableForRent ? 'Rental' : 'Bag'}
-              </span>
-              <button
-                onClick={(e) => {
-                  e.preventDefault(); e.stopPropagation();
-                  updateItem(cartItem._id, qtyInCart + 1);
-                }}
-                style={{
-                  width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  background: 'white', color: '#111',
-                  border: 'none', borderRadius: 'var(--radius-sm)', cursor: 'pointer',
-                  fontSize: '16px', fontWeight: 'bold'
-                }}
-              >+</button>
-            </div>
-          ) : (
-            <button
-              onClick={handleAddToCart}
-              disabled={adding}
-              style={{
-                width: '100%', padding: '12px',
-                borderRadius: '8px',
-                background: adding ? '#22c55e' : 'linear-gradient(135deg, #1e4db7 0%, #14327a 100%)',
-                color: 'white',
-                fontSize: '14px', fontWeight: 700,
-                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
-                border: 'none',
-                cursor: adding ? 'not-allowed' : 'pointer',
-                boxShadow: '0 4px 10px rgba(30, 77, 183, 0.3)',
-                transition: 'background 0.2s ease, opacity 0.2s ease'
-              }}
-            >
-              <ShoppingBagOutlinedIcon sx={{ fontSize: 18 }} />
-              {adding ? 'Added!' : (product.isAvailableForRent ? 'Add to Rental' : 'Add to Bag')}
-            </button>
-          )}
-
-          {qtyInCart > 0 && (
-            <button
-              onClick={(e) => { e.preventDefault(); e.stopPropagation(); window.location.href = '/cart'; }}
-              style={{
-                width: '100%', padding: '12px',
-                borderRadius: '8px',
-                background: 'rgba(34, 197, 94, 0.1)',
-                color: '#22c55e',
-                fontSize: '14px', fontWeight: 700,
-                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
-                border: '1px solid #22c55e',
-                cursor: 'pointer',
-                transition: 'background 0.2s ease, opacity 0.2s ease'
-              }}
-            >
-              Go to Cart
-            </button>
-          )}
+        <div className="pc-action-buttons" style={{ padding: '0 16px 16px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <button
+            onClick={handleAddToCart}
+            disabled={adding}
+            style={{
+              width: '100%', padding: '12px',
+              borderRadius: '8px',
+              background: adding ? '#22c55e' : 'linear-gradient(135deg, #1e4db7 0%, #14327a 100%)',
+              color: 'white',
+              fontSize: '14px', fontWeight: 700,
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+              border: 'none',
+              cursor: adding ? 'not-allowed' : 'pointer',
+              boxShadow: '0 4px 10px rgba(30, 77, 183, 0.3)',
+              transition: 'background 0.2s ease, opacity 0.2s ease'
+            }}
+          >
+            <ShoppingBagOutlinedIcon sx={{ fontSize: 18 }} />
+            {adding ? 'Added!' : (product.isAvailableForRent ? 'Add to Rental' : 'Add to Bag')}
+          </button>
 
           <motion.button
             onClick={async (e) => {
@@ -243,6 +247,61 @@ const ProductCard = memo(function ProductCard({ product, index = 0, showButtons 
           </motion.button>
         </div>
       )}
+
+      {/* QUICK ADD SLIDE-UP POPUP OVERLAY */}
+      <AnimatePresence>
+        {showPopup && (
+          <motion.div
+            initial={{ y: '100%', opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: '100%', opacity: 0 }}
+            transition={{ type: 'spring', damping: 26, stiffness: 280 }}
+            style={{
+              position: 'absolute', bottom: 0, left: 0, right: 0,
+              background: 'rgba(255, 255, 255, 0.98)',
+              backdropFilter: 'blur(20px)',
+              borderTopLeftRadius: '24px', borderTopRightRadius: '24px',
+              padding: '20px',
+              boxShadow: '0 -10px 40px rgba(0,0,0,0.15)',
+              display: 'flex', flexDirection: 'column', gap: '16px',
+              zIndex: 50
+            }}
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: '15px', fontWeight: 800, color: '#0f172a' }}>Quick Add</span>
+              <button onClick={() => setShowPopup(false)} style={{ background: '#f1f5f9', borderRadius: '50%', width: '28px', height: '28px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: 'none', color: '#64748b', cursor: 'pointer', transition: 'all 0.2s' }}>
+                <CloseIcon sx={{ fontSize: 18 }} />
+              </button>
+            </div>
+
+            {product.sizes && product.sizes.length > 0 && (
+              <div>
+                <div style={{ fontSize: '12px', color: '#64748b', marginBottom: '8px', fontWeight: 700 }}>SELECT SIZE</div>
+                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                  {product.sizes.map(s => (
+                    <button key={s.size} onClick={() => setSelectedSize(s.size)} style={{ padding: '6px 14px', borderRadius: '12px', border: selectedSize === s.size ? '2px solid #2874f0' : '1px solid #cbd5e1', background: selectedSize === s.size ? '#eff6ff' : '#ffffff', color: selectedSize === s.size ? '#2874f0' : '#334155', fontSize: '13px', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s', boxShadow: selectedSize === s.size ? '0 2px 8px rgba(40,116,240,0.15)' : 'none' }}>{s.size}</button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#f8fafc', padding: '10px 14px', borderRadius: '14px', border: '1px solid #e2e8f0' }}>
+              <span style={{ fontSize: '13px', fontWeight: 800, color: '#334155' }}>QUANTITY</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                <button onClick={() => setQuantity(Math.max(1, quantity - 1))} style={{ width: '32px', height: '32px', border: '1px solid #cbd5e1', background: '#ffffff', borderRadius: '10px', cursor: 'pointer', boxShadow: '0 2px 6px rgba(0,0,0,0.04)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#0f172a' }}><RemoveIcon sx={{ fontSize: 18 }} /></button>
+                <span style={{ fontSize: '16px', fontWeight: 900, width: '20px', textAlign: 'center', color: '#0f172a' }}>{quantity}</span>
+                <button onClick={() => setQuantity(quantity + 1)} style={{ width: '32px', height: '32px', border: '1px solid #cbd5e1', background: '#ffffff', borderRadius: '10px', cursor: 'pointer', boxShadow: '0 2px 6px rgba(0,0,0,0.04)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#0f172a' }}><AddIcon sx={{ fontSize: 18 }} /></button>
+              </div>
+            </div>
+
+            <button onClick={handleAddToCart} disabled={adding} style={{ width: '100%', padding: '14px', background: adding ? '#22c55e' : 'linear-gradient(135deg, #2874f0, #14327a)', color: '#ffffff', borderRadius: '14px', fontWeight: 800, fontSize: '14px', border: 'none', cursor: adding ? 'not-allowed' : 'pointer', boxShadow: '0 4px 15px rgba(40, 116, 240, 0.3)', marginTop: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', transition: 'all 0.3s' }}>
+              <ShoppingBagOutlinedIcon sx={{ fontSize: 20 }} />
+              {adding ? 'Added to Bag!' : (product.isAvailableForRent ? 'Add to Rental Bag' : 'Add to Bag')}
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 });

@@ -401,12 +401,12 @@ export default function ProductDetail() {
           width: 100%;
           max-width: 1440px;
           margin: 0 auto;
-          padding: 24px 24px 60px;
+          padding: 40px 24px 60px;
           box-sizing: border-box;
         }
         @media (max-width: 768px) {
           .pd-main-container {
-            padding: 16px 16px 40px;
+            padding: 24px 16px 40px;
           }
         }
         .pd-breadcrumb {

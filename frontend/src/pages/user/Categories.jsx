@@ -37,35 +37,36 @@ export default function Categories() {
   ];
 
   const sections = [
-    { title: '1. For You', items: products.slice(0, 4) },
-    { title: '2. Trending Items', items: products.slice(4, 8) },
-    { title: '3. Special Deals Items', items: products.slice(8, 12) },
-    { title: '4. Special Discount Items', items: products.slice(12, 16) }
+    { title: 'For You', items: products.slice(0, 4) },
+    { title: 'Trending Items', items: products.slice(4, 8) },
+    { title: 'Special Deals Items', items: products.slice(8, 12) },
+    { title: 'Special Discount Items', items: products.slice(12, 16) }
   ];
 
   return (
     <div className="bg-[#f0f2f5] min-h-screen pb-[80px] w-full font-sans">
       
       {/* Top Navbar */}
-      <div className="bg-[#f0f2f5] px-4 pt-4 pb-2 sticky top-0 z-50 flex items-center gap-3">
-        <button onClick={() => navigate(-1)} className="p-2 -ml-2 rounded-full hover:bg-black/5 flex-shrink-0 transition-colors">
+      <div className="sticky top-0 z-50 flex items-center gap-3" style={{ background: '#f0f2f5', padding: '16px 16px 12px 16px' }}>
+        <button onClick={() => navigate(-1)} className="rounded-full hover:bg-black/5 flex-shrink-0 transition-colors" style={{ padding: '8px', border: 'none', background: 'transparent', cursor: 'pointer' }}>
           <ArrowBackRoundedIcon className="text-slate-800" />
         </button>
-        <div className="bg-white rounded-full flex items-center px-4 py-2.5 shadow-sm flex-1 border border-slate-200">
+        <div className="bg-white rounded-full flex items-center shadow-sm flex-1 border border-slate-200" style={{ padding: '10px 16px' }}>
           <SearchIcon className="text-slate-400 mr-2" fontSize="small" />
           <input 
             type="text" 
             placeholder="Search categories..." 
             className="bg-transparent border-none outline-none flex-1 text-[13px] font-medium text-slate-700 placeholder-slate-400 w-full"
+            style={{ width: '100%' }}
           />
         </div>
-        <Link to="/cart" className="p-2 -mr-2 rounded-full hover:bg-black/5 flex-shrink-0 transition-colors relative">
+        <Link to="/cart" className="rounded-full hover:bg-black/5 flex-shrink-0 transition-colors relative" style={{ padding: '8px' }}>
           <ShoppingCartOutlinedIcon className="text-slate-800" />
           <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border border-[#f0f2f5]"></span>
         </Link>
       </div>
 
-      <div className="px-4 py-6 flex flex-col gap-8">
+      <div className="flex flex-col gap-8" style={{ padding: '24px 16px' }}>
         
         {/* Dress Types - Small Boxes Grid */}
         <section>
@@ -104,8 +105,8 @@ export default function Categories() {
         {/* Product Sections (2-column Grids) */}
         {sections.map((section, idx) => (
           <section key={idx}>
-            <div className="bg-white rounded-[12px] p-5 shadow-[0_4px_20px_rgba(0,0,0,0.05)] border border-slate-100 flex flex-col min-h-[380px]">
-              <h2 className="text-[18px] font-bold mb-4 text-slate-900">{section.title}</h2>
+            <div className="bg-white border border-slate-100 flex flex-col min-h-[380px]" style={{ padding: '20px', borderRadius: '12px', boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }}>
+              <h2 className="text-[18px] font-bold mb-4 text-slate-900" style={{ marginBottom: '16px' }}>{section.title}</h2>
               
               <div className="grid grid-cols-2 gap-3 flex-1">
                 {section.items && section.items.length > 0 ? (
