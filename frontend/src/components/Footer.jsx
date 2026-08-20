@@ -2,16 +2,16 @@ import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useCart } from '../context/CartContext';
 import { useLanguage } from '../context/LanguageContext';
-import HomeOutlinedIcon from '@mui/icons-material/HomeRounded';
-import HomeIcon from '@mui/icons-material/HomeRounded';
-import PersonOutlineIcon from '@mui/icons-material/PersonOutlineRounded';
-import PersonIcon from '@mui/icons-material/PersonRounded';
-import ShoppingBagOutlinedIcon from '@mui/icons-material/ShoppingBagRounded';
-import ShoppingBagIcon from '@mui/icons-material/ShoppingBagRounded';
-import CategoryOutlinedIcon from '@mui/icons-material/CategoryRounded';
-import CategoryIcon from '@mui/icons-material/CategoryRounded';
-import DiamondOutlinedIcon from '@mui/icons-material/DiamondRounded';
-import DiamondIcon from '@mui/icons-material/DiamondRounded';
+import HomeOutlinedIcon from '@mui/icons-material/HomeTwoTone';
+import HomeIcon from '@mui/icons-material/HomeTwoTone';
+import PersonOutlineIcon from '@mui/icons-material/PersonTwoTone';
+import PersonIcon from '@mui/icons-material/PersonTwoTone';
+import ShoppingBagOutlinedIcon from '@mui/icons-material/ShoppingBagTwoTone';
+import ShoppingBagIcon from '@mui/icons-material/ShoppingBagTwoTone';
+import CategoryOutlinedIcon from '@mui/icons-material/CategoryTwoTone';
+import CategoryIcon from '@mui/icons-material/CategoryTwoTone';
+import DiamondOutlinedIcon from '@mui/icons-material/DiamondTwoTone';
+import DiamondIcon from '@mui/icons-material/DiamondTwoTone';
 
 export default function Footer() {
   const location = useLocation();
@@ -80,14 +80,14 @@ export default function Footer() {
           <div id="bottom-nav-spacer" style={{ height: '80px' }} />
           <nav
             id="bottom-nav"
+            className="max-md:bg-[#1e3656] bg-[#feebe5]"
             style={{
               position: 'fixed',
               bottom: 0,
               left: 0,
               right: 0,
               zIndex: 999,
-              background: '#0a0a0a',
-              borderTop: '1px solid rgba(255,255,255,0.1)',
+              borderTop: '1px solid rgba(30, 54, 86, 0.1)',
               borderTopLeftRadius: '28px',
               borderTopRightRadius: '28px',
               padding: '0 4px',
@@ -127,10 +127,8 @@ export default function Footer() {
                   >
                     <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                       <IconComp
-                        sx={{
-                          fontSize: '24px',
-                          color: active ? '#ffffff' : 'rgba(255,255,255,0.6)',
-                        }}
+                        sx={{ fontSize: '24px' }}
+                        className={active ? 'text-[#1e3656] max-md:text-white' : 'text-[#1e3656]/60 max-md:text-[rgba(255,255,255,0.6)]'}
                       />
 
                       {tab.badge > 0 && (
@@ -177,13 +175,9 @@ export default function Footer() {
                       )}
                     </div>
 
-                    <span style={{
-                      fontSize: '10px',
-                      fontWeight: active ? 600 : 500,
-                      color: active ? '#ffffff' : 'rgba(255,255,255,0.5)',
-                      marginTop: '2px',
-                      letterSpacing: '0.3px',
-                    }}>
+                    <span 
+                      className={`text-[10px] mt-[4px] tracking-[0.3px] ${active ? 'font-bold text-[#1e3656] max-md:text-white' : 'font-medium text-[#1e3656]/60 max-md:text-[rgba(255,255,255,0.6)]'}`}
+                    >
                       {tab.label}
                     </span>
                   </button>

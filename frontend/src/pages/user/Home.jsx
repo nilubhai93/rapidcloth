@@ -124,49 +124,48 @@ const CarouselCard = memo(({ item }) => {
 const singleDressSlides = [
   {
     id: 's1',
-    brandTag: 'ROYAL ETHNIC',
-    partnerTag: 'EXPRESS ⚡',
-    title: 'BANARASI & KANJIVARAM SILK SAREES',
-    subtitle: 'Grand Festive Sale | Flat 65% OFF',
-    desc: 'Handcrafted pure silk sarees with golden zari embroidery. Delivery in 30 mins.',
-    bgGradient: 'linear-gradient(135deg, #7c1d1d 0%, #b91c1c 45%, #c2410c 75%, #ea580c 100%)',
-    themeRgb: '185, 28, 28',
-    image: '/saree.png',
-    link: '/products?category=saree',
-    badgeText: 'FESTIVE SPECIAL',
-    ctaText: 'Shop Collection →'
+    brandTag: '',
+    partnerTag: '',
+    title: 'New Arrivals',
+    subtitle: '',
+    desc: '',
+    bgGradient: '#fedbd0',
+    themeRgb: '254, 219, 208',
+    image: '/images/trending_look_1.png',
+    link: '/products',
+    badgeText: '',
+    ctaText: ''
   },
   {
     id: 's2',
-    brandTag: 'BRIDAL COLLECTION',
-    partnerTag: 'ROYAL ⚡',
-    title: 'DESIGNER WEDDING LEHENGAS',
-    subtitle: 'Exclusive Bridal Sale | Up to 70% OFF',
-    desc: 'Heavy zari embroidery, velvet cholis & royal bridal dupattas.',
-    bgGradient: 'linear-gradient(135deg, #881337 0%, #9f1239 45%, #be123c 75%, #e11d48 100%)',
-    themeRgb: '159, 18, 57',
-    image: '/lehenga_choli.png',
-    link: '/products?category=saree',
-    badgeText: 'BRIDAL EXCLUSIVE',
-    ctaText: 'Explore Lehengas →'
+    brandTag: '',
+    partnerTag: '',
+    title: 'Modest Wear',
+    subtitle: '',
+    desc: '',
+    bgGradient: '#fbe2d7',
+    themeRgb: '251, 226, 215',
+    image: '/images/trending_look_2.png',
+    link: '/products',
+    badgeText: '',
+    ctaText: ''
   },
   {
     id: 's3',
-    brandTag: 'FUSION WEAR',
-    partnerTag: 'HOT DEAL ⚡',
-    title: 'TRENDY INDO-WESTERN DRESSES',
-    subtitle: 'Summer Arrivals | Flat 50% OFF',
-    desc: 'Modern fusion gowns, jacket dresses & festive crop top sets.',
-    bgGradient: 'linear-gradient(135deg, #1e1b4b 0%, #3730a3 45%, #4f46e5 75%, #6366f1 100%)',
-    themeRgb: '55, 48, 163',
-    image: '/images/dress_ethnic_ad.png',
-    link: '/products?category=dress',
-    badgeText: 'NEW ARRIVAL',
-    ctaText: 'Shop Fusion →'
+    brandTag: '',
+    partnerTag: '',
+    title: 'Accessories',
+    subtitle: '',
+    desc: '',
+    bgGradient: '#f5d6cc',
+    themeRgb: '245, 214, 204',
+    image: '/images/trending_look_1.png',
+    link: '/products',
+    badgeText: '',
+    ctaText: ''
   },
   {
     id: 's4',
-    brandTag: 'PARTY GOWNS',
     partnerTag: 'PREMIUM ⚡',
     title: 'LUXURY EVENING & COCKTAIL GOWNS',
     subtitle: 'Red Carpet Special | Buy 1 Get 1 Free',
@@ -535,13 +534,13 @@ export default function Home() {
 
   return (
     <div style={{
-      '--bg-primary': '#faf7f2',
-      '--bg-secondary': '#f5f0eb',
-      '--bg-card': 'rgba(255, 255, 255, 0.75)',
+      '--bg-primary': '#feebe5',
+      '--bg-secondary': '#fedbd0',
+      '--bg-card': '#ffffff',
       '--bg-elevated': '#ffffff',
-      '--border': '#e8e4df',
-      '--text-primary': '#1a1a1a',
-      '--text-secondary': '#8a8580',
+      '--border': '#f5d6cc',
+      '--text-primary': '#1e3656',
+      '--text-secondary': '#4b6282',
       '--text-muted': '#a8b5a0',
       '--accent': '#1e4db7',
       '--accent-light': '#3a6bc5',
@@ -1965,24 +1964,6 @@ export default function Home() {
           background: #ffffff;
           box-shadow: 0 4px 14px rgba(0,0,0,0.25);
         }
-        .fk-card-img {
-          width: 40%;
-          position: relative;
-          height: 100%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          padding: 8px;
-          flex-shrink: 0;
-          z-index: 2;
-        }
-        .fk-card-img img {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-          border-radius: 10px;
-          box-shadow: 0 4px 14px rgba(0,0,0,0.2);
-        }
         .fk-card-ad {
           position: absolute;
           bottom: 10px;
@@ -2046,14 +2027,12 @@ export default function Home() {
           .fk-card {
             flex: 0 0 85vw;
             height: clamp(170px, 48vw, 210px);
-            border-radius: 16px;
+            border-radius: 24px;
             isolation: isolate;
-            -webkit-mask-image: -webkit-radial-gradient(white, black);
-            clip-path: inset(0 round 16px);
           }
           .fk-card-content {
-            padding: 10px 12px;
-            justify-content: flex-start;
+            padding: 10px 20px;
+            justify-content: center;
           }
           .fk-card-tags {
             gap: 4px;
@@ -2064,8 +2043,18 @@ export default function Home() {
             font-size: 8px;
           }
           .fk-card-title {
-            font-size: clamp(13px, 3.8vw, 17px);
+            font-size: clamp(18px, 5vw, 24px);
             margin: 2px 0 4px;
+          }
+          .fk-card-image-wrapper {
+            width: 50%;
+            padding: 0;
+          }
+          .fk-card-image-wrapper img {
+            border-top-left-radius: 50%;
+            border-bottom-left-radius: 50%;
+            border-top-right-radius: 0;
+            border-bottom-right-radius: 0;
           }
           .fk-card-subtitle {
             font-size: 10px;

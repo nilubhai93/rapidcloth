@@ -6,13 +6,12 @@ import { useCart } from '../context/CartContext';
 import { useLanguage } from '../context/LanguageContext';
 import api from '../api/index';
 
+import SearchIcon from '@mui/icons-material/SearchTwoTone';
+import PlaceIcon from '@mui/icons-material/PlaceTwoTone';
+import PhotoCameraRoundedIcon from '@mui/icons-material/CameraAltTwoTone';
+import MicRoundedIcon from '@mui/icons-material/MicTwoTone';
+
 // Zero-Overhead Lightweight SVG Icon Components (No MUI/Emotion runtime overhead)
-const SearchIcon = ({ className = "w-5 h-5", style = {} }) => (
-  <svg className={className} style={{ width: style.fontSize || '20px', height: style.fontSize || '20px', color: style.color || 'currentColor', ...style }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="11" cy="11" r="7" />
-    <line x1="21" y1="21" x2="16.35" y2="16.35" />
-  </svg>
-);
 
 const ShoppingCartIcon = ({ className = "w-5 h-5", style = {} }) => (
   <svg className={className} style={{ width: style.fontSize || '20px', height: style.fontSize || '20px', color: style.color || 'currentColor', ...style }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
@@ -37,12 +36,6 @@ const MenuIcon = ({ className = "w-5 h-5", style = {} }) => (
   </svg>
 );
 
-const PlaceIcon = ({ className = "w-5 h-5", style = {} }) => (
-  <svg className={className} style={{ width: style.fontSize || '20px', height: style.fontSize || '20px', color: style.color || 'currentColor', ...style }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-    <circle cx="12" cy="10" r="3" />
-  </svg>
-);
 
 const TranslateIcon = ({ className = "w-5 h-5", style = {} }) => (
   <svg className={className} style={{ width: style.fontSize || '20px', height: style.fontSize || '20px', color: style.color || 'currentColor', ...style }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
@@ -73,12 +66,6 @@ const AutoAwesomeIcon = ({ className = "w-4 h-4", style = {} }) => (
   </svg>
 );
 
-const PhotoCameraRoundedIcon = ({ className = "w-5 h-5", style = {}, sx = {} }) => (
-  <svg className={className} style={{ width: sx?.fontSize || style?.fontSize || '20px', height: sx?.fontSize || style?.fontSize || '20px', color: style?.color || 'currentColor', ...style }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
-    <circle cx="12" cy="13" r="4" />
-  </svg>
-);
 
 const PhotoLibraryRoundedIcon = ({ className = "w-5 h-5", style = {}, sx = {} }) => (
   <svg className={className} style={{ width: sx?.fontSize || style?.fontSize || '20px', height: sx?.fontSize || style?.fontSize || '20px', color: style?.color || 'currentColor', ...style }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -88,13 +75,6 @@ const PhotoLibraryRoundedIcon = ({ className = "w-5 h-5", style = {}, sx = {} })
   </svg>
 );
 
-const MicRoundedIcon = ({ className = "w-5 h-5", style = {} }) => (
-  <svg className={className} style={{ width: style.fontSize || '20px', height: style.fontSize || '20px', color: style.color || 'currentColor', ...style }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z" />
-    <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
-    <line x1="12" y1="19" x2="12" y2="22" />
-  </svg>
-);
 
 const CheckroomIcon = ({ className = "w-5 h-5", style = {} }) => (
   <svg className={className} style={{ width: style.fontSize || '20px', height: style.fontSize || '20px', color: style.color || 'currentColor', ...style }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
@@ -480,11 +460,11 @@ export default function Navbar() {
 
   return (
     <>
-      <header className={`navbar-fixed-container fixed top-0 left-0 right-0 z-[100] bg-white max-md:rounded-b-[6px] border-b border-gray-200/90 shadow-xs transition-all duration-300 font-sans ${isProfilePage ? 'max-md:hidden' : ''}`}>
+      <header className={`navbar-fixed-container fixed top-0 left-0 right-0 z-[100] bg-[#feebe5] max-md:rounded-b-[6px] border-b border-gray-200/90 shadow-xs transition-all duration-300 font-sans ${isProfilePage ? 'max-md:hidden' : ''}`}>
 
         {/* MOBILE VIEW ONLY: 4 STACKED ROWS FOR ALL MOBILE DIMENSION DEVICES (md:hidden) */}
         {!isCartPage && (
-          <div className="md:hidden rounded-b-[6px] pt-3.5 pb-4 flex flex-col gap-3 border-b border-slate-200/80 shadow-xs box-border" style={{ background: 'linear-gradient(135deg, #ff69b4, #d68a59)' }}>
+          <div className="md:hidden rounded-b-[6px] pt-3.5 pb-4 flex flex-col gap-3 border-b border-[#142338] shadow-xs box-border bg-[#1e3656]">
 
             {/* ROW 1 & ROW 2: ANIMATED COLLAPSIBLE CONTAINER ON SCROLL */}
             <div
@@ -500,7 +480,7 @@ export default function Navbar() {
                   {/* ROW 1: BRAND LOGO ROW WITH EXPLICIT HORIZONTAL MARGIN MATCHING MAIN PAGE */}
                   <div className="flex items-center justify-between w-full min-w-0 px-3.5 sm:px-5 pt-5 pb-2 box-border">
                     <Link to="/shop" className="flex items-center text-decoration-none shrink min-w-0" style={{ margin: '4px 8px' }}>
-                      <span className="font-black text-base tracking-tight truncate bg-[#000080] text-[#FFD700] inline-block rounded-full shadow-sm" style={{ padding: '5px 10px' }}>
+                      <span className="font-black text-2xl tracking-tight truncate bg-gradient-to-r from-[#BF953F] via-[#FCF6BA] to-[#B38728] text-transparent bg-clip-text inline-block font-serif italic" style={{ padding: '5px 10px' }}>
                         RapidCloth
                       </span>
                     </Link>
@@ -605,11 +585,10 @@ export default function Navbar() {
                         : 'text-white/90 font-semibold hover:text-white'
                         }`}
                     >
-                      {/* ICON CONTAINER: FLIPKART STYLE LIGHT BLUE PILL ON ACTIVE */}
                       <div
-                        className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-200 ${cat.isActive
-                          ? 'bg-white/20 border border-white/40 shadow-2xs scale-105'
-                          : 'bg-transparent hover:bg-white/10'
+                        className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-300 ${cat.isActive
+                          ? 'bg-white/20 backdrop-blur-md border border-white/50 shadow-[0_4px_12px_rgba(0,0,0,0.3),inset_0_2px_4px_rgba(255,255,255,0.4)] scale-110'
+                          : 'bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/15 shadow-[0_2px_8px_rgba(0,0,0,0.2),inset_0_1px_2px_rgba(255,255,255,0.1)]'
                           }`}
                       >
                         {cat.icon}
@@ -624,7 +603,7 @@ export default function Navbar() {
                       {cat.isActive && (
                         <motion.div
                           layoutId="flipkartCategoryIndicatorMobile"
-                          className="h-[2px] bg-blue-600 rounded-full w-full mt-[2px] shadow-2xs"
+                          className="h-[2px] bg-[#feebe5] rounded-full w-full mt-[2px] shadow-2xs"
                           transition={{ type: "spring", stiffness: 380, damping: 30 }}
                         />
                       )}
