@@ -41,6 +41,7 @@ export const authAPI = {
   verifyOtp: (email, otp) => api.post('/auth/verify-otp', { email, otp }),
   getBankDetails: () => api.get('/auth/profile/bank'),
   updateBankDetails: (data) => api.put('/auth/profile/bank', data),
+  getZones: () => api.get('/auth/zones'),
 };
 
 // Products

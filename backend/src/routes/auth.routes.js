@@ -1,10 +1,12 @@
 import { Router } from 'express';
 import { register, login, getProfile, updateProfile, updateSizeProfile, sendOtp, verifyOtp, getBankDetails, updateBankDetails } from '../controllers/auth.controller.js';
+import { getPublicZones } from '../controllers/seller.controller.js';
 import { authenticate } from '../middleware/auth.js';
 import { registerValidation, loginValidation } from '../middleware/validate.js';
 
 const router = Router();
 
+router.get('/zones', getPublicZones);
 router.post('/register', registerValidation, register);
 router.post('/login', loginValidation, login);
 router.post('/send-otp', sendOtp);

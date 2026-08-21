@@ -66,7 +66,7 @@ export const getSellerStatus = async (req, res) => {
 
 export const getPublicZones = async (req, res) => {
   try {
-    const zones = await Zone.find({ status: 'active' }).select('name code city polygon radiusKm zoneId').sort({ name: 1 });
+    const zones = await Zone.find({ status: 'active' }).select('name code city state pincodes polygon radiusKm zoneId').sort({ name: 1 });
     res.json({ zones });
   } catch (error) {
     console.error('Error fetching public zones:', error);
