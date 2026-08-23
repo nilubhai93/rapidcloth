@@ -332,7 +332,7 @@ export default function ActiveDeliveryUI({ order, updateStatus, refreshOrders })
           <div style={{ fontSize: isMobile ? '10px' : '12px', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase', marginBottom: '4px' }}>
             {step <= 2 ? 'Distance to Pickup' : 'Distance to Drop-off'}
           </div>
-          <div style={{ fontSize: isMobile ? '20px' : '28px', fontWeight: 900, color: '#f97316' }}>
+          <div style={{ fontSize: isMobile ? '20px' : '28px', fontWeight: 900, color: '#f59e0b' }}>
             {(() => {
               if (!driverLocation) return '-- ';
               let destLat, destLng;
@@ -567,8 +567,8 @@ export default function ActiveDeliveryUI({ order, updateStatus, refreshOrders })
             {/* Reached Banner */}
             <div style={{
               padding: '14px 16px', borderRadius: '12px', marginBottom: '20px',
-              background: 'rgba(249,115,22,0.08)', border: '1px solid rgba(249,115,22,0.25)',
-              display: 'flex', alignItems: 'center', gap: '10px', color: '#f97316', fontWeight: 700, fontSize: '14px'
+              background: 'rgba(245,158,11,0.12)', border: '1px solid rgba(245,158,11,0.3)',
+              display: 'flex', alignItems: 'center', gap: '10px', color: '#f59e0b', fontWeight: 700, fontSize: '14px'
             }}>
               <LocationOnIcon /> You have reached the delivery location
             </div>

@@ -1,4 +1,15 @@
 import 'dotenv/config';
+import { execSync } from 'child_process';
+
+// Global Crash Guard - Prevent node process exits on unhandled async errors
+process.on('uncaughtException', (err) => {
+  console.error('⚠️ Uncaught Exception Guard:', err.message || err);
+});
+
+process.on('unhandledRejection', (reason) => {
+  console.error('⚠️ Unhandled Promise Rejection Guard:', reason?.message || reason);
+});
+
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
@@ -143,9 +154,17 @@ const startServer = async () => {
     
     server.on('error', (err) => {
       if (err.code === 'EADDRINUSE') {
-        console.error(`\n❌ Port ${PORT} is already in use by another running server process.`);
-        console.error(`💡 Tip: Close any previous terminal running node/nodemon or kill the process on port ${PORT}.\n`);
-        process.exit(1);
+        console.log(`⚠️ Port ${PORT} is busy, auto-releasing port ${PORT}...`);
+        try {
+          if (process.platform === 'win32') {
+            execSync(`npx kill-port ${PORT}`, { stdio: 'ignore' });
+          } else {
+            execSync(`fuser -k ${PORT}/tcp`, { stdio: 'ignore' });
+          }
+        } catch (e) {}
+        setTimeout(() => {
+          server.listen(PORT);
+        }, 1200);
       } else {
         console.error('❌ Server error:', err);
       }

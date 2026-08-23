@@ -30,11 +30,11 @@ export default function DeliveryNotifications() {
 
   const getIcon = (type) => {
     switch (type) {
-      case 'shift_complete': return <ScheduleIcon sx={{ color: '#ff5400' }} />;
-      case 'order': return <NotificationsActiveIcon sx={{ color: '#3b82f6' }} />;
+      case 'shift_complete': return <ScheduleIcon sx={{ color: '#f59e0b' }} />;
+      case 'order': return <NotificationsActiveIcon sx={{ color: '#38bdf8' }} />;
       case 'payment': return <PaymentIcon sx={{ color: '#10b981' }} />;
       case 'offer': return <LocalOfferIcon sx={{ color: '#f59e0b' }} />;
-      default: return <NotificationsActiveIcon sx={{ color: '#8b5cf6' }} />;
+      default: return <NotificationsActiveIcon sx={{ color: '#fbbf24' }} />;
     }
   };
 
@@ -57,21 +57,21 @@ export default function DeliveryNotifications() {
             style={{
               padding: '10px 12px',
               background: notif.type === 'shift_complete' 
-                ? 'linear-gradient(135deg, rgba(255,84,0,0.08) 0%, rgba(255,84,0,0.02) 100%)' 
-                : notif.isNew ? 'rgba(41,255,198,0.05)' : 'var(--bg-card)',
+                ? 'rgba(245, 158, 11, 0.12)' 
+                : notif.isNew ? 'rgba(56, 189, 248, 0.08)' : 'var(--bg-card)',
               border: notif.type === 'shift_complete'
-                ? '1px solid rgba(255,84,0,0.3)'
-                : notif.isNew ? '1px solid rgba(41,255,198,0.2)' : '1px solid var(--border)',
+                ? '1px solid rgba(245, 158, 11, 0.35)'
+                : notif.isNew ? '1px solid rgba(56, 189, 248, 0.25)' : '1px solid var(--border)',
               borderRadius: '12px',
               display: 'flex',
               gap: '10px',
               cursor: notif.actionUrl ? 'pointer' : 'default',
-              boxShadow: notif.type === 'shift_complete' ? '0 2px 10px rgba(255,84,0,0.08)' : 'none'
+              boxShadow: notif.type === 'shift_complete' ? '0 2px 10px rgba(245, 158, 11, 0.15)' : 'none'
             }}
           >
             <div style={{
               width: '32px', height: '32px', borderRadius: '50%',
-              background: notif.type === 'shift_complete' ? '#fff7ed' : 'var(--bg-elevated)',
+              background: notif.type === 'shift_complete' ? 'rgba(245, 158, 11, 0.2)' : 'var(--bg-elevated)',
               display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0
             }}>
               {getIcon(notif.type)}
@@ -79,7 +79,7 @@ export default function DeliveryNotifications() {
             
             <div style={{ flex: 1 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '2px' }}>
-                <h4 style={{ margin: 0, fontSize: '13px', fontWeight: notif.isNew ? 800 : 600, color: notif.type === 'shift_complete' ? '#ea580c' : 'var(--text-primary)' }}>
+                <h4 style={{ margin: 0, fontSize: '13px', fontWeight: notif.isNew ? 800 : 600, color: notif.type === 'shift_complete' ? '#f59e0b' : 'var(--text-primary)' }}>
                   {notif.title}
                 </h4>
                 <span style={{ fontSize: '10px', color: 'var(--text-muted)' }}>{notif.time}</span>
@@ -94,7 +94,7 @@ export default function DeliveryNotifications() {
                   alignItems: 'center',
                   gap: '4px',
                   marginTop: '6px',
-                  color: '#ff5400',
+                  color: '#f59e0b',
                   fontWeight: 800,
                   fontSize: '11px'
                 }}>
@@ -105,7 +105,7 @@ export default function DeliveryNotifications() {
             </div>
             
             {notif.isNew && (
-              <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: notif.type === 'shift_complete' ? '#ff5400' : '#29ffc6', flexShrink: 0, marginTop: '4px' }} />
+              <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: notif.type === 'shift_complete' ? '#f59e0b' : '#38bdf8', flexShrink: 0, marginTop: '4px' }} />
             )}
           </motion.div>
         ))}

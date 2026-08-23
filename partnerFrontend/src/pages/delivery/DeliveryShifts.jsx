@@ -9,46 +9,62 @@ import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartmentRoun
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import PlayArrowIcon from '@mui/icons-material/PlayArrowRounded';
 import toast from 'react-hot-toast';
-import { SHIFT_SLOT_TIMES } from '../../utils/dutyTime';
+import {
+  SHIFT_SLOT_TIMES,
+  getShiftOnlineStatus,
+  formatDecimalHourToTimeStr,
+  getLocalDateStr,
+  getBookedShiftsForDate,
+  saveBookedShiftsForDate,
+  cleanupExpiredShiftStorage,
+  getUpcomingDateTabs,
+  SHIFT_ATTENDANCE_TABLE,
+  getShiftAttendanceRule
+} from '../../utils/dutyTime';
 
 export default function DeliveryShifts() {
   const navigate = useNavigate();
   const { user, setUser } = useAuth();
-  const [selectedDate, setSelectedDate] = useState('today');
 
+  const [dateTabs, setDateTabs] = useState(() => getUpcomingDateTabs());
+  const [selectedDate, setSelectedDate] = useState(() => getUpcomingDateTabs()[0]?.id || getLocalDateStr());
+  const [showRulesModal, setShowRulesModal] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
   useEffect(() => {
+    cleanupExpiredShiftStorage();
     const handleResize = () => setIsMobile(window.innerWidth < 768);
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Load booked shift IDs from localStorage or user state
-  const [bookedSlots, setBookedSlots] = useState(() => {
-    try {
-      const saved = localStorage.getItem('booked_delivery_shifts');
-      return saved ? JSON.parse(saved) : ['lunch-12-4']; // Default 1 active booked slot for demo
-    } catch (e) {
-      return ['lunch-12-4'];
-    }
-  });
-
+  // Monitor midnight / date rollover in real time
   useEffect(() => {
-    try {
-      localStorage.setItem('booked_delivery_shifts', JSON.stringify(bookedSlots));
-    } catch (e) {
-      console.error(e);
-    }
-  }, [bookedSlots]);
+    const timer = setInterval(() => {
+      const freshTabs = getUpcomingDateTabs();
+      const currentToday = freshTabs[0]?.id;
+      if (currentToday && dateTabs[0]?.id !== currentToday) {
+        setDateTabs(freshTabs);
+        setSelectedDate(currentToday);
+        cleanupExpiredShiftStorage();
+        toast('☀️ Midnight Rollover: Shift schedule reset for today!', { icon: '🔄', duration: 5000 });
+      }
+    }, 15000);
+    return () => clearInterval(timer);
+  }, [dateTabs]);
 
-  const dateTabs = [
-    { id: 'today', label: 'Today', dateStr: '5 Aug', active: true },
-    { id: 'thu', label: 'Thu', dateStr: '6 Aug' },
-    { id: 'fri', label: 'Fri', dateStr: '7 Aug', badge: '1.5x Pay' },
-    { id: 'sat', label: 'Sat', dateStr: '8 Aug', badge: 'Peak' },
-    { id: 'sun', label: 'Sun', dateStr: '9 Aug' }
-  ];
+  // Load booked shift IDs for selectedDate
+  const [bookedSlots, setBookedSlots] = useState(() => getBookedShiftsForDate(selectedDate));
+
+  // Reload when selectedDate changes
+  useEffect(() => {
+    setBookedSlots(getBookedShiftsForDate(selectedDate));
+  }, [selectedDate]);
+
+  // Save bookedSlots whenever updated
+  useEffect(() => {
+    saveBookedShiftsForDate(bookedSlots, selectedDate);
+  }, [bookedSlots, selectedDate]);
 
   const shiftCategories = [
     {
@@ -108,6 +124,7 @@ export default function DeliveryShifts() {
 
   const now = new Date();
   const currentDecimalHour = now.getHours() + now.getMinutes() / 60;
+  const isOnline = user?.deliveryProfile?.isOnline || false;
 
   // Calculate completed slots vs active booked slots
   const allSlotsList = shiftCategories.flatMap(c => c.slots);
@@ -130,12 +147,25 @@ export default function DeliveryShifts() {
       return;
     }
 
+    const isToday = selectedDate === getLocalDateStr(now);
     const slotInfo = SHIFT_SLOT_TIMES[slotId];
     const isBooked = bookedSlots.includes(slotId);
-    const isPast = slotInfo ? (currentDecimalHour >= slotInfo.endHour) : false;
+    const isPastEnd = isToday && slotInfo && (currentDecimalHour >= slotInfo.endHour);
+    const isPastBookingCutoff = isToday && slotInfo && (currentDecimalHour >= (slotInfo.startHour - 0.25));
+    const isActiveDuty = isBooked && !isPastEnd && isPastBookingCutoff;
 
-    if (isBooked && isPast) {
-      toast.success('This shift slot was completed earlier today! ✓');
+    if (isBooked && isPastEnd) {
+      toast.success('✓ This shift slot was completed earlier today!');
+      return;
+    }
+
+    if (!isBooked && isPastBookingCutoff) {
+      toast.error('⏳ Booking Closed: You cannot book a shift whose start time has already passed.');
+      return;
+    }
+
+    if (isBooked && isActiveDuty && isOnline) {
+      toast.error('⚠️ Cannot unbook an active shift while online. Please go offline first.');
       return;
     }
 
@@ -147,8 +177,6 @@ export default function DeliveryShifts() {
       toast.success('Shift slot booked successfully! 🎉');
     }
   };
-
-  const isOnline = user?.deliveryProfile?.isOnline || false;
 
   return (
     <div style={{
@@ -190,7 +218,7 @@ export default function DeliveryShifts() {
               My Shifts & Slots
             </h1>
             <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 500 }}>
-              Book slots to go online and earn surge pay
+              Book slots to go online (starts 15m before shift)
             </div>
           </div>
         </div>
@@ -251,10 +279,10 @@ export default function DeliveryShifts() {
                 padding: '8px 6px',
                 borderRadius: '12px',
                 textAlign: 'center',
-                backgroundColor: isSelected ? '#ff5400' : '#ffffff',
-                color: isSelected ? '#ffffff' : '#0f172a',
-                boxShadow: isSelected ? '0 4px 12px rgba(255, 84, 0, 0.25)' : '0 2px 6px rgba(0,0,0,0.02)',
-                border: isSelected ? 'none' : '1px solid rgba(0,0,0,0.04)',
+                backgroundColor: isSelected ? '#f59e0b' : 'var(--bg-card, #152238)',
+                color: isSelected ? '#0a1128' : 'var(--text-primary, #f8fafc)',
+                boxShadow: isSelected ? '0 4px 12px rgba(245, 158, 11, 0.35)' : '0 2px 6px rgba(0,0,0,0.2)',
+                border: isSelected ? 'none' : '1px solid var(--border, #1e293b)',
                 cursor: 'pointer',
                 position: 'relative'
               }}
@@ -356,6 +384,77 @@ export default function DeliveryShifts() {
         </div>
       </div>
 
+      {/* Shift Completion & Minimum Guarantee (MG) Rules Card */}
+      <div style={{
+        background: 'var(--bg-card, #152238)',
+        border: '1px solid rgba(245, 158, 11, 0.35)',
+        borderRadius: '14px',
+        padding: '14px 16px',
+        marginBottom: '16px',
+        boxShadow: '0 4px 14px rgba(0,0,0,0.15)'
+      }}>
+        <div 
+          onClick={() => setShowRulesModal(!showRulesModal)}
+          style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div style={{
+              width: '34px', height: '34px', borderRadius: '50%',
+              background: 'rgba(245, 158, 11, 0.2)', color: '#f59e0b',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0
+            }}>
+              <InfoOutlinedIcon sx={{ fontSize: '20px' }} />
+            </div>
+            <div>
+              <div style={{ fontSize: '13px', fontWeight: 900, color: 'var(--text-primary, #ffffff)' }}>
+                Shift Completion & MG Rules Table
+              </div>
+              <div style={{ fontSize: '11px', color: '#f59e0b', fontWeight: 700, marginTop: '1px' }}>
+                Req. Login: 90%–95% active time per shift for full attendance.
+              </div>
+            </div>
+          </div>
+          <span style={{ fontSize: '12px', color: '#f59e0b', fontWeight: 800 }}>
+            {showRulesModal ? 'Hide Rules ▲' : 'View Rules ▼'}
+          </span>
+        </div>
+
+        <AnimatePresence>
+          {showRulesModal && (
+            <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} style={{ overflow: 'hidden', marginTop: '12px', paddingTop: '12px', borderTop: '1px dashed rgba(245, 158, 11, 0.25)' }}>
+              <div style={{ overflowX: 'auto' }}>
+                <table style={{ width: '100%', fontSize: '11px', borderCollapse: 'collapse', color: 'var(--text-primary, #ffffff)' }}>
+                  <thead>
+                    <tr style={{ background: 'rgba(245, 158, 11, 0.18)', color: '#f59e0b', textAlign: 'left', fontWeight: 900 }}>
+                      <th style={{ padding: '8px 10px', borderRadius: '6px 0 0 6px' }}>Shift Duration</th>
+                      <th style={{ padding: '8px 10px' }}>Total Time</th>
+                      <th style={{ padding: '8px 10px' }}>Req. Min Login Time</th>
+                      <th style={{ padding: '8px 10px', borderRadius: '0 6px 6px 0' }}>Allowed Break</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {SHIFT_ATTENDANCE_TABLE.map((row, rIdx) => (
+                      <tr key={rIdx} style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+                        <td style={{ padding: '7px 10px', fontWeight: 800 }}>{row.durationHours} Hr{row.durationHours > 1 ? 's' : ''}</td>
+                        <td style={{ padding: '7px 10px', color: 'var(--text-muted)' }}>{row.totalMins} mins</td>
+                        <td style={{ padding: '7px 10px', color: '#10b981', fontWeight: 800 }}>{row.reqRangeStr}</td>
+                        <td style={{ padding: '7px 10px', color: '#f59e0b', fontWeight: 700 }}>{row.breakRangeStr}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              <div style={{ marginTop: '12px', background: 'rgba(255,255,255,0.04)', padding: '10px 12px', borderRadius: '10px', fontSize: '11px', color: 'var(--text-secondary)', lineHeight: 1.45 }}>
+                <div>📌 <strong>Login Percentage:</strong> Maintaining 90% to 95% active login time per shift is required for full shift attendance & Minimum Guarantee (MG) eligibility.</div>
+                <div style={{ marginTop: '4px' }}>⏸️ <strong>Break Usage:</strong> Use the in-app Pause option during short breaks instead of logging out completely to prevent shift cancellation.</div>
+                <div style={{ marginTop: '4px' }}>🎯 <strong>Performance Criteria:</strong> Meeting the shift requirement also depends on maintaining the standard Acceptance Rate (AR) and avoiding unauthorized cancellations.</div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
       {/* Shift Categories & Slot Items */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', marginBottom: '30px' }}>
         {shiftCategories.map((cat, catIdx) => (
@@ -385,11 +484,11 @@ export default function DeliveryShifts() {
               <span style={{
                 fontSize: '11px',
                 fontWeight: 800,
-                color: '#ea580c',
-                backgroundColor: '#fff7ed',
+                color: '#f59e0b',
+                backgroundColor: 'rgba(245, 158, 11, 0.12)',
                 padding: '4px 10px',
                 borderRadius: '12px',
-                border: '1px solid #ffedd5'
+                border: '1px solid rgba(245, 158, 11, 0.3)'
               }}>
                 {cat.tag}
               </span>
@@ -400,12 +499,18 @@ export default function DeliveryShifts() {
               {cat.slots.map((slot, sIdx) => {
                 const isBooked = bookedSlots.includes(slot.id);
                 const slotInfo = SHIFT_SLOT_TIMES[slot.id];
-                const isPast = slotInfo ? (currentDecimalHour >= slotInfo.endHour) : false;
-                const isActiveDuty = isBooked && !isPast && slotInfo && (currentDecimalHour >= (slotInfo.startHour - 0.25) && currentDecimalHour < slotInfo.endHour);
-                const isCompleted = isBooked && isPast;
+                const isToday = selectedDate === getLocalDateStr(now);
+
+                const isPastEnd = isToday && slotInfo && (currentDecimalHour >= slotInfo.endHour);
+                const isPastBookingCutoff = isToday && slotInfo && (currentDecimalHour >= (slotInfo.startHour - 0.25));
+
+                const isCompleted = isBooked && isPastEnd;
+                const isActiveDuty = isBooked && !isPastEnd && isPastBookingCutoff;
+                const isExpiredUnbooked = !isBooked && isPastBookingCutoff;
 
                 const isFull = slot.statusType === 'full';
                 const isFilling = slot.statusType === 'filling';
+                const isRowDisabled = isFull || isExpiredUnbooked;
 
                 return (
                   <div
@@ -417,8 +522,8 @@ export default function DeliveryShifts() {
                       justifyContent: 'space-between',
                       padding: '16px 8px',
                       borderBottom: sIdx < cat.slots.length - 1 ? '1px dashed #f1f5f9' : 'none',
-                      cursor: isFull ? 'not-allowed' : 'pointer',
-                      opacity: isFull ? 0.6 : 1
+                      cursor: isRowDisabled ? 'not-allowed' : 'pointer',
+                      opacity: isRowDisabled ? 0.55 : 1
                     }}
                   >
                     <div>
@@ -455,10 +560,12 @@ export default function DeliveryShifts() {
                             ? '#10b981'
                             : isBooked
                             ? '#0284c7'
+                            : isExpiredUnbooked
+                            ? '#64748b'
                             : isFull
                             ? '#ef4444'
                             : isFilling
-                            ? '#ea580c'
+                            ? '#f59e0b'
                             : '#0284c7'
                         }}>
                           {isCompleted
@@ -467,22 +574,53 @@ export default function DeliveryShifts() {
                             ? 'Active Duty Now 🟢'
                             : isBooked
                             ? 'Booked ✓'
+                            : isExpiredUnbooked
+                            ? 'Booking Closed ⏳'
                             : slot.statusText}
                         </span>
                       </div>
+
+                      {/* Minimum Required Login & Allowed Break metadata */}
+                      {slotInfo && (
+                        <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 600, marginTop: '3px', display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                          <span style={{ color: '#f59e0b', fontWeight: 700 }}>
+                            🎯 Min Login: {getShiftAttendanceRule(slotInfo.endHour - slotInfo.startHour).reqRangeStr}
+                          </span>
+                          <span>•</span>
+                          <span>
+                            ☕ Break: {getShiftAttendanceRule(slotInfo.endHour - slotInfo.startHour).breakRangeStr} ({getShiftAttendanceRule(slotInfo.endHour - slotInfo.startHour).mgPercent} MG)
+                          </span>
+                        </div>
+                      )}
                     </div>
 
                     {/* Booking Control checkbox/button */}
                     <div style={{
-                      padding: isCompleted ? '4px 10px' : '0',
+                      padding: (isCompleted || isExpiredUnbooked) ? '4px 10px' : '0',
                       height: '28px',
-                      borderRadius: isCompleted ? '12px' : '8px',
-                      border: `2px solid ${isCompleted ? '#a7f3d0' : isBooked ? '#10b981' : isFull ? '#cbd5e1' : '#94a3b8'}`,
-                      backgroundColor: isCompleted ? '#ecfdf5' : isBooked ? '#10b981' : 'transparent',
+                      borderRadius: (isCompleted || isExpiredUnbooked) ? '12px' : '8px',
+                      border: `2px solid ${
+                        isCompleted
+                          ? '#a7f3d0'
+                          : isBooked
+                          ? '#10b981'
+                          : isExpiredUnbooked
+                          ? '#cbd5e1'
+                          : isFull
+                          ? '#cbd5e1'
+                          : '#94a3b8'
+                      }`,
+                      backgroundColor: isCompleted
+                        ? '#ecfdf5'
+                        : isBooked
+                        ? '#10b981'
+                        : isExpiredUnbooked
+                        ? '#f1f5f9'
+                        : 'transparent',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      color: isCompleted ? '#059669' : '#ffffff',
+                      color: isCompleted ? '#059669' : isExpiredUnbooked ? '#64748b' : '#ffffff',
                       fontSize: '11px',
                       fontWeight: 800,
                       transition: 'all 0.2s ease'
@@ -494,6 +632,8 @@ export default function DeliveryShifts() {
                         </div>
                       ) : isBooked ? (
                         <CheckCircleIcon sx={{ fontSize: '20px' }} />
+                      ) : isExpiredUnbooked ? (
+                        <span>Closed</span>
                       ) : null}
                     </div>
                   </div>
@@ -545,6 +685,11 @@ export default function DeliveryShifts() {
                 toast.error('Please select at least one shift slot.');
                 return;
               }
+              const statusInfo = getShiftOnlineStatus(bookedSlots, new Date());
+              if (!statusInfo.canGoOnline) {
+                toast.error(`⚠️ Cannot Go Online Yet\n\n${statusInfo.message}`, { duration: 4500 });
+                return;
+              }
               toast.success('Shifts confirmed! You are now eligible to go online.');
               navigate('/delivery');
             }}
@@ -552,15 +697,15 @@ export default function DeliveryShifts() {
               display: 'inline-flex',
               alignItems: 'center',
               gap: '8px',
-              background: 'linear-gradient(135deg, #ff5400 0%, #ff3b00 100%)',
-              color: '#ffffff',
+              background: 'linear-gradient(135deg, #fbbf24 0%, #d97706 100%)',
+              color: '#0a1128',
               border: 'none',
               borderRadius: '18px',
               padding: '14px 24px',
               fontSize: '15px',
               fontWeight: 800,
               cursor: 'pointer',
-              boxShadow: '0 6px 20px rgba(255, 84, 0, 0.35)'
+              boxShadow: '0 6px 20px rgba(245, 158, 11, 0.4)'
             }}
           >
             <span>Confirm & Go Online</span>

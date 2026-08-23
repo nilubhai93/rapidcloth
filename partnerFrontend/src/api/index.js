@@ -81,6 +81,8 @@ export const deliveryAPI = {
   getEarnings: () => api.get('/delivery/earnings'),
   payCompany: (amount) => api.post('/delivery/pay-company', { amount }),
   getHistory: (params) => api.get('/delivery/history', { params }),
+  createSupportTicket: (category, issueDescription) => api.post('/delivery/support/ticket', { category, issueDescription }),
+  getSupportTickets: () => api.get('/delivery/support/tickets'),
 };
 
 export default api;

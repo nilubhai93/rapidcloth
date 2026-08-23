@@ -4,6 +4,7 @@ import Order from '../models/Order.js';
 import SellerDetail from '../models/SellerDetail.js';
 import Product from '../models/Product.js';
 import Zone from '../models/Zone.js';
+import SupportTicket from '../models/SupportTicket.js';
 
 export const getSellerApplications = async (req, res) => {
   try {
@@ -68,6 +69,48 @@ export const updateSellerStatus = async (req, res) => {
   } catch (error) {
     console.error('Error updating seller status:', error);
     res.status(500).json({ error: 'Failed to update application status' });
+  }
+};
+
+// ===== Admin Get All Support Tickets =====
+export const getAllSupportTickets = async (req, res) => {
+  try {
+    const tickets = await SupportTicket.find()
+      .populate('partnerId', 'name email phone deliveryProfile')
+      .sort({ createdAt: -1 });
+    res.json({ tickets });
+  } catch (error) {
+    console.error('Error fetching support tickets:', error);
+    res.status(500).json({ error: 'Failed to fetch support tickets' });
+  }
+};
+
+// ===== Admin Update Support Ticket Status =====
+export const updateSupportTicketStatus = async (req, res) => {
+  try {
+    const { ticketId } = req.params;
+    const { status, adminReply } = req.body;
+
+    if (!['Pending', 'In Progress', 'Resolved', 'Rejected'].includes(status)) {
+      return res.status(400).json({ error: 'Invalid status' });
+    }
+
+    const ticket = await SupportTicket.findById(ticketId);
+    if (!ticket) {
+      return res.status(404).json({ error: 'Ticket not found' });
+    }
+
+    ticket.status = status;
+    if (adminReply !== undefined) ticket.adminReply = adminReply;
+    if (status === 'Resolved' || status === 'Rejected') {
+      ticket.resolvedAt = new Date();
+    }
+
+    await ticket.save();
+    res.json({ message: `Ticket status updated to ${status}`, ticket });
+  } catch (error) {
+    console.error('Error updating support ticket status:', error);
+    res.status(500).json({ error: 'Failed to update support ticket' });
   }
 };
 

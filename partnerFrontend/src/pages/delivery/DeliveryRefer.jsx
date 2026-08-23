@@ -176,7 +176,7 @@ export default function DeliveryRefer() {
               />
               <div style={{
                 position: 'absolute', right: '8px', top: '50%', transform: 'translateY(-50%)',
-                background: '#ffedd5', color: '#ea580c', borderRadius: '6px', padding: '4px',
+                background: 'rgba(245, 158, 11, 0.15)', color: '#f59e0b', borderRadius: '6px', padding: '4px',
                 display: 'flex', alignItems: 'center', justifyContent: 'center'
               }}>
                 <ContactPhoneIcon sx={{ fontSize: '16px' }} />
@@ -225,7 +225,7 @@ export default function DeliveryRefer() {
               />
               <div style={{
                 position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)',
-                color: '#ff6b00', display: 'flex', alignItems: 'center', justifyContent: 'center'
+                color: '#f59e0b', display: 'flex', alignItems: 'center', justifyContent: 'center'
               }}>
                 <LocationOnIcon sx={{ fontSize: '22px' }} />
               </div>
@@ -238,13 +238,13 @@ export default function DeliveryRefer() {
                 width: '100%',
                 padding: '16px',
                 borderRadius: '16px',
-                background: 'linear-gradient(135deg, #ff5400 0%, #ff3b00 100%)',
-                color: '#ffffff',
+                background: 'linear-gradient(135deg, #fbbf24 0%, #d97706 100%)',
+                color: '#0a1128',
                 border: 'none',
                 fontSize: '16px',
                 fontWeight: 900,
                 cursor: 'pointer',
-                boxShadow: '0 6px 20px rgba(255, 84, 0, 0.35)',
+                boxShadow: '0 6px 20px rgba(245, 158, 11, 0.4)',
                 marginTop: '4px'
               }}
             >
@@ -345,13 +345,13 @@ export default function DeliveryRefer() {
                 style={{
                   padding: '14px 28px',
                   borderRadius: '16px',
-                  background: 'linear-gradient(135deg, #ff5400 0%, #ff3b00 100%)',
-                  color: '#ffffff',
+                  background: 'linear-gradient(135deg, #fbbf24 0%, #d97706 100%)',
+                  color: '#0a1128',
                   border: 'none',
                   fontSize: '15px',
                   fontWeight: 900,
                   cursor: 'pointer',
-                  boxShadow: '0 6px 20px rgba(255, 84, 0, 0.35)',
+                  boxShadow: '0 6px 20px rgba(245, 158, 11, 0.4)',
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: '10px'
@@ -431,7 +431,7 @@ export default function DeliveryRefer() {
                   <div key={i} style={{ background: '#f8fafc', padding: '12px 14px', borderRadius: '14px', border: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div>
                       <div style={{ fontWeight: 800, fontSize: '14px', color: '#0f172a' }}>{zone.city}</div>
-                      <div style={{ fontSize: '11px', color: '#ea580c', fontWeight: 700 }}>{zone.demand}</div>
+                      <div style={{ fontSize: '11px', color: '#f59e0b', fontWeight: 700 }}>{zone.demand}</div>
                     </div>
                     <div style={{ fontWeight: 900, color: '#10b981', fontSize: '16px' }}>{zone.bonus}</div>
                   </div>

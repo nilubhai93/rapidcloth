@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import ArrowBackIcon from '@mui/icons-material/ArrowBackRounded';
@@ -18,11 +18,47 @@ import ExitToAppOutlinedIcon from '@mui/icons-material/ExitToAppOutlined';
 import ChevronRightIcon from '@mui/icons-material/ChevronRightRounded';
 import CloseIcon from '@mui/icons-material/CloseRounded';
 import SupportAgentIcon from '@mui/icons-material/SupportAgentRounded';
+import DeliveryPartnerAvatar from '../../components/DeliveryPartnerAvatar';
 
 export default function DeliverySupport() {
   const navigate = useNavigate();
   const [selectedIssue, setSelectedIssue] = useState(null);
   const [ticketSubmitted, setTicketSubmitted] = useState(false);
+  const [issueText, setIssueText] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [myTickets, setMyTickets] = useState([]);
+
+  useEffect(() => {
+    fetchMyTickets();
+  }, []);
+
+  const fetchMyTickets = async () => {
+    try {
+      const res = await deliveryAPI.getSupportTickets();
+      if (res.data?.tickets) setMyTickets(res.data.tickets);
+    } catch (err) {
+      console.error('Fetch tickets error:', err);
+    }
+  };
+
+  const handleFormSubmit = async () => {
+    if (!issueText.trim()) {
+      toast.error('Please describe your issue in detail');
+      return;
+    }
+    setSubmitting(true);
+    try {
+      await deliveryAPI.createSupportTicket(selectedIssue.title, issueText);
+      setTicketSubmitted(true);
+      toast.success('Support ticket sent to Admin panel!');
+      fetchMyTickets();
+    } catch (err) {
+      console.error(err);
+      toast.error(err.response?.data?.error || 'Failed to submit ticket');
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   const issuesList = [
     { id: 1, title: 'Order earning issue', icon: <MonetizationOnOutlinedIcon /> },
@@ -76,74 +112,60 @@ export default function DeliverySupport() {
       </div>
 
       {/* Hero Welcome Banner */}
-      <div style={{ textAlign: 'center', marginBottom: '16px' }}>
+      <div style={{ textAlign: 'center', marginBottom: '20px' }}>
         <h1 style={{
-          fontSize: '17px',
-          fontWeight: 800,
-          color: 'var(--text-primary)',
-          marginBottom: '10px',
-          letterSpacing: '-0.2px'
+          fontSize: '22px',
+          fontWeight: 900,
+          color: '#0f172a',
+          marginBottom: '8px',
+          letterSpacing: '-0.3px'
         }}>
           Welcome to the{' '}
           <span style={{
-            position: 'relative',
             display: 'inline-block',
-            paddingBottom: '2px'
+            color: '#0f172a'
           }}>
             Delivery Partner Help Center
-            <svg style={{ position: 'absolute', bottom: 0, left: 0, width: '100%', height: '6px' }} viewBox="0 0 200 8" fill="none">
-              <path d="M2 5C50 2 150 2 198 5" stroke="#f97316" strokeWidth="4" strokeLinecap="round" />
-            </svg>
           </span>
         </h1>
 
         {/* Illustration Avatar Card */}
         <div style={{
-          background: 'linear-gradient(135deg, rgba(254,226,226,0.15) 0%, rgba(254,215,170,0.15) 100%)',
-          borderRadius: '12px',
-          padding: '14px 16px',
-          maxWidth: '300px',
+          background: 'var(--bg-card, #0e1c3e)',
+          borderRadius: '20px',
+          padding: '20px 24px',
+          maxWidth: '340px',
           margin: '0 auto',
-          border: '1px solid rgba(249,115,22,0.15)',
+          border: '1.5px solid rgba(255, 84, 0, 0.35)',
+          boxShadow: '0 8px 30px rgba(0, 0, 0, 0.3)',
           display: 'flex',
           flexDirection: 'column',
-          alignItems: 'center'
+          alignItems: 'center',
+          textAlign: 'center'
         }}>
-          {/* Agent Avatar Box */}
-          <div style={{
-            width: '48px',
-            height: '48px',
-            borderRadius: '50%',
-            background: 'linear-gradient(135deg, #fbcfe8 0%, #f472b6 100%)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            marginBottom: '8px',
-            boxShadow: '0 4px 12px rgba(244,114,182,0.25)',
-            position: 'relative'
-          }}>
-            <SupportAgentIcon sx={{ fontSize: '28px', color: '#831843' }} />
-          </div>
+          {/* Delivery Partner Character Avatar */}
+          <DeliveryPartnerAvatar width={240} height={185} className="pulse-glow-avatar float-soft" />
 
-          <p style={{ fontSize: '11px', color: 'var(--text-secondary)', fontWeight: 500, margin: 0 }}>
-            Need any help?
+          <p style={{ fontSize: '13px', color: '#cbd5e1', fontWeight: 700, margin: '12px 0 4px', lineHeight: 1.4 }}>
+            Need any help with your delivery duty?
           </p>
-          <p style={{ fontSize: '12px', color: 'var(--text-primary)', fontWeight: 800, margin: '2px 0 0' }}>
-            RapidCloth is here for you.
+          <p style={{ fontSize: '15px', color: '#ffffff', fontWeight: 900, margin: 0, lineHeight: 1.3 }}>
+            RapidCloth Partner Support is here for you 24/7.
           </p>
         </div>
       </div>
 
       {/* Section Title */}
-      <h2 style={{
-        fontSize: '14px',
-        fontWeight: 800,
-        color: 'var(--text-primary)',
-        marginBottom: '10px',
-        paddingLeft: '2px'
-      }}>
-        Raise a new issue
-      </h2>
+      <div style={{ marginBottom: '14px', paddingLeft: '2px' }}>
+        <h2 style={{
+          fontSize: '16px',
+          fontWeight: 900,
+          color: '#0f172a',
+          margin: 0
+        }}>
+          Raise a new issue
+        </h2>
+      </div>
 
       {/* Issue List */}
       <div style={{
@@ -195,7 +217,7 @@ export default function DeliverySupport() {
               </span>
             </div>
 
-            <ChevronRightIcon sx={{ color: '#f97316', fontSize: '18px' }} />
+            <ChevronRightIcon sx={{ color: '#f59e0b', fontSize: '18px' }} />
           </motion.div>
         ))}
       </div>
@@ -283,6 +305,8 @@ export default function DeliverySupport() {
                   <textarea
                     placeholder="Describe your issue in detail..."
                     rows={3}
+                    value={issueText}
+                    onChange={(e) => setIssueText(e.target.value)}
                     style={{
                       width: '100%',
                       padding: '12px',
@@ -296,20 +320,22 @@ export default function DeliverySupport() {
                     }}
                   />
                   <button
-                    onClick={() => setTicketSubmitted(true)}
+                    disabled={submitting}
+                    onClick={handleFormSubmit}
                     style={{
                       padding: '14px',
                       borderRadius: '14px',
-                      background: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)',
+                      background: 'linear-gradient(135deg, #ff5400 0%, #ff6b00 100%)',
                       color: '#ffffff',
-                      fontWeight: 700,
+                      fontWeight: 800,
                       border: 'none',
-                      cursor: 'pointer',
+                      cursor: submitting ? 'not-allowed' : 'pointer',
                       fontSize: '15px',
-                      boxShadow: '0 4px 15px rgba(249,115,22,0.3)'
+                      boxShadow: '0 4px 15px rgba(255,84,0,0.4)',
+                      opacity: submitting ? 0.7 : 1
                     }}
                   >
-                    Submit Ticket to RapidCloth
+                    {submitting ? 'Submitting to Admin...' : 'Submit Ticket to RapidCloth'}
                   </button>
                 </div>
               )}

@@ -199,3 +199,4 @@ export const acceptBundle = async (req, res) => {
     res.status(500).json({ error: 'Failed to accept bundle.' });
   }
 };
+

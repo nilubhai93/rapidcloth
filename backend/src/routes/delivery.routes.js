@@ -10,7 +10,9 @@ import {
   markReached,
   verifyDeliveryOTP,
   getEarnings,
-  payToCompany
+  payToCompany,
+  createSupportTicket,
+  getPartnerSupportTickets
 } from '../controllers/delivery.controller.js';
 import { authenticate } from '../middleware/auth.js';
 
@@ -39,5 +41,8 @@ router.put('/orders/:orderId/verify-otp', verifyDeliveryOTP);
 router.get('/history', getDeliveryHistory);
 router.get('/earnings', getEarnings);
 router.post('/pay-company', payToCompany);
+
+router.post('/support/ticket', createSupportTicket);
+router.get('/support/tickets', getPartnerSupportTickets);
 
 export default router;

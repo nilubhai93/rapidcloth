@@ -1,5 +1,6 @@
 import Order from '../models/Order.js';
 import User from '../models/User.js';
+import SupportTicket from '../models/SupportTicket.js';
 
 const CASH_LIMIT = 2500; // ₹2500 COD cash limit
 
@@ -507,5 +508,40 @@ export const payToCompany = async (req, res) => {
   } catch (error) {
     console.error('Pay to company error:', error);
     res.status(500).json({ error: 'Failed to process payment.' });
+  }
+};
+
+// ===== Create Support Ticket =====
+export const createSupportTicket = async (req, res) => {
+  try {
+    const { category, issueDescription } = req.body;
+    if (!category || !issueDescription) {
+      return res.status(400).json({ error: 'Category and issue description are required.' });
+    }
+
+    const ticket = await SupportTicket.create({
+      partnerId: req.user._id,
+      partnerName: req.user.name || 'Partner',
+      partnerPhone: req.user.phone || '',
+      zone: req.user.deliveryProfile?.operatingZone || req.user.city || 'General Zone',
+      category,
+      issueDescription
+    });
+
+    res.status(201).json({ message: 'Support ticket submitted successfully.', ticket });
+  } catch (error) {
+    console.error('Create support ticket error:', error);
+    res.status(500).json({ error: 'Failed to submit support ticket' });
+  }
+};
+
+// ===== Get Partner Support Tickets =====
+export const getPartnerSupportTickets = async (req, res) => {
+  try {
+    const tickets = await SupportTicket.find({ partnerId: req.user._id }).sort({ createdAt: -1 });
+    res.json({ tickets });
+  } catch (error) {
+    console.error('Get support tickets error:', error);
+    res.status(500).json({ error: 'Failed to fetch tickets' });
   }
 };

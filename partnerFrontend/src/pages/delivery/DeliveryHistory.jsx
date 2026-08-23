@@ -224,13 +224,13 @@ export default function DeliveryHistory() {
                 padding: '7px 4px',
                 borderRadius: '8px',
                 border: 'none',
-                background: isActive ? 'linear-gradient(135deg, #ff5400 0%, #ff3b00 100%)' : 'transparent',
-                color: isActive ? '#ffffff' : 'var(--text-secondary)',
+                background: isActive ? 'linear-gradient(135deg, #fbbf24 0%, #d97706 100%)' : 'transparent',
+                color: isActive ? '#0a1128' : 'var(--text-secondary)',
                 fontWeight: isActive ? 800 : 700,
                 fontSize: '11px',
                 cursor: 'pointer',
                 transition: 'all 0.2s ease',
-                boxShadow: isActive ? '0 2px 8px rgba(255, 84, 0, 0.25)' : 'none'
+                boxShadow: isActive ? '0 2px 8px rgba(245, 158, 11, 0.4)' : 'none'
               }}
             >
               {tab.icon}
@@ -512,9 +512,9 @@ export default function DeliveryHistory() {
                 <div style={{
                   padding: '6px 14px',
                   borderRadius: '16px',
-                  backgroundColor: isCompleted ? '#ecfdf5' : isActiveNow ? '#eff6ff' : '#fff7ed',
-                  color: isCompleted ? '#059669' : isActiveNow ? '#0284c7' : '#ea580c',
-                  border: `1px solid ${isCompleted ? '#a7f3d0' : isActiveNow ? '#bae6fd' : '#ffedd5'}`,
+                  backgroundColor: isCompleted ? '#ecfdf5' : isActiveNow ? '#eff6ff' : 'rgba(245, 158, 11, 0.15)',
+                  color: isCompleted ? '#059669' : isActiveNow ? '#0284c7' : '#f59e0b',
+                  border: `1px solid ${isCompleted ? '#a7f3d0' : isActiveNow ? '#bae6fd' : 'rgba(245, 158, 11, 0.3)'}`,
                   fontSize: '12px',
                   fontWeight: 900,
                   display: 'flex',

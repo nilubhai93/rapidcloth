@@ -99,7 +99,7 @@ export default function Login() {
         <div style={{ textAlign: 'center', marginBottom: '28px' }}>
           <div style={{
             width: '52px', height: '52px', borderRadius: '16px',
-            background: 'var(--gradient-primary, linear-gradient(135deg, #ff5400 0%, #ff6b00 100%))',
+            background: 'var(--gradient-primary, linear-gradient(135deg, #fbbf24 0%, #d97706 100%))',
             margin: '0 auto 12px',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             fontSize: '22px', fontWeight: 800, color: 'white',
@@ -194,9 +194,9 @@ export default function Login() {
           <motion.button whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.98 }} type="submit" disabled={loading}
             style={{
               width: '100%', padding: '14px 20px', borderRadius: '14px',
-              background: 'var(--gradient-primary, linear-gradient(135deg, #ff5400 0%, #ff6b00 100%))', color: 'white',
-              fontSize: '15px', fontWeight: 700, marginTop: '6px', border: 'none', cursor: loading ? 'not-allowed' : 'pointer',
-              opacity: loading ? 0.75 : 1, boxShadow: '0 6px 20px var(--accent-glow, rgba(255, 84, 0, 0.3))'
+              background: 'linear-gradient(135deg, #fbbf24 0%, #d97706 100%)', color: '#0a1128',
+              fontSize: '15px', fontWeight: 800, marginTop: '6px', border: 'none', cursor: loading ? 'not-allowed' : 'pointer',
+              opacity: loading ? 0.75 : 1, boxShadow: '0 6px 20px rgba(245, 158, 11, 0.4)'
             }}>
             {loading ? 'Processing...' : (loginMethod === 'password' ? 'Sign In to Partner App' : (otpSent ? 'Verify & Sign In' : 'Send One-Time Code'))}
           </motion.button>
@@ -204,14 +204,14 @@ export default function Login() {
 
         <div style={{ marginTop: '18px', textAlign: 'center' }}>
           <button onClick={() => { setLoginMethod(loginMethod === 'password' ? 'otp' : 'password'); setOtpSent(false); setError(''); }}
-            style={{ background: 'transparent', border: 'none', color: 'var(--accent-light, #ff6b00)', fontSize: '13px', fontWeight: 600, cursor: 'pointer' }}>
+            style={{ background: 'transparent', border: 'none', color: '#f59e0b', fontSize: '13px', fontWeight: 700, cursor: 'pointer' }}>
             {loginMethod === 'password' ? 'Use OTP Login instead' : 'Use Password Login instead'}
           </button>
         </div>
 
         <p style={{ textAlign: 'center', marginTop: '22px', marginBottom: 0, fontSize: '13px', color: 'var(--text-muted, #64748b)' }}>
           Don't have a partner account?{' '}
-          <Link to="/register" style={{ color: 'var(--accent-light, #ff6b00)', fontWeight: 700, textDecoration: 'none' }}>
+          <Link to="/register" style={{ color: '#f59e0b', fontWeight: 800, textDecoration: 'none' }}>
             Join as Partner
           </Link>
         </p>

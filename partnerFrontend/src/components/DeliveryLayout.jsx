@@ -79,12 +79,15 @@ export default function DeliveryLayout() {
 
       if (!lat || !lng) {
         try {
-          const ipRes = await fetch('https://ip-api.com/json/').then(r => r.json());
-          if (ipRes && ipRes.lat && ipRes.lon) {
-            lat = ipRes.lat;
-            lng = ipRes.lon;
-            sessionStorage.setItem('cached_geo_lat', lat);
-            sessionStorage.setItem('cached_geo_lng', lng);
+          const res = await fetch('https://ipapi.co/json/');
+          if (res.ok) {
+            const ipRes = await res.json();
+            if (ipRes && ipRes.latitude && ipRes.longitude) {
+              lat = ipRes.latitude;
+              lng = ipRes.longitude;
+              sessionStorage.setItem('cached_geo_lat', lat);
+              sessionStorage.setItem('cached_geo_lng', lng);
+            }
           }
         } catch (ipErr) {
           // Silently handle if IP service unavailable
@@ -332,7 +335,7 @@ export default function DeliveryLayout() {
         failCount = 0;
       } catch (e) {
         failCount++;
-        if (failCount <= 3) console.error('Failed to poll assigned orders', e);
+        // Silent catch during server reconnects
       }
     };
 
@@ -381,7 +384,7 @@ export default function DeliveryLayout() {
   ];
 
   const moreOptions = [
-    { name: t('feed'), path: '/delivery', icon: <DynamicFeedIcon sx={{ color: '#ff6b00' }} />, bg: 'rgba(255, 107, 0, 0.1)' },
+    { name: t('feed'), path: '/delivery', icon: <DynamicFeedIcon sx={{ color: '#f59e0b' }} />, bg: 'rgba(245, 158, 11, 0.12)' },
     { name: t('orders'), path: '/delivery/orders', icon: <DirectionsBikeIcon sx={{ color: '#3b82f6' }} />, bg: 'rgba(59, 130, 246, 0.1)' },
     { name: t('earnings'), path: '/delivery/earnings', icon: <AccountBalanceWalletIcon sx={{ color: '#10b981' }} />, bg: 'rgba(16, 185, 129, 0.1)' },
     { name: t('shifts'), path: '/delivery/shifts', icon: <ScheduleIcon sx={{ color: '#a855f7' }} />, bg: 'rgba(168, 85, 247, 0.1)' },
@@ -589,7 +592,7 @@ export default function DeliveryLayout() {
                     style={{
                       display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
                       background: 'none', border: 'none', outline: 'none', cursor: 'pointer',
-                      color: isMoreActive ? '#ff6b00' : (isDarkMode ? '#94a3b8' : '#64748b'),
+                      color: isMoreActive ? '#f59e0b' : '#94a3b8',
                       fontSize: '11px', fontWeight: isMoreActive ? 900 : 700,
                       flex: 1, height: '54px', gap: '3px',
                       position: 'relative', borderRadius: '18px',
@@ -602,8 +605,8 @@ export default function DeliveryLayout() {
                         transition={{ type: 'spring', stiffness: 350, damping: 25 }}
                         style={{
                           position: 'absolute', inset: 0,
-                          background: isDarkMode ? 'rgba(255, 107, 0, 0.2)' : 'rgba(255, 107, 0, 0.12)',
-                          border: '1px solid rgba(255, 107, 0, 0.3)',
+                          background: 'rgba(245, 158, 11, 0.16)',
+                          border: '1px solid rgba(245, 158, 11, 0.4)',
                           borderRadius: '18px'
                         }}
                       />
@@ -625,7 +628,7 @@ export default function DeliveryLayout() {
                     return {
                       display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
                       textDecoration: 'none',
-                      color: isTabActive ? '#ff6b00' : (isDarkMode ? '#94a3b8' : '#64748b'),
+                      color: isTabActive ? '#f59e0b' : '#94a3b8',
                       fontSize: '11px', fontWeight: isTabActive ? 900 : 700,
                       flex: 1, height: '54px', gap: '3px',
                       position: 'relative', borderRadius: '18px',
@@ -643,8 +646,8 @@ export default function DeliveryLayout() {
                             transition={{ type: 'spring', stiffness: 350, damping: 25 }}
                             style={{
                               position: 'absolute', inset: 0,
-                              background: isDarkMode ? 'rgba(255, 107, 0, 0.2)' : 'rgba(255, 107, 0, 0.12)',
-                              border: '1px solid rgba(255, 107, 0, 0.3)',
+                              background: 'rgba(245, 158, 11, 0.16)',
+                              border: '1px solid rgba(245, 158, 11, 0.4)',
                               borderRadius: '18px'
                             }}
                           />
@@ -710,12 +713,12 @@ export default function DeliveryLayout() {
                 justify: 'space-between'
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-                  <div style={{
-                    width: '48px', height: '48px', borderRadius: '50%',
-                    background: 'linear-gradient(135deg, #ff5400 0%, #ff3b00 100%)',
-                    color: '#ffffff', fontWeight: 900, fontSize: '20px',
+                  <div className="pulse-glow-avatar" style={{
+                    width: '50px', height: '50px', borderRadius: '50%',
+                    background: 'linear-gradient(135deg, #fbbf24 0%, #d97706 100%)',
+                    color: '#0a1128', fontWeight: 900, fontSize: '22px',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    boxShadow: '0 4px 14px rgba(255, 84, 0, 0.3)'
+                    boxShadow: '0 4px 14px rgba(245, 158, 11, 0.4)'
                   }}>
                     {user?.name ? user.name[0].toUpperCase() : 'P'}
                   </div>
@@ -739,7 +742,7 @@ export default function DeliveryLayout() {
                       border: `1.5px solid ${isDarkMode ? '#475569' : '#fed7aa'}`,
                       borderRadius: '20px',
                       padding: '8px 14px',
-                      color: isDarkMode ? '#f8fafc' : '#ea580c',
+                      color: isDarkMode ? '#f8fafc' : '#f59e0b',
                       fontWeight: 800,
                       fontSize: '12px',
                       display: 'flex',
@@ -749,15 +752,15 @@ export default function DeliveryLayout() {
                       boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
                     }}
                   >
-                    {isDarkMode ? <DarkModeIcon sx={{ fontSize: '16px', color: '#fbbf24' }} /> : <LightModeIcon sx={{ fontSize: '16px', color: '#ea580c' }} />}
+                    {isDarkMode ? <DarkModeIcon sx={{ fontSize: '16px', color: '#fbbf24' }} /> : <LightModeIcon sx={{ fontSize: '16px', color: '#f59e0b' }} />}
                     <span>{isDarkMode ? 'Dark' : 'Light'}</span>
                   </motion.button>
 
                   <button
                     onClick={() => { setShowMoreMenu(false); navigate('/delivery/support'); }}
                     style={{
-                      background: isDarkMode ? '#1e293b' : '#ffffff', border: `1px solid ${isDarkMode ? '#334155' : '#fed7aa'}`, borderRadius: '20px',
-                      padding: '8px 14px', color: isDarkMode ? '#93c5fd' : '#ea580c', fontWeight: 800, fontSize: '12px',
+                      background: isDarkMode ? '#1e293b' : '#ffffff', border: `1px solid ${isDarkMode ? '#334155' : 'rgba(245, 158, 11, 0.3)'}`, borderRadius: '20px',
+                      padding: '8px 14px', color: isDarkMode ? '#93c5fd' : '#f59e0b', fontWeight: 800, fontSize: '12px',
                       display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer'
                     }}
                   >
@@ -832,7 +835,8 @@ export default function DeliveryLayout() {
                     {opt.badge && (
                       <div style={{
                         position: 'absolute', top: '8px', right: '8px',
-                        background: opt.badge.includes('₹') ? '#10b981' : '#ff5400',
+                        background: opt.badge.includes('₹') ? '#10b981' : '#f59e0b',
+                        color: opt.badge.includes('₹') ? '#ffffff' : '#0a1128',
                         color: '#ffffff', fontSize: '9px', fontWeight: 900,
                         padding: '2px 6px', borderRadius: '10px'
                       }}>
@@ -888,10 +892,10 @@ export default function DeliveryLayout() {
                       {item.badge && (
                         <span style={{
                           fontSize: '11px', fontWeight: 800,
-                          color: item.badge.includes('₹') ? '#047857' : '#ea580c',
-                          background: item.badge.includes('₹') ? (isDarkMode ? 'rgba(16,185,129,0.2)' : '#ecfdf5') : (isDarkMode ? 'rgba(234,88,12,0.2)' : '#fff7ed'),
+                          color: item.badge.includes('₹') ? '#047857' : '#f59e0b',
+                          background: item.badge.includes('₹') ? (isDarkMode ? 'rgba(16,185,129,0.2)' : '#ecfdf5') : (isDarkMode ? 'rgba(245,158,11,0.2)' : 'rgba(245,158,11,0.12)'),
                           padding: '3px 8px', borderRadius: '10px',
-                          border: `1px solid ${item.badge.includes('₹') ? '#a7f3d0' : '#ffedd5'}`
+                          border: `1px solid ${item.badge.includes('₹') ? '#a7f3d0' : 'rgba(245,158,11,0.3)'}`
                         }}>
                           {item.badge}
                         </span>
@@ -905,7 +909,7 @@ export default function DeliveryLayout() {
               {/* 5. Utility Links & Sign Out */}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', padding: '0 6px' }}>
                 <span style={{ fontSize: '12px', color: isDarkMode ? '#94a3b8' : '#64748b', fontWeight: 700 }}>App Version 2.4.0 (Build 2026.08)</span>
-                <span style={{ fontSize: '12px', color: '#ff6b00', fontWeight: 800, cursor: 'pointer' }} onClick={() => { setShowMoreMenu(false); navigate('/delivery/profile'); }}>
+                <span style={{ fontSize: '12px', color: '#f59e0b', fontWeight: 800, cursor: 'pointer' }} onClick={() => { setShowMoreMenu(false); navigate('/delivery/profile'); }}>
                   {t('appLanguage')} 🌐
                 </span>
               </div>
@@ -983,9 +987,9 @@ export default function DeliveryLayout() {
                   <div style={{ fontSize: '9px', color: 'var(--text-muted)', marginTop: '2px' }}>To {assignedOrder.status === 'return-requested' ? 'User' : 'Store'}</div>
                 </div>
 
-                <div style={{ padding: '12px 4px', borderRadius: '12px', background: 'rgba(249,115,22,0.08)', border: '1px solid rgba(249,115,22,0.2)' }}>
+                <div style={{ padding: '12px 4px', borderRadius: '12px', background: 'rgba(245,158,11,0.12)', border: '1px solid rgba(245,158,11,0.3)' }}>
                   <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase', marginBottom: '4px' }}>Drop</div>
-                  <div style={{ fontSize: '18px', fontWeight: 900, color: '#f97316' }}>
+                  <div style={{ fontSize: '18px', fontWeight: 900, color: '#f59e0b' }}>
                     {assignedOrder.deliveryDistanceKm ? `${assignedOrder.deliveryDistanceKm} km` : '--'}
                   </div>
                   <div style={{ fontSize: '9px', color: 'var(--text-muted)', marginTop: '2px' }}>To {assignedOrder.status === 'return-requested' ? 'Hub' : 'User'}</div>
@@ -1062,17 +1066,17 @@ export default function DeliveryLayout() {
                 borderRadius: '32px',
                 maxWidth: '420px',
                 width: '100%',
-                border: '2px solid #ff5400',
+                border: '2px solid #f59e0b',
                 textAlign: 'center',
-                boxShadow: '0 25px 60px rgba(255, 84, 0, 0.35)',
+                boxShadow: '0 25px 60px rgba(245, 158, 11, 0.35)',
                 color: '#0f172a'
               }}
             >
               <div style={{
                 width: '72px', height: '72px', borderRadius: '50%',
-                backgroundColor: '#fff7ed', border: '3px solid #ffedd5',
+                backgroundColor: 'rgba(245, 158, 11, 0.12)', border: '3px solid rgba(245, 158, 11, 0.3)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                margin: '0 auto 20px', color: '#ea580c',
+                margin: '0 auto 20px', color: '#f59e0b',
                 boxShadow: '0 8px 24px rgba(234, 88, 12, 0.2)'
               }}>
                 <ScheduleIcon sx={{ fontSize: '38px' }} />
@@ -1114,13 +1118,13 @@ export default function DeliveryLayout() {
                   style={{
                     padding: '16px',
                     borderRadius: '18px',
-                    background: 'linear-gradient(135deg, #ff5400 0%, #ff3b00 100%)',
-                    color: '#ffffff',
+                    background: 'linear-gradient(135deg, #fbbf24 0%, #d97706 100%)',
+                    color: '#0a1128',
                     fontWeight: 900,
                     fontSize: '16px',
                     border: 'none',
                     cursor: 'pointer',
-                    boxShadow: '0 6px 20px rgba(255, 84, 0, 0.35)',
+                    boxShadow: '0 6px 20px rgba(245, 158, 11, 0.4)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',

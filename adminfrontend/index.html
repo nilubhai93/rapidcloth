@@ -5,6 +5,21 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>RapidCloth | Zone Admin Portal</title>
+    <!-- Suppress External Chrome Extension Noise Errors -->
+    <script>
+      window.addEventListener('unhandledrejection', function(e) {
+        if (e.reason && (String(e.reason.message || e.reason).includes('Could not establish connection') || String(e.reason).includes('Receiving end does not exist'))) {
+          e.stopImmediatePropagation();
+          e.preventDefault();
+        }
+      }, true);
+      window.addEventListener('error', function(e) {
+        if (e.filename && e.filename.includes('content-script')) {
+          e.stopImmediatePropagation();
+          e.preventDefault();
+        }
+      }, true);
+    </script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   </head>
   <body>

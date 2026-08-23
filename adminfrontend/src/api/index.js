@@ -119,4 +119,16 @@ export const deliveryAPI = {
   getHistory: (params) => api.get('/delivery/history', { params }),
 };
 
+// Admin
+export const adminAPI = {
+  getStats: () => api.get('/admin/stats'),
+  getSellers: () => api.get('/admin/sellers'),
+  updateSellerStatus: (id, data) => api.put(`/admin/sellers/${id}`, data),
+  getUsers: () => api.get('/admin/users'),
+  getOrders: () => api.get('/admin/orders'),
+  getDeliveryPartners: () => api.get('/admin/delivery'),
+  getSupportTickets: () => api.get('/admin/support-tickets'),
+  updateSupportTicketStatus: (ticketId, data) => api.put(`/admin/support-tickets/${ticketId}`, data),
+};
+
 export default api;

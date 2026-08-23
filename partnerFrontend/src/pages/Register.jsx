@@ -353,7 +353,7 @@ export default function Register() {
           {/* Full Name */}
           <div>
             <label style={labelStyle}>
-              Full Name <span style={{ color: 'var(--accent, #ff5400)' }}>*</span>
+              Full Name <span style={{ color: 'var(--accent, #f59e0b)' }}>*</span>
             </label>
             <div style={inputContainerStyle}>
               <PersonIcon sx={iconStyle} />
@@ -371,7 +371,7 @@ export default function Register() {
           {/* Email */}
           <div>
             <label style={labelStyle}>
-              Email Address <span style={{ color: 'var(--accent, #ff5400)' }}>*</span>
+              Email Address <span style={{ color: 'var(--accent, #f59e0b)' }}>*</span>
             </label>
             <div style={inputContainerStyle}>
               <EmailIcon sx={iconStyle} />
@@ -389,7 +389,7 @@ export default function Register() {
           {/* Phone Number */}
           <div>
             <label style={labelStyle}>
-              Mobile Number <span style={{ color: 'var(--accent, #ff5400)' }}>*</span>
+              Mobile Number <span style={{ color: 'var(--accent, #f59e0b)' }}>*</span>
             </label>
             <div style={inputContainerStyle}>
               <PhoneIphoneIcon sx={iconStyle} />
@@ -430,7 +430,7 @@ export default function Register() {
               {/* Select State */}
               <div>
                 <label style={labelStyle}>
-                  Select State <span style={{ color: 'var(--accent, #ff5400)' }}>*</span>
+                  Select State <span style={{ color: 'var(--accent, #f59e0b)' }}>*</span>
                 </label>
                 <div style={inputContainerStyle}>
                   <LocationOnIcon sx={iconStyle} />
@@ -454,7 +454,7 @@ export default function Register() {
               {/* Select Zone */}
               <div>
                 <label style={labelStyle}>
-                  Operating Zone <span style={{ color: 'var(--accent, #ff5400)' }}>*</span>
+                  Operating Zone <span style={{ color: 'var(--accent, #f59e0b)' }}>*</span>
                 </label>
                 <div style={inputContainerStyle}>
                   <LocationOnIcon sx={iconStyle} />
@@ -533,7 +533,7 @@ export default function Register() {
             {/* Vehicle Type */}
             <div>
               <label style={labelStyle}>
-                Vehicle Type <span style={{ color: 'var(--accent, #ff5400)' }}>*</span>
+                Vehicle Type <span style={{ color: 'var(--accent, #f59e0b)' }}>*</span>
               </label>
               <div style={inputContainerStyle}>
                 <TwoWheelerIcon sx={iconStyle} />
@@ -552,7 +552,7 @@ export default function Register() {
             {/* Vehicle Registration No */}
             <div>
               <label style={labelStyle}>
-                Vehicle Reg. No. <span style={{ color: 'var(--accent, #ff5400)' }}>*</span>
+                Vehicle Reg. No. <span style={{ color: 'var(--accent, #f59e0b)' }}>*</span>
               </label>
               <div style={inputContainerStyle}>
                 <TwoWheelerIcon sx={iconStyle} />
@@ -571,7 +571,7 @@ export default function Register() {
           {/* Password */}
           <div>
             <label style={labelStyle}>
-              Create Password <span style={{ color: 'var(--accent, #ff5400)' }}>*</span>
+              Create Password <span style={{ color: 'var(--accent, #f59e0b)' }}>*</span>
             </label>
             <div style={inputContainerStyle}>
               <LockIcon sx={iconStyle} />
@@ -619,15 +619,15 @@ export default function Register() {
               width: '100%',
               padding: '14px 20px',
               borderRadius: '14px',
-              background: 'linear-gradient(135deg, #0cebeb 0%, #29ffc6 100%)',
-              color: '#0f172a',
+              background: 'linear-gradient(135deg, #fbbf24 0%, #d97706 100%)',
+              color: '#0a1128',
               fontSize: '15px',
               fontWeight: 800,
               border: 'none',
               cursor: loading ? 'not-allowed' : 'pointer',
               marginTop: '6px',
               opacity: loading ? 0.75 : 1,
-              boxShadow: '0 6px 20px rgba(41, 255, 198, 0.3)',
+              boxShadow: '0 6px 20px rgba(245, 158, 11, 0.4)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
