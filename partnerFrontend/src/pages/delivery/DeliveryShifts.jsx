@@ -441,12 +441,12 @@ export default function DeliveryShifts() {
 
       {/* Shift Completion & Minimum Guarantee (MG) Rules Card */}
       <div style={{
-        background: 'var(--bg-card, #152238)',
-        border: '1px solid rgba(245, 158, 11, 0.35)',
-        borderRadius: '14px',
+        backgroundColor: '#ffffff',
+        border: '1px solid #e2e8f0',
+        borderRadius: '16px',
         padding: '14px 16px',
         marginBottom: '16px',
-        boxShadow: '0 4px 14px rgba(0,0,0,0.15)'
+        boxShadow: '0 2px 8px rgba(0,0,0,0.03)'
       }}>
         <div 
           onClick={() => setShowRulesModal(!showRulesModal)}
@@ -454,48 +454,54 @@ export default function DeliveryShifts() {
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <div style={{
-              width: '34px', height: '34px', borderRadius: '50%',
-              background: 'rgba(245, 158, 11, 0.2)', color: '#f59e0b',
+              width: '36px', height: '36px', borderRadius: '50%',
+              backgroundColor: '#fef3c7', color: '#d97706',
               display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0
             }}>
               <InfoOutlinedIcon sx={{ fontSize: '20px' }} />
             </div>
             <div>
-              <div style={{ fontSize: '13px', fontWeight: 900, color: 'var(--text-primary, #ffffff)' }}>
+              <div style={{ fontSize: '13px', fontWeight: 800, color: '#0f172a' }}>
                 Shift Completion & MG Rules Table
               </div>
-              <div style={{ fontSize: '11px', color: '#f59e0b', fontWeight: 700, marginTop: '1px' }}>
+              <div style={{ fontSize: '11px', color: '#d97706', fontWeight: 700, marginTop: '1px' }}>
                 Req. Login: 90%–95% active time per shift for full attendance.
               </div>
             </div>
           </div>
-          <span style={{ fontSize: '12px', color: '#f59e0b', fontWeight: 800 }}>
+          <span style={{ fontSize: '12px', color: '#d97706', fontWeight: 800 }}>
             {showRulesModal ? 'Hide Rules ▲' : 'View Rules ▼'}
           </span>
         </div>
 
         <AnimatePresence>
           {showRulesModal && (
-            <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} style={{ overflow: 'hidden', marginTop: '12px', paddingTop: '12px', borderTop: '1px dashed rgba(245, 158, 11, 0.25)' }}>
+            <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} style={{ overflow: 'hidden', marginTop: '12px', paddingTop: '12px', borderTop: '1px dashed #e2e8f0' }}>
               <div style={{ overflowX: 'auto' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '11px', textAlign: 'left', color: 'var(--text-primary, #f8fafc)' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '11.5px', textAlign: 'left' }}>
                   <thead>
-                    <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)', color: '#f59e0b' }}>
-                      <th style={{ padding: '6px 8px' }}>Duration</th>
-                      <th style={{ padding: '6px 8px' }}>Min Login Req.</th>
-                      <th style={{ padding: '6px 8px' }}>Allowed Break</th>
-                      <th style={{ padding: '6px 8px' }}>MG Status</th>
+                    <tr style={{ background: '#f8fafc', borderBottom: '1.5px solid #e2e8f0', color: '#475569' }}>
+                      <th style={{ padding: '8px 10px', fontWeight: 800, borderRadius: '8px 0 0 8px' }}>Duration</th>
+                      <th style={{ padding: '8px 10px', fontWeight: 800 }}>Min Login Req.</th>
+                      <th style={{ padding: '8px 10px', fontWeight: 800 }}>Allowed Break</th>
+                      <th style={{ padding: '8px 10px', fontWeight: 800, borderRadius: '0 8px 8px 0' }}>MG Status</th>
                     </tr>
                   </thead>
                   <tbody>
                     {SHIFT_ATTENDANCE_TABLE.map((row, idx) => (
-                      <tr key={idx} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                        <td style={{ padding: '6px 8px', fontWeight: 800 }}>{row.duration}</td>
-                        <td style={{ padding: '6px 8px', color: '#38bdf8', fontWeight: 700 }}>{row.reqRange}</td>
-                        <td style={{ padding: '6px 8px', color: '#94a3b8' }}>{row.breakRange}</td>
-                        <td style={{ padding: '6px 8px' }}>
-                          <span style={{ backgroundColor: 'rgba(16, 185, 129, 0.2)', color: '#34d399', padding: '2px 6px', borderRadius: '6px', fontWeight: 800 }}>
-                            {row.mg}
+                      <tr key={idx} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                        <td style={{ padding: '8px 10px', fontWeight: 800, color: '#0f172a', whiteSpace: 'nowrap' }}>
+                          {row.durationHours}h Shift
+                        </td>
+                        <td style={{ padding: '8px 10px', color: '#0284c7', fontWeight: 700, whiteSpace: 'nowrap' }}>
+                          {row.reqRangeStr}
+                        </td>
+                        <td style={{ padding: '8px 10px', color: '#64748b', fontWeight: 600, whiteSpace: 'nowrap' }}>
+                          {row.breakRangeStr}
+                        </td>
+                        <td style={{ padding: '8px 10px', whiteSpace: 'nowrap' }}>
+                          <span style={{ backgroundColor: '#ecfdf5', border: '1px solid #a7f3d0', color: '#047857', padding: '2px 8px', borderRadius: '6px', fontWeight: 800, fontSize: '11px' }}>
+                            {row.mgPercent} MG
                           </span>
                         </td>
                       </tr>

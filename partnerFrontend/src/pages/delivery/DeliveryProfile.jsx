@@ -23,7 +23,7 @@ export default function DeliveryProfile() {
   const { langCode, t, changeLanguage } = useLanguage();
 
   // Profile fields state
-  const [phone, setPhone] = useState(user?.phone || '7407856206');
+  const [phone, ] = useState(user?.phone || '7407856206');
   const [city, setCity] = useState(user?.city || 'Kolkata');
   const [zone, setZone] = useState(user?.zone || 'Barrackpore');
   const [category, setCategory] = useState('Clothing, Quick Delivery, Express');
