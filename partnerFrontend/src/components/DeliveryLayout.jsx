@@ -598,9 +598,8 @@ export default function DeliveryLayout() {
               if (item.isMoreButton) {
                 const isMoreActive = showMoreMenu || isMorePageActive;
                 return (
-                  <motion.button
+                  <button
                     key="more-btn"
-                    whileTap={{ scale: 0.92 }}
                     onClick={() => setShowMoreMenu(prev => !prev)}
                     style={{
                       display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
@@ -609,13 +608,11 @@ export default function DeliveryLayout() {
                       fontSize: '11px', fontWeight: isMoreActive ? 900 : 700,
                       flex: 1, height: '54px', gap: '3px',
                       position: 'relative', borderRadius: '18px',
-                      transition: 'color 0.2s'
+                      transition: 'color 0.15s ease'
                     }}
                   >
                     {isMoreActive && (
-                      <motion.div
-                        layoutId="classic-active-pill"
-                        transition={{ type: 'spring', stiffness: 350, damping: 25 }}
+                      <div
                         style={{
                           position: 'absolute', inset: 0,
                           background: 'rgba(245, 158, 11, 0.16)',
@@ -626,7 +623,7 @@ export default function DeliveryLayout() {
                     )}
                     <div style={{ fontSize: '22px', display: 'flex', zIndex: 1 }}>{item.icon}</div>
                     <span style={{ fontSize: '11px', zIndex: 1 }}>{item.name}</span>
-                  </motion.button>
+                  </button>
                 );
               }
 
@@ -645,7 +642,7 @@ export default function DeliveryLayout() {
                       fontSize: '11px', fontWeight: isTabActive ? 900 : 700,
                       flex: 1, height: '54px', gap: '3px',
                       position: 'relative', borderRadius: '18px',
-                      transition: 'color 0.2s'
+                      transition: 'color 0.15s ease'
                     };
                   }}
                 >
@@ -654,9 +651,7 @@ export default function DeliveryLayout() {
                     return (
                       <>
                         {isTabActive && (
-                          <motion.div
-                            layoutId="classic-active-pill"
-                            transition={{ type: 'spring', stiffness: 350, damping: 25 }}
+                          <div
                             style={{
                               position: 'absolute', inset: 0,
                               background: 'rgba(245, 158, 11, 0.16)',
@@ -685,9 +680,10 @@ export default function DeliveryLayout() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            transition={{ duration: 0.16 }}
             style={{
               position: 'fixed', inset: 0, zIndex: 9995,
-              background: 'rgba(15, 23, 42, 0.75)', backdropFilter: 'blur(12px)',
+              background: 'rgba(15, 23, 42, 0.65)',
               display: 'flex', alignItems: 'flex-end', justifyContent: 'center'
             }}
             onClick={() => setShowMoreMenu(false)}
@@ -696,18 +692,21 @@ export default function DeliveryLayout() {
               initial={{ y: '100%' }}
               animate={{ y: 0 }}
               exit={{ y: '100%' }}
-              transition={{ type: 'spring', damping: 26, stiffness: 220 }}
+              transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
               style={{
                 background: isDarkMode ? '#0f172a' : '#ffffff',
                 width: '100%',
                 maxWidth: '640px',
-                borderTopLeftRadius: '26px',
-                borderTopRightRadius: '26px',
-                padding: '16px 16px 85px',
+                borderTopLeftRadius: '24px',
+                borderTopRightRadius: '24px',
+                padding: '14px 14px 85px',
                 maxHeight: '85vh',
                 overflowY: 'auto',
-                boxShadow: isDarkMode ? '0 -20px 60px rgba(0,0,0,0.8)' : '0 -20px 60px rgba(0,0,0,0.3)',
-                borderTop: `1px solid ${isDarkMode ? '#334155' : 'transparent'}`
+                WebkitOverflowScrolling: 'touch',
+                boxShadow: isDarkMode ? '0 -10px 40px rgba(0,0,0,0.6)' : '0 -10px 40px rgba(0,0,0,0.12)',
+                borderTop: `1px solid ${isDarkMode ? '#334155' : '#e2e8f0'}`,
+                willChange: 'transform',
+                transform: 'translateZ(0)'
               }}
               onClick={(e) => e.stopPropagation()}
             >
@@ -726,7 +725,7 @@ export default function DeliveryLayout() {
                 justifyContent: 'space-between'
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <div className="pulse-glow-avatar" style={{
+                  <div style={{
                     width: '42px', height: '42px', borderRadius: '50%',
                     background: 'linear-gradient(135deg, #fbbf24 0%, #d97706 100%)',
                     color: '#0a1128', fontWeight: 900, fontSize: '18px',
@@ -747,8 +746,7 @@ export default function DeliveryLayout() {
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                   {/* Dark Mode Toggle Button */}
-                  <motion.button
-                    whileTap={{ scale: 0.92 }}
+                  <button
                     onClick={toggleDarkMode}
                     style={{
                       background: isDarkMode ? '#334155' : '#ffffff',
@@ -767,7 +765,7 @@ export default function DeliveryLayout() {
                   >
                     {isDarkMode ? <DarkModeIcon sx={{ fontSize: '14px', color: '#fbbf24' }} /> : <LightModeIcon sx={{ fontSize: '14px', color: '#f59e0b' }} />}
                     <span>{isDarkMode ? 'Dark' : 'Light'}</span>
-                  </motion.button>
+                  </button>
 
                   <button
                     onClick={() => { setShowMoreMenu(false); navigate('/delivery/support'); }}
@@ -790,9 +788,8 @@ export default function DeliveryLayout() {
                   { label: t('shifts'), path: '/delivery/shifts', icon: <ScheduleIcon sx={{ fontSize: '18px', color: '#a855f7' }} /> },
                   { label: t('notifications'), path: '/delivery/notifications', icon: <NotificationsIcon sx={{ fontSize: '18px', color: '#14b8a6' }} /> },
                 ].map((quick, qIdx) => (
-                  <motion.div
+                  <div
                     key={qIdx}
-                    whileTap={{ scale: 0.95 }}
                     onClick={() => { setShowMoreMenu(false); navigate(quick.path); }}
                     style={{
                       background: isDarkMode ? '#1e293b' : '#ffffff',
@@ -805,12 +802,14 @@ export default function DeliveryLayout() {
                       gap: '4px',
                       textAlign: 'center',
                       cursor: 'pointer',
-                      boxShadow: '0 2px 6px rgba(0,0,0,0.02)'
+                      boxShadow: '0 2px 6px rgba(0,0,0,0.02)',
+                      transition: 'transform 0.1s ease',
+                      userSelect: 'none'
                     }}
                   >
                     {quick.icon}
                     <span style={{ fontSize: '10.5px', fontWeight: 800, color: isDarkMode ? '#f8fafc' : '#1e293b', whiteSpace: 'nowrap' }}>{quick.label}</span>
-                  </motion.div>
+                  </div>
                 ))}
               </div>
 
@@ -822,10 +821,8 @@ export default function DeliveryLayout() {
               {/* 3. Main Feature Grid (3 columns x 4 rows) */}
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px', marginBottom: '20px' }}>
                 {moreOptions.map((opt) => (
-                  <motion.div
+                  <div
                     key={opt.name}
-                    whileTap={{ scale: 0.95 }}
-                    whileHover={{ y: -2 }}
                     onClick={() => {
                       setShowMoreMenu(false);
                       navigate(opt.path);
@@ -842,7 +839,9 @@ export default function DeliveryLayout() {
                       textAlign: 'center',
                       cursor: 'pointer',
                       position: 'relative',
-                      boxShadow: '0 2px 8px rgba(0,0,0,0.02)'
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.02)',
+                      transition: 'transform 0.1s ease',
+                      userSelect: 'none'
                     }}
                   >
                     {opt.badge && (
@@ -865,7 +864,7 @@ export default function DeliveryLayout() {
                     <span style={{ fontSize: '11px', fontWeight: 800, color: isDarkMode ? '#f8fafc' : '#0f172a', lineHeight: 1.2 }}>
                       {opt.name}
                     </span>
-                  </motion.div>
+                  </div>
                 ))}
               </div>
 
