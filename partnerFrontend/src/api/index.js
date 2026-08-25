@@ -83,6 +83,8 @@ export const deliveryAPI = {
   getHistory: (params) => api.get('/delivery/history', { params }),
   createSupportTicket: (category, issueDescription) => api.post('/delivery/support/ticket', { category, issueDescription }),
   getSupportTickets: () => api.get('/delivery/support/tickets'),
+  getBookedShifts: (date) => api.get('/delivery/shifts', { params: { date } }),
+  saveBookedShifts: (date, slotIds) => api.post('/delivery/shifts', { date, slotIds }),
 };
 
 export default api;

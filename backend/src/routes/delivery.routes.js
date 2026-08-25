@@ -12,7 +12,9 @@ import {
   getEarnings,
   payToCompany,
   createSupportTicket,
-  getPartnerSupportTickets
+  getPartnerSupportTickets,
+  getBookedShifts,
+  saveBookedShifts
 } from '../controllers/delivery.controller.js';
 import { authenticate } from '../middleware/auth.js';
 
@@ -30,6 +32,10 @@ router.use((req, res, next) => {
 
 router.get('/profile', getDeliveryProfile);
 router.put('/status', updateDeliveryStatus);
+
+// Shift / Slot Bookings
+router.get('/shifts', getBookedShifts);
+router.post('/shifts', saveBookedShifts);
 
 router.get('/orders/current', getCurrentOrders);
 router.put('/orders/:orderId/accept', acceptOrder);

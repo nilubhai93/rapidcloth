@@ -27,7 +27,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import DeliveryNavbar from './DeliveryNavbar';
 import { deliveryAPI } from '../api';
 import toast from 'react-hot-toast';
-import { hasValidCurrentShift } from '../utils/dutyTime';
+import { hasValidCurrentShift, getLocalDateStr, saveBookedShiftsForDate } from '../utils/dutyTime';
 
 export default function DeliveryLayout() {
   const { user, setUser, loading, logout } = useAuth();
@@ -235,6 +235,19 @@ export default function DeliveryLayout() {
       handleAutoOffline();
     }
   }, [shiftCompleteModalOpen, shiftCountdown]);
+
+  // Sync today's booked shifts from backend database
+  useEffect(() => {
+    if (!user || user.role !== 'delivery') return;
+    const today = getLocalDateStr(new Date());
+    deliveryAPI.getBookedShifts(today).then(res => {
+      if (res.data && Array.isArray(res.data.slotIds)) {
+        saveBookedShiftsForDate(res.data.slotIds, today);
+      }
+    }).catch(err => {
+      console.error('Failed to sync today shifts on load:', err);
+    });
+  }, [user?._id]);
 
   // Automatic Background Monitor: Checks if booked shift slot time has expired
   useEffect(() => {
@@ -688,9 +701,9 @@ export default function DeliveryLayout() {
                 background: isDarkMode ? '#0f172a' : '#ffffff',
                 width: '100%',
                 maxWidth: '640px',
-                borderTopLeftRadius: '32px',
-                borderTopRightRadius: '32px',
-                padding: '24px 20px 100px',
+                borderTopLeftRadius: '26px',
+                borderTopRightRadius: '26px',
+                padding: '16px 16px 85px',
                 maxHeight: '85vh',
                 overflowY: 'auto',
                 boxShadow: isDarkMode ? '0 -20px 60px rgba(0,0,0,0.8)' : '0 -20px 60px rgba(0,0,0,0.3)',
@@ -699,83 +712,83 @@ export default function DeliveryLayout() {
               onClick={(e) => e.stopPropagation()}
             >
               {/* Drag Handle Bar */}
-              <div style={{ width: '40px', height: '4px', background: isDarkMode ? '#475569' : '#cbd5e1', borderRadius: '2px', margin: '0 auto 16px' }} />
+              <div style={{ width: '36px', height: '4px', background: isDarkMode ? '#475569' : '#cbd5e1', borderRadius: '2px', margin: '0 auto 12px' }} />
 
               {/* 1. Partner Profile Banner with Dark Mode Toggle */}
               <div style={{
                 background: isDarkMode ? 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)' : 'linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%)',
-                borderRadius: '24px',
-                padding: '18px 20px',
-                marginBottom: '20px',
+                borderRadius: '18px',
+                padding: '12px 14px',
+                marginBottom: '14px',
                 border: `1px solid ${isDarkMode ? '#334155' : '#ffedd5'}`,
                 display: 'flex',
                 alignItems: 'center',
-                justify: 'space-between'
+                justifyContent: 'space-between'
               }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                   <div className="pulse-glow-avatar" style={{
-                    width: '50px', height: '50px', borderRadius: '50%',
+                    width: '42px', height: '42px', borderRadius: '50%',
                     background: 'linear-gradient(135deg, #fbbf24 0%, #d97706 100%)',
-                    color: '#0a1128', fontWeight: 900, fontSize: '22px',
+                    color: '#0a1128', fontWeight: 900, fontSize: '18px',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    boxShadow: '0 4px 14px rgba(245, 158, 11, 0.4)'
+                    boxShadow: '0 3px 10px rgba(245, 158, 11, 0.35)', flexShrink: 0
                   }}>
                     {user?.name ? user.name[0].toUpperCase() : 'P'}
                   </div>
                   <div>
-                    <div style={{ fontSize: '18px', fontWeight: 900, color: isDarkMode ? '#f8fafc' : '#0f172a', letterSpacing: '-0.3px' }}>
+                    <div style={{ fontSize: '15px', fontWeight: 900, color: isDarkMode ? '#f8fafc' : '#0f172a', letterSpacing: '-0.2px' }}>
                       {user?.name?.toUpperCase() || 'PARTNER'}
                     </div>
-                    <div style={{ fontSize: '12px', color: isDarkMode ? '#94a3b8' : '#64748b', fontWeight: 700, marginTop: '2px' }}>
+                    <div style={{ fontSize: '11px', color: isDarkMode ? '#94a3b8' : '#64748b', fontWeight: 700, marginTop: '1px' }}>
                       DE ID: #{user?._id?.slice(-8).toUpperCase() || '19685857'}
                     </div>
                   </div>
                 </div>
 
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                   {/* Dark Mode Toggle Button */}
                   <motion.button
-                    whileTap={{ scale: 0.9 }}
+                    whileTap={{ scale: 0.92 }}
                     onClick={toggleDarkMode}
                     style={{
                       background: isDarkMode ? '#334155' : '#ffffff',
                       border: `1.5px solid ${isDarkMode ? '#475569' : '#fed7aa'}`,
-                      borderRadius: '20px',
-                      padding: '8px 14px',
+                      borderRadius: '14px',
+                      padding: '6px 10px',
                       color: isDarkMode ? '#f8fafc' : '#f59e0b',
                       fontWeight: 800,
-                      fontSize: '12px',
+                      fontSize: '11px',
                       display: 'flex',
                       alignItems: 'center',
-                      gap: '6px',
+                      gap: '4px',
                       cursor: 'pointer',
-                      boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                      boxShadow: '0 2px 6px rgba(0,0,0,0.06)'
                     }}
                   >
-                    {isDarkMode ? <DarkModeIcon sx={{ fontSize: '16px', color: '#fbbf24' }} /> : <LightModeIcon sx={{ fontSize: '16px', color: '#f59e0b' }} />}
+                    {isDarkMode ? <DarkModeIcon sx={{ fontSize: '14px', color: '#fbbf24' }} /> : <LightModeIcon sx={{ fontSize: '14px', color: '#f59e0b' }} />}
                     <span>{isDarkMode ? 'Dark' : 'Light'}</span>
                   </motion.button>
 
                   <button
                     onClick={() => { setShowMoreMenu(false); navigate('/delivery/support'); }}
                     style={{
-                      background: isDarkMode ? '#1e293b' : '#ffffff', border: `1px solid ${isDarkMode ? '#334155' : 'rgba(245, 158, 11, 0.3)'}`, borderRadius: '20px',
-                      padding: '8px 14px', color: isDarkMode ? '#93c5fd' : '#f59e0b', fontWeight: 800, fontSize: '12px',
-                      display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer'
+                      background: isDarkMode ? '#1e293b' : '#ffffff', border: `1px solid ${isDarkMode ? '#334155' : 'rgba(245, 158, 11, 0.3)'}`, borderRadius: '14px',
+                      padding: '6px 10px', color: isDarkMode ? '#93c5fd' : '#f59e0b', fontWeight: 800, fontSize: '11px',
+                      display: 'flex', alignItems: 'center', gap: '3px', cursor: 'pointer'
                     }}
                   >
-                    <HelpOutlineIcon sx={{ fontSize: '16px' }} /> {t('help')}
+                    <HelpOutlineIcon sx={{ fontSize: '14px' }} /> {t('help')}
                   </button>
                 </div>
               </div>
 
               {/* 2. Quick Action Pills Row */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px', marginBottom: '24px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px', marginBottom: '16px' }}>
                 {[
-                  { label: t('myProfile'), path: '/delivery/profile', icon: <PersonIcon sx={{ fontSize: '20px', color: '#6366f1' }} /> },
-                  { label: t('payouts'), path: '/delivery/earnings', icon: <AccountBalanceWalletIcon sx={{ fontSize: '20px', color: '#10b981' }} /> },
-                  { label: t('shifts'), path: '/delivery/shifts', icon: <ScheduleIcon sx={{ fontSize: '20px', color: '#a855f7' }} /> },
-                  { label: t('notifications'), path: '/delivery/notifications', icon: <NotificationsIcon sx={{ fontSize: '20px', color: '#14b8a6' }} /> },
+                  { label: t('myProfile'), path: '/delivery/profile', icon: <PersonIcon sx={{ fontSize: '18px', color: '#6366f1' }} /> },
+                  { label: t('payouts'), path: '/delivery/earnings', icon: <AccountBalanceWalletIcon sx={{ fontSize: '18px', color: '#10b981' }} /> },
+                  { label: t('shifts'), path: '/delivery/shifts', icon: <ScheduleIcon sx={{ fontSize: '18px', color: '#a855f7' }} /> },
+                  { label: t('notifications'), path: '/delivery/notifications', icon: <NotificationsIcon sx={{ fontSize: '18px', color: '#14b8a6' }} /> },
                 ].map((quick, qIdx) => (
                   <motion.div
                     key={qIdx}
@@ -784,30 +797,30 @@ export default function DeliveryLayout() {
                     style={{
                       background: isDarkMode ? '#1e293b' : '#ffffff',
                       border: `1.5px solid ${isDarkMode ? '#334155' : '#e2e8f0'}`,
-                      borderRadius: '16px',
-                      padding: '12px 6px',
+                      borderRadius: '14px',
+                      padding: '10px 4px',
                       display: 'flex',
                       flexDirection: 'column',
                       alignItems: 'center',
-                      gap: '6px',
+                      gap: '4px',
                       textAlign: 'center',
                       cursor: 'pointer',
-                      boxShadow: '0 2px 8px rgba(0,0,0,0.02)'
+                      boxShadow: '0 2px 6px rgba(0,0,0,0.02)'
                     }}
                   >
                     {quick.icon}
-                    <span style={{ fontSize: '11px', fontWeight: 800, color: isDarkMode ? '#f8fafc' : '#1e293b' }}>{quick.label}</span>
+                    <span style={{ fontSize: '10.5px', fontWeight: 800, color: isDarkMode ? '#f8fafc' : '#1e293b', whiteSpace: 'nowrap' }}>{quick.label}</span>
                   </motion.div>
                 ))}
               </div>
 
               {/* Section Header */}
-              <div style={{ fontSize: '11px', fontWeight: 900, color: isDarkMode ? '#94a3b8' : '#64748b', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '14px', paddingLeft: '4px' }}>
+              <div style={{ fontSize: '10px', fontWeight: 900, color: isDarkMode ? '#94a3b8' : '#64748b', letterSpacing: '0.8px', textTransform: 'uppercase', marginBottom: '10px', paddingLeft: '4px' }}>
                 {t('moreFeatures')}
               </div>
 
               {/* 3. Main Feature Grid (3 columns x 4 rows) */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginBottom: '28px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px', marginBottom: '20px' }}>
                 {moreOptions.map((opt) => (
                   <motion.div
                     key={opt.name}
@@ -820,37 +833,36 @@ export default function DeliveryLayout() {
                     style={{
                       background: isDarkMode ? '#1e293b' : '#f8fafc',
                       border: `1px solid ${isDarkMode ? '#334155' : '#e2e8f0'}`,
-                      borderRadius: '20px',
-                      padding: '16px 10px',
+                      borderRadius: '16px',
+                      padding: '12px 6px',
                       display: 'flex',
                       flexDirection: 'column',
                       alignItems: 'center',
-                      justify: 'center',
+                      justifyContent: 'center',
                       textAlign: 'center',
                       cursor: 'pointer',
                       position: 'relative',
-                      boxShadow: '0 2px 10px rgba(0,0,0,0.02)'
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.02)'
                     }}
                   >
                     {opt.badge && (
                       <div style={{
-                        position: 'absolute', top: '8px', right: '8px',
+                        position: 'absolute', top: '5px', right: '5px',
                         background: opt.badge.includes('₹') ? '#10b981' : '#f59e0b',
-                        color: opt.badge.includes('₹') ? '#ffffff' : '#0a1128',
-                        color: '#ffffff', fontSize: '9px', fontWeight: 900,
-                        padding: '2px 6px', borderRadius: '10px'
+                        color: '#ffffff', fontSize: '8px', fontWeight: 900,
+                        padding: '1px 5px', borderRadius: '8px'
                       }}>
                         {opt.badge}
                       </div>
                     )}
                     <div style={{
-                      width: '46px', height: '46px', borderRadius: '16px',
+                      width: '38px', height: '38px', borderRadius: '12px',
                       background: opt.bg, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      marginBottom: '10px', boxShadow: '0 2px 8px rgba(0,0,0,0.03)'
+                      marginBottom: '6px', boxShadow: '0 2px 6px rgba(0,0,0,0.03)'
                     }}>
                       {opt.icon}
                     </div>
-                    <span style={{ fontSize: '12px', fontWeight: 800, color: isDarkMode ? '#f8fafc' : '#0f172a', lineHeight: 1.2 }}>
+                    <span style={{ fontSize: '11px', fontWeight: 800, color: isDarkMode ? '#f8fafc' : '#0f172a', lineHeight: 1.2 }}>
                       {opt.name}
                     </span>
                   </motion.div>
@@ -861,55 +873,55 @@ export default function DeliveryLayout() {
               <div style={{
                 background: isDarkMode ? '#1e293b' : '#ffffff',
                 border: `1px solid ${isDarkMode ? '#334155' : '#e2e8f0'}`,
-                borderRadius: '20px',
-                padding: '6px 16px',
-                marginBottom: '28px',
-                boxShadow: '0 2px 10px rgba(0,0,0,0.02)'
+                borderRadius: '16px',
+                padding: '4px 12px',
+                marginBottom: '20px',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.02)'
               }}>
                 {[
-                  { title: t('refer'), badge: 'Upto ₹18,500', path: '/delivery/refer', icon: <GroupAddIcon sx={{ color: '#10b981', fontSize: '20px' }} /> },
-                  { title: t('offers'), badge: 'NEW', path: '/delivery/offers', icon: <LocalOfferIcon sx={{ color: '#ec4899', fontSize: '20px' }} /> },
-                  { title: t('emergency'), path: '/delivery/emergency', icon: <ShieldIcon sx={{ color: '#ef4444', fontSize: '20px' }} /> },
-                  { title: t('shifts'), path: '/delivery/shifts', icon: <ScheduleIcon sx={{ color: '#a855f7', fontSize: '20px' }} /> },
-                  { title: t('support'), path: '/delivery/support', icon: <SupportAgentIcon sx={{ color: '#06b6d4', fontSize: '20px' }} /> },
+                  { title: t('refer'), badge: 'Upto ₹18,500', path: '/delivery/refer', icon: <GroupAddIcon sx={{ color: '#10b981', fontSize: '18px' }} /> },
+                  { title: t('offers'), badge: 'NEW', path: '/delivery/offers', icon: <LocalOfferIcon sx={{ color: '#ec4899', fontSize: '18px' }} /> },
+                  { title: t('emergency'), path: '/delivery/emergency', icon: <ShieldIcon sx={{ color: '#ef4444', fontSize: '18px' }} /> },
+                  { title: t('shifts'), path: '/delivery/shifts', icon: <ScheduleIcon sx={{ color: '#a855f7', fontSize: '18px' }} /> },
+                  { title: t('support'), path: '/delivery/support', icon: <SupportAgentIcon sx={{ color: '#06b6d4', fontSize: '18px' }} /> },
                 ].map((item, idx, arr) => (
                   <div
                     key={idx}
                     onClick={() => { setShowMoreMenu(false); navigate(item.path); }}
                     style={{
                       display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                      padding: '14px 4px',
+                      padding: '10px 2px',
                       borderBottom: idx < arr.length - 1 ? `1px solid ${isDarkMode ? '#334155' : '#f1f5f9'}` : 'none',
                       cursor: 'pointer'
                     }}
                   >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                       {item.icon}
-                      <span style={{ fontSize: '14px', fontWeight: 800, color: isDarkMode ? '#f8fafc' : '#0f172a' }}>{item.title}</span>
+                      <span style={{ fontSize: '13px', fontWeight: 800, color: isDarkMode ? '#f8fafc' : '#0f172a' }}>{item.title}</span>
                     </div>
 
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                       {item.badge && (
                         <span style={{
-                          fontSize: '11px', fontWeight: 800,
+                          fontSize: '10px', fontWeight: 800,
                           color: item.badge.includes('₹') ? '#047857' : '#f59e0b',
                           background: item.badge.includes('₹') ? (isDarkMode ? 'rgba(16,185,129,0.2)' : '#ecfdf5') : (isDarkMode ? 'rgba(245,158,11,0.2)' : 'rgba(245,158,11,0.12)'),
-                          padding: '3px 8px', borderRadius: '10px',
+                          padding: '2px 6px', borderRadius: '8px',
                           border: `1px solid ${item.badge.includes('₹') ? '#a7f3d0' : 'rgba(245,158,11,0.3)'}`
                         }}>
                           {item.badge}
                         </span>
                       )}
-                      <ChevronRightIcon sx={{ color: '#94a3b8', fontSize: '20px' }} />
+                      <ChevronRightIcon sx={{ color: '#94a3b8', fontSize: '18px' }} />
                     </div>
                   </div>
                 ))}
               </div>
 
               {/* 5. Utility Links & Sign Out */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', padding: '0 6px' }}>
-                <span style={{ fontSize: '12px', color: isDarkMode ? '#94a3b8' : '#64748b', fontWeight: 700 }}>App Version 2.4.0 (Build 2026.08)</span>
-                <span style={{ fontSize: '12px', color: '#f59e0b', fontWeight: 800, cursor: 'pointer' }} onClick={() => { setShowMoreMenu(false); navigate('/delivery/profile'); }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', padding: '0 4px' }}>
+                <span style={{ fontSize: '11px', color: isDarkMode ? '#94a3b8' : '#64748b', fontWeight: 700 }}>App v2.4.0</span>
+                <span style={{ fontSize: '11px', color: '#f59e0b', fontWeight: 800, cursor: 'pointer' }} onClick={() => { setShowMoreMenu(false); navigate('/delivery/profile'); }}>
                   {t('appLanguage')} 🌐
                 </span>
               </div>
@@ -922,21 +934,21 @@ export default function DeliveryLayout() {
                 }}
                 style={{
                   width: '100%',
-                  padding: '16px',
-                  borderRadius: '18px',
+                  padding: '12px',
+                  borderRadius: '14px',
                   background: 'rgba(239, 68, 68, 0.08)',
                   border: '1.5px solid rgba(239, 68, 68, 0.3)',
                   color: '#dc2626',
-                  fontSize: '15px',
+                  fontSize: '14px',
                   fontWeight: 900,
                   display: 'flex',
                   alignItems: 'center',
-                  justify: 'center',
-                  gap: '8px',
+                  justifyContent: 'center',
+                  gap: '6px',
                   cursor: 'pointer'
                 }}
               >
-                <LogoutIcon sx={{ fontSize: '22px' }} />
+                <LogoutIcon sx={{ fontSize: '18px' }} />
                 {t('signOut')}
               </button>
             </motion.div>

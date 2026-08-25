@@ -1,6 +1,7 @@
 import Order from '../models/Order.js';
 import User from '../models/User.js';
 import SupportTicket from '../models/SupportTicket.js';
+import DeliveryShift from '../models/DeliveryShift.js';
 
 const CASH_LIMIT = 2500; // ₹2500 COD cash limit
 
@@ -545,3 +546,48 @@ export const getPartnerSupportTickets = async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch tickets' });
   }
 };
+
+// ===== Get Booked Shifts =====
+export const getBookedShifts = async (req, res) => {
+  try {
+    const targetDate = req.query.date || getLocalDateStr(new Date());
+    const shift = await DeliveryShift.findOne({
+      deliveryBoyId: req.user._id,
+      date: targetDate
+    });
+
+    res.json({
+      date: targetDate,
+      slotIds: shift ? shift.slotIds : []
+    });
+  } catch (error) {
+    console.error('Get booked shifts error:', error);
+    res.status(500).json({ error: 'Failed to fetch booked shifts' });
+  }
+};
+
+// ===== Save / Update Booked Shifts =====
+export const saveBookedShifts = async (req, res) => {
+  try {
+    const { date, slotIds } = req.body;
+    const targetDate = date || getLocalDateStr(new Date());
+    const validSlotIds = Array.isArray(slotIds) ? slotIds : [];
+
+    const shift = await DeliveryShift.findOneAndUpdate(
+      { deliveryBoyId: req.user._id, date: targetDate },
+      { slotIds: validSlotIds },
+      { upsert: true, new: true, setDefaultsOnInsert: true }
+    );
+
+    res.json({
+      success: true,
+      message: 'Booked shifts saved successfully.',
+      date: targetDate,
+      slotIds: shift.slotIds
+    });
+  } catch (error) {
+    console.error('Save booked shifts error:', error);
+    res.status(500).json({ error: 'Failed to save booked shifts' });
+  }
+};
+
