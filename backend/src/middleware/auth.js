@@ -1,6 +1,8 @@
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 
+const JWT_SECRET = process.env.JWT_SECRET || 'rapidcloth_secret_jwt_token_auth_key_2024_xyz';
+
 export const authenticate = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
@@ -9,7 +11,7 @@ export const authenticate = async (req, res, next) => {
     }
 
     const token = authHeader.split(' ')[1];
-    const decoded = jwt.verify(token, process.env.JWT_SECRET );
+    const decoded = jwt.verify(token, JWT_SECRET);
     
     const user = await User.findById(decoded.userId).select('-password');
     if (!user) {
@@ -29,11 +31,12 @@ export const authenticate = async (req, res, next) => {
 export const optionalAuth = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
-    if (authHeader && authHeader.startsWith('Bearer ')) {
-      const token = authHeader.split(' ')[1];
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      req.user = await User.findById(decoded.userId).select('-password');
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return next();
     }
+    const token = authHeader.split(' ')[1];
+    const decoded = jwt.verify(token, JWT_SECRET);
+    req.user = await User.findById(decoded.userId).select('-password');
   } catch (e) {
     // Continue without auth
   }

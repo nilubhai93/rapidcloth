@@ -41,6 +41,7 @@ export const authAPI = {
   verifyOtp: (email, otp) => api.post('/auth/verify-otp', { email, otp }),
   getBankDetails: () => api.get('/auth/profile/bank'),
   updateBankDetails: (data) => api.put('/auth/profile/bank', data),
+  getZones: () => api.get('/auth/zones'),
 };
 
 // Products
@@ -80,6 +81,10 @@ export const deliveryAPI = {
   getEarnings: () => api.get('/delivery/earnings'),
   payCompany: (amount) => api.post('/delivery/pay-company', { amount }),
   getHistory: (params) => api.get('/delivery/history', { params }),
+  createSupportTicket: (category, issueDescription) => api.post('/delivery/support/ticket', { category, issueDescription }),
+  getSupportTickets: () => api.get('/delivery/support/tickets'),
+  getBookedShifts: (date) => api.get('/delivery/shifts', { params: { date } }),
+  saveBookedShifts: (date, slotIds) => api.post('/delivery/shifts', { date, slotIds }),
 };
 
 export default api;

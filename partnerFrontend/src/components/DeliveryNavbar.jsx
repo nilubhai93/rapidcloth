@@ -15,7 +15,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import toast from 'react-hot-toast';
 import { deliveryAPI } from '../api';
 
-import { getLocalDateStr, formatDutyTime, hasValidCurrentShift } from '../utils/dutyTime';
+import { getLocalDateStr, formatDutyTime, hasValidCurrentShift, getShiftOnlineStatus } from '../utils/dutyTime';
 
 export default function DeliveryNavbar() {
   const { user, setUser } = useAuth();
@@ -49,7 +49,7 @@ export default function DeliveryNavbar() {
         const res = await deliveryAPI.getProfile();
         if (res.data?.user) setUser(res.data.user);
       } catch (e) {
-        console.error('Failed to load profile status');
+        // Silent catch during initial loading
       }
     };
     if (user?.role === 'delivery') fetchProfile();
@@ -201,18 +201,18 @@ export default function DeliveryNavbar() {
       }
       executeGoOffline();
     } else {
-      // Going Online: First check shift booking validity for current time
-      let hasValidSlot = false;
+      // Going Online: Check shift booking validity and 15-minute start window for current time
+      let statusInfo = { canGoOnline: false, message: 'Please book a shift slot to go online.' };
       try {
         const saved = localStorage.getItem('booked_delivery_shifts');
         const bookedArr = saved ? JSON.parse(saved) : [];
-        hasValidSlot = hasValidCurrentShift(bookedArr, new Date());
+        statusInfo = getShiftOnlineStatus(bookedArr, new Date());
       } catch (e) {
-        hasValidSlot = false;
+        statusInfo = { canGoOnline: false, message: 'Shift validation error.' };
       }
 
-      if (!hasValidSlot) {
-        toast.error('⚠️ Shift Slot Expired or Missing!\n\nYour booked shift slot time has ended. Please book an active shift slot to go online.');
+      if (!statusInfo.canGoOnline) {
+        toast.error(`⚠️ Cannot Go Online Yet\n\n${statusInfo.message}`, { duration: 4000 });
         navigate('/delivery/shifts');
         return;
       }
@@ -339,6 +339,7 @@ export default function DeliveryNavbar() {
         >
           {/* Knob */}
           <div
+            className={isOnline ? "pulse-glow-avatar" : ""}
             style={{
               width: '28px',
               height: '28px',
@@ -351,13 +352,16 @@ export default function DeliveryNavbar() {
               flexShrink: 0
             }}
           >
-            <div style={{
-              width: '18px',
-              height: '18px',
-              borderRadius: '50%',
-              border: `2px solid ${isOnline ? '#10b981' : '#cbd5e1'}`,
-              backgroundColor: isOnline ? 'rgba(16, 185, 129, 0.15)' : 'transparent'
-            }} />
+            <div 
+              className={isOnline ? "live-pulse-dot" : ""}
+              style={{
+                width: '18px',
+                height: '18px',
+                borderRadius: '50%',
+                border: `2px solid ${isOnline ? '#10b981' : '#cbd5e1'}`,
+                backgroundColor: isOnline ? '#10b981' : 'transparent'
+              }} 
+            />
           </div>
 
           {/* Status Text */}
@@ -529,7 +533,7 @@ export default function DeliveryNavbar() {
                   width: '190px',
                   height: '190px',
                   borderRadius: '50%',
-                  border: `4px solid ${selfieVerified ? '#10b981' : '#ff5400'}`,
+                  border: `4px solid ${selfieVerified ? '#10b981' : '#f59e0b'}`,
                   backgroundColor: '#0f172a',
                   display: 'flex',
                   alignItems: 'center',
@@ -538,7 +542,7 @@ export default function DeliveryNavbar() {
                   position: 'relative',
                   boxShadow: selfieVerified
                     ? '0 0 30px rgba(16, 185, 129, 0.5)'
-                    : '0 0 25px rgba(255, 84, 0, 0.4)'
+                    : '0 0 25px rgba(245, 158, 11, 0.4)'
                 }}>
                   {selfieImage ? (
                     /* Captured Selfie Image Preview inside Round Circle */
@@ -601,7 +605,7 @@ export default function DeliveryNavbar() {
                   width: '42px',
                   height: '42px',
                   borderRadius: '50%',
-                  backgroundColor: selfieVerified ? '#10b981' : '#ff5400',
+                  backgroundColor: selfieVerified ? '#10b981' : '#f59e0b',
                   color: '#ffffff',
                   display: 'flex',
                   alignItems: 'center',
@@ -642,13 +646,13 @@ export default function DeliveryNavbar() {
                     width: '100%',
                     padding: '16px',
                     borderRadius: '18px',
-                    background: 'linear-gradient(135deg, #ff5400 0%, #ff3b00 100%)',
-                    color: '#ffffff',
+                    background: 'linear-gradient(135deg, #fbbf24 0%, #d97706 100%)',
+                    color: '#0a1128',
                     border: 'none',
                     fontSize: '16px',
                     fontWeight: 800,
                     cursor: 'pointer',
-                    boxShadow: '0 6px 20px rgba(255, 84, 0, 0.35)'
+                    boxShadow: '0 6px 20px rgba(245, 158, 11, 0.4)'
                   }}
                 >
                   <CameraAltIcon />

@@ -57,7 +57,7 @@ const DutyTimer = React.memo(({ user, isOnline }) => {
   }, [user?.deliveryProfile?.lastOnlineDate, user?.deliveryProfile?.lastOnlineStartTime, user?.deliveryProfile?.onlineSecondsToday, isOnline]);
 
   return (
-    <span style={{ fontSize: '13px', fontWeight: 800, color: '#0f172a', fontFamily: 'monospace', whiteSpace: 'nowrap' }}>
+    <span style={{ fontSize: '14px', fontWeight: 900, color: '#f59e0b', fontFamily: 'monospace', whiteSpace: 'nowrap' }}>
       {formatDutyTime(dutySeconds)}
     </span>
   );
@@ -158,7 +158,7 @@ export default function DeliveryDashboard() {
       const statsRes = await deliveryAPI.getEarnings();
       setStats(statsRes.data);
     } catch (error) {
-      console.error(error);
+      // Silent catch
     } finally {
       setLoading(false);
     }
@@ -185,7 +185,7 @@ export default function DeliveryDashboard() {
       fontFamily: 'Inter, system-ui, -apple-system, sans-serif',
       color: '#0f172a'
     }}>
-      
+
       {/* 1. TOP HERO HEADER & WEATHER ADAPTIVE SHIFT CARD */}
       <motion.div
         initial={{ opacity: 0, y: 15 }}
@@ -382,11 +382,11 @@ export default function DeliveryDashboard() {
 
       {/* 2. TODAY'S PROGRESS SUMMARY STRIP */}
       <div style={{
-        background: '#ffffff',
-        borderRadius: '12px',
-        padding: '10px 12px',
-        boxShadow: '0 2px 10px rgba(0, 0, 0, 0.03)',
-        border: '1px solid #f1f5f9',
+        background: 'var(--bg-card, #0e1c3e)',
+        borderRadius: '16px',
+        padding: '12px 14px',
+        boxShadow: '0 4px 16px rgba(0, 0, 0, 0.35)',
+        border: '1px solid var(--border, #1a2d5a)',
         marginBottom: '12px',
         display: 'grid',
         gridTemplateColumns: 'repeat(3, 1fr)',
@@ -394,10 +394,10 @@ export default function DeliveryDashboard() {
         textAlign: 'center'
       }}>
         <div>
-          <div style={{ fontSize: '10px', color: '#94a3b8', fontWeight: 800, textTransform: 'uppercase', marginBottom: '2px' }}>
+          <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 800, textTransform: 'uppercase', marginBottom: '2px' }}>
             Earnings
           </div>
-          <div style={{ fontSize: '17px', fontWeight: 800, color: '#0f172a' }}>
+          <div style={{ fontSize: '18px', fontWeight: 900, color: 'var(--text-primary)' }}>
             ₹{stats?.todayEarnings || 0}
           </div>
           <div style={{ fontSize: '10px', color: '#10b981', fontWeight: 700, marginTop: '1px' }}>
@@ -405,21 +405,21 @@ export default function DeliveryDashboard() {
           </div>
         </div>
 
-        <div style={{ borderLeft: '1px dashed #e2e8f0', borderRight: '1px dashed #e2e8f0' }}>
-          <div style={{ fontSize: '10px', color: '#94a3b8', fontWeight: 800, textTransform: 'uppercase', marginBottom: '2px' }}>
+        <div style={{ borderLeft: '1px dashed var(--border)', borderRight: '1px dashed var(--border)' }}>
+          <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 800, textTransform: 'uppercase', marginBottom: '2px' }}>
             Online Time
           </div>
           <DutyTimer user={user} isOnline={isOnline} />
         </div>
 
         <div>
-          <div style={{ fontSize: '10px', color: '#94a3b8', fontWeight: 800, textTransform: 'uppercase', marginBottom: '2px' }}>
+          <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 800, textTransform: 'uppercase', marginBottom: '2px' }}>
             Orders
           </div>
-          <div style={{ fontSize: '17px', fontWeight: 800, color: '#0f172a' }}>
+          <div style={{ fontSize: '18px', fontWeight: 900, color: 'var(--text-primary)' }}>
             {todayOrders}
           </div>
-          <div style={{ fontSize: '10px', color: '#6366f1', fontWeight: 700, marginTop: '1px' }}>
+          <div style={{ fontSize: '10px', color: '#38bdf8', fontWeight: 700, marginTop: '1px' }}>
             Completed
           </div>
         </div>
@@ -427,23 +427,23 @@ export default function DeliveryDashboard() {
 
       {/* 3. DAILY MILESTONE INCENTIVES TRACKER */}
       <div style={{
-        background: '#ffffff',
-        borderRadius: '12px',
-        padding: '12px 14px',
-        boxShadow: '0 2px 10px rgba(0, 0, 0, 0.03)',
-        border: '1px solid #f1f5f9',
+        background: 'var(--bg-card, #0e1c3e)',
+        borderRadius: '16px',
+        padding: '14px 16px',
+        boxShadow: '0 4px 16px rgba(0, 0, 0, 0.35)',
+        border: '1px solid var(--border, #1a2d5a)',
         marginBottom: '12px'
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-          <h3 style={{ fontSize: '14px', fontWeight: 800, color: '#0f172a', margin: 0 }}>
+          <h3 style={{ fontSize: '14px', fontWeight: 900, color: 'var(--text-primary)', margin: 0 }}>
             Daily Incentive
           </h3>
-          <span style={{ fontSize: '11px', fontWeight: 800, color: '#ff5400' }}>
+          <span style={{ fontSize: '11px', fontWeight: 800, color: '#f59e0b', cursor: 'pointer' }} onClick={() => navigate('/delivery/offers')}>
             Earn up to ₹365 extra ›
           </span>
         </div>
-        <p style={{ fontSize: '11px', color: '#64748b', margin: '0 0 10px', fontWeight: 500 }}>
-          Your trips count: <strong>{todayOrders}</strong>
+        <p style={{ fontSize: '11px', color: 'var(--text-muted)', margin: '0 0 10px', fontWeight: 500 }}>
+          Your trips count: <strong style={{ color: '#f59e0b' }}>{todayOrders}</strong>
         </p>
 
         {/* Milestone Steps */}
@@ -457,15 +457,15 @@ export default function DeliveryDashboard() {
             const isReached = todayOrders >= item.trips;
             return (
               <div key={idx} style={{
-                background: isReached ? '#ecfdf5' : '#f8fafc',
-                border: `1.5px solid ${isReached ? '#10b981' : '#e2e8f0'}`,
+                background: isReached ? 'rgba(16, 185, 129, 0.15)' : 'rgba(255,255,255,0.04)',
+                border: `1.5px solid ${isReached ? '#10b981' : 'rgba(255,255,255,0.1)'}`,
                 borderRadius: '10px',
                 padding: '6px 2px'
               }}>
-                <div style={{ fontSize: '13px', fontWeight: 800, color: isReached ? '#10b981' : '#0f172a' }}>
+                <div style={{ fontSize: '13px', fontWeight: 900, color: isReached ? '#10b981' : 'var(--text-primary)' }}>
                   {item.reward}
                 </div>
-                <div style={{ fontSize: '10px', color: '#64748b', fontWeight: 600, marginTop: '1px' }}>
+                <div style={{ fontSize: '10px', color: 'var(--text-muted)', fontWeight: 600, marginTop: '1px' }}>
                   {item.trips} Trips
                 </div>
               </div>
@@ -488,7 +488,7 @@ export default function DeliveryDashboard() {
             transition={{ duration: 1 }}
             style={{
               height: '100%',
-              background: 'linear-gradient(90deg, #ff5400 0%, #10b981 100%)',
+              background: 'linear-gradient(90deg, #f59e0b 0%, #10b981 100%)',
               borderRadius: '10px'
             }}
           />
@@ -501,9 +501,9 @@ export default function DeliveryDashboard() {
             width: '100%',
             padding: '8px 12px',
             borderRadius: '10px',
-            backgroundColor: '#fff7ed',
-            color: '#ff5400',
-            border: '1px solid #ffedd5',
+            backgroundColor: 'rgba(245, 158, 11, 0.12)',
+            color: '#f59e0b',
+            border: '1px solid rgba(245, 158, 11, 0.3)',
             fontWeight: 800,
             fontSize: '12px',
             cursor: 'pointer'
@@ -525,7 +525,7 @@ export default function DeliveryDashboard() {
         justifyContent: 'space-between',
         cursor: 'pointer'
       }}
-      onClick={() => navigate('/delivery/offers')}
+        onClick={() => navigate('/delivery/offers')}
       >
         <div>
           <div style={{ fontSize: '10px', fontWeight: 800, color: '#e11d48', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '1px' }}>
@@ -563,29 +563,29 @@ export default function DeliveryDashboard() {
             whileTap={{ scale: 0.95 }}
             onClick={() => navigate('/delivery/offers')}
             style={{
-              background: '#ffffff',
-              borderRadius: '12px',
-              padding: '10px 4px',
+              background: 'var(--bg-card, #0e1c3e)',
+              borderRadius: '14px',
+              padding: '12px 4px',
               textAlign: 'center',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
-              border: '1px solid #f1f5f9',
+              boxShadow: '0 4px 14px rgba(0,0,0,0.3)',
+              border: '1px solid var(--border, #1a2d5a)',
               cursor: 'pointer'
             }}
           >
             <div style={{
-              width: '32px',
-              height: '32px',
+              width: '34px',
+              height: '34px',
               borderRadius: '50%',
-              backgroundColor: '#fff7ed',
-              color: '#ff5400',
+              backgroundColor: 'rgba(245, 158, 11, 0.15)',
+              color: '#f59e0b',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              margin: '0 auto 4px'
+              margin: '0 auto 6px'
             }}>
               <LocalOfferIcon sx={{ fontSize: '18px' }} />
             </div>
-            <div style={{ fontSize: '11px', fontWeight: 800, color: '#0f172a' }}>Offers</div>
+            <div style={{ fontSize: '11px', fontWeight: 800, color: 'var(--text-primary)' }}>Offers</div>
           </motion.div>
 
           {/* Shortcut 2: Hotspot Zone */}
@@ -593,29 +593,29 @@ export default function DeliveryDashboard() {
             whileTap={{ scale: 0.95 }}
             onClick={() => setShowHotspotModal(true)}
             style={{
-              background: '#ffffff',
-              borderRadius: '12px',
-              padding: '10px 4px',
+              background: 'var(--bg-card, #0e1c3e)',
+              borderRadius: '14px',
+              padding: '12px 4px',
               textAlign: 'center',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
-              border: '1px solid #f1f5f9',
+              boxShadow: '0 4px 14px rgba(0,0,0,0.3)',
+              border: '1px solid var(--border, #1a2d5a)',
               cursor: 'pointer'
             }}
           >
             <div style={{
-              width: '32px',
-              height: '32px',
+              width: '34px',
+              height: '34px',
               borderRadius: '50%',
-              backgroundColor: '#eef2ff',
-              color: '#6366f1',
+              backgroundColor: 'rgba(56, 189, 248, 0.15)',
+              color: '#38bdf8',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              margin: '0 auto 4px'
+              margin: '0 auto 6px'
             }}>
               <LocationOnIcon sx={{ fontSize: '18px' }} />
             </div>
-            <div style={{ fontSize: '11px', fontWeight: 800, color: '#0f172a' }}>My Zone</div>
+            <div style={{ fontSize: '11px', fontWeight: 800, color: 'var(--text-primary)' }}>My Zone</div>
           </motion.div>
 
           {/* Shortcut 3: Insurance */}
@@ -623,29 +623,29 @@ export default function DeliveryDashboard() {
             whileTap={{ scale: 0.95 }}
             onClick={() => navigate('/delivery/emergency')}
             style={{
-              background: '#ffffff',
-              borderRadius: '12px',
-              padding: '10px 4px',
+              background: 'var(--bg-card, #0e1c3e)',
+              borderRadius: '14px',
+              padding: '12px 4px',
               textAlign: 'center',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
-              border: '1px solid #f1f5f9',
+              boxShadow: '0 4px 14px rgba(0,0,0,0.3)',
+              border: '1px solid var(--border, #1a2d5a)',
               cursor: 'pointer'
             }}
           >
             <div style={{
-              width: '32px',
-              height: '32px',
+              width: '34px',
+              height: '34px',
               borderRadius: '50%',
-              backgroundColor: '#ecfdf5',
+              backgroundColor: 'rgba(16, 185, 129, 0.15)',
               color: '#10b981',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              margin: '0 auto 4px'
+              margin: '0 auto 6px'
             }}>
               <ShieldOutlinedIcon sx={{ fontSize: '18px' }} />
             </div>
-            <div style={{ fontSize: '11px', fontWeight: 800, color: '#0f172a' }}>Insurance</div>
+            <div style={{ fontSize: '11px', fontWeight: 800, color: 'var(--text-primary)' }}>Insurance</div>
           </motion.div>
 
           {/* Shortcut 4: Market Store */}
@@ -653,53 +653,53 @@ export default function DeliveryDashboard() {
             whileTap={{ scale: 0.95 }}
             onClick={() => navigate('/delivery/market')}
             style={{
-              background: '#ffffff',
-              borderRadius: '12px',
-              padding: '10px 4px',
+              background: 'var(--bg-card, #0e1c3e)',
+              borderRadius: '14px',
+              padding: '12px 4px',
               textAlign: 'center',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
-              border: '1px solid #f1f5f9',
+              boxShadow: '0 4px 14px rgba(0,0,0,0.3)',
+              border: '1px solid var(--border, #1a2d5a)',
               cursor: 'pointer'
             }}
           >
             <div style={{
-              width: '32px',
-              height: '32px',
+              width: '34px',
+              height: '34px',
               borderRadius: '50%',
-              backgroundColor: '#faf5ff',
-              color: '#a855f7',
+              backgroundColor: 'rgba(168, 85, 247, 0.15)',
+              color: '#c084fc',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              margin: '0 auto 4px'
+              margin: '0 auto 6px'
             }}>
               <StorefrontIcon sx={{ fontSize: '18px' }} />
             </div>
-            <div style={{ fontSize: '11px', fontWeight: 800, color: '#0f172a' }}>Gear Store</div>
+            <div style={{ fontSize: '11px', fontWeight: 800, color: 'var(--text-primary)' }}>Gear Store</div>
           </motion.div>
         </div>
       </div>
 
       {/* 6. IMPORTANT MESSAGES / ANNOUNCEMENTS */}
       <div style={{ marginBottom: '16px' }}>
-        <div style={{ fontSize: '11px', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.6px', marginBottom: '8px' }}>
+        <div style={{ fontSize: '11px', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.6px', marginBottom: '8px' }}>
           Important Messages
         </div>
 
         <div style={{
-          background: '#ffffff',
-          borderRadius: '12px',
-          padding: '12px 14px',
-          boxShadow: '0 2px 10px rgba(0, 0, 0, 0.03)',
-          border: '1px solid #f1f5f9'
+          background: 'var(--bg-card, #0e1c3e)',
+          borderRadius: '16px',
+          padding: '14px 16px',
+          boxShadow: '0 4px 16px rgba(0, 0, 0, 0.35)',
+          border: '1px solid var(--border, #1a2d5a)'
         }}>
           <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', marginBottom: '10px' }}>
             <div style={{
-              width: '32px',
-              height: '32px',
+              width: '34px',
+              height: '34px',
               borderRadius: '50%',
-              backgroundColor: '#fff7ed',
-              color: '#ea580c',
+              backgroundColor: 'rgba(245, 158, 11, 0.15)',
+              color: '#f59e0b',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -708,10 +708,10 @@ export default function DeliveryDashboard() {
               <CampaignIcon sx={{ fontSize: '18px' }} />
             </div>
             <div>
-              <div style={{ fontSize: '13px', fontWeight: 800, color: '#0f172a', marginBottom: '1px' }}>
+              <div style={{ fontSize: '13px', fontWeight: 900, color: 'var(--text-primary)', marginBottom: '1px' }}>
                 📢 Daily Incentives Announcement
               </div>
-              <div style={{ fontSize: '11px', color: '#64748b', lineHeight: 1.35 }}>
+              <div style={{ fontSize: '11px', color: 'var(--text-secondary)', lineHeight: 1.35 }}>
                 1.5x Peak Hour Surge active today from 12 PM to 4 PM across all primary hub zones.
               </div>
             </div>
@@ -724,9 +724,9 @@ export default function DeliveryDashboard() {
               width: '100%',
               padding: '8px 12px',
               borderRadius: '10px',
-              backgroundColor: '#fff7ed',
-              color: '#ff5400',
-              border: 'none',
+              backgroundColor: 'rgba(245, 158, 11, 0.14)',
+              color: '#f59e0b',
+              border: '1px solid rgba(245, 158, 11, 0.3)',
               fontWeight: 800,
               fontSize: '12px',
               cursor: 'pointer'
@@ -740,7 +740,7 @@ export default function DeliveryDashboard() {
       {/* 7. YOUR FEED / STORIES CAROUSEL */}
       <div style={{ marginBottom: '16px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-          <h3 style={{ fontSize: '14px', fontWeight: 800, color: '#0f172a', margin: 0 }}>
+          <h3 style={{ fontSize: '14px', fontWeight: 900, color: 'var(--text-primary)', margin: 0 }}>
             Your Feed
           </h3>
         </div>
@@ -767,7 +767,7 @@ export default function DeliveryDashboard() {
             flexShrink: 0,
             boxShadow: '0 4px 12px rgba(59, 130, 246, 0.25)'
           }}
-          onClick={() => alert('🌧️ Rain Surge Alert: Earn +₹35 extra per completed order during rain shifts!')}
+            onClick={() => alert('🌧️ Rain Surge Alert: Earn +₹35 extra per completed order during rain shifts!')}
           >
             <div style={{ fontSize: '9px', fontWeight: 800, background: 'rgba(255,255,255,0.2)', padding: '2px 6px', borderRadius: '6px', width: 'max-content' }}>
               SURGE
@@ -783,17 +783,17 @@ export default function DeliveryDashboard() {
             minWidth: '120px',
             height: '140px',
             borderRadius: '14px',
-            background: 'linear-gradient(180deg, #f97316 0%, #c2410c 100%)',
+            background: 'linear-gradient(180deg, #fbbf24 0%, #d97706 100%)',
             padding: '10px',
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'space-between',
-            color: '#ffffff',
+            color: '#0a1128',
             cursor: 'pointer',
             flexShrink: 0,
-            boxShadow: '0 4px 12px rgba(249, 115, 22, 0.25)'
+            boxShadow: '0 4px 12px rgba(245, 158, 11, 0.4)'
           }}
-          onClick={() => alert('📍 Zone Update: Delivery radius expanded with optimized route navigation.')}
+            onClick={() => alert('📍 Zone Update: Delivery radius expanded with optimized route navigation.')}
           >
             <div style={{ fontSize: '9px', fontWeight: 800, background: 'rgba(255,255,255,0.2)', padding: '2px 6px', borderRadius: '6px', width: 'max-content' }}>
               UPDATE
@@ -819,7 +819,7 @@ export default function DeliveryDashboard() {
             flexShrink: 0,
             boxShadow: '0 4px 12px rgba(16, 185, 129, 0.25)'
           }}
-          onClick={() => alert('🚀 Weekend Bonus Boost: Complete 15 orders this weekend to unlock ₹500 extra cash!')}
+            onClick={() => alert('🚀 Weekend Bonus Boost: Complete 15 orders this weekend to unlock ₹500 extra cash!')}
           >
             <div style={{ fontSize: '9px', fontWeight: 800, background: 'rgba(255,255,255,0.2)', padding: '2px 6px', borderRadius: '6px', width: 'max-content' }}>
               BOOST
@@ -851,7 +851,7 @@ export default function DeliveryDashboard() {
             cursor: 'pointer'
           }}
         >
-          <div style={{ fontSize: '9px', fontWeight: 800, color: '#ea580c', backgroundColor: '#fff7ed', padding: '2px 6px', borderRadius: '6px', width: 'max-content', marginBottom: '6px' }}>
+          <div style={{ fontSize: '9px', fontWeight: 800, color: '#f59e0b', backgroundColor: 'rgba(245, 158, 11, 0.12)', padding: '2px 6px', borderRadius: '6px', width: 'max-content', marginBottom: '6px' }}>
             LOW INTEREST
           </div>
           <div style={{ fontSize: '13px', fontWeight: 800, color: '#0f172a', marginBottom: '1px' }}>

@@ -290,8 +290,8 @@ export default function DeliveryOrders() {
           boxShadow: '0 2px 10px rgba(0,0,0,0.02)'
         }}>
           <div style={{
-            width: '36px', height: '36px', borderRadius: '50%', background: 'rgba(255, 107, 0, 0.1)',
-            color: '#ff6b00', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 8px'
+            width: '36px', height: '36px', borderRadius: '50%', background: 'rgba(245, 158, 11, 0.12)',
+            color: '#f59e0b', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 8px'
           }}>
             <DirectionsBikeIcon sx={{ fontSize: '20px' }} />
           </div>
@@ -325,7 +325,7 @@ export default function DeliveryOrders() {
                     <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 700 }}>
                       Order #{order._id.substring(order._id.length - 8).toUpperCase()} • {fin.arrivalTime}
                     </div>
-                    <div style={{ color: '#ff6b00', fontSize: '13px', fontWeight: 800, marginTop: '1px' }}>
+                    <div style={{ color: '#f59e0b', fontSize: '13px', fontWeight: 800, marginTop: '1px' }}>
                       {order.items?.length || 1} items to deliver
                     </div>
                   </div>
@@ -399,7 +399,7 @@ export default function DeliveryOrders() {
       <div style={{ marginTop: '16px' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <ReceiptLongIcon sx={{ color: '#ff6b00', fontSize: '18px' }} />
+            <ReceiptLongIcon sx={{ color: '#f59e0b', fontSize: '18px' }} />
             <h3 style={{ fontSize: '14px', fontWeight: 800, color: 'var(--text-primary, #0f172a)', margin: 0 }}>
               Order Financial Receipts & Settlement Log
             </h3>
@@ -484,8 +484,8 @@ export default function DeliveryOrders() {
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                       <div style={{
-                        padding: '4px 8px', borderRadius: '8px', background: '#ffedd5',
-                        color: '#ea580c', fontSize: '11px', fontWeight: 900
+                        padding: '4px 8px', borderRadius: '8px', background: 'rgba(245, 158, 11, 0.15)',
+                        color: '#f59e0b', fontSize: '11px', fontWeight: 900
                       }}>
                         #{order._id ? order._id.slice(-6).toUpperCase() : `ORD-${101 + oIdx}`}
                       </div>
@@ -545,7 +545,7 @@ export default function DeliveryOrders() {
 
                   {/* Card Bottom CTA */}
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '4px' }}>
-                    <span style={{ fontSize: '12px', color: '#ff6b00', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <span style={{ fontSize: '12px', color: '#f59e0b', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '4px' }}>
                       View Full Receipt Statement <ChevronRightIcon sx={{ fontSize: '16px' }} />
                     </span>
                     <span style={{ fontSize: '13px', fontWeight: 900, color: '#10b981' }}>
@@ -580,7 +580,7 @@ export default function DeliveryOrders() {
                 {/* Modal Header */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '18px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <ReceiptLongIcon sx={{ color: '#ff6b00', fontSize: '26px' }} />
+                    <ReceiptLongIcon sx={{ color: '#f59e0b', fontSize: '26px' }} />
                     <div>
                       <h3 style={{ fontSize: '18px', fontWeight: 900, color: 'var(--text-primary)', margin: 0 }}>
                         Order Statement Receipt

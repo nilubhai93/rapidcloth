@@ -1,0 +1,19 @@
+{
+  "name": "rapidcloth-monorepo",
+  "version": "1.0.0",
+  "description": "RapidCloth Multi-App Monorepo Workspace",
+  "private": true,
+  "workspaces": [
+    "backend",
+    "partnerFrontend",
+    "adminfrontend",
+    "frontend",
+    "superadmin"
+  ],
+  "scripts": {
+    "dev": "npm --prefix backend run dev",
+    "dev:backend": "npm --prefix backend run dev",
+    "dev:partner": "npm --prefix partnerFrontend run dev",
+    "dev:admin": "npm --prefix adminfrontend run dev"
+  }
+}

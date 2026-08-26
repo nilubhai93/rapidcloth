@@ -25,6 +25,11 @@ const zoneSchema = new mongoose.Schema({
     required: [true, 'City is required'],
     trim: true
   },
+  state: {
+    type: String,
+    default: '',
+    trim: true
+  },
   pincodes: [{
     type: String,
     trim: true

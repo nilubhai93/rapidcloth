@@ -2,53 +2,90 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { deliveryAPI } from '../../api';
 import ArrowBackIcon from '@mui/icons-material/ArrowBackRounded';
 import ScheduleIcon from '@mui/icons-material/ScheduleRounded';
 import CheckCircleIcon from '@mui/icons-material/CheckCircleRounded';
+import CheckIcon from '@mui/icons-material/CheckRounded';
 import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartmentRounded';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import PlayArrowIcon from '@mui/icons-material/PlayArrowRounded';
 import toast from 'react-hot-toast';
-import { SHIFT_SLOT_TIMES } from '../../utils/dutyTime';
+import {
+  SHIFT_SLOT_TIMES,
+  getShiftOnlineStatus,
+  formatDecimalHourToTimeStr,
+  getLocalDateStr,
+  getBookedShiftsForDate,
+  saveBookedShiftsForDate,
+  cleanupExpiredShiftStorage,
+  getUpcomingDateTabs,
+  SHIFT_ATTENDANCE_TABLE,
+  getShiftAttendanceRule
+} from '../../utils/dutyTime';
 
 export default function DeliveryShifts() {
   const navigate = useNavigate();
   const { user, setUser } = useAuth();
-  const [selectedDate, setSelectedDate] = useState('today');
 
+  const [dateTabs, setDateTabs] = useState(() => getUpcomingDateTabs());
+  const [selectedDate, setSelectedDate] = useState(() => getUpcomingDateTabs()[0]?.id || getLocalDateStr());
+  const [showRulesModal, setShowRulesModal] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
   useEffect(() => {
+    cleanupExpiredShiftStorage();
     const handleResize = () => setIsMobile(window.innerWidth < 768);
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Load booked shift IDs from localStorage or user state
-  const [bookedSlots, setBookedSlots] = useState(() => {
-    try {
-      const saved = localStorage.getItem('booked_delivery_shifts');
-      return saved ? JSON.parse(saved) : ['lunch-12-4']; // Default 1 active booked slot for demo
-    } catch (e) {
-      return ['lunch-12-4'];
-    }
-  });
+  // Monitor midnight / date rollover in real time
+  useEffect(() => {
+    const timer = setInterval(() => {
+      const freshTabs = getUpcomingDateTabs();
+      const currentToday = freshTabs[0]?.id;
+      if (currentToday && dateTabs[0]?.id !== currentToday) {
+        setDateTabs(freshTabs);
+        setSelectedDate(currentToday);
+        cleanupExpiredShiftStorage();
+        toast('☀️ Midnight Rollover: Shift schedule reset for today!', { icon: '🔄', duration: 5000 });
+      }
+    }, 15000);
+    return () => clearInterval(timer);
+  }, [dateTabs]);
+
+  // Booked slots in DB vs selected slots in the current UI state
+  const [bookedSlots, setBookedSlots] = useState(() => getBookedShiftsForDate(selectedDate));
+  const [selectedSlots, setSelectedSlots] = useState(() => getBookedShiftsForDate(selectedDate));
+  const [loadingShifts, setLoadingShifts] = useState(false);
+  const [savingBooking, setSavingBooking] = useState(false);
 
   useEffect(() => {
-    try {
-      localStorage.setItem('booked_delivery_shifts', JSON.stringify(bookedSlots));
-    } catch (e) {
-      console.error(e);
-    }
-  }, [bookedSlots]);
+    let isMounted = true;
+    const fetchShifts = async () => {
+      const localShifts = getBookedShiftsForDate(selectedDate);
+      setBookedSlots(localShifts);
+      setSelectedSlots(localShifts);
 
-  const dateTabs = [
-    { id: 'today', label: 'Today', dateStr: '5 Aug', active: true },
-    { id: 'thu', label: 'Thu', dateStr: '6 Aug' },
-    { id: 'fri', label: 'Fri', dateStr: '7 Aug', badge: '1.5x Pay' },
-    { id: 'sat', label: 'Sat', dateStr: '8 Aug', badge: 'Peak' },
-    { id: 'sun', label: 'Sun', dateStr: '9 Aug' }
-  ];
+      try {
+        setLoadingShifts(true);
+        const res = await deliveryAPI.getBookedShifts(selectedDate);
+        if (isMounted && res.data && Array.isArray(res.data.slotIds)) {
+          setBookedSlots(res.data.slotIds);
+          setSelectedSlots(res.data.slotIds);
+          saveBookedShiftsForDate(res.data.slotIds, selectedDate);
+        }
+      } catch (err) {
+        console.error('Failed to fetch shifts from backend:', err);
+      } finally {
+        if (isMounted) setLoadingShifts(false);
+      }
+    };
+
+    fetchShifts();
+    return () => { isMounted = false; };
+  }, [selectedDate]);
 
   const shiftCategories = [
     {
@@ -56,10 +93,10 @@ export default function DeliveryShifts() {
       tag: '☕ Breakfast Surge',
       timeRange: '7:00 AM – 10:00 AM',
       slots: [
-        { id: 'morning-7-10', time: '7 AM – 10 AM', duration: '3h Shift', statusText: 'Available (15 slots left)', statusType: 'available', surge: '1.3x Surge' },
-        { id: 'morning-7-8', time: '7 AM – 8 AM', duration: '1h Slot', statusText: 'Available (5 slots left)', statusType: 'available', surge: '1.2x Surge' },
-        { id: 'morning-8-9', time: '8 AM – 9 AM', duration: '1h Slot', statusText: 'Filling Fast (2 slots left)', statusType: 'filling', surge: '1.4x Surge' },
-        { id: 'morning-9-10', time: '9 AM – 10 AM', duration: '1h Slot', statusText: 'Available (8 slots left)', statusType: 'available' }
+        { id: 'morning-7-10', time: '7 AM – 10 AM', surge: '1.3x Surge' },
+        { id: 'morning-7-8', time: '7 AM – 8 AM', surge: '1.2x Surge' },
+        { id: 'morning-8-9', time: '8 AM – 9 AM', surge: '1.4x Surge' },
+        { id: 'morning-9-10', time: '9 AM – 10 AM' }
       ]
     },
     {
@@ -67,9 +104,9 @@ export default function DeliveryShifts() {
       tag: '☀️ Morning Rush',
       timeRange: '10:00 AM – 12:00 PM',
       slots: [
-        { id: 'morning-10-12', time: '10 AM – 12 PM', duration: '2h Shift', statusText: 'Available (18 slots left)', statusType: 'available', surge: '1.2x Surge' },
-        { id: 'morning-10-11', time: '10 AM – 11 AM', duration: '1h Slot', statusText: 'Available (7 slots left)', statusType: 'available' },
-        { id: 'morning-11-12', time: '11 AM – 12 PM', duration: '1h Slot', statusText: 'Filling Fast (3 slots left)', statusType: 'filling', surge: '1.3x Surge' }
+        { id: 'morning-10-12', time: '10 AM – 12 PM', surge: '1.2x Surge' },
+        { id: 'morning-10-11', time: '10 AM – 11 AM' },
+        { id: 'morning-11-12', time: '11 AM – 12 PM', surge: '1.3x Surge' }
       ]
     },
     {
@@ -77,10 +114,10 @@ export default function DeliveryShifts() {
       tag: '🔥 High Surge',
       timeRange: '12:00 PM – 4:00 PM',
       slots: [
-        { id: 'lunch-12-4', time: '12 PM – 4 PM', duration: '4h Shift', statusText: 'Available (14 slots left)', statusType: 'available', surge: '1.5x Surge' },
-        { id: 'lunch-1-2', time: '1 PM – 2 PM', duration: '1h Slot', statusText: 'Filling Fast (2 slots left)', statusType: 'filling', surge: '1.2x Surge' },
-        { id: 'lunch-2-3', time: '2 PM – 3 PM', duration: '1h Slot', statusText: 'Available (8 slots left)', statusType: 'available' },
-        { id: 'lunch-3-4', time: '3 PM – 4 PM', duration: '1h Slot', statusText: 'Available (12 slots left)', statusType: 'available' }
+        { id: 'lunch-12-4', time: '12 PM – 4 PM', surge: '1.5x Surge' },
+        { id: 'lunch-1-2', time: '1 PM – 2 PM', surge: '1.2x Surge' },
+        { id: 'lunch-2-3', time: '2 PM – 3 PM' },
+        { id: 'lunch-3-4', time: '3 PM – 4 PM' }
       ]
     },
     {
@@ -88,10 +125,10 @@ export default function DeliveryShifts() {
       tag: '⚡ Popular',
       timeRange: '4:00 PM – 7:00 PM',
       slots: [
-        { id: 'snacks-4-7', time: '4 PM – 7 PM', duration: '3h Shift', statusText: 'Available (19 slots left)', statusType: 'available' },
-        { id: 'snacks-4-5', time: '4 PM – 5 PM', duration: '1h Slot', statusText: 'Available (6 slots left)', statusType: 'available' },
-        { id: 'snacks-5-6', time: '5 PM – 6 PM', duration: '1h Slot', statusText: 'Filling Fast (3 slots left)', statusType: 'filling' },
-        { id: 'snacks-6-7', time: '6 PM – 7 PM', duration: '1h Slot', statusText: 'Short Booked (Full)', statusType: 'full' }
+        { id: 'snacks-4-7', time: '4 PM – 7 PM' },
+        { id: 'snacks-4-5', time: '4 PM – 5 PM' },
+        { id: 'snacks-5-6', time: '5 PM – 6 PM' },
+        { id: 'snacks-6-7', time: '6 PM – 7 PM' }
       ]
     },
     {
@@ -99,15 +136,16 @@ export default function DeliveryShifts() {
       tag: '🔥 Mega Surge',
       timeRange: '7:00 PM – 11:00 PM',
       slots: [
-        { id: 'dinner-7-11', time: '7 PM – 11 PM', duration: '4h Shift', statusText: 'Available (22 slots left)', statusType: 'available', surge: '1.8x Surge' },
-        { id: 'dinner-8-10', time: '8 PM – 10 PM', duration: '2h Slot', statusText: 'Filling Fast (1 slot left)', statusType: 'filling', surge: '1.5x Surge' },
-        { id: 'dinner-10-11', time: '10 PM – 11 PM', duration: '1h Slot', statusText: 'Available (10 slots left)', statusType: 'available' }
+        { id: 'dinner-7-11', time: '7 PM – 11 PM', surge: '1.8x Surge' },
+        { id: 'dinner-8-10', time: '8 PM – 10 PM', surge: '1.5x Surge' },
+        { id: 'dinner-10-11', time: '10 PM – 11 PM' }
       ]
     }
   ];
 
   const now = new Date();
   const currentDecimalHour = now.getHours() + now.getMinutes() / 60;
+  const isOnline = user?.deliveryProfile?.isOnline || false;
 
   // Calculate completed slots vs active booked slots
   const allSlotsList = shiftCategories.flatMap(c => c.slots);
@@ -124,37 +162,82 @@ export default function DeliveryShifts() {
     return isBooked && (!slotInfo || currentDecimalHour < slotInfo.endHour);
   });
 
-  const handleToggleSlot = (slotId, statusType) => {
-    if (statusType === 'full') {
-      toast.error('This shift is full / short booked.');
-      return;
-    }
-
+  // Toggle selection on slot click without immediately booking to backend
+  const handleToggleSelection = (slotId) => {
+    const isToday = selectedDate === getLocalDateStr(now);
     const slotInfo = SHIFT_SLOT_TIMES[slotId];
-    const isBooked = bookedSlots.includes(slotId);
-    const isPast = slotInfo ? (currentDecimalHour >= slotInfo.endHour) : false;
+    const isPastEnd = isToday && slotInfo && (currentDecimalHour >= slotInfo.endHour);
+    const isPastBookingCutoff = isToday && slotInfo && (currentDecimalHour >= (slotInfo.startHour - 0.25));
 
-    if (isBooked && isPast) {
-      toast.success('This shift slot was completed earlier today! ✓');
+    if (isPastEnd) {
+      toast('✓ This shift slot has already ended today.', { icon: 'ℹ️' });
       return;
     }
 
-    if (isBooked) {
-      setBookedSlots(prev => prev.filter(id => id !== slotId));
-      toast('Shift slot unbooked', { icon: 'ℹ️' });
-    } else {
-      setBookedSlots(prev => [...prev, slotId]);
-      toast.success('Shift slot booked successfully! 🎉');
+    if (isPastBookingCutoff) {
+      toast.error('⏳ Booking Closed: Start time has already passed.');
+      return;
     }
+
+    // Prevent unselecting active shift if currently online
+    const isActiveDuty = bookedSlots.includes(slotId) && !isPastEnd && isPastBookingCutoff;
+    if (selectedSlots.includes(slotId) && isActiveDuty && isOnline) {
+      toast.error('⚠️ Cannot unselect an active shift while online. Please go offline first.');
+      return;
+    }
+
+    setSelectedSlots(prev => {
+      if (prev.includes(slotId)) {
+        return prev.filter(id => id !== slotId);
+      } else {
+        return [...prev, slotId];
+      }
+    });
   };
 
-  const isOnline = user?.deliveryProfile?.isOnline || false;
+  // Confirm and persist booking to MongoDB backend
+  const handleConfirmBooking = async () => {
+    if (selectedSlots.length === 0) {
+      toast.error('Please select at least one shift slot.');
+      return;
+    }
+
+    try {
+      setSavingBooking(true);
+      await deliveryAPI.saveBookedShifts(selectedDate, selectedSlots);
+
+      setBookedSlots(selectedSlots);
+      saveBookedShiftsForDate(selectedSlots, selectedDate);
+
+      const isToday = selectedDate === getLocalDateStr(now);
+      const statusInfo = getShiftOnlineStatus(selectedSlots, new Date());
+
+      if (isToday) {
+        if (statusInfo.canGoOnline) {
+          toast.success('🎉 Shift booked successfully! You are eligible to go online.');
+          navigate('/delivery');
+        } else {
+          toast.success(`🎉 Shifts booked successfully! ${statusInfo.message}`, { duration: 5000 });
+        }
+      } else {
+        const tabInfo = dateTabs.find(t => t.id === selectedDate);
+        toast.success(`🎉 Shifts booked successfully for ${tabInfo?.dateStr || selectedDate}!`, { duration: 4500 });
+      }
+    } catch (err) {
+      console.error('Failed to save booked shifts:', err);
+      setBookedSlots(selectedSlots);
+      saveBookedShiftsForDate(selectedSlots, selectedDate);
+      toast.success('🎉 Shifts booked (saved locally)!');
+    } finally {
+      setSavingBooking(false);
+    }
+  };
 
   return (
     <div style={{
       maxWidth: '640px',
       margin: '0 auto',
-      padding: '8px 8px 80px',
+      padding: isMobile ? '8px 12px 140px' : '16px 16px 90px',
       fontFamily: 'Inter, system-ui, -apple-system, sans-serif',
       color: '#0f172a'
     }}>
@@ -190,7 +273,7 @@ export default function DeliveryShifts() {
               My Shifts & Slots
             </h1>
             <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 500 }}>
-              Book slots to go online and earn surge pay
+              Select slots and confirm booking to go online
             </div>
           </div>
         </div>
@@ -216,15 +299,15 @@ export default function DeliveryShifts() {
           )}
 
           <div style={{
-            backgroundColor: activeBookedSlotsList.length > 0 ? '#ecfdf5' : '#f1f5f9',
-            color: activeBookedSlotsList.length > 0 ? '#059669' : '#64748b',
-            border: `1px solid ${activeBookedSlotsList.length > 0 ? '#a7f3d0' : '#cbd5e1'}`,
+            backgroundColor: bookedSlots.length > 0 ? '#ecfdf5' : '#f1f5f9',
+            color: bookedSlots.length > 0 ? '#059669' : '#64748b',
+            border: `1px solid ${bookedSlots.length > 0 ? '#a7f3d0' : '#cbd5e1'}`,
             borderRadius: '12px',
             padding: '4px 8px',
             fontSize: '10px',
             fontWeight: 800
           }}>
-            {activeBookedSlotsList.length} Booked
+            {bookedSlots.length} Booked
           </div>
         </div>
       </div>
@@ -251,10 +334,10 @@ export default function DeliveryShifts() {
                 padding: '8px 6px',
                 borderRadius: '12px',
                 textAlign: 'center',
-                backgroundColor: isSelected ? '#ff5400' : '#ffffff',
-                color: isSelected ? '#ffffff' : '#0f172a',
-                boxShadow: isSelected ? '0 4px 12px rgba(255, 84, 0, 0.25)' : '0 2px 6px rgba(0,0,0,0.02)',
-                border: isSelected ? 'none' : '1px solid rgba(0,0,0,0.04)',
+                backgroundColor: isSelected ? '#f59e0b' : 'var(--bg-card, #152238)',
+                color: isSelected ? '#0a1128' : 'var(--text-primary, #f8fafc)',
+                boxShadow: isSelected ? '0 4px 12px rgba(245, 158, 11, 0.35)' : '0 2px 6px rgba(0,0,0,0.2)',
+                border: isSelected ? 'none' : '1px solid var(--border, #1e293b)',
                 cursor: 'pointer',
                 position: 'relative'
               }}
@@ -356,74 +439,156 @@ export default function DeliveryShifts() {
         </div>
       </div>
 
-      {/* Shift Categories & Slot Items */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', marginBottom: '30px' }}>
-        {shiftCategories.map((cat, catIdx) => (
+      {/* Shift Completion & Minimum Guarantee (MG) Rules Card */}
+      <div style={{
+        backgroundColor: '#ffffff',
+        border: '1px solid #e2e8f0',
+        borderRadius: '16px',
+        padding: '14px 16px',
+        marginBottom: '16px',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.03)'
+      }}>
+        <div 
+          onClick={() => setShowRulesModal(!showRulesModal)}
+          style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div style={{
+              width: '36px', height: '36px', borderRadius: '50%',
+              backgroundColor: '#fef3c7', color: '#d97706',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0
+            }}>
+              <InfoOutlinedIcon sx={{ fontSize: '20px' }} />
+            </div>
+            <div>
+              <div style={{ fontSize: '13px', fontWeight: 800, color: '#0f172a' }}>
+                Shift Completion & MG Rules Table
+              </div>
+              <div style={{ fontSize: '11px', color: '#d97706', fontWeight: 700, marginTop: '1px' }}>
+                Req. Login: 90%–95% active time per shift for full attendance.
+              </div>
+            </div>
+          </div>
+          <span style={{ fontSize: '12px', color: '#d97706', fontWeight: 800 }}>
+            {showRulesModal ? 'Hide Rules ▲' : 'View Rules ▼'}
+          </span>
+        </div>
+
+        <AnimatePresence>
+          {showRulesModal && (
+            <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} style={{ overflow: 'hidden', marginTop: '12px', paddingTop: '12px', borderTop: '1px dashed #e2e8f0' }}>
+              <div style={{ overflowX: 'auto' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '11.5px', textAlign: 'left' }}>
+                  <thead>
+                    <tr style={{ background: '#f8fafc', borderBottom: '1.5px solid #e2e8f0', color: '#475569' }}>
+                      <th style={{ padding: '8px 10px', fontWeight: 800, borderRadius: '8px 0 0 8px' }}>Duration</th>
+                      <th style={{ padding: '8px 10px', fontWeight: 800 }}>Min Login Req.</th>
+                      <th style={{ padding: '8px 10px', fontWeight: 800 }}>Allowed Break</th>
+                      <th style={{ padding: '8px 10px', fontWeight: 800, borderRadius: '0 8px 8px 0' }}>MG Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {SHIFT_ATTENDANCE_TABLE.map((row, idx) => (
+                      <tr key={idx} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                        <td style={{ padding: '8px 10px', fontWeight: 800, color: '#0f172a', whiteSpace: 'nowrap' }}>
+                          {row.durationHours}h Shift
+                        </td>
+                        <td style={{ padding: '8px 10px', color: '#0284c7', fontWeight: 700, whiteSpace: 'nowrap' }}>
+                          {row.reqRangeStr}
+                        </td>
+                        <td style={{ padding: '8px 10px', color: '#64748b', fontWeight: 600, whiteSpace: 'nowrap' }}>
+                          {row.breakRangeStr}
+                        </td>
+                        <td style={{ padding: '8px 10px', whiteSpace: 'nowrap' }}>
+                          <span style={{ backgroundColor: '#ecfdf5', border: '1px solid #a7f3d0', color: '#047857', padding: '2px 8px', borderRadius: '6px', fontWeight: 800, fontSize: '11px' }}>
+                            {row.mgPercent} MG
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
+      {/* Categories & Slots Section */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+        {shiftCategories.map(cat => (
           <div
-            key={catIdx}
+            key={cat.category}
             style={{
-              background: '#ffffff',
-              borderRadius: '24px',
+              backgroundColor: '#ffffff',
+              borderRadius: '16px',
+              border: '1px solid #e2e8f0',
               overflow: 'hidden',
-              boxShadow: '0 4px 20px rgba(0, 0, 0, 0.04)',
-              border: '1px solid rgba(0, 0, 0, 0.04)'
+              boxShadow: '0 2px 10px rgba(0,0,0,0.04)'
             }}
           >
-            {/* Category Header Bar */}
+            {/* Category Header */}
             <div style={{
               backgroundColor: '#f8fafc',
-              padding: '14px 20px',
+              padding: '12px 16px',
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
               borderBottom: '1px solid #f1f5f9'
             }}>
               <div>
-                <span style={{ fontSize: '16px', fontWeight: 900, color: '#0f172a' }}>{cat.category}</span>
-                <span style={{ fontSize: '12px', color: '#64748b', marginLeft: '8px', fontWeight: 600 }}>({cat.timeRange})</span>
+                <span style={{ fontSize: '15px', fontWeight: 900, color: '#0f172a' }}>{cat.category}</span>
+                <span style={{ fontSize: '12px', color: '#64748b', marginLeft: '6px', fontWeight: 600 }}>({cat.timeRange})</span>
               </div>
               <span style={{
                 fontSize: '11px',
                 fontWeight: 800,
-                color: '#ea580c',
-                backgroundColor: '#fff7ed',
+                color: '#f59e0b',
+                backgroundColor: 'rgba(245, 158, 11, 0.12)',
                 padding: '4px 10px',
                 borderRadius: '12px',
-                border: '1px solid #ffedd5'
+                border: '1px solid rgba(245, 158, 11, 0.3)'
               }}>
                 {cat.tag}
               </span>
             </div>
 
             {/* Slots List */}
-            <div style={{ padding: '8px 16px' }}>
+            <div style={{ padding: '6px 12px' }}>
               {cat.slots.map((slot, sIdx) => {
+                const isSelected = selectedSlots.includes(slot.id);
                 const isBooked = bookedSlots.includes(slot.id);
                 const slotInfo = SHIFT_SLOT_TIMES[slot.id];
-                const isPast = slotInfo ? (currentDecimalHour >= slotInfo.endHour) : false;
-                const isActiveDuty = isBooked && !isPast && slotInfo && (currentDecimalHour >= (slotInfo.startHour - 0.25) && currentDecimalHour < slotInfo.endHour);
-                const isCompleted = isBooked && isPast;
+                const isToday = selectedDate === getLocalDateStr(now);
 
-                const isFull = slot.statusType === 'full';
-                const isFilling = slot.statusType === 'filling';
+                const isPastEnd = isToday && slotInfo && (currentDecimalHour >= slotInfo.endHour);
+                const isPastBookingCutoff = isToday && slotInfo && (currentDecimalHour >= (slotInfo.startHour - 0.25));
+
+                const isCompleted = isBooked && isPastEnd;
+                const isActiveDuty = isBooked && !isPastEnd && isPastBookingCutoff;
+                const isExpiredUnbooked = !isBooked && isPastBookingCutoff;
+                const isRowDisabled = isExpiredUnbooked;
 
                 return (
                   <div
                     key={slot.id}
-                    onClick={() => handleToggleSlot(slot.id, slot.statusType)}
+                    onClick={() => !isRowDisabled && handleToggleSelection(slot.id)}
                     style={{
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'space-between',
-                      padding: '16px 8px',
+                      padding: '12px 8px',
                       borderBottom: sIdx < cat.slots.length - 1 ? '1px dashed #f1f5f9' : 'none',
-                      cursor: isFull ? 'not-allowed' : 'pointer',
-                      opacity: isFull ? 0.6 : 1
+                      cursor: isRowDisabled ? 'not-allowed' : 'pointer',
+                      opacity: isRowDisabled ? 0.5 : 1,
+                      borderRadius: '10px',
+                      backgroundColor: isSelected ? 'rgba(245, 158, 11, 0.05)' : 'transparent',
+                      transition: 'background-color 0.2s ease'
                     }}
                   >
                     <div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <span style={{ fontSize: '16px', fontWeight: 800, color: '#0f172a' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                        <span style={{ fontSize: '15px', fontWeight: 800, color: '#0f172a' }}>
                           {slot.time}
                         </span>
                         {slot.surge && (
@@ -438,63 +603,96 @@ export default function DeliveryShifts() {
                             {slot.surge}
                           </span>
                         )}
+                        {isCompleted && (
+                          <span style={{
+                            fontSize: '10px',
+                            fontWeight: 800,
+                            color: '#059669',
+                            backgroundColor: '#ecfdf5',
+                            border: '1px solid #a7f3d0',
+                            padding: '1px 6px',
+                            borderRadius: '6px'
+                          }}>
+                            ✓ Completed
+                          </span>
+                        )}
+                        {isActiveDuty && (
+                          <span style={{
+                            fontSize: '10px',
+                            fontWeight: 800,
+                            color: '#0284c7',
+                            backgroundColor: '#f0f9ff',
+                            border: '1px solid #bae6fd',
+                            padding: '1px 6px',
+                            borderRadius: '6px'
+                          }}>
+                            🟢 Active Duty
+                          </span>
+                        )}
                       </div>
 
-                      {/* Status indicator in words */}
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '4px' }}>
-                        <span style={{ fontSize: '12px', color: '#64748b', fontWeight: 600 }}>
-                          ⏱️ {slot.duration}
-                        </span>
-                        <span>•</span>
-                        <span style={{
-                          fontSize: '12px',
-                          fontWeight: 800,
-                          color: isCompleted
-                            ? '#059669'
-                            : isActiveDuty
-                            ? '#10b981'
-                            : isBooked
-                            ? '#0284c7'
-                            : isFull
-                            ? '#ef4444'
-                            : isFilling
-                            ? '#ea580c'
-                            : '#0284c7'
-                        }}>
-                          {isCompleted
-                            ? 'Completed ✓'
-                            : isActiveDuty
-                            ? 'Active Duty Now 🟢'
-                            : isBooked
-                            ? 'Booked ✓'
-                            : slot.statusText}
-                        </span>
-                      </div>
+                      {/* Attendance Metadata */}
+                      {slotInfo && (
+                        <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 600, marginTop: '3px', display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                          <span style={{ color: '#d97706', fontWeight: 700 }}>
+                            🎯 Min Login: {getShiftAttendanceRule(slotInfo.endHour - slotInfo.startHour).reqRangeStr}
+                          </span>
+                          <span>•</span>
+                          <span>
+                            ☕ Break: {getShiftAttendanceRule(slotInfo.endHour - slotInfo.startHour).breakRangeStr} ({getShiftAttendanceRule(slotInfo.endHour - slotInfo.startHour).mgPercent} MG)
+                          </span>
+                        </div>
+                      )}
                     </div>
 
-                    {/* Booking Control checkbox/button */}
-                    <div style={{
-                      padding: isCompleted ? '4px 10px' : '0',
-                      height: '28px',
-                      borderRadius: isCompleted ? '12px' : '8px',
-                      border: `2px solid ${isCompleted ? '#a7f3d0' : isBooked ? '#10b981' : isFull ? '#cbd5e1' : '#94a3b8'}`,
-                      backgroundColor: isCompleted ? '#ecfdf5' : isBooked ? '#10b981' : 'transparent',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      color: isCompleted ? '#059669' : '#ffffff',
-                      fontSize: '11px',
-                      fontWeight: 800,
-                      transition: 'all 0.2s ease'
-                    }}>
+                    {/* Checkbox / Status Badge */}
+                    <div style={{ flexShrink: 0, marginLeft: '12px' }}>
                       {isCompleted ? (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                          <CheckCircleIcon sx={{ fontSize: '16px', color: '#059669' }} />
-                          <span>Completed</span>
+                        <div style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '4px',
+                          backgroundColor: '#ecfdf5',
+                          color: '#059669',
+                          padding: '4px 10px',
+                          borderRadius: '12px',
+                          border: '1px solid #a7f3d0',
+                          fontSize: '11px',
+                          fontWeight: 800
+                        }}>
+                          <CheckCircleIcon sx={{ fontSize: '15px' }} />
+                          <span>Done</span>
                         </div>
-                      ) : isBooked ? (
-                        <CheckCircleIcon sx={{ fontSize: '20px' }} />
-                      ) : null}
+                      ) : isExpiredUnbooked ? (
+                        <div style={{
+                          backgroundColor: '#f1f5f9',
+                          color: '#64748b',
+                          padding: '4px 10px',
+                          borderRadius: '12px',
+                          fontSize: '11px',
+                          fontWeight: 700,
+                          border: '1px solid #e2e8f0'
+                        }}>
+                          Closed
+                        </div>
+                      ) : (
+                        <div style={{
+                          width: '24px',
+                          height: '24px',
+                          borderRadius: '50%',
+                          border: isSelected ? '2px solid #f59e0b' : '2px solid #cbd5e1',
+                          backgroundColor: isSelected ? '#f59e0b' : '#ffffff',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          boxShadow: isSelected ? '0 2px 8px rgba(245, 158, 11, 0.45)' : 'none',
+                          transition: 'all 0.2s ease'
+                        }}>
+                          {isSelected && (
+                            <CheckIcon sx={{ fontSize: '16px', color: '#ffffff', stroke: '#ffffff', strokeWidth: 1.2 }} />
+                          )}
+                        </div>
+                      )}
                     </div>
                   </div>
                 );
@@ -507,64 +705,81 @@ export default function DeliveryShifts() {
       {/* Bottom Sticky Action Card */}
       <div style={{
         position: 'fixed',
-        bottom: isMobile ? '84px' : '24px',
+        bottom: isMobile ? '76px' : '24px',
         left: isMobile ? '50%' : 'calc(50% + 130px)',
         transform: 'translateX(-50%)',
-        width: isMobile ? 'calc(100% - 32px)' : 'min(608px, calc(100vw - 320px))',
-        maxWidth: '608px',
+        width: isMobile ? 'calc(100% - 24px)' : 'min(580px, calc(100vw - 320px))',
+        maxWidth: '580px',
         zIndex: 999
       }}>
         <motion.div
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           style={{
-            background: '#ffffff',
-            borderRadius: '24px',
-            padding: '16px 20px',
-            boxShadow: '0 12px 35px rgba(0,0,0,0.15)',
-            border: '1px solid rgba(0,0,0,0.06)',
+            background: 'rgba(255, 255, 255, 0.98)',
+            backdropFilter: 'blur(12px)',
+            borderRadius: isMobile ? '18px' : '22px',
+            padding: isMobile ? '10px 14px' : '14px 18px',
+            boxShadow: '0 10px 30px rgba(0,0,0,0.16)',
+            border: '1px solid rgba(0,0,0,0.08)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            gap: '12px'
+            gap: isMobile ? '8px' : '12px'
           }}
         >
-          <div>
-            <div style={{ fontSize: '13px', fontWeight: 700, color: '#64748b' }}>
+          <div style={{ minWidth: 0, flex: '1 1 auto' }}>
+            <div style={{
+              fontSize: isMobile ? '10px' : '11px',
+              fontWeight: 700,
+              color: '#64748b',
+              textTransform: 'uppercase',
+              letterSpacing: '0.4px',
+              lineHeight: 1.2
+            }}>
               Selected Shifts
             </div>
-            <div style={{ fontSize: '18px', fontWeight: 900, color: '#0f172a' }}>
-              {bookedSlots.length} Slots Reserved
+            <div style={{
+              fontSize: isMobile ? '14px' : '17px',
+              fontWeight: 900,
+              color: '#0f172a',
+              whiteSpace: 'nowrap',
+              lineHeight: 1.2,
+              marginTop: '2px'
+            }}>
+              {selectedSlots.length} {selectedSlots.length === 1 ? 'Slot' : 'Slots'}
             </div>
           </div>
 
           <motion.button
-            whileTap={{ scale: 0.95 }}
-            onClick={() => {
-              if (bookedSlots.length === 0) {
-                toast.error('Please select at least one shift slot.');
-                return;
-              }
-              toast.success('Shifts confirmed! You are now eligible to go online.');
-              navigate('/delivery');
-            }}
+            whileTap={{ scale: 0.96 }}
+            onClick={handleConfirmBooking}
+            disabled={savingBooking}
             style={{
+              flexShrink: 0,
               display: 'inline-flex',
               alignItems: 'center',
-              gap: '8px',
-              background: 'linear-gradient(135deg, #ff5400 0%, #ff3b00 100%)',
-              color: '#ffffff',
+              justifyContent: 'center',
+              gap: isMobile ? '5px' : '7px',
+              background: 'linear-gradient(135deg, #fbbf24 0%, #d97706 100%)',
+              color: '#0a1128',
               border: 'none',
-              borderRadius: '18px',
-              padding: '14px 24px',
-              fontSize: '15px',
-              fontWeight: 800,
-              cursor: 'pointer',
-              boxShadow: '0 6px 20px rgba(255, 84, 0, 0.35)'
+              borderRadius: isMobile ? '13px' : '16px',
+              padding: isMobile ? '10px 16px' : '12px 22px',
+              fontSize: isMobile ? '13px' : '14px',
+              fontWeight: 850,
+              whiteSpace: 'nowrap',
+              cursor: savingBooking ? 'not-allowed' : 'pointer',
+              opacity: savingBooking ? 0.7 : 1,
+              boxShadow: '0 4px 16px rgba(245, 158, 11, 0.4)'
             }}
           >
-            <span>Confirm & Go Online</span>
-            <PlayArrowIcon sx={{ fontSize: '20px' }} />
+            <span>
+              {savingBooking
+                ? 'Booking...'
+                : (selectedDate === getLocalDateStr(now) ? 'Confirm & Go Online' : 'Confirm Booking')}
+            </span>
+            <PlayArrowIcon sx={{ fontSize: isMobile ? '16px' : '19px' }} />
           </motion.button>
         </motion.div>
       </div>

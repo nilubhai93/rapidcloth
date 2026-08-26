@@ -1,71 +1,83 @@
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 import BankDetail from '../models/BankDetail.js';
-import cookiParser from "cookie-parser";
+import Zone from '../models/Zone.js';
 
-
+const JWT_SECRET = process.env.JWT_SECRET || 'rapidcloth_secret_jwt_token_auth_key_2024_xyz';
 
 const generateToken = (userId) => {
-  return jwt.sign({ userId }, process.env.JWT_SECRET , {
+  return jwt.sign({ userId }, JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN || '7d'
   });
 };
 
 export const register = async (req, res) => {
   try {
-    const { name, email, password, phone, role, vehicleType, vehicleNumber } = req.body;
+    const { name, email, password, phone, role, vehicleType, vehicleNumber, zone, zoneId, state } = req.body;
 
     if (!name || !email || !password) {
-
       return res.status(400).json({
         success: false,
-        message: "please fill the all field"
-      })
+        error: 'Please fill in all required fields.',
+        message: 'Please fill in all required fields.'
+      });
     }
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res.status(409).json({ error: 'Email already registered.' });
+      return res.status(409).json({
+        success: false,
+        error: 'Email already registered.',
+        message: 'Email already registered.'
+      });
     }
 
     const validRole = ['user', 'seller', 'delivery', 'admin'].includes(role) ? role : 'user';
 
+    const selectedZoneId = zoneId || zone || null;
 
-
-    const userData =
-    {
+    const userData = {
       name,
       email,
       password,
       phone,
-      role: validRole
+      role: validRole,
+      zone: selectedZoneId,
+      assignedZones: selectedZoneId ? [selectedZoneId] : []
     };
-    if (validRole === 'delivery' && vehicleType) {
+
+    if (validRole === 'delivery') {
       userData.deliveryProfile = {
         isOnline: false,
-        vehicleType: vehicleType,
-        vehicleNumber: vehicleNumber || ''
+        vehicleType: vehicleType || 'Bike',
+        vehicleNumber: vehicleNumber || '',
+        state: state || ''
       };
     }
 
     const user = await User.create(userData);
     const token = generateToken(user._id);
 
-    res.cookie("token", token,{
-      httpOnly:true,
-      sameSite:"strict",
-      maxAge:24*60*60*1000,
-      
-    })
+    res.cookie('token', token, {
+      httpOnly: true,
+      sameSite: 'strict',
+      maxAge: 24 * 60 * 60 * 1000,
+    });
+
+    const populatedUser = await User.findById(user._id)
+      .select('-password -chatHistory')
+      .populate('assignedZones')
+      .populate('zone');
 
     res.status(201).json({
+      success: true,
       message: 'Registration successful',
       token,
-      user: user
+      user: populatedUser ? populatedUser.toJSON() : user.toJSON()
     });
   } catch (error) {
     console.error('Register error:', error);
-    res.status(500).json({ error: 'Registration failed. Please try again.' });
+    res.status(500).json({ error: 'Registration failed. Please try again.', message: 'Registration failed. Please try again.' });
   }
 };
 
@@ -74,32 +86,37 @@ export const login = async (req, res) => {
     const { email, password } = req.body;
 
     if (!email || !password) {
-      return res.status(404).json({
-        message: "email and password are required"
-      })
+      return res.status(400).json({
+        success: false,
+        error: 'Email and password are required',
+        message: 'Email and password are required'
+      });
     }
 
-    const user = await User.findOne({ email }).select("+password");
+    const user = await User.findOne({ email }).select('+password');
     if (!user) {
-      return res.status(401).json({ error: 'Invalid email or password.' });
+      return res.status(401).json({
+        success: false,
+        error: 'Invalid email or password.',
+        message: 'Invalid email or password.'
+      });
     }
 
     const comparePassword = await user.comparePassword(password);
     if (!comparePassword) {
       return res.status(401).json({
         success: false,
-        message: "invalid credintials"
-
+        error: 'Invalid email or password.',
+        message: 'Invalid email or password.'
       });
     }
 
-
     const token = generateToken(user._id);
-    res.cookie("token", token, {
+    res.cookie('token', token, {
       httpOnly: true,
-      samesite: "strict",
+      sameSite: 'strict',
       maxAge: 24 * 60 * 60 * 1000
-    })
+    });
 
     const populatedUser = await User.findById(user._id)
       .select('-password -chatHistory')
@@ -107,13 +124,14 @@ export const login = async (req, res) => {
       .populate('zone');
 
     res.json({
+      success: true,
       message: 'Login successful',
       token,
-      user: populatedUser.toJSON()
+      user: populatedUser ? populatedUser.toJSON() : user.toJSON()
     });
   } catch (error) {
     console.error('Login error:', error);
-    res.status(500).json({ error: 'Login failed. Please try again.' });
+    res.status(500).json({ error: 'Login failed. Please try again.', message: 'Login failed. Please try again.' });
   }
 };
 

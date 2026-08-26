@@ -10,7 +10,11 @@ import {
   markReached,
   verifyDeliveryOTP,
   getEarnings,
-  payToCompany
+  payToCompany,
+  createSupportTicket,
+  getPartnerSupportTickets,
+  getBookedShifts,
+  saveBookedShifts
 } from '../controllers/delivery.controller.js';
 import { authenticate } from '../middleware/auth.js';
 
@@ -29,6 +33,10 @@ router.use((req, res, next) => {
 router.get('/profile', getDeliveryProfile);
 router.put('/status', updateDeliveryStatus);
 
+// Shift / Slot Bookings
+router.get('/shifts', getBookedShifts);
+router.post('/shifts', saveBookedShifts);
+
 router.get('/orders/current', getCurrentOrders);
 router.put('/orders/:orderId/accept', acceptOrder);
 router.put('/orders/:orderId/reject', rejectOrder);
@@ -39,5 +47,8 @@ router.put('/orders/:orderId/verify-otp', verifyDeliveryOTP);
 router.get('/history', getDeliveryHistory);
 router.get('/earnings', getEarnings);
 router.post('/pay-company', payToCompany);
+
+router.post('/support/ticket', createSupportTicket);
+router.get('/support/tickets', getPartnerSupportTickets);
 
 export default router;

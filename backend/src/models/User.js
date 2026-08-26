@@ -51,6 +51,7 @@ const userSchema = new mongoose.Schema({
     lastOnlineDate: { type: String, default: '' },
     vehicleNumber: { type: String, default: '' },
     vehicleType: { type: String, default: 'Bike' },
+    state: { type: String, default: '' },
     aadharOrLicense: { type: String, default: '' },
     currentOrderId: { type: mongoose.Schema.Types.ObjectId, ref: 'Order', default: null },
     cashCollected: { type: Number, default: 0 },   // COD cash held, needs to be remitted

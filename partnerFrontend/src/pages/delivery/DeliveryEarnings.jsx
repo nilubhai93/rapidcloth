@@ -11,6 +11,7 @@ import StarIcon from '@mui/icons-material/StarRounded';
 import CloseIcon from '@mui/icons-material/CloseRounded';
 import CircularProgress from '@mui/material/CircularProgress';
 import { deliveryAPI } from '../../api';
+import DeliveryPartnerAvatar from '../../components/DeliveryPartnerAvatar';
 
 // Helper for calculating week start/end dates based on offset
 function getWeekRange(offset = 0) {
@@ -129,9 +130,9 @@ export default function DeliveryEarnings() {
           onClick={() => setWeekOffset(prev => prev - 1)}
           style={{
             width: '30px', height: '30px', borderRadius: '50%',
-            background: '#ff6b00', border: 'none', color: '#ffffff',
+            background: 'linear-gradient(135deg, #fbbf24 0%, #d97706 100%)', border: 'none', color: '#0a1128',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            cursor: 'pointer', boxShadow: '0 2px 6px rgba(255, 107, 0, 0.3)',
+            cursor: 'pointer', boxShadow: '0 2px 6px rgba(245, 158, 11, 0.4)',
             transition: 'transform 0.15s'
           }}
         >
@@ -148,11 +149,11 @@ export default function DeliveryEarnings() {
           disabled={weekOffset >= 0}
           style={{
             width: '30px', height: '30px', borderRadius: '50%',
-            background: weekOffset >= 0 ? '#e2e8f0' : '#ff6b00',
-            border: 'none', color: weekOffset >= 0 ? '#94a3b8' : '#ffffff',
+            background: weekOffset >= 0 ? '#1e293b' : 'linear-gradient(135deg, #fbbf24 0%, #d97706 100%)',
+            border: 'none', color: weekOffset >= 0 ? '#64748b' : '#0a1128',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             cursor: weekOffset >= 0 ? 'default' : 'pointer',
-            boxShadow: weekOffset >= 0 ? 'none' : '0 2px 6px rgba(255, 107, 0, 0.3)'
+            boxShadow: weekOffset >= 0 ? 'none' : '0 2px 6px rgba(245, 158, 11, 0.4)'
           }}
         >
           <ChevronRightIcon sx={{ fontSize: '20px' }} />
@@ -254,10 +255,10 @@ export default function DeliveryEarnings() {
             onClick={() => setShowPayModal(true)}
             style={{
               padding: '6px 12px', borderRadius: '10px',
-              background: isBlocked ? '#dc2626' : '#ff6b00',
-              border: 'none', color: '#ffffff', fontWeight: 800, fontSize: '11px',
+              background: isBlocked ? '#dc2626' : 'linear-gradient(135deg, #fbbf24 0%, #d97706 100%)',
+              border: 'none', color: isBlocked ? '#ffffff' : '#0a1128', fontWeight: 800, fontSize: '11px',
               display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer',
-              boxShadow: '0 2px 8px rgba(255, 107, 0, 0.25)'
+              boxShadow: '0 2px 8px rgba(245, 158, 11, 0.3)'
             }}
           >
             <ArrowDownwardIcon sx={{ fontSize: '14px' }} /> Remit Cash
@@ -269,7 +270,7 @@ export default function DeliveryEarnings() {
           <div style={{
             height: '100%',
             width: `${Math.min(100, (cashCollected / cashLimit) * 100)}%`,
-            background: isBlocked ? '#ef4444' : 'linear-gradient(90deg, #ff6b00, #ff8c00)',
+            background: isBlocked ? '#ef4444' : 'linear-gradient(90deg, #f59e0b, #fbbf24)',
             borderRadius: '3px', transition: 'width 0.4s'
           }} />
         </div>
@@ -303,13 +304,13 @@ export default function DeliveryEarnings() {
       {weeklyEarningsAmount === 0 && weekDeliveries.length === 0 ? (
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', paddingTop: '10px' }}>
           <div style={{ position: 'relative', width: '300px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            
+
             {/* 1st Order + Star Tag */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '-10px', zIndex: 2 }}>
-              <div style={{ fontSize: '20px', fontWeight: 900, color: '#ff6b00', display: 'flex', alignItems: 'center', gap: '2px' }}>
-                1st <StarIcon sx={{ fontSize: '18px', color: '#000000' }} />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '12px', zIndex: 2 }}>
+              <div style={{ fontSize: '20px', fontWeight: 900, color: '#f59e0b', display: 'flex', alignItems: 'center', gap: '2px' }}>
+                1st <StarIcon sx={{ fontSize: '18px', color: '#f59e0b' }} />
               </div>
-              <div style={{ fontSize: '11px', fontWeight: 800, color: '#ff6b00', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+              <div style={{ fontSize: '11px', fontWeight: 800, color: '#f59e0b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                 ORDER
               </div>
             </div>
@@ -317,71 +318,33 @@ export default function DeliveryEarnings() {
             {/* Rounded Speech Bubble */}
             <div style={{
               width: '100%',
-              background: 'var(--bg-elevated, #ffffff)',
-              border: '1.5px solid var(--border, #e2e8f0)',
-              borderRadius: '140px',
-              padding: '26px 20px',
+              background: 'var(--bg-card, #0e1c3e)',
+              border: '1.5px solid var(--border, #1a2d5a)',
+              borderRadius: '24px',
+              padding: '24px 20px',
               textAlign: 'center',
-              boxShadow: '0 12px 36px rgba(0, 0, 0, 0.04)',
+              boxShadow: '0 12px 36px rgba(0, 0, 0, 0.25)',
               position: 'relative',
               zIndex: 1
             }}>
-              <div style={{ fontSize: '22px', fontWeight: 900, color: 'var(--text-primary, #0f172a)', lineHeight: 1.2 }}>
+              <div style={{ fontSize: '22px', fontWeight: 900, color: 'var(--text-primary, #ffffff)', lineHeight: 1.2 }}>
                 Let's deliver
               </div>
-              <div style={{ fontSize: '14px', color: '#64748b', fontWeight: 600, marginTop: '4px' }}>
+              <div style={{ fontSize: '14px', color: 'var(--text-secondary, #cbd5e1)', fontWeight: 600, marginTop: '4px' }}>
                 our first order of the week!
               </div>
             </div>
 
             {/* Bubble Tail */}
             <div style={{
-              width: '18px', height: '18px', background: 'var(--bg-elevated, #ffffff)',
-              borderRight: '1.5px solid var(--border, #e2e8f0)', borderBottom: '1.5px solid var(--border, #e2e8f0)',
+              width: '18px', height: '18px', background: 'var(--bg-card, #0e1c3e)',
+              borderRight: '1.5px solid var(--border, #1a2d5a)', borderBottom: '1.5px solid var(--border, #1a2d5a)',
               transform: 'rotate(45deg)', marginTop: '-10px', zIndex: 2
             }} />
 
             {/* Partner Avatar Illustration */}
-            <div style={{ marginTop: '24px', textAlign: 'center' }}>
-              <svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-                {/* Body / Orange Polo Shirt */}
-                <path d="M35 190 C35 140, 58 115, 100 115 C142 115, 165 140, 165 190 Z" fill="#ff6b00" />
-                {/* Collar */}
-                <path d="M78 115 L100 138 L122 115 L107 115 L100 124 L93 115 Z" fill="#1e293b" />
-                {/* RapidCloth badge */}
-                <rect x="130" y="142" width="18" height="18" rx="5" fill="#ffffff" />
-                <path d="M134 146 H144 V156 H134 Z" fill="#ff6b00" />
-
-                {/* Neck */}
-                <rect x="90" y="100" width="20" height="20" fill="#f8a978" rx="4" />
-
-                {/* Face */}
-                <circle cx="100" cy="76" r="34" fill="#f8a978" />
-                {/* Ears */}
-                <circle cx="65" cy="76" r="7" fill="#f8a978" />
-                <circle cx="135" cy="76" r="7" fill="#f8a978" />
-
-                {/* Black Hair */}
-                <path d="M65 72 C65 42, 78 36, 100 36 C122 36, 135 42, 135 72 C135 56, 118 46, 100 46 C82 46, 65 56, 65 72 Z" fill="#1e1e1e" />
-
-                {/* Eyes */}
-                <ellipse cx="85" cy="72" rx="3.5" ry="4.5" fill="#1e1e1e" />
-                <ellipse cx="115" cy="72" rx="3.5" ry="4.5" fill="#1e1e1e" />
-
-                {/* Eyebrows */}
-                <path d="M80 64 Q85 61 90 64" stroke="#1e1e1e" strokeWidth="2.5" strokeLinecap="round" />
-                <path d="M110 64 Q115 61 120 64" stroke="#1e1e1e" strokeWidth="2.5" strokeLinecap="round" />
-
-                {/* Mustache & Smile */}
-                <path d="M80 82 Q100 94 120 82 Q100 87 80 82 Z" fill="#1e1e1e" />
-                <path d="M88 90 Q100 98 112 90" stroke="#1e1e1e" strokeWidth="2" strokeLinecap="round" fill="none" />
-
-                {/* Waving Hand */}
-                <g transform="translate(142, 105) rotate(-10)">
-                  <path d="M12 40 L12 12 C12 7, 20 7, 20 12 L20 35" stroke="#f8a978" strokeWidth="12" strokeLinecap="round" />
-                  <circle cx="16" cy="10" r="7" fill="#f8a978" />
-                </g>
-              </svg>
+            <div style={{ marginTop: '20px', textAlign: 'center' }}>
+              <DeliveryPartnerAvatar width={250} height={195} className="float-soft" />
             </div>
           </div>
         </div>
@@ -587,7 +550,7 @@ export default function DeliveryEarnings() {
                   disabled={paying || !payAmount}
                   style={{
                     flex: 1, padding: '12px', borderRadius: '12px',
-                    background: '#ff6b00', border: 'none', color: '#ffffff',
+                    background: 'linear-gradient(135deg, #fbbf24 0%, #d97706 100%)', border: 'none', color: '#0a1128',
                     fontSize: '14px', fontWeight: 800, cursor: 'pointer',
                     opacity: (paying || !payAmount) ? 0.6 : 1
                   }}

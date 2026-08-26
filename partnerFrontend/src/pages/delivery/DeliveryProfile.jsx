@@ -23,7 +23,7 @@ export default function DeliveryProfile() {
   const { langCode, t, changeLanguage } = useLanguage();
 
   // Profile fields state
-  const [phone, setPhone] = useState(user?.phone || '7407856206');
+  const [phone, ] = useState(user?.phone || '7407856206');
   const [city, setCity] = useState(user?.city || 'Kolkata');
   const [zone, setZone] = useState(user?.zone || 'Barrackpore');
   const [category, setCategory] = useState('Clothing, Quick Delivery, Express');
@@ -126,18 +126,18 @@ export default function DeliveryProfile() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           {/* Avatar */}
           <div style={{ position: 'relative' }}>
-            <div style={{
-              width: '48px', height: '48px', borderRadius: '50%',
-              background: 'linear-gradient(135deg, #ff5400 0%, #ff3b00 100%)',
-              color: '#ffffff', fontSize: '20px', fontWeight: 900,
+            <div className="pulse-glow-avatar" style={{
+              width: '52px', height: '52px', borderRadius: '50%',
+              background: 'linear-gradient(135deg, #fbbf24 0%, #d97706 100%)',
+              color: '#0a1128', fontSize: '22px', fontWeight: 900,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              boxShadow: '0 4px 12px rgba(255, 84, 0, 0.25)'
+              boxShadow: '0 4px 14px rgba(245, 158, 11, 0.4)'
             }}>
               {user?.name ? user.name[0].toUpperCase() : 'A'}
             </div>
-            <div style={{
+            <div className="live-pulse-dot" style={{
               position: 'absolute', bottom: '1px', right: '1px',
-              width: '12px', height: '12px', borderRadius: '50%',
+              width: '14px', height: '14px', borderRadius: '50%',
               background: '#22c55e', border: '2px solid #ffffff'
             }} />
           </div>
@@ -156,16 +156,16 @@ export default function DeliveryProfile() {
               style={{
                 display: 'inline-flex', alignItems: 'center', gap: '4px',
                 marginTop: '4px', cursor: 'pointer',
-                background: '#fff7ed', border: '1px solid #ffedd5',
+                background: 'rgba(245, 158, 11, 0.12)', border: '1px solid rgba(245, 158, 11, 0.3)',
                 padding: '2px 8px', borderRadius: '8px'
               }}
             >
-              <span style={{ fontSize: '10px', fontWeight: 700, color: '#ea580c' }}>{t('yourRatings')}</span>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '2px', color: '#eab308', fontWeight: 800, fontSize: '11px' }}>
+              <span style={{ fontSize: '10px', fontWeight: 700, color: '#f59e0b' }}>{t('yourRatings')}</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '2px', color: '#f59e0b', fontWeight: 800, fontSize: '11px' }}>
                 <StarIcon sx={{ fontSize: '13px' }} />
                 <span>{rating}</span>
               </div>
-              <ChevronRightIcon sx={{ fontSize: '13px', color: '#ea580c' }} />
+              <ChevronRightIcon sx={{ fontSize: '13px', color: '#f59e0b' }} />
             </div>
           </div>
         </div>
@@ -187,7 +187,7 @@ export default function DeliveryProfile() {
               <span>{t('mobileNumber')}</span>
               <EditIcon
                 onClick={() => handleOpenEdit('phone', t('mobileNumber'), phone)}
-                sx={{ fontSize: '13px', color: '#ff6b00', cursor: 'pointer' }}
+                sx={{ fontSize: '13px', color: '#f59e0b', cursor: 'pointer' }}
               />
             </div>
             <div style={{ fontSize: '13px', fontWeight: 800, color: 'var(--text-primary, #0f172a)', marginTop: '2px' }}>
@@ -211,7 +211,7 @@ export default function DeliveryProfile() {
               <span>{t('city')}</span>
               <EditIcon
                 onClick={() => handleOpenEdit('city', t('city'), city)}
-                sx={{ fontSize: '13px', color: '#ff6b00', cursor: 'pointer' }}
+                sx={{ fontSize: '13px', color: '#f59e0b', cursor: 'pointer' }}
               />
             </div>
             <div style={{ fontSize: '13px', fontWeight: 800, color: 'var(--text-primary, #0f172a)', marginTop: '2px' }}>
@@ -225,7 +225,7 @@ export default function DeliveryProfile() {
               <span>{t('zone')}</span>
               <EditIcon
                 onClick={() => handleOpenEdit('zone', t('zone'), zone)}
-                sx={{ fontSize: '13px', color: '#ff6b00', cursor: 'pointer' }}
+                sx={{ fontSize: '13px', color: '#f59e0b', cursor: 'pointer' }}
               />
             </div>
             <div style={{ fontSize: '13px', fontWeight: 800, color: 'var(--text-primary, #0f172a)', marginTop: '2px' }}>
@@ -240,7 +240,7 @@ export default function DeliveryProfile() {
             <span>{t('orderCategory')}</span>
             <EditIcon
               onClick={() => handleOpenEdit('category', t('orderCategory'), category)}
-              sx={{ fontSize: '13px', color: '#ff6b00', cursor: 'pointer' }}
+              sx={{ fontSize: '13px', color: '#f59e0b', cursor: 'pointer' }}
             />
           </div>
           <div style={{ fontSize: '12px', fontWeight: 800, color: 'var(--text-primary, #0f172a)', marginTop: '2px', lineHeight: 1.3 }}>
@@ -319,8 +319,8 @@ export default function DeliveryProfile() {
                 <div style={{ fontSize: '11px', color: 'var(--text-muted, #64748b)', fontWeight: 600, marginTop: '1px' }}>{item.subtitle}</div>
               </div>
             </div>
-            <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: '#fff7ed', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <ChevronRightIcon sx={{ color: '#ff6b00', fontSize: '20px' }} />
+            <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: 'rgba(245, 158, 11, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <ChevronRightIcon sx={{ color: '#f59e0b', fontSize: '20px' }} />
             </div>
           </div>
         ))}
@@ -383,7 +383,7 @@ export default function DeliveryProfile() {
 
               <button
                 onClick={handleSaveEdit}
-                style={{ width: '100%', padding: '14px', borderRadius: '14px', background: '#ff6b00', color: '#ffffff', border: 'none', fontSize: '15px', fontWeight: 900, cursor: 'pointer' }}
+                style={{ width: '100%', padding: '14px', borderRadius: '14px', background: 'linear-gradient(135deg, #fbbf24 0%, #d97706 100%)', color: '#0a1128', border: 'none', fontSize: '15px', fontWeight: 900, cursor: 'pointer' }}
               >
                 Save Changes
               </button>
@@ -465,7 +465,7 @@ export default function DeliveryProfile() {
 
               <button
                 onClick={() => { toast.success('Bank detail update request submitted!'); setActiveModal(null); }}
-                style={{ width: '100%', padding: '14px', borderRadius: '14px', background: '#ff6b00', color: '#ffffff', border: 'none', fontSize: '14px', fontWeight: 900, cursor: 'pointer' }}
+                style={{ width: '100%', padding: '14px', borderRadius: '14px', background: 'linear-gradient(135deg, #fbbf24 0%, #d97706 100%)', color: '#0a1128', border: 'none', fontSize: '14px', fontWeight: 900, cursor: 'pointer' }}
               >
                 Request Bank Detail Change
               </button>
@@ -507,16 +507,16 @@ export default function DeliveryProfile() {
                     }}
                     style={{
                       padding: '14px 16px', borderRadius: '16px',
-                      border: langCode === opt.code ? '2px solid #ff6b00' : '1px solid #e2e8f0',
-                      background: langCode === opt.code ? '#fff7ed' : '#f8fafc',
+                      border: langCode === opt.code ? '2px solid #f59e0b' : '1px solid var(--border)',
+                      background: langCode === opt.code ? 'rgba(245, 158, 11, 0.15)' : 'var(--bg-card)',
                       fontSize: '15px', fontWeight: 800,
-                      color: langCode === opt.code ? '#ea580c' : '#0f172a',
+                      color: langCode === opt.code ? '#f59e0b' : 'var(--text-primary)',
                       display: 'flex', justifyContent: 'space-between', alignItems: 'center',
                       cursor: 'pointer'
                     }}
                   >
                     <span>{opt.label}</span>
-                    {langCode === opt.code && <span style={{ fontSize: '14px', color: '#ff6b00', fontWeight: 900 }}>✓</span>}
+                    {langCode === opt.code && <span style={{ fontSize: '14px', color: '#f59e0b', fontWeight: 900 }}>✓</span>}
                   </button>
                 ))}
               </div>

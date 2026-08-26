@@ -42,7 +42,8 @@ export default function Login() {
         }
       }
     } catch (err) {
-      setError(err.response?.data?.error || 'Authentication failed. Please try again.');
+      const serverMessage = err.response?.data?.error || err.response?.data?.message;
+      setError(serverMessage || 'Authentication failed. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -50,122 +51,129 @@ export default function Login() {
 
   return (
     <div style={{
-      minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center',
-      padding: '40px 24px',
-      background: 'radial-gradient(ellipse at 50% 30%, rgba(168,85,247,0.1) 0%, transparent 60%)'
+      minHeight: '100vh',
+      minHeight: '100dvh',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '16px',
+      background: 'radial-gradient(ellipse at 50% 30%, rgba(255,84,0,0.08) 0%, transparent 60%)',
+      boxSizing: 'border-box'
     }}>
-      <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
+      <motion.div initial={{ opacity: 0, scale: 0.96, y: 15 }} animate={{ opacity: 1, scale: 1, y: 0 }}
         style={{
-          width: '100%', maxWidth: '420px', padding: '48px 40px',
-          borderRadius: 'var(--radius-xl)', background: 'var(--bg-card)',
-          border: '1px solid var(--border)', boxShadow: 'var(--shadow-md)',
-          position: 'relative'
+          width: '100%',
+          maxWidth: '440px',
+          maxHeight: 'min(94vh, 850px)',
+          overflowY: 'auto',
+          padding: 'clamp(24px, 5vw, 40px) clamp(18px, 4vw, 36px)',
+          borderRadius: '24px',
+          background: 'var(--bg-card, #ffffff)',
+          border: '1px solid var(--border, #e2e8f0)',
+          boxShadow: '0 20px 40px -15px rgba(0, 0, 0, 0.1), 0 0 25px rgba(255, 84, 0, 0.06)',
+          position: 'relative',
+          boxSizing: 'border-box',
+          scrollbarWidth: 'thin'
         }}>
 
         {/* Close button */}
         <motion.button
-          whileHover={{ scale: 1.15, rotate: 90 }}
+          whileHover={{ scale: 1.1, rotate: 90 }}
           whileTap={{ scale: 0.9 }}
           onClick={() => navigate('/delivery')}
           aria-label="Close login"
           style={{
             position: 'absolute', top: '16px', right: '16px',
-            width: '36px', height: '36px', borderRadius: '50%',
-            background: 'rgba(255,255,255,0.06)',
-            border: '1px solid rgba(255,255,255,0.1)',
+            width: '34px', height: '34px', borderRadius: '50%',
+            background: 'var(--bg-secondary, #f1f5f9)',
+            border: '1px solid var(--border, #e2e8f0)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            cursor: 'pointer', color: 'var(--text-muted)',
+            cursor: 'pointer', color: 'var(--text-muted, #64748b)',
             transition: 'all 0.2s ease',
-            backdropFilter: 'blur(8px)',
             zIndex: 10
           }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.background = 'rgba(239,68,68,0.15)';
-            e.currentTarget.style.borderColor = 'rgba(239,68,68,0.3)';
-            e.currentTarget.style.color = '#f87171';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.background = 'rgba(255,255,255,0.06)';
-            e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)';
-            e.currentTarget.style.color = 'var(--text-muted)';
-          }}
         >
-          <CloseIcon sx={{ fontSize: 'clamp(18px, 4vw, 20px)' }} />
+          <CloseIcon sx={{ fontSize: '18px' }} />
         </motion.button>
 
-        <div style={{ textAlign: 'center', marginBottom: '36px' }}>
+        <div style={{ textAlign: 'center', marginBottom: '28px' }}>
           <div style={{
-            width: '56px', height: '56px', borderRadius: '16px',
-            background: 'var(--gradient-primary)', margin: '0 auto 16px',
+            width: '52px', height: '52px', borderRadius: '16px',
+            background: 'var(--gradient-primary, linear-gradient(135deg, #fbbf24 0%, #d97706 100%))',
+            margin: '0 auto 12px',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: '24px', fontWeight: 800, color: 'white'
-          }}>F</div>
-          <h1 style={{ fontSize: '32px', fontWeight: 700, fontFamily: 'var(--font-display)', marginBottom: '8px' }}>Welcome Back</h1>
-          <p style={{ color: 'var(--text-muted)', fontSize: '15px' }}>
-            {loginMethod === 'password' ? 'Sign in to your account' : (otpSent ? 'Enter the code sent to your email' : 'Sign in with a one-time code')}
+            fontSize: '22px', fontWeight: 800, color: 'white',
+            boxShadow: '0 8px 20px rgba(255, 84, 0, 0.25)'
+          }}>P</div>
+          <h1 style={{ fontSize: 'clamp(22px, 4.5vw, 28px)', fontWeight: 800, fontFamily: 'var(--font-sans)', marginBottom: '6px', letterSpacing: '-0.02em' }}>
+            Welcome Back
+          </h1>
+          <p style={{ color: 'var(--text-muted, #64748b)', fontSize: 'clamp(13px, 2.5vw, 14px)', margin: 0 }}>
+            {loginMethod === 'password' ? 'Sign in to partner dashboard' : (otpSent ? 'Enter the code sent to your email' : 'Sign in with a one-time code')}
           </p>
         </div>
 
         {error && (
           <div style={{
-            padding: '12px 16px', borderRadius: 'var(--radius-md)',
-            background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)',
-            color: 'var(--error)', fontSize: '14px', marginBottom: '24px'
+            padding: '10px 14px', borderRadius: '12px',
+            background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)',
+            color: 'var(--error, #ef4444)', fontSize: '13px', fontWeight: 500, marginBottom: '18px'
           }}>
             {error}
           </div>
         )}
 
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div style={{ position: 'relative' }}>
-            <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-muted)', marginBottom: '8px', display: 'block' }}>Email Address</label>
+            <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-muted, #64748b)', marginBottom: '6px', display: 'block' }}>Email Address</label>
             <input
               type="email"
               value={email}
               onChange={e => setEmail(e.target.value)}
-              placeholder="name@company.com"
+              placeholder="partner@example.com"
               required
               disabled={otpSent}
               style={{
-                width: '100%', padding: '14px 18px', borderRadius: 'var(--radius-md)',
-                background: 'var(--bg-elevated)', border: '1px solid var(--border)',
-                color: 'var(--text-primary)', fontSize: '15px', outline: 'none',
-                transition: 'all 0.2s'
+                width: '100%', padding: '12px 16px', borderRadius: '12px',
+                background: 'var(--bg-elevated, #ffffff)', border: '1.5px solid var(--border, #e2e8f0)',
+                color: 'var(--text-primary, #0f172a)', fontSize: '14px', outline: 'none',
+                transition: 'all 0.2s', boxSizing: 'border-box'
               }}
-              onFocus={e => e.target.style.borderColor = 'var(--accent-light)'}
-              onBlur={e => e.target.style.borderColor = 'var(--border)'}
             />
           </div>
 
           <AnimatePresence mode="wait">
             {loginMethod === 'password' ? (
               <motion.div key="pw" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} style={{ position: 'relative' }}>
-                <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-muted)', marginBottom: '8px', display: 'block' }}>Password</label>
+                <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-muted, #64748b)', marginBottom: '6px', display: 'block' }}>Password</label>
                 <div style={{ position: 'relative' }}>
                   <input
                     type={showPw ? 'text' : 'password'}
                     value={password}
                     onChange={e => setPassword(e.target.value)}
-                    placeholder="••••••••"
+                    placeholder="Enter your password"
                     required
                     style={{
-                      width: '100%', padding: '14px 48px 14px 18px', borderRadius: 'var(--radius-md)',
-                      background: 'var(--bg-elevated)', border: '1px solid var(--border)',
-                      color: 'var(--text-primary)', fontSize: '15px', outline: 'none'
+                      width: '100%', padding: '12px 44px 12px 16px', borderRadius: '12px',
+                      background: 'var(--bg-elevated, #ffffff)', border: '1.5px solid var(--border, #e2e8f0)',
+                      color: 'var(--text-primary, #0f172a)', fontSize: '14px', outline: 'none',
+                      boxSizing: 'border-box'
                     }}
                   />
                   <button type="button" onClick={() => setShowPw(!showPw)}
+                    aria-label={showPw ? 'Hide password' : 'Show password'}
                     style={{
-                      position: 'absolute', right: '14px', top: '50%', transform: 'translateY(-50%)',
-                      background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer'
+                      position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)',
+                      background: 'transparent', border: 'none', color: 'var(--text-muted, #94a3b8)', cursor: 'pointer',
+                      display: 'flex', alignItems: 'center', padding: '4px'
                     }}>
-                    {showPw ? <VisibilityOffIcon sx={{ fontSize: '20px' }} /> : <VisibilityIcon sx={{ fontSize: '20px' }} />}
+                    {showPw ? <VisibilityOffIcon sx={{ fontSize: '18px' }} /> : <VisibilityIcon sx={{ fontSize: '18px' }} />}
                   </button>
                 </div>
               </motion.div>
             ) : otpSent && (
               <motion.div key="otp" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}>
-                <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-muted)', marginBottom: '8px', display: 'block' }}>Verification Code</label>
+                <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-muted, #64748b)', marginBottom: '6px', display: 'block' }}>Verification Code</label>
                 <input
                   type="text"
                   value={otp}
@@ -173,35 +181,39 @@ export default function Login() {
                   placeholder="6-digit OTP"
                   required
                   style={{
-                    width: '100%', padding: '14px 18px', borderRadius: 'var(--radius-md)',
-                    background: 'var(--bg-elevated)', border: '1px solid var(--border)',
-                    color: 'var(--text-primary)', fontSize: '18px', textAlign: 'center', letterSpacing: '4px', outline: 'none'
+                    width: '100%', padding: '12px 16px', borderRadius: '12px',
+                    background: 'var(--bg-elevated, #ffffff)', border: '1.5px solid var(--border, #e2e8f0)',
+                    color: 'var(--text-primary, #0f172a)', fontSize: '16px', textAlign: 'center', letterSpacing: '4px', outline: 'none',
+                    boxSizing: 'border-box'
                   }}
                 />
               </motion.div>
             )}
           </AnimatePresence>
 
-          <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} type="submit" disabled={loading}
+          <motion.button whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.98 }} type="submit" disabled={loading}
             style={{
-              width: '100%', padding: '16px', borderRadius: 'var(--radius-lg)',
-              background: 'var(--gradient-primary)', color: 'white',
-              fontSize: '16px', fontWeight: 700, marginTop: '8px',
-              opacity: loading ? 0.7 : 1, boxShadow: '0 4px 20px var(--accent-glow)'
+              width: '100%', padding: '14px 20px', borderRadius: '14px',
+              background: 'linear-gradient(135deg, #fbbf24 0%, #d97706 100%)', color: '#0a1128',
+              fontSize: '15px', fontWeight: 800, marginTop: '6px', border: 'none', cursor: loading ? 'not-allowed' : 'pointer',
+              opacity: loading ? 0.75 : 1, boxShadow: '0 6px 20px rgba(245, 158, 11, 0.4)'
             }}>
-            {loading ? 'Processing...' : (loginMethod === 'password' ? 'Sign In' : (otpSent ? 'Verify & Sign In' : 'Send Code'))}
+            {loading ? 'Processing...' : (loginMethod === 'password' ? 'Sign In to Partner App' : (otpSent ? 'Verify & Sign In' : 'Send One-Time Code'))}
           </motion.button>
         </form>
 
-        <div style={{ marginTop: '24px', textAlign: 'center' }}>
+        <div style={{ marginTop: '18px', textAlign: 'center' }}>
           <button onClick={() => { setLoginMethod(loginMethod === 'password' ? 'otp' : 'password'); setOtpSent(false); setError(''); }}
-            style={{ background: 'transparent', border: 'none', color: 'var(--accent-light)', fontSize: '14px', fontWeight: 600, cursor: 'pointer' }}>
-            {loginMethod === 'password' ? 'Use OTP Login' : 'Use Password Login'}
+            style={{ background: 'transparent', border: 'none', color: '#f59e0b', fontSize: '13px', fontWeight: 700, cursor: 'pointer' }}>
+            {loginMethod === 'password' ? 'Use OTP Login instead' : 'Use Password Login instead'}
           </button>
         </div>
 
-        <p style={{ textAlign: 'center', marginTop: '32px', fontSize: '14px', color: 'var(--text-muted)' }}>
-          Don't have an account? <Link to="/register" style={{ color: 'var(--accent-light)', fontWeight: 600 }}>Create account</Link>
+        <p style={{ textAlign: 'center', marginTop: '22px', marginBottom: 0, fontSize: '13px', color: 'var(--text-muted, #64748b)' }}>
+          Don't have a partner account?{' '}
+          <Link to="/register" style={{ color: '#f59e0b', fontWeight: 800, textDecoration: 'none' }}>
+            Join as Partner
+          </Link>
         </p>
       </motion.div>
     </div>

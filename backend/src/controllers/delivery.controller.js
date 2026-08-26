@@ -1,5 +1,7 @@
 import Order from '../models/Order.js';
 import User from '../models/User.js';
+import SupportTicket from '../models/SupportTicket.js';
+import DeliveryShift from '../models/DeliveryShift.js';
 
 const CASH_LIMIT = 2500; // ₹2500 COD cash limit
 
@@ -509,3 +511,83 @@ export const payToCompany = async (req, res) => {
     res.status(500).json({ error: 'Failed to process payment.' });
   }
 };
+
+// ===== Create Support Ticket =====
+export const createSupportTicket = async (req, res) => {
+  try {
+    const { category, issueDescription } = req.body;
+    if (!category || !issueDescription) {
+      return res.status(400).json({ error: 'Category and issue description are required.' });
+    }
+
+    const ticket = await SupportTicket.create({
+      partnerId: req.user._id,
+      partnerName: req.user.name || 'Partner',
+      partnerPhone: req.user.phone || '',
+      zone: req.user.deliveryProfile?.operatingZone || req.user.city || 'General Zone',
+      category,
+      issueDescription
+    });
+
+    res.status(201).json({ message: 'Support ticket submitted successfully.', ticket });
+  } catch (error) {
+    console.error('Create support ticket error:', error);
+    res.status(500).json({ error: 'Failed to submit support ticket' });
+  }
+};
+
+// ===== Get Partner Support Tickets =====
+export const getPartnerSupportTickets = async (req, res) => {
+  try {
+    const tickets = await SupportTicket.find({ partnerId: req.user._id }).sort({ createdAt: -1 });
+    res.json({ tickets });
+  } catch (error) {
+    console.error('Get support tickets error:', error);
+    res.status(500).json({ error: 'Failed to fetch tickets' });
+  }
+};
+
+// ===== Get Booked Shifts =====
+export const getBookedShifts = async (req, res) => {
+  try {
+    const targetDate = req.query.date || getLocalDateStr(new Date());
+    const shift = await DeliveryShift.findOne({
+      deliveryBoyId: req.user._id,
+      date: targetDate
+    });
+
+    res.json({
+      date: targetDate,
+      slotIds: shift ? shift.slotIds : []
+    });
+  } catch (error) {
+    console.error('Get booked shifts error:', error);
+    res.status(500).json({ error: 'Failed to fetch booked shifts' });
+  }
+};
+
+// ===== Save / Update Booked Shifts =====
+export const saveBookedShifts = async (req, res) => {
+  try {
+    const { date, slotIds } = req.body;
+    const targetDate = date || getLocalDateStr(new Date());
+    const validSlotIds = Array.isArray(slotIds) ? slotIds : [];
+
+    const shift = await DeliveryShift.findOneAndUpdate(
+      { deliveryBoyId: req.user._id, date: targetDate },
+      { slotIds: validSlotIds },
+      { upsert: true, new: true, setDefaultsOnInsert: true }
+    );
+
+    res.json({
+      success: true,
+      message: 'Booked shifts saved successfully.',
+      date: targetDate,
+      slotIds: shift.slotIds
+    });
+  } catch (error) {
+    console.error('Save booked shifts error:', error);
+    res.status(500).json({ error: 'Failed to save booked shifts' });
+  }
+};
+

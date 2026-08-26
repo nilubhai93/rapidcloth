@@ -352,9 +352,9 @@ export default function DeliveryEmergency() {
                             width: '38px',
                             height: '38px',
                             borderRadius: '50%',
-                            backgroundColor: '#fff7ed',
+                            backgroundColor: 'rgba(245, 158, 11, 0.12)',
                             border: 'none',
-                            color: '#ea580c',
+                            color: '#f59e0b',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
@@ -520,11 +520,11 @@ export default function DeliveryEmergency() {
                       width: '42px',
                       height: '42px',
                       borderRadius: '50%',
-                      backgroundColor: '#fff7ed',
+                      backgroundColor: 'rgba(245, 158, 11, 0.12)',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      color: '#ea580c'
+                      color: '#f59e0b'
                     }}>
                       <AddIcon sx={{ fontSize: '24px' }} />
                     </div>
@@ -561,11 +561,11 @@ export default function DeliveryEmergency() {
                       width: '42px',
                       height: '42px',
                       borderRadius: '50%',
-                      backgroundColor: '#fff7ed',
+                      backgroundColor: 'rgba(245, 158, 11, 0.12)',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      color: '#ea580c'
+                      color: '#f59e0b'
                     }}>
                       <LocalHospitalOutlinedIcon sx={{ fontSize: '24px' }} />
                     </div>
@@ -600,7 +600,7 @@ export default function DeliveryEmergency() {
                   height: '140px',
                   borderRadius: '20px',
                   background: 'linear-gradient(135deg, #dbeafe 0%, #93c5fd 100%)',
-                  border: '2px solid #ea580c',
+                  border: '2px solid #f59e0b',
                   padding: '12px',
                   display: 'flex',
                   flexDirection: 'column',
@@ -612,7 +612,7 @@ export default function DeliveryEmergency() {
                 }}
                 onClick={() => alert('▶ Playing Insurance Guide Video...')}
                 >
-                  <div style={{ fontSize: '11px', fontWeight: 900, color: '#ea580c', textTransform: 'uppercase', lineHeight: 1.2 }}>
+                  <div style={{ fontSize: '11px', fontWeight: 900, color: '#f59e0b', textTransform: 'uppercase', lineHeight: 1.2 }}>
                     INSURANCE<br />GUIDE
                   </div>
                   <div style={{ textAlign: 'center' }}>
@@ -629,7 +629,7 @@ export default function DeliveryEmergency() {
                   height: '140px',
                   borderRadius: '20px',
                   background: 'linear-gradient(135deg, #ccfbf1 0%, #5eead4 100%)',
-                  border: '2px solid #ea580c',
+                  border: '2px solid #f59e0b',
                   padding: '12px',
                   display: 'flex',
                   flexDirection: 'column',
@@ -657,8 +657,8 @@ export default function DeliveryEmergency() {
                   minWidth: '130px',
                   height: '140px',
                   borderRadius: '20px',
-                  background: 'linear-gradient(135deg, #ffedd5 0%, #fdba74 100%)',
-                  border: '2px solid #ea580c',
+                  background: 'rgba(245, 158, 11, 0.15)',
+                  border: '2px solid #f59e0b',
                   padding: '12px',
                   display: 'flex',
                   flexDirection: 'column',
@@ -670,7 +670,7 @@ export default function DeliveryEmergency() {
                 }}
                 onClick={() => alert('▶ Playing Add Nominee Guide Video...')}
                 >
-                  <div style={{ fontSize: '11px', fontWeight: 900, color: '#c2410c', textTransform: 'uppercase', lineHeight: 1.2 }}>
+                  <div style={{ fontSize: '11px', fontWeight: 900, color: '#f59e0b', textTransform: 'uppercase', lineHeight: 1.2 }}>
                     ADD INSURANCE<br />NOMINEE
                   </div>
                   <div style={{ textAlign: 'center' }}>
@@ -896,11 +896,11 @@ export default function DeliveryEmergency() {
                   width: '32px',
                   height: '32px',
                   borderRadius: '50%',
-                  backgroundColor: '#fff7ed',
+                  backgroundColor: 'rgba(245, 158, 11, 0.15)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  color: '#ea580c'
+                  color: '#f59e0b'
                 }}>
                   <PhoneInTalkIcon sx={{ fontSize: '18px' }} />
                 </div>
@@ -1030,11 +1030,11 @@ export default function DeliveryEmergency() {
                   width: '28px',
                   height: '28px',
                   borderRadius: '50%',
-                  backgroundColor: '#fff7ed',
+                  backgroundColor: 'rgba(245, 158, 11, 0.15)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  color: '#ea580c'
+                  color: '#f59e0b'
                 }}>
                   <ChevronRightIcon sx={{ fontSize: '20px' }} />
                 </div>
@@ -1072,11 +1072,11 @@ export default function DeliveryEmergency() {
                   width: '28px',
                   height: '28px',
                   borderRadius: '50%',
-                  backgroundColor: '#fff7ed',
+                  backgroundColor: 'rgba(245, 158, 11, 0.15)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  color: '#ea580c'
+                  color: '#f59e0b'
                 }}>
                   <ChevronRightIcon sx={{ fontSize: '20px' }} />
                 </div>
@@ -1222,13 +1222,13 @@ export default function DeliveryEmergency() {
                     marginTop: '10px',
                     padding: '14px',
                     borderRadius: '14px',
-                    backgroundColor: '#ea580c',
-                    color: '#ffffff',
-                    fontWeight: 800,
+                    background: 'linear-gradient(135deg, #fbbf24 0%, #d97706 100%)',
+                    color: '#0a1128',
+                    fontWeight: 900,
                     border: 'none',
                     fontSize: '15px',
                     cursor: 'pointer',
-                    boxShadow: '0 4px 15px rgba(234, 88, 12, 0.3)'
+                    boxShadow: '0 4px 15px rgba(245, 158, 11, 0.4)'
                   }}
                 >
                   Save Nominee Details
@@ -1294,7 +1294,7 @@ export default function DeliveryEmergency() {
               </button>
 
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-                <LocalHospitalOutlinedIcon sx={{ fontSize: '32px', color: '#ea580c' }} />
+                <LocalHospitalOutlinedIcon sx={{ fontSize: '32px', color: '#f59e0b' }} />
                 <div style={{ textAlign: 'left' }}>
                   <h3 style={{ fontSize: '18px', fontWeight: 800, color: '#0f172a', margin: 0 }}>
                     12,000+ Cashless Hospitals
