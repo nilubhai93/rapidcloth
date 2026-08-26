@@ -68,7 +68,10 @@ const ProductCard = memo(function ProductCard({ product, index = 0, showButtons 
   const qtyInCart = cartItem ? cartItem.quantity : 0;
 
   return (
-    <motion.div
+    <>
+      {/* DESKTOP VIEW */}
+      <motion.div
+        className="max-md:hidden"
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.05, duration: 0.4 }}
@@ -302,7 +305,80 @@ const ProductCard = memo(function ProductCard({ product, index = 0, showButtons 
           </motion.div>
         )}
       </AnimatePresence>
-    </motion.div>
+      </motion.div>
+
+      {/* MOBILE VIEW */}
+      <motion.div
+        className="md:hidden flex flex-col relative overflow-hidden"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: index * 0.05, duration: 0.3 }}
+        style={{
+          backgroundColor: index % 2 === 0 ? '#fedcc5' : '#ffffff',
+          borderRadius: '16px',
+          padding: '8px',
+          height: '100%',
+          boxShadow: index % 2 !== 0 ? '0 2px 8px rgba(0,0,0,0.04)' : 'none'
+        }}
+      >
+        <Link to={linkTo || `/products/${product._id}`} style={{ textDecoration: 'none', color: 'inherit', flexGrow: 1, display: 'flex', flexDirection: 'column' }}>
+          <div style={{ position: 'relative', aspectRatio: '3/4', overflow: 'hidden', borderRadius: '12px', marginBottom: '10px' }}>
+            <img
+              src={product.images?.[0] || 'https://placehold.co/300x400/1a1a25/9a9ab0?text=No+Image'}
+              alt={product.name}
+              loading='eager'
+              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+            />
+          </div>
+          
+          <div style={{ display: 'flex', flexDirection: 'column', flexGrow: 1, padding: '0 4px' }}>
+            <h3 style={{
+              fontSize: '13px', fontWeight: 600, color: '#111',
+              fontFamily: 'var(--font-sans)',
+              lineHeight: 1.3, marginBottom: '6px',
+              display: '-webkit-box', WebkitLineClamp: 1, WebkitBoxOrient: 'vertical',
+              overflow: 'hidden'
+            }}>{product.name}</h3>
+
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+              <span style={{ fontSize: '14px', fontWeight: 700, color: '#111' }}>
+                ₹{(product.isAvailableForRent ? product.rentPricePerDay : price).toLocaleString()}
+              </span>
+              
+              {product.reviewCount > 0 && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '2px', fontSize: '10px', color: '#e09b76' }}>
+                  {'★'.repeat(Math.round(product.rating || 5))}
+                </div>
+              )}
+            </div>
+          </div>
+        </Link>
+        
+        <div style={{ padding: '0 4px 4px 4px', marginTop: 'auto' }}>
+          <button
+            onClick={handleAddToCart}
+            disabled={adding}
+            style={{
+              width: '100%',
+              padding: '8px',
+              borderRadius: '999px',
+              backgroundColor: adding ? '#22c55e' : '#bfd3f3',
+              color: adding ? 'white' : '#1a2c4e',
+              fontSize: '13px',
+              fontWeight: 700,
+              border: 'none',
+              cursor: adding ? 'not-allowed' : 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              transition: 'all 0.2s ease'
+            }}
+          >
+            {adding ? 'Added' : 'Add to Bag'}
+          </button>
+        </div>
+      </motion.div>
+    </>
   );
 });
 

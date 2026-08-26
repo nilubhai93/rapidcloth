@@ -427,40 +427,43 @@ export default function Products() {
 
       {/* 5. PICTURE 1: CATEGORIES CHIPS BAR (RENDERED DIRECTLY AFTER PICTURE 2 RECOMMENDATIONS) */}
       <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: '6px',
-        overflowX: 'auto',
-        whiteSpace: 'nowrap',
-        paddingBottom: '10px',
-        marginTop: '16px',
-        marginBottom: '16px',
-        scrollbarWidth: 'none',
-        msOverflowStyle: 'none',
-        WebkitOverflowScrolling: 'touch'
+        margin: '16px 16px', // Inset margins so lines aren't full width
+        padding: '12px 0',
+        borderTop: '1px solid #e2e8f0',
+        borderBottom: '1px solid #e2e8f0'
       }}>
-
-        {categories.map(cat => {
-          const isActive = (filters.category || '').toLowerCase() === cat.id || (cat.id === 'saree' && (filters.search || '').toLowerCase().includes('saree'));
-          return (
-            <button
-              key={`after-pic2-cat-${cat.id}`}
-              onClick={() => updateFilter('category', cat.id)}
-              style={{
-                padding: '6px 14px', borderRadius: '18px',
-                background: isActive ? '#14327a' : '#ffffff',
-                color: isActive ? '#ffffff' : '#475569',
-                border: `1.5px solid ${isActive ? '#14327a' : '#cbd5e1'}`,
-                fontSize: '12px', fontWeight: isActive ? 800 : 600,
-                cursor: 'pointer', flexShrink: 0,
-                boxShadow: isActive ? '0 2px 8px rgba(20,50,122,0.25)' : 'none',
-                transition: 'all 0.15s'
-              }}
-            >
-              {cat.label}
-            </button>
-          );
-        })}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '6px',
+          overflowX: 'auto',
+          whiteSpace: 'nowrap',
+          scrollbarWidth: 'none',
+          msOverflowStyle: 'none',
+          WebkitOverflowScrolling: 'touch'
+        }}>
+          {categories.map(cat => {
+            const isActive = (filters.category || '').toLowerCase() === cat.id || (cat.id === 'saree' && (filters.search || '').toLowerCase().includes('saree'));
+            return (
+              <button
+                key={`after-pic2-cat-${cat.id}`}
+                onClick={() => updateFilter('category', cat.id)}
+                style={{
+                  padding: '6px 14px', borderRadius: '18px',
+                  background: isActive ? '#14327a' : '#ffffff',
+                  color: isActive ? '#ffffff' : '#475569',
+                  border: `1.5px solid ${isActive ? '#14327a' : '#cbd5e1'}`,
+                  fontSize: '12px', fontWeight: isActive ? 800 : 600,
+                  cursor: 'pointer', flexShrink: 0,
+                  boxShadow: isActive ? '0 2px 8px rgba(20,50,122,0.25)' : 'none',
+                  transition: 'all 0.15s'
+                }}
+              >
+                {cat.label}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {/* 6. CATEGORY FILTERED PRODUCTS DISPLAY SECTION (PRODUCTS AFTER CLICKING ANY CATEGORY) */}

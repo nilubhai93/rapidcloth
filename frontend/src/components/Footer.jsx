@@ -175,7 +175,7 @@ export default function Footer() {
                       )}
                     </div>
 
-                    <span 
+                    <span
                       className={`text-[10px] mt-[4px] tracking-[0.3px] ${active ? 'font-bold text-[#1e3656] max-md:text-white' : 'font-medium text-[#1e3656]/60 max-md:text-[rgba(255,255,255,0.6)]'}`}
                     >
                       {tab.label}
