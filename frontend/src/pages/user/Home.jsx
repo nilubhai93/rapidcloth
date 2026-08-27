@@ -234,6 +234,15 @@ export default function Home() {
   const [totalProducts, setTotalProducts] = useState(0);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [mainHeroIndex, setMainHeroIndex] = useState(0);
+
+  useEffect(() => {
+    const mainHeroTimer = setInterval(() => {
+      if (document.hidden) return;
+      setMainHeroIndex(prev => (prev === 0 ? 1 : 0));
+    }, 5000);
+    return () => clearInterval(mainHeroTimer);
+  }, []);
 
   // Automatic Single Banner Carousel state with bidirectional infinite loop
   const N = singleDressSlides.length;
@@ -551,11 +560,170 @@ export default function Home() {
       fontFamily: 'var(--font-sans)',
       minHeight: '100vh',
       paddingBottom: '40px',
-      paddingTop: '24px'
+      paddingTop: '0px'
     }}>
 
+      {/* ═══ Main Hero Banner Carousel ═══ */}
+      <div style={{ padding: '24px 0 0', backgroundColor: 'var(--bg-primary)' }}>
+        <div className="container" style={{
+          maxWidth: '1440px',
+          margin: '0 auto',
+          padding: '0 24px',
+        }}>
+          <div style={{
+            display: 'grid',
+            width: '100%',
+            minHeight: '400px',
+            borderRadius: '16px',
+            overflow: 'hidden',
+            boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
+          }}>
+            
+            {/* Red Summer Sale Banner */}
+            <div style={{
+              gridArea: '1/1',
+              display: 'flex', flexWrap: 'wrap',
+              background: 'linear-gradient(135deg, #B90039 0%, #E81A5D 100%)',
+              opacity: mainHeroIndex === 0 ? 1 : 0,
+              pointerEvents: mainHeroIndex === 0 ? 'auto' : 'none',
+              transition: 'opacity 0.8s ease-in-out',
+              zIndex: mainHeroIndex === 0 ? 2 : 1,
+              position: 'relative'
+            }}>
+              {/* Background curvy shapes */}
+              <div style={{
+                position: 'absolute', top: '-50%', right: '-10%', width: '60%', height: '200%',
+                background: 'radial-gradient(ellipse at center, rgba(168, 12, 45, 0.8) 0%, transparent 70%)',
+                transform: 'rotate(-20deg)',
+                pointerEvents: 'none', zIndex: 1
+              }} />
+              <div style={{
+                position: 'absolute', bottom: '-40%', left: '30%', width: '50%', height: '150%',
+                background: 'radial-gradient(ellipse at center, rgba(133, 4, 30, 0.9) 0%, transparent 60%)',
+                transform: 'rotate(30deg)',
+                pointerEvents: 'none', zIndex: 1
+              }} />
+              
+              {/* Left Image Section */}
+              <div style={{
+                flex: '1 1 50%', minWidth: '300px', position: 'relative', zIndex: 2
+              }}>
+                 <img src="/images/summer_sale_model.jpg" alt="Summer Sale Model" style={{
+                   width: '100%', height: '100%', minHeight: '400px', objectFit: 'cover', objectPosition: 'top center'
+                 }} />
+                 <div style={{
+                   position: 'absolute', top: 0, right: 0, bottom: 0, width: '120px',
+                   background: 'linear-gradient(to right, transparent, rgba(185, 0, 57, 1))',
+                 }}></div>
+              </div>
+
+              {/* Right Text Section */}
+              <div style={{
+                flex: '1 1 50%', minWidth: '300px', display: 'flex', flexDirection: 'column',
+                justifyContent: 'center', alignItems: 'center', textAlign: 'center',
+                padding: '40px 20px', color: '#ffffff', zIndex: 2
+              }}>
+                <div style={{ position: 'relative' }}>
+                  <h3 style={{ fontSize: '24px', letterSpacing: '6px', textTransform: 'uppercase', fontWeight: 800, marginBottom: '0px', color: '#1a1a1a', position: 'relative', zIndex: 1 }}>Summer</h3>
+                  <h1 style={{ fontSize: '96px', fontWeight: 800, lineHeight: '0.9', margin: '0', textShadow: '2px 2px 4px rgba(0,0,0,0.2)', letterSpacing: '2px', position: 'relative', zIndex: 1 }}>SALE</h1>
+                  <div style={{ fontFamily: '"Dancing Script", "Brush Script MT", cursive', fontSize: '64px', marginTop: '-30px', marginBottom: '20px', color: '#1a1a1a', transform: 'rotate(-5deg)', position: 'relative', zIndex: 1 }}>Fashion</div>
+                </div>
+                
+                <p style={{ fontSize: '24px', fontWeight: 700, marginBottom: '32px' }}>Up to 50% off</p>
+                
+                <button style={{
+                  backgroundColor: '#000000', color: '#ffffff', border: 'none', padding: '16px 48px',
+                  borderRadius: '30px', fontSize: '18px', fontWeight: 700, cursor: 'pointer',
+                  boxShadow: '0 4px 15px rgba(0,0,0,0.4)', transition: 'transform 0.2s, background 0.2s'
+                }}
+                onMouseOver={(e) => { e.currentTarget.style.transform = 'scale(1.05)'; e.currentTarget.style.backgroundColor = '#222'; }}
+                onMouseOut={(e) => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.backgroundColor = '#000'; }}
+                onClick={() => navigate('/products')}
+                >
+                  SHOP NOW
+                </button>
+                <p style={{ marginTop: '30px', fontSize: '14px', letterSpacing: '2px', opacity: 0.9 }}>www.summerspecial.com</p>
+              </div>
+            </div>
+
+            {/* Yellow Season Sale Banner */}
+            <div style={{
+              gridArea: '1/1',
+              display: 'flex', flexWrap: 'wrap',
+              background: '#f9d22d',
+              opacity: mainHeroIndex === 1 ? 1 : 0,
+              pointerEvents: mainHeroIndex === 1 ? 'auto' : 'none',
+              transition: 'opacity 0.8s ease-in-out',
+              zIndex: mainHeroIndex === 1 ? 2 : 1,
+              position: 'relative'
+            }}>
+              {/* The Black Border */}
+              <div style={{
+                position: 'absolute', inset: '24px', border: '8px solid #111',
+                zIndex: 1, pointerEvents: 'none'
+              }} className="max-md:inset-[12px] max-md:border-[4px]"></div>
+
+              {/* Left side text */}
+              <div style={{
+                flex: '1 1 30%', minWidth: '250px', display: 'flex', flexDirection: 'column',
+                justifyContent: 'center', alignItems: 'center', zIndex: 2, padding: '40px 20px'
+              }}>
+                <div style={{ textAlign: 'left', lineHeight: '1', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <div style={{ fontSize: '56px', fontWeight: 900, color: '#111', letterSpacing: '2px', transform: 'scaleY(1.1)' }}>BEST</div>
+                  <div style={{ fontSize: '64px', fontWeight: 900, color: '#fff', textShadow: '4px 4px 0px rgba(0,0,0,0.15)', letterSpacing: '2px', transform: 'scaleY(1.1)' }}>SEASON</div>
+                  <div style={{ fontSize: '56px', fontWeight: 900, color: '#111', letterSpacing: '2px', transform: 'scaleY(1.1)' }}>SALE</div>
+                </div>
+              </div>
+
+              {/* Center image */}
+              <div style={{
+                flex: '1 1 40%', minWidth: '250px', position: 'relative', zIndex: 3,
+                display: 'flex', justifyContent: 'center', alignItems: 'flex-end',
+              }}>
+                 <img src="/images/yellow_sale_model.jpg" alt="Yellow Sale Model" style={{
+                   height: '100%', width: '100%', minHeight: '400px', objectFit: 'cover', objectPosition: 'center',
+                 }} />
+                 <div style={{ position: 'absolute', top: 0, bottom: 0, left: 0, width: '40px', background: 'linear-gradient(to right, #f9d22d, transparent)' }} />
+                 <div style={{ position: 'absolute', top: 0, bottom: 0, right: 0, width: '40px', background: 'linear-gradient(to left, #f9d22d, transparent)' }} />
+              </div>
+
+              {/* Right side text */}
+              <div style={{
+                flex: '1 1 30%', minWidth: '250px', display: 'flex', flexDirection: 'column',
+                justifyContent: 'center', alignItems: 'center', zIndex: 2, padding: '40px 20px'
+              }}>
+                 <div style={{ fontSize: '18px', fontWeight: 700, color: '#b45309', marginBottom: '16px', letterSpacing: '1px' }}>ONLY THIS WEEK</div>
+                 <div style={{ fontSize: '24px', fontWeight: 800, color: '#111' }}>UPTO</div>
+                 <div style={{ fontSize: '84px', fontWeight: 900, color: '#111', lineHeight: '1', transform: 'scaleY(1.1)', margin: '8px 0' }}>75%</div>
+                 <div style={{ fontSize: '24px', fontWeight: 800, color: '#111', marginBottom: '24px' }}>DISCOUNT</div>
+                 <button style={{
+                    backgroundColor: '#d97706', color: '#fff', border: 'none', padding: '14px 40px',
+                    fontSize: '18px', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s',
+                    boxShadow: '0 4px 15px rgba(217, 119, 6, 0.4)'
+                 }}
+                 onMouseOver={(e) => { e.currentTarget.style.backgroundColor = '#b45309'; e.currentTarget.style.transform = 'scale(1.05)' }}
+                 onMouseOut={(e) => { e.currentTarget.style.backgroundColor = '#d97706'; e.currentTarget.style.transform = 'scale(1)' }}
+                 onClick={() => navigate('/products')}
+                 >
+                   Shop Now
+                 </button>
+              </div>
+            </div>
+
+            {/* Carousel Dots */}
+            <div style={{
+              gridArea: '1/1', alignSelf: 'end',
+              display: 'flex', justifyContent: 'center', gap: '8px', zIndex: 10, paddingBottom: '20px'
+            }}>
+              <button onClick={() => setMainHeroIndex(0)} style={{ width: mainHeroIndex===0 ? '24px' : '12px', height: '12px', borderRadius: '6px', background: mainHeroIndex===0 ? '#fff' : 'rgba(255,255,255,0.5)', border: 'none', cursor: 'pointer', transition: 'all 0.3s', boxShadow: '0 2px 4px rgba(0,0,0,0.2)' }} aria-label="Go to slide 1"></button>
+              <button onClick={() => setMainHeroIndex(1)} style={{ width: mainHeroIndex===1 ? '24px' : '12px', height: '12px', borderRadius: '6px', background: mainHeroIndex===1 ? '#fff' : 'rgba(255,255,255,0.5)', border: 'none', cursor: 'pointer', transition: 'all 0.3s', boxShadow: '0 2px 4px rgba(0,0,0,0.2)' }} aria-label="Go to slide 2"></button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* ═══ Multi-Banner Slider (Rendered Direct on Root Page) ═══ */}
-      <div className="fk-hero-container">
+      <div className="fk-hero-container" style={{ marginTop: '24px' }}>
         <button
           className="fk-nav-btn fk-nav-prev"
           onClick={prevBanner}
@@ -576,31 +744,69 @@ export default function Home() {
               key={`${slide.id}-${idx}`}
               className="fk-card"
               onClick={() => navigate(slide.link)}
-              style={{ background: slide.bgGradient }}
+              style={{ background: slide.bgGradient, position: 'relative', overflow: 'hidden', display: 'flex', alignItems: 'center' }}
             >
+              {/* Premium 3D Background Decorative Shapes */}
               <div style={{
-                position: 'absolute', inset: 0,
-                backgroundImage: 'repeating-linear-gradient(-45deg, rgba(255,255,255,0.04), rgba(255,255,255,0.04) 20px, transparent 20px, transparent 40px)',
-                pointerEvents: 'none', zIndex: 1
+                position: 'absolute', top: '-15%', left: '-10%', width: '180px', height: '180px',
+                border: '20px solid rgba(255,255,255,0.12)', transform: 'rotate(45deg)', zIndex: 1,
+                boxShadow: 'inset 5px 5px 15px rgba(0,0,0,0.05), 5px 5px 15px rgba(0,0,0,0.05)'
               }} />
+              <div style={{
+                position: 'absolute', bottom: '-15%', right: '35%', width: '120px', height: '120px',
+                background: 'rgba(255,255,255,0.08)', transform: 'rotate(45deg)', zIndex: 1,
+                boxShadow: '10px 10px 25px rgba(0,0,0,0.1)'
+              }} />
+              <div style={{
+                position: 'absolute', top: '15%', left: '45%', width: '60px', height: '60px',
+                background: 'rgba(255,255,255,0.15)', transform: 'rotate(45deg)', zIndex: 1,
+                boxShadow: '5px 5px 15px rgba(0,0,0,0.08)'
+              }} />
+              
+              {/* Large Floating Percentage Sign */}
+              <div style={{
+                position: 'absolute', top: '5%', right: '30%', fontSize: '200px', fontWeight: 900,
+                color: 'rgba(255,255,255,0.15)', lineHeight: 1, zIndex: 1, pointerEvents: 'none',
+                fontFamily: 'serif'
+              }}>%</div>
+
+              {/* Thin Inner Border Box */}
+              <div style={{
+                position: 'absolute', inset: '16px 40% 16px 16px',
+                border: '1px solid rgba(255,255,255,0.4)',
+                pointerEvents: 'none', zIndex: 2
+              }} className="max-md:inset-[10px_30%_10px_10px]" />
 
               {/* Card Content Left Side */}
-              <div className="fk-card-content">
-                <div className="fk-card-tags">
-                  <span className="fk-tag-brand">{slide.brandTag}</span>
-                  <span className="fk-tag-partner">{slide.partnerTag}</span>
+              <div className="fk-card-content" style={{ zIndex: 3, padding: '24px', flex: '1 1 60%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+                <div className="fk-card-tags" style={{ justifyContent: 'center', marginBottom: '12px' }}>
+                  {slide.brandTag && <span className="fk-tag-brand" style={{ background: 'none', color: '#fff', fontSize: '11px', letterSpacing: '2px', textTransform: 'uppercase', textShadow: '1px 1px 2px rgba(0,0,0,0.1)' }}>{slide.brandTag}</span>}
+                  {slide.partnerTag && <span className="fk-tag-partner" style={{ background: 'none', color: '#fff', fontSize: '11px', letterSpacing: '2px', padding: 0, textTransform: 'uppercase', textShadow: '1px 1px 2px rgba(0,0,0,0.1)' }}>{slide.partnerTag}</span>}
                 </div>
-                <h2 className="fk-card-title">{slide.title}</h2>
-                <p className="fk-card-subtitle">{slide.subtitle}</p>
-                <p className="fk-card-desc">{slide.desc}</p>
-                <button className="fk-card-cta" onClick={(e) => { e.stopPropagation(); navigate(slide.link); }}>
-                  {slide.ctaText}
-                </button>
+                
+                <div style={{ textAlign: 'center', width: '100%' }}>
+                  <h2 className="fk-card-title" style={{ fontSize: 'clamp(28px, 4vw, 42px)', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '2px', color: '#fff', textShadow: '2px 2px 8px rgba(0,0,0,0.15)', margin: '0' }}>{slide.title}</h2>
+                  <p className="fk-card-subtitle" style={{ fontSize: 'clamp(14px, 1.5vw, 18px)', fontWeight: 700, letterSpacing: '1px', marginTop: '12px', color: '#fff', textShadow: '1px 1px 4px rgba(0,0,0,0.1)' }}>{slide.subtitle || 'UP TO 50% OFF'}</p>
+                  <p className="fk-card-desc" style={{ fontSize: 'clamp(10px, 1vw, 12px)', opacity: 0.9, letterSpacing: '0.5px', marginTop: '4px', textTransform: 'uppercase' }}>{slide.desc}</p>
+                  
+                  {slide.ctaText && (
+                    <button className="fk-card-cta" onClick={(e) => { e.stopPropagation(); navigate(slide.link); }} style={{
+                      marginTop: '16px', background: 'transparent', color: '#fff', border: '2px solid #fff',
+                      borderRadius: '0', textTransform: 'uppercase', letterSpacing: '1px', padding: '8px 24px',
+                      fontWeight: 700, transition: 'all 0.3s'
+                    }}
+                    onMouseOver={(e) => { e.currentTarget.style.backgroundColor = '#fff'; e.currentTarget.style.color = slide.bgGradient.includes('linear') ? '#B90039' : '#e87272'; }}
+                    onMouseOut={(e) => { e.currentTarget.style.backgroundColor = 'transparent'; e.currentTarget.style.color = '#fff'; }}
+                    >
+                      {slide.ctaText}
+                    </button>
+                  )}
+                </div>
               </div>
 
               {/* Card Image Right Side */}
-              <div className="fk-card-img">
-                <img src={slide.image} alt={slide.title} loading="lazy" />
+              <div className="fk-card-img" style={{ zIndex: 3, flex: '1 1 40%', position: 'relative', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'flex-end', padding: 0 }}>
+                <img src={slide.image} alt={slide.title} loading="lazy" style={{ height: '110%', width: 'auto', objectFit: 'contain', objectPosition: 'bottom center', transform: 'translateY(10%)', filter: 'drop-shadow(-5px 5px 15px rgba(0,0,0,0.2))' }} />
               </div>
             </div>
           ))}
@@ -1668,7 +1874,7 @@ export default function Home() {
             </div>
             <div className="product-grid">
               {deals.slice(0, 4).map((p, i) => (
-                <ProductCard key={p._id} product={p} index={i} linkTo="/products" />
+                <ProductCard key={p._id} product={p} index={i} linkTo="/products" hideAddToCart={true} />
               ))}
             </div>
           </div>
