@@ -34,6 +34,7 @@ import uploadRoutes from './routes/upload.routes.js';
 import path from 'path';
 import Order from './models/Order.js';
 import { assignDriverToOrder } from './controllers/delivery.controller.js';
+import { setupSwagger } from './swagger/swagger.js';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -93,6 +94,7 @@ if (process.env.NODE_ENV === 'development') {
 }
 
 // Routes
+setupSwagger(app);
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/ai', aiRoutes);

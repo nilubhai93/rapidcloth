@@ -1,0 +1,16 @@
+components:
+  parameters:
+    pageParam:
+      in: query
+      name: page
+      schema:
+        type: integer
+        default: 1
+      description: Page number for pagination
+    limitParam:
+      in: query
+      name: limit
+      schema:
+        type: integer
+        default: 10
+      description: Number of items per page
