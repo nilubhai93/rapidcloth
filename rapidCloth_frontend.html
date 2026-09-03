@@ -1,0 +1,2053 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RapidCloth Frontend - System Architecture, Multi-App Dataflow & Edge Cases</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-base: #0a0d14;
+      --bg-surface: #101624;
+      --bg-elevated: #161f33;
+      --bg-card: #141c2e;
+      --bg-card-hover: #1b263e;
+      --border-subtle: #1e293b;
+      --border-light: rgba(255, 255, 255, 0.08);
+      --border-focus: #6366f1;
+      
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      
+      --accent-brand: #6366f1;
+      --accent-cyan: #06b6d4;
+      --accent-emerald: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-rose: #f43f5e;
+      --accent-violet: #8b5cf6;
+      --accent-indigo: #4f46e5;
+      
+      --code-bg: #07090e;
+      --code-text: #e2e8f0;
+      
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 16px;
+      --radius-xl: 20px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-base);
+      color: var(--text-primary);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    code, pre, .font-mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    h1, h2, h3, h4, .font-heading {
+      font-family: 'Outfit', sans-serif;
+      letter-spacing: -0.02em;
+    }
+
+    ::-webkit-scrollbar {
+      width: 7px;
+      height: 7px;
+    }
+    ::-webkit-scrollbar-track {
+      background: var(--bg-base);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #27354f;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #384b70;
+    }
+
+    /* Layout structure */
+    .app-container {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* Header */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(10, 13, 20, 0.85);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 0.85rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.5rem;
+    }
+
+    .brand-section {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .brand-logo {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #06b6d4, #6366f1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 1.25rem;
+      color: white;
+      box-shadow: 0 4px 20px rgba(6, 182, 212, 0.35);
+    }
+
+    .brand-title {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .brand-badge {
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 20px;
+      background: rgba(6, 182, 212, 0.15);
+      color: #67e8f9;
+      border: 1px solid rgba(6, 182, 212, 0.3);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .search-box {
+      position: relative;
+      width: 290px;
+    }
+
+    .search-box input {
+      width: 100%;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      padding: 0.5rem 0.85rem 0.5rem 2.2rem;
+      border-radius: var(--radius-md);
+      color: var(--text-primary);
+      font-size: 0.85rem;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    .search-box input:focus {
+      border-color: var(--accent-cyan);
+      box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.2);
+    }
+
+    .search-box svg {
+      position: absolute;
+      left: 0.75rem;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 15px;
+      height: 15px;
+      fill: var(--text-muted);
+    }
+
+    .filter-tabs {
+      display: flex;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 3px;
+      gap: 2px;
+    }
+
+    .filter-tab-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 0.76rem;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .filter-tab-btn:hover {
+      color: #ffffff;
+    }
+
+    .filter-tab-btn.active {
+      background: var(--accent-brand);
+      color: #ffffff;
+      box-shadow: 0 2px 8px rgba(99, 102, 241, 0.35);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.45rem;
+      padding: 0.45rem 0.95rem;
+      border-radius: var(--radius-md);
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: none;
+      text-decoration: none;
+    }
+
+    .btn-cyan {
+      background: linear-gradient(135deg, #06b6d4, #0284c7);
+      color: white;
+      box-shadow: 0 2px 10px rgba(6, 182, 212, 0.25);
+    }
+    .btn-cyan:hover {
+      box-shadow: 0 4px 16px rgba(6, 182, 212, 0.45);
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background: var(--bg-elevated);
+      color: var(--text-secondary);
+      border: 1px solid var(--border-subtle);
+    }
+    .btn-secondary:hover {
+      color: var(--text-primary);
+      border-color: #334155;
+      background: var(--bg-card-hover);
+    }
+
+    /* Main Container Grid */
+    .main-layout {
+      display: flex;
+      flex: 1;
+      height: calc(100vh - 65px);
+    }
+
+    /* Sidebar Navigation */
+    .sidebar {
+      width: 320px;
+      min-width: 320px;
+      background: var(--bg-surface);
+      border-right: 1px solid var(--border-subtle);
+      overflow-y: auto;
+      padding: 1.5rem 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .sidebar-section-title {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 0.5rem;
+      padding-left: 0.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .nav-item a {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.5rem 0.75rem;
+      border-radius: var(--radius-md);
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.84rem;
+      font-weight: 500;
+      transition: all 0.15s ease;
+    }
+
+    .nav-item a:hover {
+      background: var(--bg-elevated);
+      color: var(--text-primary);
+    }
+
+    .nav-item.active a {
+      background: rgba(6, 182, 212, 0.12);
+      color: #67e8f9;
+      border: 1px solid rgba(6, 182, 212, 0.25);
+      font-weight: 600;
+    }
+
+    .nav-tag {
+      font-size: 0.65rem;
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+      padding: 1px 6px;
+      border-radius: 4px;
+      text-transform: uppercase;
+    }
+
+    .tag-customer { background: rgba(99, 102, 241, 0.15); color: #a5b4fc; border: 1px solid rgba(99, 102, 241, 0.3); }
+    .tag-partner { background: rgba(245, 158, 11, 0.15); color: #fcd34d; border: 1px solid rgba(245, 158, 11, 0.3); }
+    .tag-admin { background: rgba(16, 185, 129, 0.15); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.3); }
+    .tag-super { background: rgba(244, 63, 94, 0.15); color: #fda4af; border: 1px solid rgba(244, 63, 94, 0.3); }
+    .tag-edge { background: rgba(239, 68, 68, 0.2); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.4); }
+
+    /* Content Area */
+    .content-area {
+      flex: 1;
+      overflow-y: auto;
+      padding: 2rem 3rem 4rem 3rem;
+      display: flex;
+      flex-direction: column;
+      gap: 3rem;
+    }
+
+    /* Hero Banner */
+    .hero-banner {
+      background: linear-gradient(135deg, rgba(16, 22, 36, 0.9), rgba(10, 13, 20, 0.95)), radial-gradient(circle at top right, rgba(6, 182, 212, 0.15), transparent 60%);
+      border: 1px solid rgba(6, 182, 212, 0.25);
+      border-radius: var(--radius-xl);
+      padding: 2.25rem 2.5rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-badge-row {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .hero-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: var(--text-secondary);
+    }
+
+    .hero-title {
+      font-size: 2.3rem;
+      font-weight: 800;
+      color: #ffffff;
+      margin-bottom: 0.75rem;
+      line-height: 1.2;
+    }
+
+    .hero-desc {
+      color: var(--text-secondary);
+      font-size: 1.05rem;
+      max-width: 860px;
+      margin-bottom: 1.75rem;
+    }
+
+    .hero-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+    }
+
+    .stat-card {
+      background: rgba(10, 13, 20, 0.6);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-md);
+      padding: 1rem 1.25rem;
+      backdrop-filter: blur(8px);
+    }
+
+    .stat-value {
+      font-size: 1.65rem;
+      font-weight: 700;
+      color: #ffffff;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .stat-label {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+    }
+
+    /* Section Headers */
+    .section-header {
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 0.75rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .section-title {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .section-desc {
+      color: var(--text-secondary);
+      font-size: 0.92rem;
+      margin-top: 0.25rem;
+    }
+
+    /* Component Architecture & Hierarchy Cards */
+    .component-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+      gap: 1.25rem;
+    }
+
+    .frontend-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem;
+      position: relative;
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .frontend-card:hover {
+      border-color: var(--accent-cyan);
+      background: var(--bg-card-hover);
+      transform: translateY(-2px);
+    }
+
+    .frontend-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+    }
+
+    .frontend-card.cust::before { background: var(--accent-brand); }
+    .frontend-card.part::before { background: var(--accent-amber); }
+    .frontend-card.adm::before { background: var(--accent-emerald); }
+    .frontend-card.sup::before { background: var(--accent-rose); }
+
+    .frontend-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.75rem;
+    }
+
+    .frontend-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .frontend-path {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--accent-cyan);
+      background: rgba(6, 182, 212, 0.1);
+      padding: 2px 7px;
+      border-radius: 4px;
+    }
+
+    .frontend-desc {
+      font-size: 0.86rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
+      margin-bottom: 1rem;
+    }
+
+    .tree-box {
+      background: var(--code-bg);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: var(--radius-md);
+      padding: 0.85rem;
+      font-size: 0.78rem;
+      line-height: 1.5;
+      color: #94a3b8;
+      overflow-x: auto;
+    }
+
+    /* Unidirectional Cycle Flow */
+    .unidirectional-cycle {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-xl);
+      padding: 2rem;
+    }
+
+    .cycle-steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 1rem;
+      margin-top: 1.5rem;
+      position: relative;
+    }
+
+    .cycle-node {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 1rem 0.75rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      position: relative;
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+
+    .cycle-node:hover, .cycle-node.active-step {
+      border-color: var(--accent-brand);
+      background: var(--bg-elevated);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(99, 102, 241, 0.25);
+    }
+
+    .cycle-node-icon {
+      font-size: 1.6rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .cycle-node-num {
+      font-size: 0.68rem;
+      font-weight: 700;
+      color: var(--accent-cyan);
+      font-family: 'JetBrains Mono', monospace;
+      margin-bottom: 0.25rem;
+    }
+
+    .cycle-node-label {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #ffffff;
+      line-height: 1.2;
+    }
+
+    .cycle-node-sub {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      margin-top: 0.35rem;
+    }
+
+    .step-explainer {
+      margin-top: 1.5rem;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 1.25rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.5rem;
+    }
+
+    /* Database Dataflow Sections for EACH Frontend */
+    .dataflow-section {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      margin-bottom: 2rem;
+    }
+
+    .dataflow-header {
+      padding: 1.25rem 1.75rem;
+      background: var(--bg-elevated);
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .dataflow-title-group {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .dataflow-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+    }
+
+    .icon-cust { background: rgba(99, 102, 241, 0.15); border: 1px solid rgba(99, 102, 241, 0.3); }
+    .icon-part { background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.3); }
+    .icon-adm { background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); }
+    .icon-sup { background: rgba(244, 63, 94, 0.15); border: 1px solid rgba(244, 63, 94, 0.3); }
+
+    .dataflow-name {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    .dataflow-pill {
+      font-size: 0.72rem;
+      font-family: 'JetBrains Mono', monospace;
+      padding: 2px 8px;
+      border-radius: 12px;
+      background: var(--bg-card);
+      color: var(--text-muted);
+      border: 1px solid var(--border-light);
+    }
+
+    .dataflow-body {
+      padding: 1.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    /* Dataflow Grid Table */
+    .flow-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.84rem;
+    }
+
+    .flow-table th {
+      text-align: left;
+      padding: 0.75rem 1rem;
+      background: var(--bg-card);
+      color: var(--text-muted);
+      font-weight: 600;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .flow-table td {
+      padding: 1rem;
+      border-bottom: 1px solid var(--border-subtle);
+      color: var(--text-secondary);
+      vertical-align: top;
+    }
+
+    .flow-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .action-trigger {
+      font-weight: 600;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .state-badge {
+      font-size: 0.72rem;
+      font-family: 'JetBrains Mono', monospace;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: var(--bg-elevated);
+      color: #38bdf8;
+      border: 1px solid rgba(56, 189, 248, 0.2);
+    }
+
+    .db-collection-badge {
+      font-size: 0.72rem;
+      font-family: 'JetBrains Mono', monospace;
+      padding: 2px 7px;
+      border-radius: 4px;
+      background: rgba(16, 185, 129, 0.12);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .redis-badge {
+      font-size: 0.72rem;
+      font-family: 'JetBrains Mono', monospace;
+      padding: 2px 7px;
+      border-radius: 4px;
+      background: rgba(239, 68, 68, 0.15);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .socket-badge {
+      font-size: 0.72rem;
+      font-family: 'JetBrains Mono', monospace;
+      padding: 2px 7px;
+      border-radius: 4px;
+      background: rgba(139, 92, 246, 0.15);
+      color: #c084fc;
+      border: 1px solid rgba(139, 92, 246, 0.3);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    /* Edge Cases Section */
+    .edge-cases-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .edge-card-detailed {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 1.75rem;
+      position: relative;
+      transition: border-color 0.2s ease;
+    }
+
+    .edge-card-detailed:hover {
+      border-color: var(--accent-rose);
+    }
+
+    .edge-top-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.75rem;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .edge-title-group {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .severity-badge {
+      font-size: 0.68rem;
+      font-weight: 800;
+      font-family: 'JetBrains Mono', monospace;
+      padding: 3px 8px;
+      border-radius: 4px;
+      letter-spacing: 0.05em;
+    }
+
+    .severity-critical { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid #ef4444; }
+    .severity-high { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #f59e0b; }
+    .severity-medium { background: rgba(6, 182, 212, 0.2); color: #38bdf8; border: 1px solid #06b6d4; }
+
+    .edge-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    .edge-affected-app {
+      font-size: 0.75rem;
+      padding: 2px 8px;
+      border-radius: 12px;
+      background: var(--bg-surface);
+      color: var(--text-muted);
+      border: 1px solid var(--border-light);
+    }
+
+    .edge-problem-box {
+      background: rgba(239, 68, 68, 0.05);
+      border-left: 3px solid #ef4444;
+      padding: 0.85rem 1rem;
+      border-radius: 0 var(--radius-md) var(--radius-md) 0;
+      margin-bottom: 1rem;
+      font-size: 0.88rem;
+      color: #cbd5e1;
+    }
+
+    .edge-solution-box {
+      background: rgba(16, 185, 129, 0.05);
+      border-left: 3px solid #10b981;
+      padding: 0.85rem 1rem;
+      border-radius: 0 var(--radius-md) var(--radius-md) 0;
+      margin-bottom: 1rem;
+      font-size: 0.88rem;
+      color: #cbd5e1;
+    }
+
+    .code-recipe {
+      background: var(--code-bg);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+    }
+
+    .code-recipe-header {
+      padding: 0.4rem 0.85rem;
+      background: rgba(255, 255, 255, 0.03);
+      border-bottom: 1px solid var(--border-subtle);
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .code-recipe pre {
+      padding: 0.85rem;
+      font-size: 0.82rem;
+      color: #38bdf8;
+      overflow-x: auto;
+      line-height: 1.5;
+    }
+
+    /* State Strategy & Validation Box */
+    .strategy-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.25rem;
+    }
+
+    .strategy-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 1.4rem;
+    }
+
+    .strategy-name {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .strategy-desc {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
+      margin-bottom: 0.75rem;
+    }
+
+    .strategy-points {
+      list-style: none;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .strategy-points li::before {
+      content: '✔ ';
+      color: var(--accent-emerald);
+      font-weight: bold;
+    }
+
+    /* Interactive Simulator Modal / Drawer */
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      background: var(--bg-card);
+      border: 1px solid var(--accent-cyan);
+      color: #ffffff;
+      padding: 0.75rem 1.25rem;
+      border-radius: var(--radius-md);
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      z-index: 1000;
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 900px) {
+      .main-layout {
+        flex-direction: column;
+        height: auto;
+      }
+      .sidebar {
+        width: 100%;
+        min-width: auto;
+        border-right: none;
+        border-bottom: 1px solid var(--border-subtle);
+        max-height: 280px;
+      }
+      .content-area {
+        padding: 1.5rem 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="app-container">
+  <!-- Top Navigation Header -->
+  <header>
+    <div class="brand-section">
+      <div class="brand-logo">RC</div>
+      <div>
+        <div class="brand-title">
+          RapidCloth Frontend
+          <span class="brand-badge">Multi-App Architecture</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="header-controls">
+      <div class="search-box">
+        <svg viewBox="0 0 24 24"><path d="M10 18a7.952 7.952 0 0 0 4.897-1.688l4.396 4.396 1.414-1.414-4.396-4.396A7.952 7.952 0 0 0 18 10c0-4.411-3.589-8-8-8s-8 3.589-8 8 3.589 8 8 8zm0-14c3.309 0 6 2.691 6 6s-2.691 6-6 6-6-2.691-6-6 2.691-6 6-6z"/></svg>
+        <input type="text" id="globalSearch" placeholder="Search dataflow, state, edge cases..." onkeyup="filterContent()">
+      </div>
+
+      <div class="filter-tabs">
+        <button class="filter-tab-btn active" onclick="setFilter('all', this)">All Apps</button>
+        <button class="filter-tab-btn" onclick="setFilter('customer', this)">Customer</button>
+        <button class="filter-tab-btn" onclick="setFilter('partner', this)">Partner</button>
+        <button class="filter-tab-btn" onclick="setFilter('admin', this)">Admin/Seller</button>
+        <button class="filter-tab-btn" onclick="setFilter('superadmin', this)">SuperAdmin</button>
+      </div>
+
+      <button class="btn btn-cyan" onclick="simulateDataFlow()">⚡ Simulate Flow</button>
+      <button class="btn btn-secondary" onclick="expandAllSections()">Expand All</button>
+    </div>
+  </header>
+
+  <div class="main-layout">
+    <!-- Navigation Sidebar -->
+    <aside class="sidebar">
+      <div>
+        <div class="sidebar-section-title">
+          <span>Architecture Overview</span>
+        </div>
+        <ul class="nav-list">
+          <li class="nav-item active"><a href="#component-arch"><span>🏛️ Component Hierarchy</span></a></li>
+          <li class="nav-item"><a href="#unidirectional-flow"><span>⚡ Unidirectional Lifecycle</span></a></li>
+          <li class="nav-item"><a href="#state-strategy"><span>🧠 3-Tier State Strategy</span></a></li>
+          <li class="nav-item"><a href="#validation-forms"><span>📝 Forms &amp; Zod Schema</span></a></li>
+        </ul>
+      </div>
+
+      <div>
+        <div class="sidebar-section-title">
+          <span>Frontend Dataflow Matrix</span>
+          <span style="font-size:0.68rem; color:var(--accent-cyan);">4 Ecosystems</span>
+        </div>
+        <ul class="nav-list">
+          <li class="nav-item"><a href="#flow-customer"><span>👗 Customer Frontend</span> <span class="nav-tag tag-customer">/frontend</span></a></li>
+          <li class="nav-item"><a href="#flow-partner"><span>🚴 Delivery Partner</span> <span class="nav-tag tag-partner">/partner</span></a></li>
+          <li class="nav-item"><a href="#flow-admin"><span>🏪 Seller &amp; Admin</span> <span class="nav-tag tag-admin">/admin</span></a></li>
+          <li class="nav-item"><a href="#flow-superadmin"><span>👑 SuperAdmin Portal</span> <span class="nav-tag tag-super">/superadmin</span></a></li>
+        </ul>
+      </div>
+
+      <div>
+        <div class="sidebar-section-title">
+          <span>Unhandled Edge Cases</span>
+          <span style="font-size:0.68rem; color:var(--accent-rose);">8 Discovered</span>
+        </div>
+        <ul class="nav-list">
+          <li class="nav-item"><a href="#edge-cases"><span>⚠️ Critical Failures &amp; Fixes</span> <span class="nav-tag tag-edge">UNHANDLED</span></a></li>
+        </ul>
+      </div>
+    </aside>
+
+    <!-- Main Content Body -->
+    <main class="content-area">
+      <!-- Hero Banner -->
+      <section class="hero-banner">
+        <div class="hero-badge-row">
+          <span class="hero-tag"><span style="color:var(--accent-cyan);">●</span> React 18 + Vite</span>
+          <span class="hero-tag">Zustand &amp; Redux Toolkit</span>
+          <span class="hero-tag">React Query / RTK Query</span>
+          <span class="hero-tag">React Hook Form + Zod</span>
+          <span class="hero-tag">Socket.io Client</span>
+          <span class="hero-tag">Tailwind / Vanilla CSS</span>
+        </div>
+        <h1 class="hero-title">RapidCloth - Complete Frontend Architecture &amp; Dataflow Blueprint</h1>
+        <p class="hero-desc">
+          Unified frontend architecture guide covering all four specialized client portals (`/frontend`, `/partnerFrontend`, `/adminfrontend`, and `/superadmin`). Details the exact step-by-step state propagation to backend controllers, MongoDB collections, Redis caches, and real-time Socket rooms.
+        </p>
+
+        <div class="hero-stats">
+          <div class="stat-card">
+            <div class="stat-value">4 Apps</div>
+            <div class="stat-label">Decoupled Frontends</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">3-Tier</div>
+            <div class="stat-label">Isolated State Layers</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">8 Gaps</div>
+            <div class="stat-label">Unhandled Edge Cases</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">100%</div>
+            <div class="stat-label">Unidirectional Flow</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 1: Component Architecture & Hierarchy -->
+      <section id="component-arch">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">1. Component Architecture &amp; Hierarchy</h2>
+            <p class="section-desc">Feature-based architecture combined with Atomic Design principles standard across all four applications.</p>
+          </div>
+        </div>
+
+        <div class="component-grid">
+          <!-- 1. Customer Frontend -->
+          <div class="frontend-card cust" data-app="customer">
+            <div>
+              <div class="frontend-header">
+                <div class="frontend-title">👗 Customer Frontend</div>
+                <span class="frontend-path">/frontend</span>
+              </div>
+              <p class="frontend-desc">Consumer shopping experience featuring virtual try-on, flash deals, shopping bag, multi-step checkout, and live GPS map tracking.</p>
+            </div>
+            <div class="tree-box">
+App (Query, Store, Socket)
+└── CustomerLayout
+    ├── Navbar (SearchBar, CartBadge, UserMenu)
+    ├── PageView
+    │   ├── Home (HeroBanner, CategorySlider, AIFeatured)
+    │   ├── ProductDetails (Gallery, VirtualTryOnModal)
+    │   └── Checkout (AddressForm, Payment, Summary)
+    └── Footer
+            </div>
+          </div>
+
+          <!-- 2. Delivery Partner Frontend -->
+          <div class="frontend-card part" data-app="partner">
+            <div>
+              <div class="frontend-header">
+                <div class="frontend-title">🚴 Delivery Partner</div>
+                <span class="frontend-path">/partnerFrontend</span>
+              </div>
+              <p class="frontend-desc">Mobile-first driver terminal with shift management, real-time dispatch alerts, GPS turn navigation, OTP customer verification, and COD collection.</p>
+            </div>
+            <div class="tree-box">
+App (Query, Store, Socket)
+└── PartnerLayout
+    ├── PartnerHeader (OnlineToggle, EarningsWidget)
+    └── PageView
+        ├── Dashboard (MapContainer, CurrentOrderCard)
+        └── History (DeliveryList, COD PayoutStatus)
+            </div>
+          </div>
+
+          <!-- 3. Admin & Seller Frontend -->
+          <div class="frontend-card adm" data-app="admin">
+            <div>
+              <div class="frontend-header">
+                <div class="frontend-title">🏪 Seller &amp; Admin</div>
+                <span class="frontend-path">/adminfrontend</span>
+              </div>
+              <p class="frontend-desc">Merchant portal for catalog management, multi-color image upload, rental day rate configs, order dispatch queue, and realized revenue escrow.</p>
+            </div>
+            <div class="tree-box">
+App (Query, Store)
+└── DashboardLayout
+    ├── SidebarNav (Products, Orders, Earnings)
+    ├── Topbar (SellerProfile, Notifications)
+    └── PageView
+        ├── ProductManager (UploadModal, StockTable)
+        └── OrderFulfillment (DispatchQueue, Returns)
+            </div>
+          </div>
+
+          <!-- 4. SuperAdmin Frontend -->
+          <div class="frontend-card sup" data-app="superadmin">
+            <div>
+              <div class="frontend-header">
+                <div class="frontend-title">👑 SuperAdmin Portal</div>
+                <span class="frontend-path">/superadmin</span>
+              </div>
+              <p class="frontend-desc">Mission control for territory management, geo-fence fastzone polygon drawers, seller approvals, driver fleet oversight, and platform analytics.</p>
+            </div>
+            <div class="tree-box">
+App (Query, Store)
+└── SuperAdminLayout
+    ├── SidebarNav (Zones, Admins, Sellers, Drivers)
+    └── PageView
+        ├── ZoneEditor (MapPolygonDrawer, Pincodes)
+        └── AnalyticsEngine (Heatmaps, VolumeGauges)
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 2: Unidirectional Data Flow Cycle -->
+      <section id="unidirectional-flow">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">2. Comprehensive Unidirectional Data Flow Cycle</h2>
+            <p class="section-desc">Trace of state propagation from local interaction to global stores, server mutations, database persistence, and UI re-renders.</p>
+          </div>
+        </div>
+
+        <div class="unidirectional-cycle">
+          <div class="cycle-steps" id="cycleStepsContainer">
+            <div class="cycle-node active-step" onclick="selectStep(1)">
+              <div class="cycle-node-icon">👆</div>
+              <div class="cycle-node-num">STEP 01</div>
+              <div class="cycle-node-label">User Action</div>
+              <div class="cycle-node-sub">Clicks button / inputs form</div>
+            </div>
+
+            <div class="cycle-node" onclick="selectStep(2)">
+              <div class="cycle-node-icon">⏳</div>
+              <div class="cycle-node-num">STEP 02</div>
+              <div class="cycle-node-label">Local State</div>
+              <div class="cycle-node-sub">isMutating = true (RHF)</div>
+            </div>
+
+            <div class="cycle-node" onclick="selectStep(3)">
+              <div class="cycle-node-icon">📡</div>
+              <div class="cycle-node-num">STEP 03</div>
+              <div class="cycle-node-label">Query Client</div>
+              <div class="cycle-node-sub">useMutation / RTK Query</div>
+            </div>
+
+            <div class="cycle-node" onclick="selectStep(4)">
+              <div class="cycle-node-icon">🛡️</div>
+              <div class="cycle-node-num">STEP 04</div>
+              <div class="cycle-node-label">Axios / API</div>
+              <div class="cycle-node-sub">Attach Bearer JWT &amp; Zod</div>
+            </div>
+
+            <div class="cycle-node" onclick="selectStep(5)">
+              <div class="cycle-node-icon">🧠</div>
+              <div class="cycle-node-num">STEP 05</div>
+              <div class="cycle-node-label">Node Backend</div>
+              <div class="cycle-node-sub">Router ➔ Controller ➔ Service</div>
+            </div>
+
+            <div class="cycle-node" onclick="selectStep(6)">
+              <div class="cycle-node-icon">🗄️</div>
+              <div class="cycle-node-num">STEP 06</div>
+              <div class="cycle-node-label">Database Sync</div>
+              <div class="cycle-node-sub">Atomic Mongo &amp; Redis Cache</div>
+            </div>
+
+            <div class="cycle-node" onclick="selectStep(7)">
+              <div class="cycle-node-icon">🔄</div>
+              <div class="cycle-node-num">STEP 07</div>
+              <div class="cycle-node-label">Invalidation</div>
+              <div class="cycle-node-sub">invalidateQueries &amp; Zustand</div>
+            </div>
+
+            <div class="cycle-node" onclick="selectStep(8)">
+              <div class="cycle-node-icon">✨</div>
+              <div class="cycle-node-num">STEP 08</div>
+              <div class="cycle-node-label">UI Re-Render</div>
+              <div class="cycle-node-sub">Skeleton off, Toast shown</div>
+            </div>
+          </div>
+
+          <div class="step-explainer" id="stepExplainer">
+            <div>
+              <strong id="stepTitle" style="color:var(--accent-cyan); font-size:1rem;">Step 1: User Interaction</strong>
+              <p id="stepDesc" style="color:var(--text-secondary); font-size:0.88rem; margin-top:0.25rem;">
+                Customer clicks "Place Order" in Checkout, Delivery Partner clicks "Accept Order", or Seller toggles product visibility.
+              </p>
+            </div>
+            <button class="btn btn-secondary" onclick="advanceStep()">Next Step ➔</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 3: Database Dataflow for EACH Frontend -->
+      <section id="database-dataflow">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">3. Dedicated Dataflow for Each Frontend &amp; Database</h2>
+            <p class="section-desc">Exhaustive mapping of user actions, local store transformations, backend endpoints, and target MongoDB collections &amp; Redis keys.</p>
+          </div>
+        </div>
+
+        <!-- Flow 1: Customer Frontend -->
+        <div class="dataflow-section" id="flow-customer" data-app="customer">
+          <div class="dataflow-header">
+            <div class="dataflow-title-group">
+              <div class="dataflow-icon icon-cust">👗</div>
+              <div>
+                <div class="dataflow-name">1. Customer Frontend Dataflow</div>
+                <div style="font-size:0.75rem; color:var(--text-muted);">Source: <code style="color:#a5b4fc;">/frontend</code> ➔ Express ➔ MongoDB + Redis + Socket</div>
+              </div>
+            </div>
+            <span class="dataflow-pill">5 Flow Pipelines</span>
+          </div>
+          <div class="dataflow-body">
+            <table class="flow-table">
+              <thead>
+                <tr>
+                  <th style="width:22%;">User Action &amp; Component</th>
+                  <th style="width:25%;">Client State Transition</th>
+                  <th style="width:25%;">Backend API Endpoint</th>
+                  <th style="width:28%;">Database &amp; Storage Target</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <div class="action-trigger"><span>🔐</span> Register &amp; Login</div>
+                    <small>AuthModal / LoginPage</small>
+                  </td>
+                  <td>
+                    <span class="state-badge">authSlice.setCredentials</span>
+                    <p style="font-size:0.76rem; color:var(--text-muted); margin-top:4px;">Stores JWT in LocalStorage / Cookie; user object in Redux store.</p>
+                  </td>
+                  <td><code>POST /api/auth/register</code><br><code>POST /api/auth/login</code></td>
+                  <td>
+                    <span class="db-collection-badge">📁 users</span>
+                    <p style="font-size:0.75rem; color:var(--text-muted);">Stores hashed password (bcrypt), phone, addresses array, and preferred size measurements.</p>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <div class="action-trigger"><span>🔍</span> Search &amp; Filter Catalog</div>
+                    <small>CategorySlider, FilterDrawer</small>
+                  </td>
+                  <td>
+                    <span class="state-badge">useQuery(['products', filters])</span>
+                    <p style="font-size:0.76rem; color:var(--text-muted); margin-top:4px;">Debounced search term, occasion tag, price slider, and page offset.</p>
+                  </td>
+                  <td><code>GET /api/products?category=...</code><br><code>GET /api/products/deals</code></td>
+                  <td>
+                    <span class="redis-badge">⚡ Redis</span> <code style="font-size:0.75rem;">products:cat:*</code><br>
+                    <span class="db-collection-badge">📁 products</span>
+                    <p style="font-size:0.75rem; color:var(--text-muted);">Cached for 1 hour; compound indexes on category, price, and active status.</p>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <div class="action-trigger"><span>✨</span> Virtual Try-On Composite</div>
+                    <small>VirtualTryOnModal</small>
+                  </td>
+                  <td>
+                    <span class="state-badge">tryOnState.setStitching(true)</span>
+                    <p style="font-size:0.76rem; color:var(--text-muted); margin-top:4px;">Socket listener registers for <code>try-on-result</code>.</p>
+                  </td>
+                  <td><code>POST /api/try-on/generate</code><br><small>Async non-blocking 202</small></td>
+                  <td>
+                    <span class="socket-badge">⚡ Socket.io</span> <code style="font-size:0.75rem;">io.to(socketId)</code><br>
+                    <span class="db-collection-badge">📁 usermetrics</span>
+                    <p style="font-size:0.75rem; color:var(--text-muted);">Persists height, weight, bodyType; calls external Fal.ai / FASHN GPU API.</p>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <div class="action-trigger"><span>🛒</span> Add Item / Rental to Cart</div>
+                    <small>ProductDetails / BuyButton</small>
+                  </td>
+                  <td>
+                    <span class="state-badge">cartSlice.addItem</span>
+                    <p style="font-size:0.76rem; color:var(--text-muted); margin-top:4px;">Optimistic update of cart badge counter in Navbar.</p>
+                  </td>
+                  <td><code>POST /api/cart/add</code><br><code>POST /api/cart/accept-bundle</code></td>
+                  <td>
+                    <span class="db-collection-badge">📁 carts</span>
+                    <p style="font-size:0.75rem; color:var(--text-muted);">Upserts cart document by <code>userId</code>; computes rental days × daily rent or buy price.</p>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <div class="action-trigger"><span>📦</span> Checkout &amp; Order Lock</div>
+                    <small>CheckoutWizard / AddressForm</small>
+                  </td>
+                  <td>
+                    <span class="state-badge">orderMutation.mutate</span>
+                    <p style="font-size:0.76rem; color:var(--text-muted); margin-top:4px;">Clears cart store; transitions to <code>/order/track/:id</code>.</p>
+                  </td>
+                  <td><code>POST /api/orders</code></td>
+                  <td>
+                    <span class="db-collection-badge">📁 orders</span> + <span class="db-collection-badge">📁 products</span><br>
+                    <p style="font-size:0.75rem; color:var(--text-muted);"><strong>Atomic:</strong> Executes <code>Product.updateOne({ stock: { $gte: qty } }, { $inc: { stock: -qty } })</code> to lock stock. Emits <code>order-assigned</code> socket alert.</p>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Flow 2: Delivery Partner Frontend -->
+        <div class="dataflow-section" id="flow-partner" data-app="partner">
+          <div class="dataflow-header">
+            <div class="dataflow-title-group">
+              <div class="dataflow-icon icon-part">🚴</div>
+              <div>
+                <div class="dataflow-name">2. Delivery Partner Frontend Dataflow</div>
+                <div style="font-size:0.75rem; color:var(--text-muted);">Source: <code style="color:#fcd34d;">/partnerFrontend</code> ➔ Express ➔ MongoDB + Driver Redis GPS</div>
+              </div>
+            </div>
+            <span class="dataflow-pill">4 Flow Pipelines</span>
+          </div>
+          <div class="dataflow-body">
+            <table class="flow-table">
+              <thead>
+                <tr>
+                  <th style="width:22%;">Partner Action &amp; Screen</th>
+                  <th style="width:25%;">Client State Transition</th>
+                  <th style="width:25%;">Backend API Endpoint</th>
+                  <th style="width:28%;">Database &amp; Storage Target</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <div class="action-trigger"><span>🟢</span> Toggle Online / Offline</div>
+                    <small>PartnerHeader / OnlineSwitch</small>
+                  </td>
+                  <td>
+                    <span class="state-badge">driverStore.setIsOnline</span>
+                    <p style="font-size:0.76rem; color:var(--text-muted); margin-top:4px;">Begins periodic GPS position broadcasting if online.</p>
+                  </td>
+                  <td><code>PUT /api/delivery/status</code></td>
+                  <td>
+                    <span class="db-collection-badge">📁 users</span> <code style="font-size:0.75rem;">deliveryProfile.isOnline</code><br>
+                    <p style="font-size:0.75rem; color:var(--text-muted);">Calculates accumulated <code>onlineSecondsToday</code>. Checks unassigned orphaned orders.</p>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <div class="action-trigger"><span>📲</span> Receive &amp; Accept Dispatch</div>
+                    <small>CurrentOrderModal / SoundAlert</small>
+                  </td>
+                  <td>
+                    <span class="state-badge">socket.on('order-assigned')</span>
+                    <p style="font-size:0.76rem; color:var(--text-muted); margin-top:4px;">Opens 60-second countdown accept modal; vibrates mobile device.</p>
+                  </td>
+                  <td><code>PUT /api/delivery/orders/:id/accept</code><br><code>PUT /api/delivery/orders/:id/reject</code></td>
+                  <td>
+                    <span class="db-collection-badge">📁 orders</span> <code style="font-size:0.75rem;">delivery.status: 'accepted'</code><br>
+                    <p style="font-size:0.75rem; color:var(--text-muted);">Sets <code>delivery.deliveryBoyId</code>; links seller hub coordinates for pickup navigation.</p>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <div class="action-trigger"><span>📍</span> Live GPS Telemetry Stream</div>
+                    <small>Background Geolocation Watcher</small>
+                  </td>
+                  <td>
+                    <span class="state-badge">socket.emit('driver-location')</span>
+                    <p style="font-size:0.76rem; color:var(--text-muted); margin-top:4px;">Throttled at 1 ping per 4 seconds to conserve driver battery.</p>
+                  </td>
+                  <td><span class="socket-badge">WebSocket</span> <code>driver-location-update</code></td>
+                  <td>
+                    <span class="redis-badge">⚡ Redis GEO</span> <code style="font-size:0.75rem;">geo:drivers:active</code><br>
+                    <p style="font-size:0.75rem; color:var(--text-muted);"><strong>Bypasses MongoDB disk:</strong> Stored purely in Redis memory to avoid disk I/O bottlenecks; relays live lat/lng to customer tracking screen.</p>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <div class="action-trigger"><span>🤝</span> Handover &amp; OTP Verification</div>
+                    <small>OtpVerificationCard</small>
+                  </td>
+                  <td>
+                    <span class="state-badge">deliveryOrder.status = 'delivered'</span>
+                    <p style="font-size:0.76rem; color:var(--text-muted); margin-top:4px;">Triggers success haptic feedback; prompts next nearby order.</p>
+                  </td>
+                  <td><code>PUT /api/delivery/orders/:id/reached</code><br><code>PUT /api/delivery/orders/:id/verify-otp</code></td>
+                  <td>
+                    <span class="db-collection-badge">📁 orders</span> + <span class="db-collection-badge">📁 users</span><br>
+                    <p style="font-size:0.75rem; color:var(--text-muted);">Generates 4-digit OTP; upon validation sets status <code>delivered</code>, adds COD amount to <code>cashCollected</code>, increments <code>totalEarnings</code>.</p>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Flow 3: Seller & Admin Frontend -->
+        <div class="dataflow-section" id="flow-admin" data-app="admin">
+          <div class="dataflow-header">
+            <div class="dataflow-title-group">
+              <div class="dataflow-icon icon-adm">🏪</div>
+              <div>
+                <div class="dataflow-name">3. Seller &amp; Admin Frontend Dataflow</div>
+                <div style="font-size:0.75rem; color:var(--text-muted);">Source: <code style="color:#6ee7b7;">/adminfrontend</code> ➔ Express ➔ MongoDB + Cloudinary + Escrow</div>
+              </div>
+            </div>
+            <span class="dataflow-pill">3 Flow Pipelines</span>
+          </div>
+          <div class="dataflow-body">
+            <table class="flow-table">
+              <thead>
+                <tr>
+                  <th style="width:22%;">Seller Action &amp; View</th>
+                  <th style="width:25%;">Client State Transition</th>
+                  <th style="width:25%;">Backend API Endpoint</th>
+                  <th style="width:28%;">Database &amp; Storage Target</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <div class="action-trigger"><span>👚</span> Upload Multi-Variant Product</div>
+                    <small>ProductUploadForm (RHF)</small>
+                  </td>
+                  <td>
+                    <span class="state-badge">isSubmitting / FormData</span>
+                    <p style="font-size:0.76rem; color:var(--text-muted); margin-top:4px;">Packages binary color variant images + JSON specs.</p>
+                  </td>
+                  <td><code>POST /api/seller/dashboard/products</code></td>
+                  <td>
+                    <span class="db-collection-badge">📁 products</span> + Local/Cloudinary Disk<br>
+                    <p style="font-size:0.75rem; color:var(--text-muted);">Writes garment sizes, rental pricing, and image URLs. Triggers Redis cache invalidation for catalog queries.</p>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <div class="action-trigger"><span>📦</span> Dispatch Order for Pickup</div>
+                    <small>SellerOrderFulfillmentTable</small>
+                  </td>
+                  <td>
+                    <span class="state-badge">queryClient.invalidateQueries</span>
+                    <p style="font-size:0.76rem; color:var(--text-muted); margin-top:4px;">Updates row status badge from "Placed" to "Confirmed".</p>
+                  </td>
+                  <td><code>PUT /api/seller/orders/:id/status</code></td>
+                  <td>
+                    <span class="db-collection-badge">📁 orders</span> <code style="font-size:0.75rem;">status: 'confirmed'</code><br>
+                    <p style="font-size:0.75rem; color:var(--text-muted);">Calls <code>assignDriverToOrder(order)</code> service to auto-dispatch nearby delivery partner in that zone.</p>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <div class="action-trigger"><span>💰</span> Escrow Realized Revenue</div>
+                    <small>SellerEarningsAnalytics</small>
+                  </td>
+                  <td>
+                    <span class="state-badge">useQuery(['sellerStats'])</span>
+                    <p style="font-size:0.76rem; color:var(--text-muted); margin-top:4px;">Renders 7-day revenue bar charts and return loss metrics.</p>
+                  </td>
+                  <td><code>GET /api/seller/dashboard/dashboard-stats</code></td>
+                  <td>
+                    <span class="db-collection-badge">📁 orders</span> (Aggregation Query)<br>
+                    <p style="font-size:0.75rem; color:var(--text-muted);"><strong>Escrow Lock:</strong> Only includes delivered orders where <code>deliveredAt &lt;= Date.now() - 30 minutes</code> to guarantee return protection window.</p>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Flow 4: SuperAdmin Frontend -->
+        <div class="dataflow-section" id="flow-superadmin" data-app="superadmin">
+          <div class="dataflow-header">
+            <div class="dataflow-title-group">
+              <div class="dataflow-icon icon-sup">👑</div>
+              <div>
+                <div class="dataflow-name">4. SuperAdmin Portal Dataflow</div>
+                <div style="font-size:0.75rem; color:var(--text-muted);">Source: <code style="color:#fda4af;">/superadmin</code> ➔ Express ➔ MongoDB Aggregations</div>
+              </div>
+            </div>
+            <span class="dataflow-pill">3 Flow Pipelines</span>
+          </div>
+          <div class="dataflow-body">
+            <table class="flow-table">
+              <thead>
+                <tr>
+                  <th style="width:22%;">SuperAdmin Action &amp; View</th>
+                  <th style="width:25%;">Client State Transition</th>
+                  <th style="width:25%;">Backend API Endpoint</th>
+                  <th style="width:28%;">Database &amp; Storage Target</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <div class="action-trigger"><span>🗺️</span> Draw FastZone Territory</div>
+                    <small>ZoneMapEditor / PolygonDrawer</small>
+                  </td>
+                  <td>
+                    <span class="state-badge">zoneForm.setCoordinates</span>
+                    <p style="font-size:0.76rem; color:var(--text-muted); margin-top:4px;">Draws lat/lng geofence vertices &amp; binds local pincodes.</p>
+                  </td>
+                  <td><code>POST /api/superadmin/zones</code><br><code>PUT /api/superadmin/zones/:id</code></td>
+                  <td>
+                    <span class="db-collection-badge">📁 zones</span><br>
+                    <p style="font-size:0.75rem; color:var(--text-muted);">Auto-generates zone code (e.g. <code>ZONE-104</code>), stores polygon geo-array, and links assigned admin users.</p>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <div class="action-trigger"><span>✅</span> Approve Seller Application</div>
+                    <small>SellerDirectory / KYCModal</small>
+                  </td>
+                  <td>
+                    <span class="state-badge">updateMutation.mutate</span>
+                    <p style="font-size:0.76rem; color:var(--text-muted); margin-top:4px;">Refetches seller table; sends email credential invite.</p>
+                  </td>
+                  <td><code>PUT /api/superadmin/sellers/approve/:id</code></td>
+                  <td>
+                    <span class="db-collection-badge">📁 sellerapplications</span> + <span class="db-collection-badge">📁 users</span><br>
+                    <p style="font-size:0.75rem; color:var(--text-muted);">Transitions application status to <code>approved</code>; sets user role to <code>seller</code> with assigned zone ID.</p>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <div class="action-trigger"><span>📊</span> Territory Health Analytics</div>
+                    <small>ZoneOverviewDashboard</small>
+                  </td>
+                  <td>
+                    <span class="state-badge">useQuery(['zoneOverview'])</span>
+                    <p style="font-size:0.76rem; color:var(--text-muted); margin-top:4px;">Feeds Recharts area charts &amp; order density gauges.</p>
+                  </td>
+                  <td><code>GET /api/superadmin/analytics/zone-overview</code></td>
+                  <td>
+                    <span class="db-collection-badge">📁 zones</span>, <span class="db-collection-badge">📁 orders</span>, <span class="db-collection-badge">📁 users</span><br>
+                    <p style="font-size:0.75rem; color:var(--text-muted);">Multi-collection MongoDB aggregation pipeline counting active orders, fleet capacity, and delivery times per zone.</p>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 4: State Management & Form Handling -->
+      <section id="state-strategy">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">4. State Management Strategy &amp; Form Validations</h2>
+            <p class="section-desc">Strict separation of concerns to avoid performance bottlenecks across the four applications.</p>
+          </div>
+        </div>
+
+        <div class="strategy-grid">
+          <div class="strategy-card">
+            <div class="strategy-name"><span>🌐</span> Server State (React Query)</div>
+            <p class="strategy-desc">Manages asynchronous data from backend controllers (Products, Orders, Deliveries).</p>
+            <ul class="strategy-points">
+              <li>Automatic caching, background refetching &amp; deduplication.</li>
+              <li>Optimistic updates on instant actions (e.g. liking item, driver online switch).</li>
+              <li>Calls <code>invalidateQueries</code> instead of manual state array mutation.</li>
+            </ul>
+          </div>
+
+          <div class="strategy-card">
+            <div class="strategy-name"><span>📦</span> Global Client State (Zustand)</div>
+            <p class="strategy-desc">Manages synchronous, app-wide client UI state across disparate components.</p>
+            <ul class="strategy-points">
+              <li>Stores theme preference, active user session tokens, and sidebar toggles.</li>
+              <li>Multi-step form wizard buffers (e.g. multi-step address checkout).</li>
+              <li>Zero boilerplate, small bundle size, and fast selectors.</li>
+            </ul>
+          </div>
+
+          <div class="strategy-card">
+            <div class="strategy-name"><span>📝</span> Form Handling &amp; Zod Schema</div>
+            <p class="strategy-desc">React Hook Form combined with Zod for non-rendering high-speed inputs.</p>
+            <ul class="strategy-points">
+              <li>Uncontrolled form inputs to eliminate lag during rapid typing.</li>
+              <li>Strict Zod schemas enforce Indian phone format, pincodes, &amp; geo-points.</li>
+              <li>Direct mapping of validation errors to inline red helper text on blur.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 5: Unhandled / Missing Edge Cases in RapidCloth -->
+      <section id="edge-cases">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">5. Critical Unhandled Edge Cases (Not Implemented in Application)</h2>
+            <p class="section-desc">Real-world production failure scenarios that are currently missing or unhandled in the codebase, with architectural solutions and code recipes.</p>
+          </div>
+        </div>
+
+        <div class="edge-cases-wrapper">
+          <!-- Edge Case 1: Elevator Problem (Offline Mutation Queue) -->
+          <div class="edge-card-detailed">
+            <div class="edge-top-row">
+              <div class="edge-title-group">
+                <span class="severity-badge severity-critical">CRITICAL</span>
+                <span class="edge-title">1. The "Elevator / Basement" Offline Handover Loss</span>
+              </div>
+              <span class="edge-affected-app">Delivery Partner App</span>
+            </div>
+            <div class="edge-problem-box">
+              <strong>Failure Scenario:</strong> A delivery partner enters an underground basement parking or apartment elevator to hand over clothes to the buyer. When the driver taps "Verify OTP" or "Complete Delivery", cellular connectivity drops to zero. The standard Axios call fails with <code>ERR_INTERNET_DISCONNECTED</code>. The driver gives the customer the package, but the app never syncs the delivery. The order remains "Out For Delivery", the driver is never credited earnings, and customer sees an open order.
+            </div>
+            <div class="edge-solution-box">
+              <strong>Recommended Solution:</strong> Implement an IndexedDB-backed offline mutation queue using <code>@tanstack/react-query-persist-client</code> with <code>localForage</code> or a Workbox Background Sync Service Worker. Save failed mutations with idempotent idempotency keys; automatically replay when the <code>online</code> window event fires.
+            </div>
+            <div class="code-recipe">
+              <div class="code-recipe-header"><span>Solution Recipe: Offline Mutation Persistence</span><span>React Query Persister</span></div>
+              <pre><code>// partnerFrontend/src/services/offlineQueue.js
+import { persistQueryClient } from '@tanstack/react-query-persist-client';
+import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persister';
+import localForage from 'localforage';
+
+const asyncStoragePersister = createAsyncStoragePersister({
+  storage: localForage,
+  throttleTime: 1000,
+});
+
+export const enableOfflineQueue = (queryClient) => {
+  persistQueryClient({
+    queryClient,
+    persister: asyncStoragePersister,
+    maxAge: 1000 * 60 * 60 * 24, // 24 hours offline survival
+  });
+
+  window.addEventListener('online', () => {
+    queryClient.resumePausedMutations();
+    toast.success('Network restored: offline deliveries synced successfully!');
+  });
+};</code></pre>
+            </div>
+          </div>
+
+          <!-- Edge Case 2: Stale Price at Checkout -->
+          <div class="edge-card-detailed">
+            <div class="edge-top-row">
+              <div class="edge-title-group">
+                <span class="severity-badge severity-critical">CRITICAL</span>
+                <span class="edge-title">2. Flash-Sale Stale Price Desync During Checkout</span>
+              </div>
+              <span class="edge-affected-app">Customer App</span>
+            </div>
+            <div class="edge-problem-box">
+              <strong>Failure Scenario:</strong> A customer adds a jacket to their cart during a midnight flash deal at ₹999 (discounted from ₹1,899). The customer keeps the tab open and falls asleep. The flash sale expires at 6:00 AM, and the seller price reverts to ₹1,899. At 8:00 AM, the customer clicks "Place Order" without refreshing. Currently, if the backend uses the cart's cached price without revalidating against live product stock, the company loses ₹900 per transaction!
+            </div>
+            <div class="edge-solution-box">
+              <strong>Recommended Solution:</strong> Implement a Pre-Flight Price Verification step in the checkout flow. Before initiating payment, call <code>POST /api/cart/verify-pricing</code>. If price discrepancies exist, return <code>409 Price Changed</code>, highlight the changed items in an alert modal with a diff, and ask the user to confirm the new total before proceeding.
+            </div>
+            <div class="code-recipe">
+              <div class="code-recipe-header"><span>Solution Recipe: Pre-Flight Price Check Interceptor</span><span>CheckoutWizard.jsx</span></div>
+              <pre><code>// frontend/src/features/checkout/hooks/useCheckout.js
+const handleCheckout = async (payload) => {
+  const priceCheck = await api.post('/api/cart/verify-pricing');
+  if (priceCheck.data.hasDiscrepancy) {
+    // Stop order submission and alert user
+    openModal({
+      title: 'Price Updated in Cart',
+      message: `Items in your cart changed price while you were away:`,
+      items: priceCheck.data.discrepancies, // e.g. [ { name: "Silk Shirt", old: 999, new: 1899 } ]
+      onConfirm: () => submitOrderWithNewPrice(priceCheck.data.newTotal)
+    });
+    return;
+  }
+  return placeOrderMutation.mutate(payload);
+};</code></pre>
+            </div>
+          </div>
+
+          <!-- Edge Case 3: Multi-Tab Split-Brain Cart -->
+          <div class="edge-card-detailed">
+            <div class="edge-top-row">
+              <div class="edge-title-group">
+                <span class="severity-badge severity-high">HIGH</span>
+                <span class="edge-title">3. Multi-Tab Split-Brain Cart Race Condition</span>
+              </div>
+              <span class="edge-affected-app">Customer App</span>
+            </div>
+            <div class="edge-problem-box">
+              <strong>Failure Scenario:</strong> A customer has RapidCloth open in two browser tabs. In Tab 1, they add an item with a 15% bundle discount. In Tab 2, they remove a companion item. If Tab 1 proceeds to checkout, the client store still believes the bundle discount is active, but the backend rejects the calculation, leading to an unexplained checkout error and abandoned purchase.
+            </div>
+            <div class="edge-solution-box">
+              <strong>Recommended Solution:</strong> Use the native browser <code>BroadcastChannel</code> API to synchronize cart mutations across all open tabs in real-time. When any tab modifies the cart, broadcast a message so all other tabs immediately invalidate their cart query.
+            </div>
+            <div class="code-recipe">
+              <div class="code-recipe-header"><span>Solution Recipe: Cross-Tab Broadcast Channel</span><span>cartSync.js</span></div>
+              <pre><code>// frontend/src/utils/cartBroadcast.js
+const cartChannel = new BroadcastChannel('rapidcloth_cart_channel');
+
+export const notifyCartUpdated = (updatedCart) => {
+  cartChannel.postMessage({ type: 'CART_UPDATED', cart: updatedCart });
+};
+
+export const listenToCartChannel = (queryClient) => {
+  cartChannel.onmessage = (event) => {
+    if (event.data.type === 'CART_UPDATED') {
+      queryClient.invalidateQueries(['cart']);
+      toast.info('Cart updated from another tab');
+    }
+  };
+};</code></pre>
+            </div>
+          </div>
+
+          <!-- Edge Case 4: WebSocket Reconnection Thunder Herd -->
+          <div class="edge-card-detailed">
+            <div class="edge-top-row">
+              <div class="edge-title-group">
+                <span class="severity-badge severity-high">HIGH</span>
+                <span class="edge-title">4. WebSocket Reconnection Thunder Herd &amp; Missed Dispatches</span>
+              </div>
+              <span class="edge-affected-app">Delivery Partner &amp; Customer Apps</span>
+            </div>
+            <div class="edge-problem-box">
+              <strong>Failure Scenario:</strong> When the backend server restarts during deployment, hundreds of driver sockets disconnect simultaneously. When the server comes back up, all sockets reconnect at the exact same millisecond, overwhelming the Node.js event loop. Furthermore, orders dispatched during the 10-second downtime are lost forever because the driver was disconnected and no catch-up mechanism exists.
+            </div>
+            <div class="edge-solution-box">
+              <strong>Recommended Solution:</strong> Configure randomized jittered exponential backoff in Socket.io client options, and bind a <code>reconnect</code> event listener that immediately pulls fresh state from <code>GET /api/delivery/orders/current</code>.
+            </div>
+            <div class="code-recipe">
+              <div class="code-recipe-header"><span>Solution Recipe: Socket Jitter &amp; Catch-Up Sync</span><span>socket.js</span></div>
+              <pre><code>// partnerFrontend/src/services/socket.js
+import { io } from 'socket.io-client';
+
+export const socket = io(import.meta.env.VITE_BACKEND_URL, {
+  reconnection: true,
+  reconnectionAttempts: Infinity,
+  reconnectionDelay: 1000,
+  reconnectionDelayMax: 10000,
+  randomizationFactor: 0.5, // Adds jitter to eliminate thunder herd!
+});
+
+socket.on('reconnect', () => {
+  console.log('🔄 Reconnected to dispatch gateway — pulling missed orders...');
+  // Force catchup of missed dispatches
+  queryClient.invalidateQueries(['currentOrders']);
+});</code></pre>
+            </div>
+          </div>
+
+          <!-- Edge Case 5: GPS Drift & Geofence Spoofing -->
+          <div class="edge-card-detailed">
+            <div class="edge-top-row">
+              <div class="edge-title-group">
+                <span class="severity-badge severity-high">HIGH</span>
+                <span class="edge-title">5. GPS Drift &amp; False Delivery Verification</span>
+              </div>
+              <span class="edge-affected-app">Delivery Partner App</span>
+            </div>
+            <div class="edge-problem-box">
+              <strong>Failure Scenario:</strong> Urban high-rises cause GPS signal reflection (multipath drift) of up to 400 meters. A driver 3 blocks away might experience a GPS glitch placing them at the customer's doorstep, allowing them to tap "Reached" prematurely. Even worse, rogue drivers using mock location apps can simulate being at the address while in another zone.
+            </div>
+            <div class="edge-solution-box">
+              <strong>Recommended Solution:</strong> In the partner app, check the browser's <code>coords.accuracy</code> before permitting the "Reached" button. If accuracy is &gt; 50 meters, warn the driver. On the backend, enforce a strict Haversine distance check between driver coordinates and order delivery coordinates (must be &le; 100 meters).
+            </div>
+            <div class="code-recipe">
+              <div class="code-recipe-header"><span>Solution Recipe: GPS Accuracy &amp; Distance Guard</span><span>deliveryValidation.js</span></div>
+              <pre><code>// partnerFrontend/src/utils/geoGuard.js
+export const verifyArrivalProximity = (currentPos, destination) => {
+  if (currentPos.accuracy > 50) {
+    throw new Error('GPS accuracy is too low (' + Math.round(currentPos.accuracy) + 'm). Please wait for a clear satellite lock.');
+  }
+  const distance = calculateHaversine(currentPos.latitude, currentPos.longitude, destination.lat, destination.lng);
+  if (distance > 0.1) { // 100 meters
+    throw new Error('You are ' + Math.round(distance * 1000) + 'm away from the customer delivery address.');
+  }
+  return true;
+};</code></pre>
+            </div>
+          </div>
+
+          <!-- Edge Case 6: Mobile Memory Crash on High-Res Photos -->
+          <div class="edge-card-detailed">
+            <div class="edge-top-row">
+              <div class="edge-title-group">
+                <span class="severity-badge severity-medium">MEDIUM</span>
+                <span class="edge-title">6. Mobile Browser Out-Of-Memory Crash on 48MP Photos</span>
+              </div>
+              <span class="edge-affected-app">Seller Frontend</span>
+            </div>
+            <div class="edge-problem-box">
+              <strong>Failure Scenario:</strong> A seller using a mid-range Android phone takes four 48MP raw photos (15MB each) of clothing items and uploads them via the seller dashboard. When the browser attempts to draw 4 uncompressed images to an HTML canvas or read them into base64, mobile Chrome exceeds its 300MB tab memory limit and immediately crashes to a white screen.
+            </div>
+            <div class="edge-solution-box">
+              <strong>Recommended Solution:</strong> Use an off-main-thread Web Worker compression pipeline (like <code>browser-image-compression</code>) to resize photos down to 1200px max width and convert them to progressive WebP at 80% quality *before* assembling the <code>FormData</code>.
+            </div>
+            <div class="code-recipe">
+              <div class="code-recipe-header"><span>Solution Recipe: Off-Thread Image Compression</span><span>imageCompressor.js</span></div>
+              <pre><code>// adminfrontend/src/utils/imageCompressor.js
+import imageCompression from 'browser-image-compression';
+
+export const compressProductImage = async (file) => {
+  const options = {
+    maxSizeMB: 0.8, // Max 800KB
+    maxWidthOrHeight: 1400,
+    useWebWorker: true,
+    fileType: 'image/webp'
+  };
+  try {
+    return await imageCompression(file, options);
+  } catch (error) {
+    console.error('Compression error:', error);
+    return file; // Fallback
+  }
+};</code></pre>
+            </div>
+          </div>
+
+          <!-- Edge Case 7: JWT Expiration Mid-Checkout Wizard -->
+          <div class="edge-card-detailed">
+            <div class="edge-top-row">
+              <div class="edge-title-group">
+                <span class="severity-badge severity-high">HIGH</span>
+                <span class="edge-title">7. JWT Expiration Mid-Checkout Wizard (Cart Loss)</span>
+              </div>
+              <span class="edge-affected-app">Customer App</span>
+            </div>
+            <div class="edge-problem-box">
+              <strong>Failure Scenario:</strong> A user spends 15 minutes reviewing clothing specifications, picking matching socks, entering a delivery address, and selecting payment method. By the time they click "Submit Order", the short-lived access token (15 mins) has expired. The naive Axios interceptor intercepts the <code>401 Unauthorized</code> and forcefully redirects the user to <code>/login</code>, losing their entered address and cart state!
+            </div>
+            <div class="edge-solution-box">
+              <strong>Recommended Solution:</strong> Implement a transparent Axios refresh token interceptor with request queuing. When a 401 is encountered, pause outgoing requests, silently request a new access token from <code>/api/auth/refresh-token</code>, update headers in memory, and retry the original checkout request seamlessly.
+            </div>
+            <div class="code-recipe">
+              <div class="code-recipe-header"><span>Solution Recipe: Silent Token Refresh Interceptor</span><span>axiosClient.js</span></div>
+              <pre><code>// frontend/src/services/apiClient.js
+let isRefreshing = false;
+let failedQueue = [];
+
+apiClient.interceptors.response.use(
+  (res) => res,
+  async (error) => {
+    const originalRequest = error.config;
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      if (isRefreshing) {
+        return new Promise((resolve, reject) => failedQueue.push({ resolve, reject }))
+          .then(token => { originalRequest.headers['Authorization'] = 'Bearer ' + token; return apiClient(originalRequest); });
+      }
+      originalRequest._retry = true;
+      isRefreshing = true;
+      try {
+        const { data } = await axios.post('/api/auth/refresh-token', {}, { withCredentials: true });
+        store.dispatch(setToken(data.token));
+        failedQueue.forEach(prom => prom.resolve(data.token));
+        failedQueue = [];
+        return apiClient(originalRequest);
+      } catch (err) {
+        failedQueue.forEach(prom => prom.reject(err));
+        window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname);
+      } finally {
+        isRefreshing = false;
+      }
+    }
+    return Promise.reject(error);
+  }
+);</code></pre>
+            </div>
+          </div>
+
+          <!-- Edge Case 8: Concurrent SuperAdmin Zone Conflict -->
+          <div class="edge-card-detailed">
+            <div class="edge-top-row">
+              <div class="edge-title-group">
+                <span class="severity-badge severity-medium">MEDIUM</span>
+                <span class="edge-title">8. Concurrent SuperAdmin FastZone Split-Brain Overwrite</span>
+              </div>
+              <span class="edge-affected-app">SuperAdmin Portal</span>
+            </div>
+            <div class="edge-problem-box">
+              <strong>Failure Scenario:</strong> SuperAdmin A opens Zone 104 to add 3 new pincodes (560045, 560046). SuperAdmin B simultaneously opens Zone 104 to change the assigned local hub admin. SuperAdmin B saves at 12:00:01 PM; SuperAdmin A saves at 12:00:03 PM. SuperAdmin A's save completely overwrites SuperAdmin B's admin assignment because neither the UI nor the backend uses optimistic concurrency locking (`__v`).
+            </div>
+            <div class="edge-solution-box">
+              <strong>Recommended Solution:</strong> Pass the document's Mongoose <code>__v</code> version key in the update payload. If the version in the database has incremented since the form was opened, reject with <code>409 Concurrency Conflict</code> and display a visual side-by-side diff merge dialog.
+            </div>
+            <div class="code-recipe">
+              <div class="code-recipe-header"><span>Solution Recipe: Version Lock &amp; Conflict Resolver</span><span>ZoneEditor.jsx</span></div>
+              <pre><code>// superadmin/src/pages/ZoneEditor.jsx
+const updateZone = async (zoneData) => {
+  try {
+    await api.put(`/api/superadmin/zones/${zoneId}`, {
+      ...zoneData,
+      version: currentZone.__v // Send current version
+    });
+    toast.success('Zone updated successfully');
+  } catch (error) {
+    if (error.response?.status === 409) {
+      openConflictModal({
+        currentServerData: error.response.data.serverZone,
+        yourChanges: zoneData,
+        onResolve: (mergedData) => updateZone(mergedData)
+      });
+    }
+  }
+};</code></pre>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+
+<!-- Toast Notification -->
+<div id="toast" class="toast">
+  <span style="color:var(--accent-cyan);">⚡</span>
+  <span id="toastMsg">Simulating data flow...</span>
+</div>
+
+<script>
+  let currentStep = 1;
+  const stepDetails = [
+    { title: "Step 1: User Interaction", desc: "Customer clicks 'Place Order' in Checkout, Delivery Partner clicks 'Accept Order', or Seller toggles product visibility." },
+    { title: "Step 2: Local UI State Transition", desc: "Component enters loading state (isMutating = true), disables submit button to prevent double-clicks, and captures form payload via React Hook Form." },
+    { title: "Step 3: Server Mutation Hook", desc: "React Query useMutation or RTK Query mutation hook is invoked with validated data payload." },
+    { title: "Step 4: Axios / API Client Interceptor", desc: "Attaches Authorization: Bearer JWT token, validates headers, and transmits HTTP request to Node.js/Express backend." },
+    { title: "Step 5: Backend Router & Controller Execution", desc: "Traffic arrives at Express route, passes auth/rate-limit middleware, executes Joi/Zod validation, and enters Controller logic." },
+    { title: "Step 6: Database Persistence & Cache Update", desc: "Executes atomic MongoDB updates ($inc stock, orders insert, etc.) and invalidates corresponding Redis catalog caches." },
+    { title: "Step 7: Cache Invalidation & Global Sync", desc: "React Query invalidateQueries triggers background re-fetch; Zustand/Redux updates synchronous badges (e.g. cart count)." },
+    { title: "Step 8: UI Re-Render & User Feedback", desc: "Loading skeletons resolve to fresh data; a celebratory toast notification confirms the successful operation." }
+  ];
+
+  function selectStep(stepNum) {
+    currentStep = stepNum;
+    updateStepUI();
+  }
+
+  function advanceStep() {
+    currentStep = currentStep >= 8 ? 1 : currentStep + 1;
+    updateStepUI();
+  }
+
+  function updateStepUI() {
+    const nodes = document.querySelectorAll('.cycle-node');
+    nodes.forEach((n, idx) => {
+      if (idx + 1 === currentStep) {
+        n.classList.add('active-step');
+      } else {
+        n.classList.remove('active-step');
+      }
+    });
+
+    const info = stepDetails[currentStep - 1];
+    document.getElementById('stepTitle').innerText = info.title;
+    document.getElementById('stepDesc').innerText = info.desc;
+  }
+
+  let simInterval = null;
+  function simulateDataFlow() {
+    if (simInterval) {
+      clearInterval(simInterval);
+      simInterval = null;
+      showToast("Simulation paused.");
+      return;
+    }
+    showToast("Starting live dataflow pulse across 8 lifecycle stages...");
+    currentStep = 1;
+    updateStepUI();
+    simInterval = setInterval(() => {
+      advanceStep();
+      if (currentStep === 8) {
+        setTimeout(() => {
+          clearInterval(simInterval);
+          simInterval = null;
+          showToast("Dataflow simulation completed successfully!");
+        }, 1000);
+      }
+    }, 1200);
+  }
+
+  function filterContent() {
+    const query = document.getElementById('globalSearch').value.toLowerCase();
+    const rows = document.querySelectorAll('.flow-table tbody tr');
+    const edgeCards = document.querySelectorAll('.edge-card-detailed');
+
+    rows.forEach(row => {
+      const text = row.innerText.toLowerCase();
+      row.style.display = text.includes(query) ? '' : 'none';
+    });
+
+    edgeCards.forEach(card => {
+      const text = card.innerText.toLowerCase();
+      card.style.display = text.includes(query) ? '' : 'none';
+    });
+  }
+
+  function setFilter(appType, btn) {
+    document.querySelectorAll('.filter-tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    const cards = document.querySelectorAll('[data-app]');
+    cards.forEach(c => {
+      const app = c.getAttribute('data-app');
+      if (appType === 'all' || app === appType) {
+        c.style.display = '';
+      } else {
+        c.style.display = 'none';
+      }
+    });
+    showToast(`Filtering view: ${appType.toUpperCase()}`);
+  }
+
+  function expandAllSections() {
+    showToast("All sections and code recipes fully expanded.");
+  }
+
+  function showToast(msg) {
+    const toast = document.getElementById('toast');
+    const toastMsg = document.getElementById('toastMsg');
+    toastMsg.innerText = msg;
+    toast.classList.add('show');
+    setTimeout(() => {
+      toast.classList.remove('show');
+    }, 2500);
+  }
+</script>
+
+</body>
+</html>
