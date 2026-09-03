@@ -9,7 +9,10 @@ const associationRuleSchema = new mongoose.Schema({
   bundleDiscount: { type: Number, default: 15 },
   bundleName: { type: String, default: '' },
   description: { type: String, default: '' },
-  isActive: { type: Boolean, default: true }
+  isActive: { type: Boolean, default: true }, 
+  createdAt:{
+    type:Date
+  }
 }, {
   timestamps: true
 });
