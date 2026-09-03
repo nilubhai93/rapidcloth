@@ -1,0 +1,2946 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RapidCloth Backend - API Specification & System Architecture</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-base: #0a0d14;
+      --bg-surface: #101624;
+      --bg-elevated: #161f33;
+      --bg-card: #141c2e;
+      --bg-card-hover: #1b263e;
+      --border-subtle: #1e293b;
+      --border-light: rgba(255, 255, 255, 0.08);
+      --border-focus: #6366f1;
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      
+      --accent-brand: #6366f1;
+      --accent-cyan: #06b6d4;
+      --accent-emerald: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-rose: #f43f5e;
+      --accent-violet: #8b5cf6;
+      
+      --method-get: #0ea5e9;
+      --method-post: #10b981;
+      --method-put: #f59e0b;
+      --method-delete: #ef4444;
+      --method-patch: #8b5cf6;
+      
+      --code-bg: #07090e;
+      --code-text: #e2e8f0;
+      
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 16px;
+      --radius-xl: 20px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-base);
+      color: var(--text-primary);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    code, pre, .font-mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    h1, h2, h3, h4, .font-heading {
+      font-family: 'Outfit', sans-serif;
+      letter-spacing: -0.02em;
+    }
+
+    /* Scrollbars */
+    ::-webkit-scrollbar {
+      width: 7px;
+      height: 7px;
+    }
+    ::-webkit-scrollbar-track {
+      background: var(--bg-base);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #27354f;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #384b70;
+    }
+
+    /* Layout structure */
+    .app-container {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* Header */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(10, 13, 20, 0.82);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 0.85rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.5rem;
+    }
+
+    .brand-section {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .brand-logo {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #6366f1, #06b6d4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 1.25rem;
+      color: white;
+      box-shadow: 0 4px 20px rgba(99, 102, 241, 0.35);
+    }
+
+    .brand-title {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .brand-badge {
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 20px;
+      background: rgba(99, 102, 241, 0.15);
+      color: #a5b4fc;
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .search-box {
+      position: relative;
+      width: 280px;
+    }
+
+    .search-box input {
+      width: 100%;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      padding: 0.5rem 0.85rem 0.5rem 2.2rem;
+      border-radius: var(--radius-md);
+      color: var(--text-primary);
+      font-size: 0.85rem;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    .search-box input:focus {
+      border-color: var(--accent-brand);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+    }
+
+    .search-box svg {
+      position: absolute;
+      left: 0.75rem;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 15px;
+      height: 15px;
+      fill: var(--text-muted);
+    }
+
+    .config-pill {
+      display: flex;
+      align-items: center;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 0.35rem 0.75rem;
+      font-size: 0.8rem;
+      gap: 0.5rem;
+      color: var(--text-secondary);
+    }
+
+    .config-pill input {
+      background: transparent;
+      border: none;
+      color: var(--accent-cyan);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem;
+      width: 140px;
+      outline: none;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.45rem;
+      padding: 0.45rem 0.95rem;
+      border-radius: var(--radius-md);
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: none;
+      text-decoration: none;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #6366f1, #4f46e5);
+      color: white;
+      box-shadow: 0 2px 10px rgba(99, 102, 241, 0.25);
+    }
+    .btn-primary:hover {
+      box-shadow: 0 4px 16px rgba(99, 102, 241, 0.45);
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background: var(--bg-elevated);
+      color: var(--text-secondary);
+      border: 1px solid var(--border-subtle);
+    }
+    .btn-secondary:hover {
+      color: var(--text-primary);
+      border-color: #334155;
+      background: var(--bg-card-hover);
+    }
+
+    /* Main Container Grid */
+    .main-layout {
+      display: flex;
+      flex: 1;
+      height: calc(100vh - 65px);
+    }
+
+    /* Sidebar Navigation */
+    .sidebar {
+      width: 320px;
+      min-width: 320px;
+      background: var(--bg-surface);
+      border-right: 1px solid var(--border-subtle);
+      overflow-y: auto;
+      padding: 1.5rem 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .sidebar-section-title {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 0.5rem;
+      padding-left: 0.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .nav-item a {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.5rem 0.75rem;
+      border-radius: var(--radius-md);
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.84rem;
+      font-weight: 500;
+      transition: all 0.15s ease;
+    }
+
+    .nav-item a:hover {
+      background: var(--bg-elevated);
+      color: var(--text-primary);
+    }
+
+    .nav-item.active a {
+      background: rgba(99, 102, 241, 0.12);
+      color: #a5b4fc;
+      border: 1px solid rgba(99, 102, 241, 0.25);
+      font-weight: 600;
+    }
+
+    .method-tag {
+      font-size: 0.65rem;
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+      padding: 1px 6px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .tag-get { background: rgba(14, 165, 233, 0.15); color: #38bdf8; border: 1px solid rgba(14, 165, 233, 0.3); }
+    .tag-post { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+    .tag-put { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+    .tag-delete { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+    .tag-patch { background: rgba(139, 92, 246, 0.15); color: #a78bfa; border: 1px solid rgba(139, 92, 246, 0.3); }
+
+    /* Content Area */
+    .content-area {
+      flex: 1;
+      overflow-y: auto;
+      padding: 2rem 3rem 4rem 3rem;
+      display: flex;
+      flex-direction: column;
+      gap: 3rem;
+    }
+
+    /* Hero Banner */
+    .hero-banner {
+      background: linear-gradient(135deg, rgba(30, 41, 59, 0.6), rgba(15, 23, 42, 0.8)), radial-gradient(circle at top right, rgba(99, 102, 241, 0.15), transparent 60%);
+      border: 1px solid rgba(99, 102, 241, 0.25);
+      border-radius: var(--radius-xl);
+      padding: 2.25rem 2.5rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-badge-row {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .hero-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: var(--text-secondary);
+    }
+
+    .hero-title {
+      font-size: 2.25rem;
+      font-weight: 800;
+      color: #ffffff;
+      margin-bottom: 0.75rem;
+      line-height: 1.2;
+    }
+
+    .hero-desc {
+      color: var(--text-secondary);
+      font-size: 1.05rem;
+      max-width: 820px;
+      margin-bottom: 1.75rem;
+    }
+
+    .hero-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+    }
+
+    .stat-card {
+      background: rgba(10, 13, 20, 0.5);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-md);
+      padding: 1rem 1.25rem;
+      backdrop-filter: blur(8px);
+    }
+
+    .stat-value {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: #ffffff;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .stat-label {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+    }
+
+    /* Architecture Visualizer Section */
+    .section-header {
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 0.75rem;
+    }
+
+    .section-title {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .section-desc {
+      color: var(--text-secondary);
+      font-size: 0.92rem;
+      margin-top: 0.25rem;
+    }
+
+    .arch-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .arch-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 1.4rem;
+      transition: all 0.2s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .arch-card:hover {
+      border-color: var(--accent-brand);
+      background: var(--bg-card-hover);
+      transform: translateY(-2px);
+    }
+
+    .arch-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+    }
+
+    .arch-card.router::before { background: var(--accent-cyan); }
+    .arch-card.controller::before { background: var(--accent-brand); }
+    .arch-card.service::before { background: var(--accent-violet); }
+    .arch-card.model::before { background: var(--accent-emerald); }
+    .arch-card.middleware::before { background: var(--accent-amber); }
+
+    .arch-num {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 0.4rem;
+    }
+
+    .arch-name {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 0.5rem;
+    }
+
+    .arch-desc {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    /* Sequence Flow Box */
+    .sequence-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 1.75rem;
+    }
+
+    .flow-steps {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      overflow-x: auto;
+      padding: 1rem 0;
+      gap: 1rem;
+    }
+
+    .flow-node {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      min-width: 110px;
+    }
+
+    .flow-node-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      margin-bottom: 0.5rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+
+    .flow-node-label {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #ffffff;
+    }
+
+    .flow-node-sub {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+    }
+
+    .flow-arrow {
+      color: var(--accent-brand);
+      font-size: 1.2rem;
+      font-weight: bold;
+    }
+
+    /* Endpoint Cards */
+    .endpoints-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+
+    .domain-section {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+    }
+
+    .domain-header {
+      padding: 1.25rem 1.75rem;
+      background: var(--bg-elevated);
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .domain-title-group {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .domain-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      background: rgba(99, 102, 241, 0.15);
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+    }
+
+    .domain-name {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    .domain-count {
+      font-size: 0.75rem;
+      padding: 2px 9px;
+      border-radius: 12px;
+      background: var(--bg-surface);
+      color: var(--text-muted);
+      border: 1px solid var(--border-light);
+    }
+
+    /* Individual Endpoint Card */
+    .endpoint-card {
+      border-bottom: 1px solid var(--border-subtle);
+      background: var(--bg-surface);
+      transition: background 0.15s ease;
+    }
+
+    .endpoint-card:last-child {
+      border-bottom: none;
+    }
+
+    .endpoint-header {
+      padding: 1.25rem 1.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      user-select: none;
+      gap: 1rem;
+    }
+
+    .endpoint-header:hover {
+      background: var(--bg-elevated);
+    }
+
+    .endpoint-main-meta {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+      flex: 1;
+    }
+
+    .method-pill {
+      font-size: 0.75rem;
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+      padding: 4px 10px;
+      border-radius: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      min-width: 68px;
+      text-align: center;
+    }
+
+    .method-pill.get { background: rgba(14, 165, 233, 0.18); color: #38bdf8; border: 1px solid rgba(14, 165, 233, 0.4); }
+    .method-pill.post { background: rgba(16, 185, 129, 0.18); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); }
+    .method-pill.put { background: rgba(245, 158, 11, 0.18); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); }
+    .method-pill.delete { background: rgba(239, 68, 68, 0.18); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); }
+    .method-pill.patch { background: rgba(139, 92, 246, 0.18); color: #a78bfa; border: 1px solid rgba(139, 92, 246, 0.4); }
+
+    .endpoint-path {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .endpoint-summary {
+      color: var(--text-secondary);
+      font-size: 0.88rem;
+    }
+
+    .endpoint-badges {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .auth-badge {
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 4px;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .auth-none { background: rgba(100, 116, 139, 0.15); color: #94a3b8; border: 1px solid rgba(100, 116, 139, 0.3); }
+    .auth-user { background: rgba(99, 102, 241, 0.15); color: #a5b4fc; border: 1px solid rgba(99, 102, 241, 0.3); }
+    .auth-delivery { background: rgba(245, 158, 11, 0.15); color: #fcd34d; border: 1px solid rgba(245, 158, 11, 0.3); }
+    .auth-seller { background: rgba(16, 185, 129, 0.15); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.3); }
+    .auth-superadmin { background: rgba(244, 63, 94, 0.15); color: #fda4af; border: 1px solid rgba(244, 63, 94, 0.3); }
+
+    .toggle-icon {
+      color: var(--text-muted);
+      transition: transform 0.2s ease;
+    }
+
+    .endpoint-card.open .toggle-icon {
+      transform: rotate(180deg);
+    }
+
+    /* Endpoint Body & Specs */
+    .endpoint-details {
+      display: none;
+      padding: 1.5rem 1.75rem 2rem 1.75rem;
+      border-top: 1px solid var(--border-subtle);
+      background: var(--bg-card);
+    }
+
+    .endpoint-card.open .endpoint-details {
+      display: block;
+    }
+
+    .details-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.75rem;
+    }
+
+    @media (max-width: 1024px) {
+      .details-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .pane-title {
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    /* Params Table */
+    .specs-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .specs-table th {
+      text-align: left;
+      padding: 0.5rem 0.75rem;
+      background: var(--bg-elevated);
+      color: var(--text-muted);
+      font-weight: 600;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .specs-table td {
+      padding: 0.6rem 0.75rem;
+      border-bottom: 1px solid var(--border-subtle);
+      color: var(--text-secondary);
+      vertical-align: top;
+    }
+
+    .param-name {
+      font-family: 'JetBrains Mono', monospace;
+      color: #ffffff;
+      font-weight: 600;
+    }
+
+    .param-type {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      color: var(--accent-cyan);
+    }
+
+    .param-required {
+      color: var(--accent-rose);
+      font-size: 0.7rem;
+      font-weight: 600;
+    }
+
+    /* Code Container & Editor */
+    .code-container {
+      background: var(--code-bg);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .code-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.5rem 0.85rem;
+      background: rgba(255, 255, 255, 0.03);
+      border-bottom: 1px solid var(--border-subtle);
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .code-editor {
+      width: 100%;
+      min-height: 140px;
+      max-height: 280px;
+      background: transparent;
+      border: none;
+      color: var(--code-text);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.82rem;
+      padding: 0.85rem;
+      resize: vertical;
+      outline: none;
+      line-height: 1.5;
+    }
+
+    .code-pre {
+      padding: 0.85rem;
+      overflow-x: auto;
+      font-size: 0.82rem;
+      line-height: 1.5;
+      color: var(--code-text);
+      max-height: 320px;
+    }
+
+    /* Copy Button */
+    .copy-btn {
+      background: transparent;
+      border: 1px solid var(--border-subtle);
+      color: var(--text-secondary);
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.7rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      transition: all 0.15s ease;
+    }
+
+    .copy-btn:hover {
+      color: #ffffff;
+      background: var(--bg-card-hover);
+      border-color: #475569;
+    }
+
+    /* Tabbed Response Box */
+    .response-tabs {
+      display: flex;
+      gap: 0.35rem;
+      margin-bottom: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .res-tab {
+      padding: 0.35rem 0.75rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.75rem;
+      font-weight: 600;
+      font-family: 'JetBrains Mono', monospace;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .res-tab:hover {
+      color: var(--text-primary);
+    }
+
+    .res-tab.active-200, .res-tab.active-201 {
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      border-color: rgba(16, 185, 129, 0.4);
+    }
+
+    .res-tab.active-400, .res-tab.active-401, .res-tab.active-403, .res-tab.active-404, .res-tab.active-409 {
+      background: rgba(244, 63, 94, 0.15);
+      color: #fda4af;
+      border-color: rgba(244, 63, 94, 0.4);
+    }
+
+    .res-tab.active-500 {
+      background: rgba(239, 68, 68, 0.2);
+      color: #fca5a5;
+      border-color: rgba(239, 68, 68, 0.5);
+    }
+
+    /* Action bar */
+    .action-bar {
+      margin-top: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    /* Pro Tips and Edge Cases section */
+    .edge-case-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 1.25rem;
+    }
+
+    .edge-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem;
+      position: relative;
+    }
+
+    .edge-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .edge-badge {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.95rem;
+    }
+
+    .edge-badge.warning { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
+    .edge-badge.info { background: rgba(6, 182, 212, 0.15); color: #22d3ee; }
+    .edge-badge.success { background: rgba(16, 185, 129, 0.15); color: #34d399; }
+
+    .edge-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #ffffff;
+    }
+
+    .edge-desc {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin-bottom: 1rem;
+      line-height: 1.5;
+    }
+
+    .edge-code {
+      background: var(--code-bg);
+      padding: 0.75rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.78rem;
+      color: #38bdf8;
+      border: 1px solid rgba(255,255,255,0.05);
+      overflow-x: auto;
+    }
+
+    /* Interactive Live Console Modal */
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      background: var(--bg-card);
+      border: 1px solid var(--accent-emerald);
+      color: #ffffff;
+      padding: 0.75rem 1.25rem;
+      border-radius: var(--radius-md);
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      z-index: 1000;
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .main-layout {
+        flex-direction: column;
+        height: auto;
+      }
+      .sidebar {
+        width: 100%;
+        min-width: auto;
+        border-right: none;
+        border-bottom: 1px solid var(--border-subtle);
+        max-height: 280px;
+      }
+      .content-area {
+        padding: 1.5rem 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="app-container">
+  <!-- Header -->
+  <header>
+    <div class="brand-section">
+      <div class="brand-logo">RC</div>
+      <div>
+        <div class="brand-title">
+          RapidCloth Backend
+          <span class="brand-badge">REST API v1.0.0</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="header-controls">
+      <div class="search-box">
+        <svg viewBox="0 0 24 24"><path d="M10 18a7.952 7.952 0 0 0 4.897-1.688l4.396 4.396 1.414-1.414-4.396-4.396A7.952 7.952 0 0 0 18 10c0-4.411-3.589-8-8-8s-8 3.589-8 8 3.589 8 8 8zm0-14c3.309 0 6 2.691 6 6s-2.691 6-6 6-6-2.691-6-6 2.691-6 6-6z"/></svg>
+        <input type="text" id="apiSearch" placeholder="Search routes, methods, payload..." onkeyup="filterEndpoints()">
+      </div>
+
+      <div class="config-pill" title="Default Backend Base URL">
+        <span>Base URL:</span>
+        <input type="text" id="baseUrlInput" value="http://localhost:5000">
+      </div>
+
+      <div class="config-pill" title="Bearer Token for Authenticated Calls">
+        <span>JWT Token:</span>
+        <input type="password" id="authTokenInput" placeholder="Paste Bearer JWT...">
+      </div>
+
+      <button class="btn btn-secondary" onclick="toggleMockMode()" id="mockToggleBtn">
+        <span id="mockDot" style="width:8px; height:8px; border-radius:50%; background:var(--accent-emerald);"></span>
+        <span id="mockLabel">Mock Engine: Active</span>
+      </button>
+
+      <button class="btn btn-primary" onclick="expandAll()">Expand All</button>
+      <button class="btn btn-secondary" onclick="collapseAll()">Collapse All</button>
+    </div>
+  </header>
+
+  <div class="main-layout">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+      <div>
+        <div class="sidebar-section-title">
+          <span>Overview</span>
+        </div>
+        <ul class="nav-list">
+          <li class="nav-item active"><a href="#architecture">🏛️ System Architecture</a></li>
+          <li class="nav-item"><a href="#sequence-flow">⚡ Request Lifecycle Flow</a></li>
+          <li class="nav-item"><a href="#security-db">🛡️ Database & Security</a></li>
+          <li class="nav-item"><a href="#edge-cases">💡 Edge Cases & Pro Tips</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <div class="sidebar-section-title">
+          <span>API Domains</span>
+          <span style="font-size:0.68rem; color:var(--accent-brand);">9 Domains</span>
+        </div>
+        <ul class="nav-list" id="sidebarDomainLinks">
+          <li class="nav-item"><a href="#domain-auth"><span>🔐 Authentication</span> <span class="method-tag tag-post">POST</span></a></li>
+          <li class="nav-item"><a href="#domain-cart"><span>🛒 Cart & Bundles</span> <span class="method-tag tag-post">POST</span></a></li>
+          <li class="nav-item"><a href="#domain-orders"><span>📦 Orders & Tracking</span> <span class="method-tag tag-post">POST</span></a></li>
+          <li class="nav-item"><a href="#domain-delivery"><span>🚴 Delivery Partner</span> <span class="method-tag tag-put">PUT</span></a></li>
+          <li class="nav-item"><a href="#domain-seller"><span>🏪 Seller Dashboard</span> <span class="method-tag tag-post">POST</span></a></li>
+          <li class="nav-item"><a href="#domain-superadmin"><span>👑 SuperAdmin & Zones</span> <span class="method-tag tag-post">POST</span></a></li>
+          <li class="nav-item"><a href="#domain-tryon"><span>✨ AI & Virtual Try-On</span> <span class="method-tag tag-post">POST</span></a></li>
+          <li class="nav-item"><a href="#domain-products"><span>👗 Product Catalog</span> <span class="method-tag tag-get">GET</span></a></li>
+          <li class="nav-item"><a href="#domain-system"><span>⚙️ System & Upload</span> <span class="method-tag tag-get">GET</span></a></li>
+        </ul>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="content-area">
+      <!-- Hero Banner -->
+      <section class="hero-banner">
+        <div class="hero-badge-row">
+          <span class="hero-tag"><span style="color:var(--accent-emerald);">●</span> Node.js / Express.js</span>
+          <span class="hero-tag">MongoDB + Mongoose</span>
+          <span class="hero-tag">Redis Cache</span>
+          <span class="hero-tag">Socket.io Realtime</span>
+          <span class="hero-tag">JWT Auth + RBAC</span>
+          <span class="hero-tag">Multer / Cloudinary</span>
+        </div>
+        <h1 class="hero-title">RapidCloth - Backend System & API Documentation</h1>
+        <p class="hero-desc">
+          High-performance, layered architecture designed for rapid on-demand fashion commerce. Featuring instant 30-minute delivery matching, virtual AI try-on rendering, atomic inventory locks, and zoned operations.
+        </p>
+
+        <div class="hero-stats">
+          <div class="stat-card">
+            <div class="stat-value">38+</div>
+            <div class="stat-label">Production Endpoints</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">&lt; 30m</div>
+            <div class="stat-label">Ultra-Fast Dispatch</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">Atomic</div>
+            <div class="stat-label">Concurrency Locks</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">Socket.io</div>
+            <div class="stat-label">Realtime Partner GPS</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 1: Architecture Breakdown -->
+      <section id="architecture">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">1. Layered Backend Architecture (N-Tier)</h2>
+            <p class="section-desc">Separation of concerns ensuring business logic is isolated from HTTP transport mechanisms.</p>
+          </div>
+        </div>
+
+        <div class="arch-grid">
+          <div class="arch-card router">
+            <div class="arch-num">Layer 01</div>
+            <div class="arch-name">Router Layer (/routes)</div>
+            <p class="arch-desc">The traffic controller. Maps HTTP verbs &amp; endpoints to controllers, applying Auth, Rate Limiting, and Joi/Zod validation schemas.</p>
+          </div>
+
+          <div class="arch-card controller">
+            <div class="arch-num">Layer 02</div>
+            <div class="arch-name">Controller Layer (/controllers)</div>
+            <p class="arch-desc">Handles HTTP Request &amp; Response cycles. Extracts <code style="color:#06b6d4;">req.body</code> and <code style="color:#06b6d4;">req.params</code>, orchestrates services, and emits JSON responses.</p>
+          </div>
+
+          <div class="arch-card service">
+            <div class="arch-num">Layer 03</div>
+            <div class="arch-name">Service Layer (Business Logic)</div>
+            <p class="arch-desc">Encapsulates domain logic: cart totals, multi-vendor split discounts, delivery partner proximity scoring, and GPU AI calls.</p>
+          </div>
+
+          <div class="arch-card model">
+            <div class="arch-num">Layer 04</div>
+            <div class="arch-name">DAO / Data Layer (/models)</div>
+            <p class="arch-desc">Mongoose schemas enforcing database constraints, compound indexing (<code style="color:#10b981;">2dsphere</code> for GPS), and atomic queries.</p>
+          </div>
+
+          <div class="arch-card middleware">
+            <div class="arch-num">Layer 05</div>
+            <div class="arch-name">Middleware Interceptors (/middleware)</div>
+            <p class="arch-desc">JWT verification, RBAC permissions (<code style="color:#f59e0b;">superAdminOnly</code>, <code style="color:#f59e0b;">sellerOrAdmin</code>), Multer file pipelines, and NoSQL sanitizers.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 2: Sequence Lifecycle Flow -->
+      <section id="sequence-flow">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">2. End-to-End Request Lifecycle Flow</h2>
+            <p class="section-desc">Trace of a critical request (e.g. Order Placement with atomic stock decrement &amp; socket dispatch).</p>
+          </div>
+        </div>
+
+        <div class="sequence-box">
+          <div class="flow-steps">
+            <div class="flow-node">
+              <div class="flow-node-icon">📱</div>
+              <div class="flow-node-label">Client App</div>
+              <div class="flow-node-sub">Bearer Token</div>
+            </div>
+            <div class="flow-arrow">➔</div>
+            <div class="flow-node">
+              <div class="flow-node-icon" style="border-color:var(--accent-cyan);">🛡️</div>
+              <div class="flow-node-label">API Gateway</div>
+              <div class="flow-node-sub">Rate Limit &amp; Helmet</div>
+            </div>
+            <div class="flow-arrow">➔</div>
+            <div class="flow-node">
+              <div class="flow-node-icon" style="border-color:var(--accent-amber);">🔑</div>
+              <div class="flow-node-label">Middleware</div>
+              <div class="flow-node-sub">JWT &amp; Zod Schema</div>
+            </div>
+            <div class="flow-arrow">➔</div>
+            <div class="flow-node">
+              <div class="flow-node-icon" style="border-color:var(--accent-brand);">🧠</div>
+              <div class="flow-node-label">Controller</div>
+              <div class="flow-node-sub">Order Orchestration</div>
+            </div>
+            <div class="flow-arrow">➔</div>
+            <div class="flow-node">
+              <div class="flow-node-icon" style="border-color:var(--accent-emerald);">🗄️</div>
+              <div class="flow-node-label">MongoDB</div>
+              <div class="flow-node-sub">Atomic Stock Decr</div>
+            </div>
+            <div class="flow-arrow">➔</div>
+            <div class="flow-node">
+              <div class="flow-node-icon" style="border-color:var(--accent-violet);">⚡</div>
+              <div class="flow-node-label">Socket.io</div>
+              <div class="flow-node-sub">Driver Auto-Assign</div>
+            </div>
+            <div class="flow-arrow">➔</div>
+            <div class="flow-node">
+              <div class="flow-node-icon">✅</div>
+              <div class="flow-node-label">201 Created</div>
+              <div class="flow-node-sub">Order Confirmed</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 3: API Reference & Endpoints -->
+      <section id="api-endpoints">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">3. Complete API Specification &amp; Interactive Playground</h2>
+            <p class="section-desc">Click any endpoint to view schema, headers, editable request payloads, and test responses.</p>
+          </div>
+        </div>
+
+        <div class="endpoints-wrapper" id="endpointsContainer">
+          <!-- DOMAIN 1: AUTHENTICATION -->
+          <div class="domain-section" id="domain-auth">
+            <div class="domain-header">
+              <div class="domain-title-group">
+                <div class="domain-icon">🔐</div>
+                <div class="domain-name">Authentication &amp; User Profile</div>
+              </div>
+              <span class="domain-count">5 Endpoints</span>
+            </div>
+
+            <!-- Endpoint: POST /api/auth/register -->
+            <div class="endpoint-card open" data-endpoint="/api/auth/register" data-method="POST" data-tags="auth register signup">
+              <div class="endpoint-header" onclick="toggleCard(this)">
+                <div class="endpoint-main-meta">
+                  <span class="method-pill post">POST</span>
+                  <span class="endpoint-path">/api/auth/register</span>
+                  <span class="endpoint-summary">Register a new customer, seller, or delivery partner</span>
+                </div>
+                <div class="endpoint-badges">
+                  <span class="auth-badge auth-none">Public</span>
+                  <span class="toggle-icon">▼</span>
+                </div>
+              </div>
+              <div class="endpoint-details">
+                <div class="details-grid">
+                  <div>
+                    <div class="pane-title">
+                      <span>Request Body (application/json)</span>
+                      <button class="copy-btn" onclick="copySnippet(this, 'req-auth-reg')">Copy</button>
+                    </div>
+                    <div class="code-container">
+                      <div class="code-header"><span>JSON Payload</span><span>Editable</span></div>
+                      <textarea class="code-editor" id="req-auth-reg">{
+  "name": "Alex Mercer",
+  "email": "alex.mercer@example.com",
+  "password": "SecurePassword123!",
+  "phone": "+919876543210",
+  "role": "user"
+}</textarea>
+                    </div>
+
+                    <div class="action-bar">
+                      <button class="btn btn-primary" onclick="sendApiRequest(this, 'POST', '/api/auth/register', 'req-auth-reg', 'res-auth-reg')">
+                        ⚡ Send Request
+                      </button>
+                      <button class="btn btn-secondary" onclick="copyCurl('POST', '/api/auth/register', 'req-auth-reg')">
+                        Copy cURL
+                      </button>
+                    </div>
+                  </div>
+
+                  <div>
+                    <div class="pane-title">
+                      <span>Response Payloads</span>
+                      <div class="response-tabs">
+                        <button class="res-tab active-201" onclick="switchResponse(this, 'res-auth-reg', '201')">201 Created</button>
+                        <button class="res-tab" onclick="switchResponse(this, 'res-auth-reg', '400')">400 Bad Request</button>
+                      </div>
+                    </div>
+                    <div class="code-container">
+                      <div class="code-header">
+                        <span id="res-auth-reg-status" style="color:var(--accent-emerald);">Status: 201 Created</span>
+                        <button class="copy-btn" onclick="copySnippet(this, 'res-auth-reg-pre')">Copy JSON</button>
+                      </div>
+                      <pre class="code-pre" id="res-auth-reg-pre"><code id="res-auth-reg">{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2ZDZhMWIyYzNkNGU1ZjZhN2I4YzlkMCIsInJvbGUiOiJ1c2VyIn0...",
+  "user": {
+    "id": "66d6a1b2c3d4e5f6a7b8c9d0",
+    "name": "Alex Mercer",
+    "email": "alex.mercer@example.com",
+    "role": "user",
+    "phone": "+919876543210",
+    "createdAt": "2026-09-03T17:00:00.000Z"
+  }
+}</code></pre>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Endpoint: POST /api/auth/login -->
+            <div class="endpoint-card" data-endpoint="/api/auth/login" data-method="POST" data-tags="auth login signin jwt">
+              <div class="endpoint-header" onclick="toggleCard(this)">
+                <div class="endpoint-main-meta">
+                  <span class="method-pill post">POST</span>
+                  <span class="endpoint-path">/api/auth/login</span>
+                  <span class="endpoint-summary">Authenticate user credentials and receive JWT Bearer token</span>
+                </div>
+                <div class="endpoint-badges">
+                  <span class="auth-badge auth-none">Public</span>
+                  <span class="toggle-icon">▼</span>
+                </div>
+              </div>
+              <div class="endpoint-details">
+                <div class="details-grid">
+                  <div>
+                    <div class="pane-title"><span>Request Body</span></div>
+                    <div class="code-container">
+                      <div class="code-header"><span>JSON Payload</span><span>Editable</span></div>
+                      <textarea class="code-editor" id="req-auth-login">{
+  "email": "alex.mercer@example.com",
+  "password": "SecurePassword123!"
+}</textarea>
+                    </div>
+                    <div class="action-bar">
+                      <button class="btn btn-primary" onclick="sendApiRequest(this, 'POST', '/api/auth/login', 'req-auth-login', 'res-auth-login')">⚡ Send Request</button>
+                      <button class="btn btn-secondary" onclick="copyCurl('POST', '/api/auth/login', 'req-auth-login')">Copy cURL</button>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="pane-title">
+                      <span>Response Payloads</span>
+                      <div class="response-tabs">
+                        <button class="res-tab active-200" onclick="switchResponse(this, 'res-auth-login', '200')">200 OK</button>
+                        <button class="res-tab" onclick="switchResponse(this, 'res-auth-login', '401')">401 Unauthorized</button>
+                      </div>
+                    </div>
+                    <div class="code-container">
+                      <div class="code-header"><span id="res-auth-login-status" style="color:var(--accent-emerald);">Status: 200 OK</span><button class="copy-btn" onclick="copySnippet(this, 'res-auth-login-pre')">Copy JSON</button></div>
+                      <pre class="code-pre" id="res-auth-login-pre"><code id="res-auth-login">{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "user": {
+    "id": "66d6a1b2c3d4e5f6a7b8c9d0",
+    "name": "Alex Mercer",
+    "email": "alex.mercer@example.com",
+    "role": "user"
+  }
+}</code></pre>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Endpoint: GET /api/auth/zones -->
+            <div class="endpoint-card" data-endpoint="/api/auth/zones" data-method="GET" data-tags="auth zones public geolocation">
+              <div class="endpoint-header" onclick="toggleCard(this)">
+                <div class="endpoint-main-meta">
+                  <span class="method-pill get">GET</span>
+                  <span class="endpoint-path">/api/auth/zones</span>
+                  <span class="endpoint-summary">Retrieve public active operational zones &amp; supported pincodes</span>
+                </div>
+                <div class="endpoint-badges">
+                  <span class="auth-badge auth-none">Public</span>
+                  <span class="toggle-icon">▼</span>
+                </div>
+              </div>
+              <div class="endpoint-details">
+                <div class="details-grid">
+                  <div>
+                    <div class="pane-title"><span>Request Parameters</span></div>
+                    <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1rem;">No request body or auth token required for this public endpoint.</p>
+                    <div class="action-bar">
+                      <button class="btn btn-primary" onclick="sendApiRequest(this, 'GET', '/api/auth/zones', null, 'res-auth-zones')">⚡ Send Request</button>
+                      <button class="btn btn-secondary" onclick="copyCurl('GET', '/api/auth/zones', null)">Copy cURL</button>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="pane-title"><span>Response (200 OK)</span></div>
+                    <div class="code-container">
+                      <pre class="code-pre"><code id="res-auth-zones">{
+  "zones": [
+    {
+      "_id": "66d6c1e2f3a4b5c6d7e8f9a0",
+      "name": "Bengaluru Central FastZone",
+      "code": "BLR-CEN",
+      "city": "Bengaluru",
+      "pincodes": ["560001", "560025", "560038", "560042"],
+      "status": "active"
+    }
+  ]
+}</code></pre>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Endpoint: POST /api/auth/send-otp & verify-otp -->
+            <div class="endpoint-card" data-endpoint="/api/auth/verify-otp" data-method="POST" data-tags="auth otp verify 2fa">
+              <div class="endpoint-header" onclick="toggleCard(this)">
+                <div class="endpoint-main-meta">
+                  <span class="method-pill post">POST</span>
+                  <span class="endpoint-path">/api/auth/verify-otp</span>
+                  <span class="endpoint-summary">Verify phone OTP token for authentication / login</span>
+                </div>
+                <div class="endpoint-badges">
+                  <span class="auth-badge auth-none">Public</span>
+                  <span class="toggle-icon">▼</span>
+                </div>
+              </div>
+              <div class="endpoint-details">
+                <div class="details-grid">
+                  <div>
+                    <div class="pane-title"><span>Request Body</span></div>
+                    <div class="code-container">
+                      <textarea class="code-editor" id="req-auth-otp">{
+  "phone": "+919876543210",
+  "otp": "4829"
+}</textarea>
+                    </div>
+                    <div class="action-bar">
+                      <button class="btn btn-primary" onclick="sendApiRequest(this, 'POST', '/api/auth/verify-otp', 'req-auth-otp', 'res-auth-otp')">⚡ Send Request</button>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="pane-title"><span>Response (200 OK)</span></div>
+                    <div class="code-container">
+                      <pre class="code-pre"><code id="res-auth-otp">{
+  "message": "OTP verified successfully",
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "verified": true
+}</code></pre>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Endpoint: GET /api/auth/profile -->
+            <div class="endpoint-card" data-endpoint="/api/auth/profile" data-method="GET" data-tags="auth profile user account">
+              <div class="endpoint-header" onclick="toggleCard(this)">
+                <div class="endpoint-main-meta">
+                  <span class="method-pill get">GET</span>
+                  <span class="endpoint-path">/api/auth/profile</span>
+                  <span class="endpoint-summary">Get authenticated user profile details &amp; saved size charts</span>
+                </div>
+                <div class="endpoint-badges">
+                  <span class="auth-badge auth-user">Bearer JWT</span>
+                  <span class="toggle-icon">▼</span>
+                </div>
+              </div>
+              <div class="endpoint-details">
+                <div class="details-grid">
+                  <div>
+                    <div class="pane-title"><span>Headers</span></div>
+                    <table class="specs-table">
+                      <tr><th>Header</th><th>Type</th><th>Description</th></tr>
+                      <tr><td class="param-name">Authorization</td><td class="param-type">string</td><td>Bearer &lt;token&gt;</td></tr>
+                    </table>
+                    <div class="action-bar">
+                      <button class="btn btn-primary" onclick="sendApiRequest(this, 'GET', '/api/auth/profile', null, 'res-auth-prof')">⚡ Send Request</button>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="pane-title"><span>Response (200 OK)</span></div>
+                    <div class="code-container">
+                      <pre class="code-pre"><code id="res-auth-prof">{
+  "user": {
+    "_id": "66d6a1b2c3d4e5f6a7b8c9d0",
+    "name": "Alex Mercer",
+    "email": "alex.mercer@example.com",
+    "role": "user",
+    "sizeProfile": {
+      "preferredSize": "L",
+      "chest": 40,
+      "waist": 32
+    },
+    "addresses": [
+      {
+        "street": "42 High Street, Indiranagar",
+        "city": "Bengaluru",
+        "zip": "560038",
+        "isDefault": true
+      }
+    ]
+  }
+}</code></pre>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- DOMAIN 2: CART & BUNDLES -->
+          <div class="domain-section" id="domain-cart">
+            <div class="domain-header">
+              <div class="domain-title-group">
+                <div class="domain-icon">🛒</div>
+                <div class="domain-name">Shopping Cart &amp; Dynamic Bundles</div>
+              </div>
+              <span class="domain-count">4 Endpoints</span>
+            </div>
+
+            <!-- Endpoint: POST /api/cart/add -->
+            <div class="endpoint-card open" data-endpoint="/api/cart/add" data-method="POST" data-tags="cart add item rental buy">
+              <div class="endpoint-header" onclick="toggleCard(this)">
+                <div class="endpoint-main-meta">
+                  <span class="method-pill post">POST</span>
+                  <span class="endpoint-path">/api/cart/add</span>
+                  <span class="endpoint-summary">Add item or fashion rental to shopping cart</span>
+                </div>
+                <div class="endpoint-badges">
+                  <span class="auth-badge auth-user">Bearer JWT</span>
+                  <span class="toggle-icon">▼</span>
+                </div>
+              </div>
+              <div class="endpoint-details">
+                <div class="details-grid">
+                  <div>
+                    <div class="pane-title"><span>Request Body</span></div>
+                    <div class="code-container">
+                      <textarea class="code-editor" id="req-cart-add">{
+  "productId": "66d6b5e1c2d3e4f5a6b7c8d9",
+  "quantity": 1,
+  "size": "L",
+  "color": "Ecru White",
+  "isRental": false,
+  "rentalDays": 0
+}</textarea>
+                    </div>
+                    <div class="action-bar">
+                      <button class="btn btn-primary" onclick="sendApiRequest(this, 'POST', '/api/cart/add', 'req-cart-add', 'res-cart-add')">⚡ Send Request</button>
+                      <button class="btn btn-secondary" onclick="copyCurl('POST', '/api/cart/add', 'req-cart-add')">Copy cURL</button>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="pane-title"><span>Response (200 OK)</span></div>
+                    <div class="code-container">
+                      <pre class="code-pre"><code id="res-cart-add">{
+  "message": "Item added to cart",
+  "cart": {
+    "userId": "66d6a1b2c3d4e5f6a7b8c9d0",
+    "items": [
+      {
+        "productId": "66d6b5e1c2d3e4f5a6b7c8d9",
+        "size": "L",
+        "color": "Ecru White",
+        "quantity": 1,
+        "isRental": false
+      }
+    ],
+    "subtotal": 1299,
+    "bundleSuggestion": {
+      "isActive": true,
+      "discount": 15,
+      "suggestion": "Pair with Chino Trousers for 15% instant bundle savings!"
+    }
+  }
+}</code></pre>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Endpoint: GET /api/cart -->
+            <div class="endpoint-card" data-endpoint="/api/cart" data-method="GET" data-tags="cart get items">
+              <div class="endpoint-header" onclick="toggleCard(this)">
+                <div class="endpoint-main-meta">
+                  <span class="method-pill get">GET</span>
+                  <span class="endpoint-path">/api/cart</span>
+                  <span class="endpoint-summary">Retrieve active user cart, populated product data &amp; bundle offers</span>
+                </div>
+                <div class="endpoint-badges">
+                  <span class="auth-badge auth-user">Bearer JWT</span>
+                  <span class="toggle-icon">▼</span>
+                </div>
+              </div>
+              <div class="endpoint-details">
+                <div class="details-grid">
+                  <div>
+                    <div class="pane-title"><span>Request Spec</span></div>
+                    <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1rem;">Reads cart cached in session or populated directly from MongoDB.</p>
+                    <div class="action-bar">
+                      <button class="btn btn-primary" onclick="sendApiRequest(this, 'GET', '/api/cart', null, 'res-cart-get')">⚡ Send Request</button>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="pane-title"><span>Response (200 OK)</span></div>
+                    <div class="code-container">
+                      <pre class="code-pre"><code id="res-cart-get">{
+  "_id": "66d6c2a1b3e4f5a6b7c8d9e0",
+  "items": [
+    {
+      "_id": "66d6c2a1b3e4f5a6b7c8d9e1",
+      "productId": {
+        "_id": "66d6b5e1c2d3e4f5a6b7c8d9",
+        "name": "Minimalist Oversized Linen Shirt",
+        "price": 1499,
+        "discountPrice": 1299,
+        "images": ["https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=800"]
+      },
+      "size": "L",
+      "color": "Ecru White",
+      "quantity": 1
+    }
+  ],
+  "subtotal": 1299
+}</code></pre>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Endpoint: DELETE /api/cart/item/:itemId -->
+            <div class="endpoint-card" data-endpoint="/api/cart/item/:itemId" data-method="DELETE" data-tags="cart remove delete">
+              <div class="endpoint-header" onclick="toggleCard(this)">
+                <div class="endpoint-main-meta">
+                  <span class="method-pill delete">DELETE</span>
+                  <span class="endpoint-path">/api/cart/item/:itemId</span>
+                  <span class="endpoint-summary">Remove a specific line item from the shopping cart</span>
+                </div>
+                <div class="endpoint-badges">
+                  <span class="auth-badge auth-user">Bearer JWT</span>
+                  <span class="toggle-icon">▼</span>
+                </div>
+              </div>
+              <div class="endpoint-details">
+                <div class="details-grid">
+                  <div>
+                    <div class="pane-title"><span>Path Parameter</span></div>
+                    <table class="specs-table">
+                      <tr><th>Parameter</th><th>Type</th><th>Example</th></tr>
+                      <tr><td class="param-name">itemId</td><td class="param-type">ObjectId</td><td>66d6c2a1b3e4f5a6b7c8d9e1</td></tr>
+                    </table>
+                    <div class="action-bar">
+                      <button class="btn btn-primary" onclick="sendApiRequest(this, 'DELETE', '/api/cart/item/66d6c2a1b3e4f5a6b7c8d9e1', null, 'res-cart-del')">⚡ Send Request</button>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="pane-title"><span>Response (200 OK)</span></div>
+                    <div class="code-container">
+                      <pre class="code-pre"><code id="res-cart-del">{
+  "message": "Item removed from cart successfully",
+  "cart": { "items": [], "subtotal": 0 }
+}</code></pre>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Endpoint: POST /api/cart/accept-bundle -->
+            <div class="endpoint-card" data-endpoint="/api/cart/accept-bundle" data-method="POST" data-tags="cart bundle discount promo">
+              <div class="endpoint-header" onclick="toggleCard(this)">
+                <div class="endpoint-main-meta">
+                  <span class="method-pill post">POST</span>
+                  <span class="endpoint-path">/api/cart/accept-bundle</span>
+                  <span class="endpoint-summary">Accept recommended bundle deal and apply 15% discount</span>
+                </div>
+                <div class="endpoint-badges">
+                  <span class="auth-badge auth-user">Bearer JWT</span>
+                  <span class="toggle-icon">▼</span>
+                </div>
+              </div>
+              <div class="endpoint-details">
+                <div class="details-grid">
+                  <div>
+                    <div class="pane-title"><span>Action</span></div>
+                    <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1rem;">Applies active bundle item into user cart with flagged bundle discount.</p>
+                    <div class="action-bar">
+                      <button class="btn btn-primary" onclick="sendApiRequest(this, 'POST', '/api/cart/accept-bundle', '{}', 'res-cart-bundle')">⚡ Send Request</button>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="pane-title"><span>Response (200 OK)</span></div>
+                    <div class="code-container">
+                      <pre class="code-pre"><code id="res-cart-bundle">{
+  "message": "Bundle deal applied!",
+  "bundleApplied": true,
+  "discountPercent": 15
+}</code></pre>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- DOMAIN 3: ORDERS & CHECKOUT -->
+          <div class="domain-section" id="domain-orders">
+            <div class="domain-header">
+              <div class="domain-title-group">
+                <div class="domain-icon">📦</div>
+                <div class="domain-name">Orders, Checkout &amp; Tracking</div>
+              </div>
+              <span class="domain-count">5 Endpoints</span>
+            </div>
+
+            <!-- Endpoint: POST /api/orders -->
+            <div class="endpoint-card open" data-endpoint="/api/orders" data-method="POST" data-tags="order checkout stock payment lock">
+              <div class="endpoint-header" onclick="toggleCard(this)">
+                <div class="endpoint-main-meta">
+                  <span class="method-pill post">POST</span>
+                  <span class="endpoint-path">/api/orders</span>
+                  <span class="endpoint-summary">Checkout cart, lock stock atomically, &amp; emit socket order-assigned</span>
+                </div>
+                <div class="endpoint-badges">
+                  <span class="auth-badge auth-user">Bearer JWT</span>
+                  <span class="toggle-icon">▼</span>
+                </div>
+              </div>
+              <div class="endpoint-details">
+                <div class="details-grid">
+                  <div>
+                    <div class="pane-title"><span>Request Body</span></div>
+                    <div class="code-container">
+                      <textarea class="code-editor" id="req-orders-create">{
+  "deliveryAddress": {
+    "street": "42 High Street, Indiranagar",
+    "city": "Bengaluru",
+    "state": "Karnataka",
+    "zip": "560038"
+  },
+  "deliveryLocation": {
+    "lat": 12.9716,
+    "lng": 77.5946
+  },
+  "paymentMethod": "cod",
+  "deliveryFee": 49
+}</textarea>
+                    </div>
+                    <div class="action-bar">
+                      <button class="btn btn-primary" onclick="sendApiRequest(this, 'POST', '/api/orders', 'req-orders-create', 'res-orders-create')">⚡ Send Request</button>
+                      <button class="btn btn-secondary" onclick="copyCurl('POST', '/api/orders', 'req-orders-create')">Copy cURL</button>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="pane-title">
+                      <span>Response Payloads</span>
+                      <div class="response-tabs">
+                        <button class="res-tab active-201" onclick="switchResponse(this, 'res-orders-create', '201')">201 Created</button>
+                        <button class="res-tab" onclick="switchResponse(this, 'res-orders-create', '409')">409 Conflict (Stock Out)</button>
+                      </div>
+                    </div>
+                    <div class="code-container">
+                      <div class="code-header"><span id="res-orders-create-status" style="color:var(--accent-emerald);">Status: 201 Created</span><button class="copy-btn" onclick="copySnippet(this, 'res-orders-create-pre')">Copy JSON</button></div>
+                      <pre class="code-pre" id="res-orders-create-pre"><code id="res-orders-create">{
+  "message": "Order placed successfully",
+  "order": {
+    "_id": "66d6d8a2b3c4d5e6f7a8b9c0",
+    "userId": "66d6a1b2c3d4e5f6a7b8c9d0",
+    "items": [
+      {
+        "productId": "66d6b5e1c2d3e4f5a6b7c8d9",
+        "name": "Minimalist Oversized Linen Shirt",
+        "image": "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=800",
+        "size": "L",
+        "color": "Ecru White",
+        "quantity": 2,
+        "price": 1299
+      }
+    ],
+    "totalAmount": 2647,
+    "deliveryFee": 49,
+    "discount": 0,
+    "status": "placed",
+    "paymentMethod": "cod",
+    "paymentStatus": "pending",
+    "delivery": {
+      "status": "unassigned",
+      "deliveryBoyId": null
+    },
+    "estimatedDeliveryMinutes": 30,
+    "estimatedDeliveryTime": "2026-09-03T17:35:00.000Z",
+    "createdAt": "2026-09-03T17:05:00.000Z"
+  },
+  "estimatedDelivery": "30 minutes"
+}</code></pre>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Endpoint: GET /api/orders/:id/track -->
+            <div class="endpoint-card" data-endpoint="/api/orders/:id/track" data-method="GET" data-tags="orders track gps partner live">
+              <div class="endpoint-header" onclick="toggleCard(this)">
+                <div class="endpoint-main-meta">
+                  <span class="method-pill get">GET</span>
+                  <span class="endpoint-path">/api/orders/:id/track</span>
+                  <span class="endpoint-summary">Live tracking GPS coordinates &amp; status progression of an order</span>
+                </div>
+                <div class="endpoint-badges">
+                  <span class="auth-badge auth-user">Bearer JWT</span>
+                  <span class="toggle-icon">▼</span>
+                </div>
+              </div>
+              <div class="endpoint-details">
+                <div class="details-grid">
+                  <div>
+                    <div class="pane-title"><span>Path Parameter</span></div>
+                    <table class="specs-table">
+                      <tr><th>Parameter</th><th>Type</th><th>Value</th></tr>
+                      <tr><td class="param-name">id</td><td class="param-type">OrderId</td><td>66d6d8a2b3c4d5e6f7a8b9c0</td></tr>
+                    </table>
+                    <div class="action-bar">
+                      <button class="btn btn-primary" onclick="sendApiRequest(this, 'GET', '/api/orders/66d6d8a2b3c4d5e6f7a8b9c0/track', null, 'res-orders-track')">⚡ Track Order</button>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="pane-title"><span>Response (200 OK)</span></div>
+                    <div class="code-container">
+                      <pre class="code-pre"><code id="res-orders-track">{
+  "orderId": "66d6d8a2b3c4d5e6f7a8b9c0",
+  "status": "out-for-delivery",
+  "driverLocation": {
+    "lat": 12.9742,
+    "lng": 77.5989
+  },
+  "driverDetails": {
+    "name": "Ravi Kumar",
+    "phone": "+919876500112"
+  },
+  "estimatedArrival": "8 minutes"
+}</code></pre>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Endpoint: POST /api/orders/:id/cancel -->
+            <div class="endpoint-card" data-endpoint="/api/orders/:id/cancel" data-method="POST" data-tags="orders cancel refund">
+              <div class="endpoint-header" onclick="toggleCard(this)">
+                <div class="endpoint-main-meta">
+                  <span class="method-pill post">POST</span>
+                  <span class="endpoint-path">/api/orders/:id/cancel</span>
+                  <span class="endpoint-summary">Cancel order before pickup and restore stock quantities</span>
+                </div>
+                <div class="endpoint-badges">
+                  <span class="auth-badge auth-user">Bearer JWT</span>
+                  <span class="toggle-icon">▼</span>
+                </div>
+              </div>
+              <div class="endpoint-details">
+                <div class="details-grid">
+                  <div>
+                    <div class="pane-title"><span>Request Body</span></div>
+                    <div class="code-container">
+                      <textarea class="code-editor" id="req-orders-cancel">{
+  "reason": "Ordered wrong size, placing new order."
+}</textarea>
+                    </div>
+                    <div class="action-bar">
+                      <button class="btn btn-primary" onclick="sendApiRequest(this, 'POST', '/api/orders/66d6d8a2b3c4d5e6f7a8b9c0/cancel', 'req-orders-cancel', 'res-orders-cancel')">⚡ Cancel Order</button>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="pane-title"><span>Response (200 OK)</span></div>
+                    <div class="code-container">
+                      <pre class="code-pre"><code id="res-orders-cancel">{
+  "message": "Order cancelled successfully. Stock restored.",
+  "orderId": "66d6d8a2b3c4d5e6f7a8b9c0",
+  "status": "cancelled"
+}</code></pre>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Endpoint: POST /api/orders/:id/return -->
+            <div class="endpoint-card" data-endpoint="/api/orders/:id/return" data-method="POST" data-tags="orders return refund reverse logistics">
+              <div class="endpoint-header" onclick="toggleCard(this)">
+                <div class="endpoint-main-meta">
+                  <span class="method-pill post">POST</span>
+                  <span class="endpoint-path">/api/orders/:id/return</span>
+                  <span class="endpoint-summary">Request return &amp; reverse pickup for delivered clothing item</span>
+                </div>
+                <div class="endpoint-badges">
+                  <span class="auth-badge auth-user">Bearer JWT</span>
+                  <span class="toggle-icon">▼</span>
+                </div>
+              </div>
+              <div class="endpoint-details">
+                <div class="details-grid">
+                  <div>
+                    <div class="pane-title"><span>Request Body</span></div>
+                    <div class="code-container">
+                      <textarea class="code-editor" id="req-orders-ret">{
+  "reason": "Defective fabric stitch on collar",
+  "photo": "https://images.unsplash.com/photo-1596755094514-f87e34085b2c"
+}</textarea>
+                    </div>
+                    <div class="action-bar">
+                      <button class="btn btn-primary" onclick="sendApiRequest(this, 'POST', '/api/orders/66d6d8a2b3c4d5e6f7a8b9c0/return', 'req-orders-ret', 'res-orders-ret')">⚡ Request Return</button>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="pane-title"><span>Response (200 OK)</span></div>
+                    <div class="code-container">
+                      <pre class="code-pre"><code id="res-orders-ret">{
+  "message": "Return pickup scheduled within 60 minutes",
+  "status": "return-requested"
+}</code></pre>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- DOMAIN 4: DELIVERY PARTNER -->
+          <div class="domain-section" id="domain-delivery">
+            <div class="domain-header">
+              <div class="domain-title-group">
+                <div class="domain-icon">🚴</div>
+                <div class="domain-name">Delivery Partner Management</div>
+              </div>
+              <span class="domain-count">5 Endpoints</span>
+            </div>
+
+            <!-- Endpoint: PUT /api/delivery/orders/:id/accept -->
+            <div class="endpoint-card open" data-endpoint="/api/delivery/orders/:id/accept" data-method="PUT" data-tags="delivery accept order dispatch">
+              <div class="endpoint-header" onclick="toggleCard(this)">
+                <div class="endpoint-main-meta">
+                  <span class="method-pill put">PUT</span>
+                  <span class="endpoint-path">/api/delivery/orders/:id/accept</span>
+                  <span class="endpoint-summary">Delivery partner accepts assigned order</span>
+                </div>
+                <div class="endpoint-badges">
+                  <span class="auth-badge auth-delivery">Delivery Role</span>
+                  <span class="toggle-icon">▼</span>
+                </div>
+              </div>
+              <div class="endpoint-details">
+                <div class="details-grid">
+                  <div>
+                    <div class="pane-title"><span>Path Parameter</span></div>
+                    <table class="specs-table">
+                      <tr><th>Param</th><th>Type</th><th>Description</th></tr>
+                      <tr><td class="param-name">id</td><td class="param-type">OrderId</td><td>The order assigned to current partner</td></tr>
+                    </table>
+                    <div class="action-bar">
+                      <button class="btn btn-primary" onclick="sendApiRequest(this, 'PUT', '/api/delivery/orders/66d6d8a2b3c4d5e6f7a8b9c0/accept', null, 'res-del-accept')">⚡ Accept Order</button>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="pane-title"><span>Response (200 OK)</span></div>
+                    <div class="code-container">
+                      <pre class="code-pre"><code id="res-del-accept">{
+  "message": "Order accepted",
+  "order": {
+    "_id": "66d6d8a2b3c4d5e6f7a8b9c0",
+    "status": "confirmed",
+    "delivery": {
+      "status": "accepted",
+      "deliveryBoyId": "66d6e1f2a3b4c5d6e7f8a9b0"
+    }
+  }
+}</code></pre>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Endpoint: PUT /api/delivery/orders/:id/reached -->
+            <div class="endpoint-card" data-endpoint="/api/delivery/orders/:id/reached" data-method="PUT" data-tags="delivery reached generate otp">
+              <div class="endpoint-header" onclick="toggleCard(this)">
+                <div class="endpoint-main-meta">
+                  <span class="method-pill put">PUT</span>
+                  <span class="endpoint-path">/api/delivery/orders/:id/reached</span>
+                  <span class="endpoint-summary">Partner marks reached at customer location; generates 4-digit OTP</span>
+                </div>
+                <div class="endpoint-badges">
+                  <span class="auth-badge auth-delivery">Delivery Role</span>
+                  <span class="toggle-icon">▼</span>
+                </div>
+              </div>
+              <div class="endpoint-details">
+                <div class="details-grid">
+                  <div>
+                    <div class="pane-title"><span>Trigger</span></div>
+                    <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1rem;">Generates a secure 4-digit random OTP, writes it to the order document, and alerts the buyer.</p>
+                    <div class="action-bar">
+                      <button class="btn btn-primary" onclick="sendApiRequest(this, 'PUT', '/api/delivery/orders/66d6d8a2b3c4d5e6f7a8b9c0/reached', null, 'res-del-reached')">⚡ Mark Reached</button>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="pane-title"><span>Response (200 OK)</span></div>
+                    <div class="code-container">
+                      <pre class="code-pre"><code id="res-del-reached">{
+  "message": "Marked as reached. OTP sent to customer.",
+  "order": {
+    "_id": "66d6d8a2b3c4d5e6f7a8b9c0",
+    "status": "reached",
+    "deliveryOTP": "4829"
+  }
+}</code></pre>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Endpoint: PUT /api/delivery/orders/:id/verify-otp -->
+            <div class="endpoint-card open" data-endpoint="/api/delivery/orders/:id/verify-otp" data-method="PUT" data-tags="delivery verify otp complete">
+              <div class="endpoint-header" onclick="toggleCard(this)">
+                <div class="endpoint-main-meta">
+                  <span class="method-pill put">PUT</span>
+                  <span class="endpoint-path">/api/delivery/orders/:id/verify-otp</span>
+                  <span class="endpoint-summary">Verify customer handover OTP and complete delivery</span>
+                </div>
+                <div class="endpoint-badges">
+                  <span class="auth-badge auth-delivery">Delivery Role</span>
+                  <span class="toggle-icon">▼</span>
+                </div>
+              </div>
+              <div class="endpoint-details">
+                <div class="details-grid">
+                  <div>
+                    <div class="pane-title"><span>Request Body</span></div>
+                    <div class="code-container">
+                      <textarea class="code-editor" id="req-del-otp">{
+  "otp": "4829"
+}</textarea>
+                    </div>
+                    <div class="action-bar">
+                      <button class="btn btn-primary" onclick="sendApiRequest(this, 'PUT', '/api/delivery/orders/66d6d8a2b3c4d5e6f7a8b9c0/verify-otp', 'req-del-otp', 'res-del-otp')">⚡ Verify &amp; Complete</button>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="pane-title">
+                      <span>Response Payloads</span>
+                      <div class="response-tabs">
+                        <button class="res-tab active-200" onclick="switchResponse(this, 'res-del-otp', '200')">200 OK</button>
+                        <button class="res-tab" onclick="switchResponse(this, 'res-del-otp', '400')">400 Invalid OTP</button>
+                      </div>
+                    </div>
+                    <div class="code-container">
+                      <div class="code-header"><span id="res-del-otp-status" style="color:var(--accent-emerald);">Status: 200 OK</span><button class="copy-btn" onclick="copySnippet(this, 'res-del-otp-pre')">Copy JSON</button></div>
+                      <pre class="code-pre" id="res-del-otp-pre"><code id="res-del-otp">{
+  "message": "OTP verified successfully.",
+  "order": {
+    "_id": "66d6d8a2b3c4d5e6f7a8b9c0",
+    "status": "delivered",
+    "deliveryOTP": "verified",
+    "deliveredAt": "2026-09-03T17:32:00.000Z"
+  }
+}</code></pre>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Endpoint: GET /api/delivery/earnings -->
+            <div class="endpoint-card" data-endpoint="/api/delivery/earnings" data-method="GET" data-tags="delivery earnings cod wallet cash">
+              <div class="endpoint-header" onclick="toggleCard(this)">
+                <div class="endpoint-main-meta">
+                  <span class="method-pill get">GET</span>
+                  <span class="endpoint-path">/api/delivery/earnings</span>
+                  <span class="endpoint-summary">Get driver earnings, completed trip payouts &amp; COD cash in hand</span>
+                </div>
+                <div class="endpoint-badges">
+                  <span class="auth-badge auth-delivery">Delivery Role</span>
+                  <span class="toggle-icon">▼</span>
+                </div>
+              </div>
+              <div class="endpoint-details">
+                <div class="details-grid">
+                  <div>
+                    <div class="pane-title"><span>Description</span></div>
+                    <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1rem;">Tracks cash limit (Rs. 5,000 threshold) before auto-blocking new order assignments until settlement.</p>
+                    <div class="action-bar">
+                      <button class="btn btn-primary" onclick="sendApiRequest(this, 'GET', '/api/delivery/earnings', null, 'res-del-earn')">⚡ Fetch Earnings</button>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="pane-title"><span>Response (200 OK)</span></div>
+                    <div class="code-container">
+                      <pre class="code-pre"><code id="res-del-earn">{
+  "cashCollected": 2647,
+  "cashLimit": 5000,
+  "isBlocked": false,
+  "totalEarnings": 1280,
+  "deliveriesCompleted": 16
+}</code></pre>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- DOMAIN 5: SELLER DASHBOARD -->
+          <div class="domain-section" id="domain-seller">
+            <div class="domain-header">
+              <div class="domain-title-group">
+                <div class="domain-icon">🏪</div>
+                <div class="domain-name">Seller Catalog &amp; Analytics</div>
+              </div>
+              <span class="domain-count">4 Endpoints</span>
+            </div>
+
+            <!-- Endpoint: POST /api/seller/dashboard/products -->
+            <div class="endpoint-card open" data-endpoint="/api/seller/dashboard/products" data-method="POST" data-tags="seller products catalog upload media">
+              <div class="endpoint-header" onclick="toggleCard(this)">
+                <div class="endpoint-main-meta">
+                  <span class="method-pill post">POST</span>
+                  <span class="endpoint-path">/api/seller/dashboard/products</span>
+                  <span class="endpoint-summary">Upload new garment with multi-color image variants &amp; rental config</span>
+                </div>
+                <div class="endpoint-badges">
+                  <span class="auth-badge auth-seller">Seller / Admin</span>
+                  <span class="toggle-icon">▼</span>
+                </div>
+              </div>
+              <div class="endpoint-details">
+                <div class="details-grid">
+                  <div>
+                    <div class="pane-title"><span>Request Body (multipart/form-data or JSON)</span></div>
+                    <div class="code-container">
+                      <textarea class="code-editor" id="req-seller-prod">{
+  "name": "Silk Cuban Collar Shirt",
+  "brand": "RapidAtelier",
+  "category": "Shirts",
+  "price": 2499,
+  "discountPrice": 1999,
+  "stock": 25,
+  "gender": "unisex",
+  "sizes": "[{\"size\":\"M\",\"stock\":15},{\"size\":\"L\",\"stock\":10}]",
+  "colors": "[\"Midnight Navy\", \"Terracotta\"]",
+  "isAvailableForRent": true,
+  "rentPricePerDay": 299,
+  "listingType": "sale_and_rent"
+}</textarea>
+                    </div>
+                    <div class="action-bar">
+                      <button class="btn btn-primary" onclick="sendApiRequest(this, 'POST', '/api/seller/dashboard/products', 'req-seller-prod', 'res-seller-prod')">⚡ Upload Product</button>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="pane-title"><span>Response (201 Created)</span></div>
+                    <div class="code-container">
+                      <pre class="code-pre"><code id="res-seller-prod">{
+  "message": "Product added successfully",
+  "product": {
+    "_id": "66d6f2a3b4c5d6e7f8a9b0c1",
+    "name": "Silk Cuban Collar Shirt",
+    "brand": "RapidAtelier",
+    "category": "Shirts",
+    "price": 2499,
+    "discountPrice": 1999,
+    "images": [
+      "http://localhost:5000/uploads/products/1725397096-silk-navy.jpg"
+    ],
+    "sizes": [
+      { "size": "M", "stock": 15 },
+      { "size": "L", "stock": 10 }
+    ],
+    "listingType": "sale_and_rent",
+    "isAvailableForRent": true,
+    "rentPricePerDay": 299,
+    "isActive": true
+  }
+}</code></pre>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Endpoint: GET /api/seller/dashboard/dashboard-stats -->
+            <div class="endpoint-card" data-endpoint="/api/seller/dashboard/dashboard-stats" data-method="GET" data-tags="seller analytics stats revenue">
+              <div class="endpoint-header" onclick="toggleCard(this)">
+                <div class="endpoint-main-meta">
+                  <span class="method-pill get">GET</span>
+                  <span class="endpoint-path">/api/seller/dashboard/dashboard-stats</span>
+                  <span class="endpoint-summary">Seller financial analytics &amp; 30-minute return lock realized revenue</span>
+                </div>
+                <div class="endpoint-badges">
+                  <span class="auth-badge auth-seller">Seller / Admin</span>
+                  <span class="toggle-icon">▼</span>
+                </div>
+              </div>
+              <div class="endpoint-details">
+                <div class="details-grid">
+                  <div>
+                    <div class="pane-title"><span>Business Logic Note</span></div>
+                    <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1rem;">Revenue is only credited after order has been delivered for &gt; 30 minutes without return requests.</p>
+                    <div class="action-bar">
+                      <button class="btn btn-primary" onclick="sendApiRequest(this, 'GET', '/api/seller/dashboard/dashboard-stats', null, 'res-seller-stats')">⚡ Fetch Stats</button>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="pane-title"><span>Response (200 OK)</span></div>
+                    <div class="code-container">
+                      <pre class="code-pre"><code id="res-seller-stats">{
+  "totalRevenue": 48290,
+  "pendingOrders": 3,
+  "completedOrders": 38,
+  "returnStats": {
+    "totalReturns": 2,
+    "revenueLost": 2598
+  },
+  "salesData": [
+    { "date": "2026-09-01", "revenue": 14200 },
+    { "date": "2026-09-02", "revenue": 18450 },
+    { "date": "2026-09-03", "revenue": 15640 }
+  ]
+}</code></pre>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- DOMAIN 6: SUPERADMIN & ZONES -->
+          <div class="domain-section" id="domain-superadmin">
+            <div class="domain-header">
+              <div class="domain-title-group">
+                <div class="domain-icon">👑</div>
+                <div class="domain-name">SuperAdmin &amp; Operational Zones</div>
+              </div>
+              <span class="domain-count">4 Endpoints</span>
+            </div>
+
+            <!-- Endpoint: POST /api/superadmin/zones -->
+            <div class="endpoint-card open" data-endpoint="/api/superadmin/zones" data-method="POST" data-tags="superadmin zones geography hub">
+              <div class="endpoint-header" onclick="toggleCard(this)">
+                <div class="endpoint-main-meta">
+                  <span class="method-pill post">POST</span>
+                  <span class="endpoint-path">/api/superadmin/zones</span>
+                  <span class="endpoint-summary">Create geographical delivery zone with polygon boundary &amp; pincodes</span>
+                </div>
+                <div class="endpoint-badges">
+                  <span class="auth-badge auth-superadmin">SuperAdmin</span>
+                  <span class="toggle-icon">▼</span>
+                </div>
+              </div>
+              <div class="endpoint-details">
+                <div class="details-grid">
+                  <div>
+                    <div class="pane-title"><span>Request Body</span></div>
+                    <div class="code-container">
+                      <textarea class="code-editor" id="req-super-zone">{
+  "name": "Bengaluru Central FastZone",
+  "code": "BLR-CEN",
+  "city": "Bengaluru",
+  "pincodes": ["560001", "560025", "560038", "560042"],
+  "coordinates": {
+    "lat": 12.9716,
+    "lng": 77.5946
+  },
+  "status": "active"
+}</textarea>
+                    </div>
+                    <div class="action-bar">
+                      <button class="btn btn-primary" onclick="sendApiRequest(this, 'POST', '/api/superadmin/zones', 'req-super-zone', 'res-super-zone')">⚡ Create Zone</button>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="pane-title"><span>Response (201 Created)</span></div>
+                    <div class="code-container">
+                      <pre class="code-pre"><code id="res-super-zone">{
+  "message": "Zone created successfully",
+  "zone": {
+    "_id": "66d701a2b3c4d5e6f7a8b9c0",
+    "name": "Bengaluru Central FastZone",
+    "zoneId": "ZONE-104",
+    "code": "BLR-CEN",
+    "city": "Bengaluru",
+    "pincodes": ["560001", "560025", "560038", "560042"],
+    "status": "active",
+    "createdAt": "2026-09-03T17:15:00.000Z"
+  }
+}</code></pre>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Endpoint: GET /api/superadmin/zones -->
+            <div class="endpoint-card" data-endpoint="/api/superadmin/zones" data-method="GET" data-tags="superadmin zones list">
+              <div class="endpoint-header" onclick="toggleCard(this)">
+                <div class="endpoint-main-meta">
+                  <span class="method-pill get">GET</span>
+                  <span class="endpoint-path">/api/superadmin/zones</span>
+                  <span class="endpoint-summary">Get all zones with real-time entity counts (sellers, drivers, orders)</span>
+                </div>
+                <div class="endpoint-badges">
+                  <span class="auth-badge auth-superadmin">SuperAdmin</span>
+                  <span class="toggle-icon">▼</span>
+                </div>
+              </div>
+              <div class="endpoint-details">
+                <div class="details-grid">
+                  <div>
+                    <div class="pane-title"><span>Query Action</span></div>
+                    <div class="action-bar">
+                      <button class="btn btn-primary" onclick="sendApiRequest(this, 'GET', '/api/superadmin/zones', null, 'res-super-zones-get')">⚡ Get All Zones</button>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="pane-title"><span>Response (200 OK)</span></div>
+                    <div class="code-container">
+                      <pre class="code-pre"><code id="res-super-zones-get">{
+  "zones": [
+    {
+      "_id": "66d701a2b3c4d5e6f7a8b9c0",
+      "zoneId": "ZONE-104",
+      "name": "Bengaluru Central FastZone",
+      "sellersCount": 18,
+      "deliveryPartnersCount": 34,
+      "activeOrdersCount": 12,
+      "status": "active"
+    }
+  ]
+}</code></pre>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- DOMAIN 7: AI & TRY-ON -->
+          <div class="domain-section" id="domain-tryon">
+            <div class="domain-header">
+              <div class="domain-title-group">
+                <div class="domain-icon">✨</div>
+                <div class="domain-name">AI Recommendations &amp; Virtual Try-On</div>
+              </div>
+              <span class="domain-count">3 Endpoints</span>
+            </div>
+
+            <!-- Endpoint: POST /api/try-on/generate -->
+            <div class="endpoint-card open" data-endpoint="/api/try-on/generate" data-method="POST" data-tags="ai tryon vton gpu socket async">
+              <div class="endpoint-header" onclick="toggleCard(this)">
+                <div class="endpoint-main-meta">
+                  <span class="method-pill post">POST</span>
+                  <span class="endpoint-path">/api/try-on/generate</span>
+                  <span class="endpoint-summary">Generate photorealistic virtual try-on composite (Asynchronous GPU)</span>
+                </div>
+                <div class="endpoint-badges">
+                  <span class="auth-badge auth-none">Optional Auth</span>
+                  <span class="toggle-icon">▼</span>
+                </div>
+              </div>
+              <div class="endpoint-details">
+                <div class="details-grid">
+                  <div>
+                    <div class="pane-title"><span>Request Body</span></div>
+                    <div class="code-container">
+                      <textarea class="code-editor" id="req-tryon-gen">{
+  "userPhoto": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800",
+  "garmentUrl": "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=800",
+  "height": 178,
+  "weight": 72,
+  "age": 26,
+  "bodyType": "Athletic",
+  "socketId": "sock_rc_982b1c3"
+}</textarea>
+                    </div>
+                    <div class="action-bar">
+                      <button class="btn btn-primary" onclick="sendApiRequest(this, 'POST', '/api/try-on/generate', 'req-tryon-gen', 'res-tryon-gen')">⚡ Dispatch GPU Try-On</button>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="pane-title">
+                      <span>Response (202 Accepted) &amp; Socket Event</span>
+                    </div>
+                    <div class="code-container">
+                      <div class="code-header"><span>Immediate HTTP: 202 Accepted</span></div>
+                      <pre class="code-pre"><code id="res-tryon-gen">{
+  "success": true,
+  "message": "Outfit stitching started asynchronously."
+}</code></pre>
+                    </div>
+                    <div class="code-container" style="margin-top:0.75rem;">
+                      <div class="code-header"><span style="color:var(--accent-violet);">Socket.io Event: 'try-on-result'</span></div>
+                      <pre class="code-pre"><code>{
+  "success": true,
+  "garmentUrl": "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=800",
+  "imageUrl": "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=800",
+  "confidenceScore": 0.984
+}</code></pre>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Endpoint: POST /api/ai/smart-fit -->
+            <div class="endpoint-card" data-endpoint="/api/ai/smart-fit" data-method="POST" data-tags="ai smart fit sizing prediction">
+              <div class="endpoint-header" onclick="toggleCard(this)">
+                <div class="endpoint-main-meta">
+                  <span class="method-pill post">POST</span>
+                  <span class="endpoint-path">/api/ai/smart-fit</span>
+                  <span class="endpoint-summary">Predict optimal garment size based on user metrics &amp; garment cut</span>
+                </div>
+                <div class="endpoint-badges">
+                  <span class="auth-badge auth-none">Public</span>
+                  <span class="toggle-icon">▼</span>
+                </div>
+              </div>
+              <div class="endpoint-details">
+                <div class="details-grid">
+                  <div>
+                    <div class="pane-title"><span>Request Body</span></div>
+                    <div class="code-container">
+                      <textarea class="code-editor" id="req-ai-fit">{
+  "productId": "66d6b5e1c2d3e4f5a6b7c8d9",
+  "height": 175,
+  "weight": 70,
+  "fitPreference": "relaxed"
+}</textarea>
+                    </div>
+                    <div class="action-bar">
+                      <button class="btn btn-primary" onclick="sendApiRequest(this, 'POST', '/api/ai/smart-fit', 'req-ai-fit', 'res-ai-fit')">⚡ Run Fit Prediction</button>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="pane-title"><span>Response (200 OK)</span></div>
+                    <div class="code-container">
+                      <pre class="code-pre"><code id="res-ai-fit">{
+  "recommendedSize": "L",
+  "fitNotes": "For a relaxed silhouette, Large provides 2.5 inches of ease around the chest.",
+  "confidence": "94%"
+}</code></pre>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- DOMAIN 8: PRODUCT CATALOG -->
+          <div class="domain-section" id="domain-products">
+            <div class="domain-header">
+              <div class="domain-title-group">
+                <div class="domain-icon">👗</div>
+                <div class="domain-name">Product Catalog &amp; Search</div>
+              </div>
+              <span class="domain-count">3 Endpoints</span>
+            </div>
+
+            <!-- Endpoint: GET /api/products -->
+            <div class="endpoint-card open" data-endpoint="/api/products" data-method="GET" data-tags="products list search catalog filter">
+              <div class="endpoint-header" onclick="toggleCard(this)">
+                <div class="endpoint-main-meta">
+                  <span class="method-pill get">GET</span>
+                  <span class="endpoint-path">/api/products</span>
+                  <span class="endpoint-summary">Browse catalog with pagination, filters, &amp; 30-minute delivery badges</span>
+                </div>
+                <div class="endpoint-badges">
+                  <span class="auth-badge auth-none">Public</span>
+                  <span class="toggle-icon">▼</span>
+                </div>
+              </div>
+              <div class="endpoint-details">
+                <div class="details-grid">
+                  <div>
+                    <div class="pane-title"><span>Query Parameters</span></div>
+                    <table class="specs-table">
+                      <tr><th>Key</th><th>Type</th><th>Example</th></tr>
+                      <tr><td class="param-name">category</td><td class="param-type">string</td><td>Shirts</td></tr>
+                      <tr><td class="param-name">gender</td><td class="param-type">string</td><td>unisex</td></tr>
+                      <tr><td class="param-name">limit</td><td class="param-type">number</td><td>10</td></tr>
+                    </table>
+                    <div class="action-bar">
+                      <button class="btn btn-primary" onclick="sendApiRequest(this, 'GET', '/api/products?category=Shirts&limit=2', null, 'res-prod-list')">⚡ Fetch Products</button>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="pane-title"><span>Response (200 OK)</span></div>
+                    <div class="code-container">
+                      <pre class="code-pre"><code id="res-prod-list">{
+  "products": [
+    {
+      "_id": "66d6b5e1c2d3e4f5a6b7c8d9",
+      "name": "Minimalist Oversized Linen Shirt",
+      "brand": "RapidAtelier",
+      "price": 1499,
+      "discountPrice": 1299,
+      "category": "Shirts",
+      "images": ["https://images.unsplash.com/photo-1596755094514-f87e34085b2c?w=800"],
+      "sizes": [{ "size": "L", "stock": 14 }],
+      "isAvailableForRent": true,
+      "rentPricePerDay": 199
+    }
+  ],
+  "total": 1,
+  "page": 1,
+  "pages": 1
+}</code></pre>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Endpoint: GET /api/products/deals -->
+            <div class="endpoint-card" data-endpoint="/api/products/deals" data-method="GET" data-tags="products deals offers discounts">
+              <div class="endpoint-header" onclick="toggleCard(this)">
+                <div class="endpoint-main-meta">
+                  <span class="method-pill get">GET</span>
+                  <span class="endpoint-path">/api/products/deals</span>
+                  <span class="endpoint-summary">Retrieve curated flash deals, bundle offers &amp; seasonal clearance</span>
+                </div>
+                <div class="endpoint-badges">
+                  <span class="auth-badge auth-none">Public</span>
+                  <span class="toggle-icon">▼</span>
+                </div>
+              </div>
+              <div class="endpoint-details">
+                <div class="details-grid">
+                  <div>
+                    <div class="action-bar">
+                      <button class="btn btn-primary" onclick="sendApiRequest(this, 'GET', '/api/products/deals', null, 'res-prod-deals')">⚡ Fetch Deals</button>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="code-container">
+                      <pre class="code-pre"><code id="res-prod-deals">{
+  "deals": [
+    {
+      "_id": "66d6b5e1c2d3e4f5a6b7c8d9",
+      "name": "Minimalist Oversized Linen Shirt",
+      "discountPercent": 15,
+      "dealEndsIn": "04h 23m"
+    }
+  ]
+}</code></pre>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- DOMAIN 9: SYSTEM & UPLOAD -->
+          <div class="domain-section" id="domain-system">
+            <div class="domain-header">
+              <div class="domain-title-group">
+                <div class="domain-icon">⚙️</div>
+                <div class="domain-name">System Health &amp; Uploads</div>
+              </div>
+              <span class="domain-count">2 Endpoints</span>
+            </div>
+
+            <!-- Endpoint: GET /api/health -->
+            <div class="endpoint-card" data-endpoint="/api/health" data-method="GET" data-tags="system health uptime ping">
+              <div class="endpoint-header" onclick="toggleCard(this)">
+                <div class="endpoint-main-meta">
+                  <span class="method-pill get">GET</span>
+                  <span class="endpoint-path">/api/health</span>
+                  <span class="endpoint-summary">Check server health status, timestamp, &amp; database readiness</span>
+                </div>
+                <div class="endpoint-badges">
+                  <span class="auth-badge auth-none">Public</span>
+                  <span class="toggle-icon">▼</span>
+                </div>
+              </div>
+              <div class="endpoint-details">
+                <div class="details-grid">
+                  <div>
+                    <div class="action-bar">
+                      <button class="btn btn-primary" onclick="sendApiRequest(this, 'GET', '/api/health', null, 'res-sys-health')">⚡ Ping Health</button>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="code-container">
+                      <pre class="code-pre"><code id="res-sys-health">{
+  "status": "ok",
+  "timestamp": "2026-09-03T17:20:00.000Z"
+}</code></pre>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 4: Database & Security Implementation -->
+      <section id="security-db">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">4. Database Architecture &amp; Security Strategy</h2>
+            <p class="section-desc">Redis caching, geospatial indexing, rate limiting, and NoSQL sanitization safeguards.</p>
+          </div>
+        </div>
+
+        <div class="edge-case-grid">
+          <div class="edge-card">
+            <div class="edge-header">
+              <div class="edge-badge info">⚡</div>
+              <div class="edge-title">Redis Caching Strategy</div>
+            </div>
+            <p class="edge-desc">
+              Catalog responses for <code style="color:#38bdf8;">GET /api/products</code> are stored in Redis key caches. When sellers update garments, automated cache eviction triggers for that product ID.
+            </p>
+            <div class="edge-code">
+              redisClient.setEx(`products:cat:${category}`, 3600, JSON.stringify(data));
+            </div>
+          </div>
+
+          <div class="edge-card">
+            <div class="edge-header">
+              <div class="edge-badge success">📍</div>
+              <div class="edge-title">2dsphere Geospatial Indexing</div>
+            </div>
+            <p class="edge-desc">
+              MongoDB 2dsphere indexes calculate driver proximity for 30-minute zones. Driver GPS live coordinates are kept in-memory via Socket.io to prevent disk I/O bottlenecks.
+            </p>
+            <div class="edge-code">
+              deliveryLocation: { type: "Point", coordinates: [lng, lat] }
+            </div>
+          </div>
+
+          <div class="edge-card">
+            <div class="edge-header">
+              <div class="edge-badge warning">🛡️</div>
+              <div class="edge-title">Rate Limiting &amp; NoSQL Sanitization</div>
+            </div>
+            <p class="edge-desc">
+              Global rate limit of 1,000 req/15min with stricter limits on auth endpoints. All inputs sanitized via <code style="color:#fbbf24;">express-mongo-sanitize</code> to strip <code style="color:#fbbf24;">$</code> and <code style="color:#fbbf24;">.</code> characters.
+            </p>
+            <div class="edge-code">
+              app.use(mongoSanitize()); // Blocks NoSQL injection
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 5: Edge Cases & Backend Pro Tips -->
+      <section id="edge-cases">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">5. Critical Edge Cases &amp; Engineering Pro Tips</h2>
+            <p class="section-desc">Proven solutions for race conditions, driver abandonment, and orphaned cloud assets.</p>
+          </div>
+        </div>
+
+        <div class="edge-case-grid">
+          <div class="edge-card">
+            <div class="edge-header">
+              <div class="edge-badge warning">⚡</div>
+              <div class="edge-title">1. Double Checkout Race Condition</div>
+            </div>
+            <p class="edge-desc">
+              When two users checkout the last remaining garment simultaneously, standard check-then-write creates stock deficits. RapidCloth uses atomic updates with conditional match:
+            </p>
+            <div class="edge-code">
+const result = await Product.updateOne(
+  { _id: productId, 'sizes.size': size, 'sizes.stock': { $gte: qty } },
+  { $inc: { 'sizes.$.stock': -qty } }
+);
+if (result.modifiedCount === 0) throw new Error('409 Out of Stock');
+            </div>
+          </div>
+
+          <div class="edge-card">
+            <div class="edge-header">
+              <div class="edge-badge info">⏰</div>
+              <div class="edge-title">2. Delivery Partner Abandonment Watchdog</div>
+            </div>
+            <p class="edge-desc">
+              If a partner accepts an order and their phone dies while in transit, the order is left stranded. BullMQ / node-cron triggers a watchdog after 180 minutes to auto-escalate to zone admins.
+            </p>
+            <div class="edge-code">
+// Cron job checks orders stuck in 'out-for-delivery' > 3h
+Order.find({ status: 'out-for-delivery', updatedAt: { $lt: threeHoursAgo } })
+            </div>
+          </div>
+
+          <div class="edge-card">
+            <div class="edge-header">
+              <div class="edge-badge success">☁️</div>
+              <div class="edge-title">3. Orphaned Image Upload Webhooks</div>
+            </div>
+            <p class="edge-desc">
+              Cloudinary assets uploaded before a product form submission drops connection are caught by weekly reconciliation scripts or Cloudinary incoming webhooks to keep storage clean.
+            </p>
+            <div class="edge-code">
+// Compares Cloudinary Asset IDs against MongoDB image URLs
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+
+<!-- Toast Notification -->
+<div id="toast" class="toast">
+  <span style="color:var(--accent-emerald);">✔</span>
+  <span id="toastMsg">Action completed</span>
+</div>
+
+<script>
+  let isMockEngineActive = true;
+
+  // Toggle card expansion
+  function toggleCard(headerEl) {
+    const card = headerEl.closest('.endpoint-card');
+    card.classList.toggle('open');
+  }
+
+  function expandAll() {
+    document.querySelectorAll('.endpoint-card').forEach(card => card.classList.add('open'));
+  }
+
+  function collapseAll() {
+    document.querySelectorAll('.endpoint-card').forEach(card => card.classList.remove('open'));
+  }
+
+  function toggleMockMode() {
+    isMockEngineActive = !isMockEngineActive;
+    const dot = document.getElementById('mockDot');
+    const label = document.getElementById('mockLabel');
+    if (isMockEngineActive) {
+      dot.style.background = 'var(--accent-emerald)';
+      label.innerText = 'Mock Engine: Active';
+      showToast('Mock Engine active: Responses simulated instantly.');
+    } else {
+      dot.style.background = 'var(--accent-cyan)';
+      label.innerText = 'Live Engine: HTTP Fetch';
+      showToast('Live Mode active: Fetching against Base URL.');
+    }
+  }
+
+  // Filter search bar
+  function filterEndpoints() {
+    const query = document.getElementById('apiSearch').value.toLowerCase();
+    const cards = document.querySelectorAll('.endpoint-card');
+    cards.forEach(card => {
+      const endpoint = (card.getAttribute('data-endpoint') || '').toLowerCase();
+      const method = (card.getAttribute('data-method') || '').toLowerCase();
+      const tags = (card.getAttribute('data-tags') || '').toLowerCase();
+      const text = card.innerText.toLowerCase();
+
+      if (endpoint.includes(query) || method.includes(query) || tags.includes(query) || text.includes(query)) {
+        card.style.display = 'block';
+      } else {
+        card.style.display = 'none';
+      }
+    });
+  }
+
+  // Copy helper
+  function copySnippet(btn, elementId) {
+    const el = document.getElementById(elementId);
+    if (!el) return;
+    const text = el.value !== undefined ? el.value : el.innerText;
+    navigator.clipboard.writeText(text).then(() => {
+      const orig = btn.innerText;
+      btn.innerText = 'Copied!';
+      btn.style.color = 'var(--accent-emerald)';
+      setTimeout(() => {
+        btn.innerText = orig;
+        btn.style.color = '';
+      }, 1500);
+      showToast('Copied to clipboard');
+    });
+  }
+
+  // cURL copy generator
+  function copyCurl(method, path, bodyId) {
+    const baseUrl = document.getElementById('baseUrlInput').value.replace(/\/$/, '');
+    const token = document.getElementById('authTokenInput').value.trim();
+    let curl = `curl -X ${method} "${baseUrl}${path}" \\\n  -H "Content-Type: application/json"`;
+    if (token) {
+      curl += ` \\\n  -H "Authorization: Bearer ${token}"`;
+    }
+    if (bodyId) {
+      const bodyEl = document.getElementById(bodyId);
+      if (bodyEl && bodyEl.value.trim()) {
+        const minified = JSON.stringify(JSON.parse(bodyEl.value));
+        curl += ` \\\n  -d '${minified}'`;
+      }
+    }
+    navigator.clipboard.writeText(curl).then(() => {
+      showToast('cURL command copied to clipboard');
+    });
+  }
+
+  // Switch response tabs
+  function switchResponse(tabBtn, targetId, statusCode) {
+    const tabsContainer = tabBtn.parentElement;
+    tabsContainer.querySelectorAll('.res-tab').forEach(t => {
+      t.className = 'res-tab';
+    });
+
+    const preEl = document.getElementById(targetId);
+    const statusLabel = document.getElementById(targetId + '-status');
+
+    if (statusCode.startsWith('2')) {
+      tabBtn.classList.add(`active-${statusCode}`);
+      if (statusLabel) {
+        statusLabel.innerText = `Status: ${statusCode} OK`;
+        statusLabel.style.color = 'var(--accent-emerald)';
+      }
+    } else {
+      tabBtn.classList.add(`active-${statusCode}`);
+      if (statusLabel) {
+        statusLabel.innerText = `Status: ${statusCode} Error`;
+        statusLabel.style.color = 'var(--accent-rose)';
+      }
+    }
+
+    // Sample payload switches
+    if (targetId === 'res-auth-reg') {
+      if (statusCode === '400') {
+        preEl.innerText = JSON.stringify({ error: "User with this email already exists" }, null, 2);
+      } else {
+        preEl.innerText = JSON.stringify({
+          token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+          user: { id: "66d6a1b2c3d4e5f6a7b8c9d0", name: "Alex Mercer", email: "alex.mercer@example.com", role: "user" }
+        }, null, 2);
+      }
+    } else if (targetId === 'res-auth-login') {
+      if (statusCode === '401') {
+        preEl.innerText = JSON.stringify({ error: "Invalid email or password" }, null, 2);
+      } else {
+        preEl.innerText = JSON.stringify({
+          token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+          user: { id: "66d6a1b2c3d4e5f6a7b8c9d0", name: "Alex Mercer", email: "alex.mercer@example.com", role: "user" }
+        }, null, 2);
+      }
+    } else if (targetId === 'res-orders-create') {
+      if (statusCode === '409') {
+        preEl.innerText = JSON.stringify({
+          error: "One or more items in your cart are now out of stock.",
+          outOfStockItems: ["Minimalist Oversized Linen Shirt (Size: L)"]
+        }, null, 2);
+      } else {
+        preEl.innerText = JSON.stringify({
+          message: "Order placed successfully",
+          order: {
+            _id: "66d6d8a2b3c4d5e6f7a8b9c0",
+            totalAmount: 2647,
+            status: "placed",
+            paymentMethod: "cod",
+            estimatedDeliveryMinutes: 30
+          }
+        }, null, 2);
+      }
+    } else if (targetId === 'res-del-otp') {
+      if (statusCode === '400') {
+        preEl.innerText = JSON.stringify({ error: "Invalid OTP. Please try again." }, null, 2);
+      } else {
+        preEl.innerText = JSON.stringify({
+          message: "OTP verified successfully.",
+          order: { _id: "66d6d8a2b3c4d5e6f7a8b9c0", status: "delivered", deliveryOTP: "verified" }
+        }, null, 2);
+      }
+    }
+  }
+
+  // Interactive Live / Mock Request Runner
+  async function sendApiRequest(btn, method, path, bodyId, outputId) {
+    const origText = btn.innerText;
+    btn.innerText = 'Sending...';
+    btn.disabled = true;
+
+    const baseUrl = document.getElementById('baseUrlInput').value.replace(/\/$/, '');
+    const token = document.getElementById('authTokenInput').value.trim();
+    const outputEl = document.getElementById(outputId);
+    const statusEl = document.getElementById(outputId + '-status');
+
+    if (isMockEngineActive) {
+      setTimeout(() => {
+        btn.innerText = 'Done (Mock)';
+        btn.disabled = false;
+        setTimeout(() => { btn.innerText = origText; }, 1200);
+        showToast(`200 OK simulated response for ${path}`);
+      }, 400);
+      return;
+    }
+
+    // Live HTTP Fetch
+    try {
+      const headers = { 'Content-Type': 'application/json' };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+
+      let body = undefined;
+      if (['POST', 'PUT', 'PATCH'].includes(method) && bodyId) {
+        const raw = document.getElementById(bodyId).value;
+        try {
+          body = JSON.stringify(JSON.parse(raw));
+        } catch (e) {
+          body = raw;
+        }
+      }
+
+      const res = await fetch(`${baseUrl}${path}`, { method, headers, body });
+      const data = await res.json();
+
+      if (outputEl) outputEl.innerText = JSON.stringify(data, null, 2);
+      if (statusEl) {
+        statusEl.innerText = `Status: ${res.status} ${res.statusText}`;
+        statusEl.style.color = res.ok ? 'var(--accent-emerald)' : 'var(--accent-rose)';
+      }
+      showToast(`${res.status} ${res.statusText}`);
+    } catch (err) {
+      if (outputEl) outputEl.innerText = JSON.stringify({ error: err.message, note: 'Make sure your backend is running on ' + baseUrl }, null, 2);
+      if (statusEl) {
+        statusEl.innerText = 'Network Error';
+        statusEl.style.color = 'var(--accent-rose)';
+      }
+      showToast('Network request failed: ' + err.message);
+    } finally {
+      btn.innerText = origText;
+      btn.disabled = false;
+    }
+  }
+
+  function showToast(msg) {
+    const toast = document.getElementById('toast');
+    const toastMsg = document.getElementById('toastMsg');
+    toastMsg.innerText = msg;
+    toast.classList.add('show');
+    setTimeout(() => {
+      toast.classList.remove('show');
+    }, 2500);
+  }
+</script>
+
+</body>
+</html>
