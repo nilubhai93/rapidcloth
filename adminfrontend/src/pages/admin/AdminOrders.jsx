@@ -48,7 +48,7 @@ export default function AdminOrders() {
           <ShoppingCartIcon sx={{ fontSize: 18, color: '#FF6B6B' }} />
           All Orders
         </h1>
-        <p style={{ color: 'var(--text-muted)', fontSize: '11px', marginTop: '1px', margin: 0, fontWeight: 500 }}>
+        <p style={{ color: 'var(--text-muted)', fontSize: '11px', margin: '1px 0 0 0', fontWeight: 500 }}>
           Monitor and manage platform orders
         </p>
       </div>
