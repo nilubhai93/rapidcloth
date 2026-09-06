@@ -18,12 +18,12 @@ import {
   createDeliveryPartner,
   getFilteredCustomers
 } from '../controllers/superadmin.controller.js';
-import { authenticate, superAdminOnly } from '../middleware/auth.js';
+import { authenticate, authorize } from '../middleware/auth.js';
 
 const router = express.Router();
 
 // Require authentication and Superadmin role for all routes
-router.use(authenticate, superAdminOnly);
+router.use(authenticate, authorize('superadmin'));
 
 /**
  * @swagger

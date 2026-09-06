@@ -1,16 +1,18 @@
 import axios from 'axios';
+import { store } from '../store/store';
 
 const API_BASE = import.meta.env.VITE_API_URL;
 
 const api = axios.create({
   baseURL: API_BASE,
   timeout: 30000,
-  headers: { 'Content-Type': 'application/json' }
+  headers: { 'Content-Type': 'application/json' },
+  withCredentials: true
 });
 
-// Attach JWT token to every request
+// Attach JWT token to every request from Redux store memory
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token');
+  const token = store?.getState()?.auth?.token;
   if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;
 });
@@ -20,8 +22,6 @@ api.interceptors.response.use(
   (res) => res,
   (err) => {
     if (err.response?.status === 401) {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
       const protectedPaths = ['/checkout', '/orders', '/profile', '/addresses', '/seller', '/admin'];
       const currentPath = window.location.pathname;
       const isProtected = protectedPaths.some(p => currentPath.startsWith(p));
@@ -37,6 +37,8 @@ api.interceptors.response.use(
 export const authAPI = {
   register: (name, email, password, role, extraData = {}) => api.post('/auth/register', { name, email, password, role, ...extraData }),
   login: (email, password) => api.post('/auth/login', { email, password }),
+  logout: () => api.post('/auth/logout'),
+  refresh: () => api.post('/auth/refresh-token'),
   getProfile: () => api.get('/auth/profile'),
   updateProfile: (data) => api.put('/auth/profile', data),
   updateSizeProfile: (data) => api.put('/auth/profile/size', data),
