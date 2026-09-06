@@ -25,7 +25,7 @@ export default function AdminAnalytics() {
           <BarChartIcon sx={{ fontSize: 18, color: '#FF6B6B' }} />
           Platform Analytics
         </h1>
-        <p style={{ color: 'var(--text-muted)', fontSize: '11px', marginTop: '1px', margin: 0, fontWeight: 500 }}>
+        <p style={{ color: 'var(--text-muted)', fontSize: '11px', margin: '1px 0 0 0', fontWeight: 500 }}>
           Platform performance, conversion rates, and revenue insights
         </p>
       </div>
