@@ -75,7 +75,7 @@ export default function AdminDashboard() {
         <h1 style={{ fontSize: '17px', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.2px', margin: 0 }}>
           Seller Approvals
         </h1>
-        <p style={{ color: 'var(--text-muted)', fontSize: '11px', marginTop: '1px', margin: 0, fontWeight: 500 }}>
+        <p style={{ color: 'var(--text-muted)', fontSize: '11px', margin: '1px 0 0 0', fontWeight: 500 }}>
           Manage user seller applications and store approvals
         </p>
       </div>
@@ -120,7 +120,7 @@ export default function AdminDashboard() {
                       {app.status}
                     </span>
                   </div>
-                  <p style={{ color: 'var(--text-muted)', fontSize: '11px', marginTop: '2px', margin: 0 }}>
+                  <p style={{ color: 'var(--text-muted)', fontSize: '11px', margin: '2px 0 0 0' }}>
                     Applied by: <strong style={{ color: 'var(--text-primary)' }}>{app.userId?.name}</strong> <span style={{ opacity: 0.7 }}>({app.userId?.email})</span>
                   </p>
                 </div>

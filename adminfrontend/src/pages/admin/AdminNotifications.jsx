@@ -23,7 +23,7 @@ export default function AdminNotifications() {
           <NotificationsActiveIcon sx={{ fontSize: 18, color: '#FF6B6B' }} />
           System Notifications
         </h1>
-        <p style={{ color: 'var(--text-muted)', fontSize: '11px', marginTop: '1px', margin: 0, fontWeight: 500 }}>
+        <p style={{ color: 'var(--text-muted)', fontSize: '11px', margin: '1px 0 0 0', fontWeight: 500 }}>
           Platform alerts, user reports, and system updates
         </p>
       </div>
