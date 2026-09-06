@@ -1,75 +1,38 @@
-import SellerApplication from '../models/SellerApplication.js';
-import User from '../models/User.js';
-import Zone from '../models/Zone.js';
+import {
+  applyForSellerAccount,
+  getSellerApplicationStatus,
+  fetchPublicActiveZones
+} from '../services/seller.service.js';
 
 export const applySeller = async (req, res) => {
   try {
-    const { storeName, description, address, categories, documentType, businessPhone, zone } = req.body;
-    const userId = req.user._id;
-
-    // Validate required fields
-    if (!storeName || !description || !address || !categories || !documentType || !businessPhone) {
-      return res.status(400).json({ error: 'All fields including business phone are required.' });
-    }
-
-    // Checking if file was uploaded properly
-    if (!req.file) {
-      return res.status(400).json({ error: 'Please upload an ID proof or business document.' });
-    }
-
-    // Check if the user already has a pending or approved application
-    const existingApp = await SellerApplication.findOne({ userId, status: { $in: ['pending', 'approved'] } });
-    if (existingApp) {
-      return res.status(400).json({ error: 'You already have an active or pending seller application.' });
-    }
-
-    const application = new SellerApplication({
-      userId,
-      storeName,
-      description,
-      address,
-      categories,
-      businessPhone,
-      documentType,
-      zone: zone || null,
-      status: 'pending',
-      documentPath: req.file.path
-    });
-
-    await application.save();
-
+    const application = await applyForSellerAccount(req.user._id, req.body, req.file);
     res.status(201).json({
       message: 'Seller application submitted successfully. Please wait for admin approval.',
       application
     });
   } catch (error) {
     console.error('Error applying for seller:', error);
-    res.status(500).json({ error: 'An error occurred while submitting your application.' });
+    res.status(error.statusCode || 500).json({ error: error.message || 'An error occurred while submitting your application.' });
   }
 };
 
 export const getSellerStatus = async (req, res) => {
   try {
-    const userId = req.user._id;
-    const application = await SellerApplication.findOne({ userId }).populate('zone').sort({ createdAt: -1 });
-
-    if (!application) {
-      return res.status(200).json({ application: null });
-    }
-
+    const application = await getSellerApplicationStatus(req.user._id);
     res.status(200).json({ application });
   } catch (error) {
     console.error('Error fetching seller status:', error);
-    res.status(500).json({ error: 'An error occurred while fetching your application status.' });
+    res.status(error.statusCode || 500).json({ error: error.message || 'An error occurred while fetching your application status.' });
   }
 };
 
 export const getPublicZones = async (req, res) => {
   try {
-    const zones = await Zone.find({ status: 'active' }).select('name code city state pincodes polygon radiusKm zoneId').sort({ name: 1 });
+    const zones = await fetchPublicActiveZones();
     res.json({ zones });
   } catch (error) {
     console.error('Error fetching public zones:', error);
-    res.status(500).json({ error: 'Failed to fetch zones' });
+    res.status(error.statusCode || 500).json({ error: error.message || 'Failed to fetch zones' });
   }
 };
