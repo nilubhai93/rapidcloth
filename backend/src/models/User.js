@@ -44,6 +44,7 @@ const userSchema = new mongoose.Schema({
   zone: { type: mongoose.Schema.Types.ObjectId, ref: 'Zone', default: null },
   otp: { type: String, default: null },
   otpExpires: { type: Date, default: null },
+  activeRefreshTokens: [{ type: String }],
   deliveryProfile: {
     isOnline: { type: Boolean, default: false },
     lastOnlineStartTime: { type: Date, default: null },

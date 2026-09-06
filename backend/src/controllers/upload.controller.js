@@ -1,4 +1,7 @@
-import cloudinary from '../config/cloudinary.js';
+import {
+  generateUploadSignature,
+  deleteCloudinaryAsset
+} from '../services/upload.service.js';
 
 /**
  * @desc Generate signed parameters for direct client Cloudinary upload
@@ -7,28 +10,9 @@ import cloudinary from '../config/cloudinary.js';
  */
 export const getUploadSignature = async (req, res) => {
   try {
-    const timestamp = Math.round(new Date().getTime() / 1000);
     const folder = req.query.folder || 'rapidcloth_uploads';
-
-    // Parameters to sign
-    const paramsToSign = {
-      timestamp,
-      folder
-    };
-
-    // Generate SHA-1 API signature using Cloudinary API Secret
-    const signature = cloudinary.utils.api_sign_request(
-      paramsToSign,
-      process.env.CLOUDINARY_API_SECRET
-    );
-
-    return res.status(200).json({
-      signature,
-      timestamp,
-      apiKey: process.env.CLOUDINARY_API_KEY,
-      cloudName: process.env.CLOUDINARY_CLOUD_NAME,
-      folder
-    });
+    const result = generateUploadSignature(folder);
+    return res.status(200).json(result);
   } catch (error) {
     console.error('Error generating Cloudinary signature:', error);
     return res.status(500).json({
@@ -45,12 +29,11 @@ export const getUploadSignature = async (req, res) => {
 export const deleteImage = async (req, res) => {
   try {
     const publicId = req.params.public_id || req.body.public_id;
-
     if (!publicId) {
       return res.status(400).json({ error: 'Public ID is required for image deletion.' });
     }
 
-    const result = await cloudinary.uploader.destroy(publicId);
+    const result = await deleteCloudinaryAsset(publicId);
 
     if (result.result === 'ok') {
       return res.status(200).json({
@@ -65,8 +48,8 @@ export const deleteImage = async (req, res) => {
     }
   } catch (error) {
     console.error('Error deleting image from Cloudinary:', error);
-    return res.status(500).json({
-      error: 'Failed to delete image.'
+    return res.status(error.statusCode || 500).json({
+      error: error.message || 'Failed to delete image.'
     });
   }
 };

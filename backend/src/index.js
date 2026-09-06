@@ -14,6 +14,7 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
+import cookieParser from 'cookie-parser';
 import rateLimit from 'express-rate-limit';
 import http from 'http';
 import { Server } from 'socket.io';
@@ -78,15 +79,16 @@ app.use(cors({
 
 // Rate limiting
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
+  windowMs: 5 * 60 * 1000,
   max: 1000,
   message: { error: 'Too many requests, please try again later.' }
 });
-app.use('/api/', limiter);
+app.use('/api/', limiter); 
 
-// Body parsing
+// Body and Cookie parsing
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
 // Logging
 if (process.env.NODE_ENV === 'development') {

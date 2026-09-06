@@ -36,7 +36,7 @@ const signatureLimiter = rateLimit({
  *       401:
  *         $ref: '#/components/responses/Unauthorized'
  */
-router.get('/signature', signatureLimiter, authenticate, getUploadSignature);
+router.get('/signature', signatureLimiter, authenticate, getUploadSignature); 
 
 /**
  * @swagger

@@ -37,34 +37,36 @@ export function AuthProvider({ children }) {
   const loading = useSelector(selectAuthLoading);
   const isAuthenticated = useSelector(selectIsAuthenticated);
 
-  const logout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+  const logout = async () => {
+    try {
+      await authAPI.logout();
+    } catch (e) {
+      console.error('Logout error:', e);
+    }
     dispatch(logoutSuccess());
   };
 
   useEffect(() => {
-    if (token) {
+    const initAuth = async () => {
       dispatch(authStart());
-      authAPI.getProfile()
-        .then(res => {
-          dispatch(authSuccess({ user: res.data.user }));
-          localStorage.setItem('user', JSON.stringify(res.data.user));
-        })
-        .catch(() => {
-          logout();
-        });
-    } else {
-      dispatch(setLoading(false));
+      try {
+        const res = await authAPI.refresh();
+        dispatch(authSuccess({ user: res.data.user, token: res.data.token }));
+      } catch (err) {
+        dispatch(logoutSuccess());
+      }
+    };
+    
+    if (!token) {
+      initAuth();
     }
-  }, [token, dispatch]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Run only on mount to attempt silent refresh
 
   const login = async (email, password) => {
     dispatch(authStart());
     try {
       const res = await authAPI.login(email, password);
-      localStorage.setItem('token', res.data.token);
-      localStorage.setItem('user', JSON.stringify(res.data.user));
       await checkAndMergeGuestCart();
       dispatch(authSuccess({ user: res.data.user, token: res.data.token }));
       return res.data;
@@ -78,8 +80,6 @@ export function AuthProvider({ children }) {
     dispatch(authStart());
     try {
       const res = await authAPI.register(name, email, password, role, extraData);
-      localStorage.setItem('token', res.data.token);
-      localStorage.setItem('user', JSON.stringify(res.data.user));
       await checkAndMergeGuestCart();
       dispatch(authSuccess({ user: res.data.user, token: res.data.token }));
       return res.data;
@@ -92,7 +92,6 @@ export function AuthProvider({ children }) {
   const updateProfile = async (data) => {
     const res = await authAPI.updateProfile(data);
     dispatch(updateProfileSuccess(res.data.user));
-    localStorage.setItem('user', JSON.stringify(res.data.user));
     return res.data;
   };
 
@@ -104,8 +103,6 @@ export function AuthProvider({ children }) {
     dispatch(authStart());
     try {
       const res = await authAPI.verifyOtp(email, otp);
-      localStorage.setItem('token', res.data.token);
-      localStorage.setItem('user', JSON.stringify(res.data.user));
       await checkAndMergeGuestCart();
       dispatch(authSuccess({ user: res.data.user, token: res.data.token }));
       return res.data;

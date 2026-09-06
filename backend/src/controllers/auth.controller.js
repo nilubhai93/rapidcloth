@@ -1,278 +1,183 @@
-import jwt from 'jsonwebtoken';
-import User from '../models/User.js';
-import BankDetail from '../models/BankDetail.js';
-import Zone from '../models/Zone.js';
+import {
+  registerUser,
+  loginUser,
+  refreshUserToken,
+  sendUserOtp,
+  verifyUserOtp,
+  getUserProfile,
+  updateUserProfile,
+  updateUserSizeProfile,
+  getUserBankDetails,
+  updateUserBankDetails,
+  logoutUser
+} from '../services/auth.service.js';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'rapidcloth_secret_jwt_token_auth_key_2024_xyz';
-
-const generateToken = (userId) => {
-  return jwt.sign({ userId }, JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRES_IN || '7d'
-  });
+const COOKIE_OPTIONS = {
+  httpOnly: true,
+  sameSite: 'strict',
+  maxAge: 7 * 24 * 60 * 60 * 1000 ,// 7 days (matches refresh token expiry),
+  secure:process.env.NODE_ENV === 'production'  
 };
 
 export const register = async (req, res) => {
   try {
-    const { name, email, password, phone, role, vehicleType, vehicleNumber, zone, zoneId, state } = req.body;
+    const result = await registerUser(req.body);
 
-    if (!name || !email || !password) {
-      return res.status(400).json({
-        success: false,
-        error: 'Please fill in all required fields.',
-        message: 'Please fill in all required fields.'
-      });
-    }
-
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return res.status(409).json({
-        success: false,
-        error: 'Email already registered.',
-        message: 'Email already registered.'
-      });
-    }
-
-    const validRole = ['user', 'seller', 'delivery', 'admin'].includes(role) ? role : 'user';
-
-    const selectedZoneId = zoneId || zone || null;
-
-    const userData = {
-      name,
-      email,
-      password,
-      phone,
-      role: validRole,
-      zone: selectedZoneId,
-      assignedZones: selectedZoneId ? [selectedZoneId] : []
-    };
-
-    if (validRole === 'delivery') {
-      userData.deliveryProfile = {
-        isOnline: false,
-        vehicleType: vehicleType || 'Bike',
-        vehicleNumber: vehicleNumber || '',
-        state: state || ''
-      };
-    }
-
-    const user = await User.create(userData);
-    const token = generateToken(user._id);
-
-    res.cookie('token', token, {
-      httpOnly: true,
-      sameSite: 'strict',
-      maxAge: 24 * 60 * 60 * 1000,
-    });
-
-    const populatedUser = await User.findById(user._id)
-      .select('-password -chatHistory')
-      .populate('assignedZones')
-      .populate('zone');
+    res.cookie('refreshToken', result.refreshToken, COOKIE_OPTIONS);
 
     res.status(201).json({
       success: true,
       message: 'Registration successful',
-      token,
-      user: populatedUser ? populatedUser.toJSON() : user.toJSON()
+      token: result.accessToken,
+      accessToken: result.accessToken,
+      user: result.user
     });
   } catch (error) {
     console.error('Register error:', error);
-    res.status(500).json({ error: 'Registration failed. Please try again.', message: 'Registration failed. Please try again.' });
+    res.status(error.statusCode || 500).json({
+      success: false,
+      error: error.message || 'Registration failed. Please try again.',
+      message: error.message || 'Registration failed. Please try again.'
+    });
   }
 };
 
 export const login = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const result = await loginUser(req.body);
 
-    if (!email || !password) {
-      return res.status(400).json({
-        success: false,
-        error: 'Email and password are required',
-        message: 'Email and password are required'
-      });
-    }
-
-    const user = await User.findOne({ email }).select('+password');
-    if (!user) {
-      return res.status(401).json({
-        success: false,
-        error: 'Invalid email or password.',
-        message: 'Invalid email or password.'
-      });
-    }
-
-    const comparePassword = await user.comparePassword(password);
-    if (!comparePassword) {
-      return res.status(401).json({
-        success: false,
-        error: 'Invalid email or password.',
-        message: 'Invalid email or password.'
-      });
-    }
-
-    const token = generateToken(user._id);
-    res.cookie('token', token, {
-      httpOnly: true,
-      sameSite: 'strict',
-      maxAge: 24 * 60 * 60 * 1000
-    });
-
-    const populatedUser = await User.findById(user._id)
-      .select('-password -chatHistory')
-      .populate('assignedZones')
-      .populate('zone');
+    res.cookie('refreshToken', result.refreshToken, COOKIE_OPTIONS);
 
     res.json({
       success: true,
       message: 'Login successful',
-      token,
-      user: populatedUser ? populatedUser.toJSON() : user.toJSON()
+      token: result.accessToken,
+      accessToken: result.accessToken,
+      user: result.user
     });
   } catch (error) {
     console.error('Login error:', error);
-    res.status(500).json({ error: 'Login failed. Please try again.', message: 'Login failed. Please try again.' });
+    res.status(error.statusCode || 500).json({
+      success: false,
+      error: error.message || 'Login failed. Please try again.',
+      message: error.message || 'Login failed. Please try again.'
+    });
+  }
+};
+
+export const refreshToken = async (req, res) => {
+  try {
+    const token = req.cookies?.refreshToken || req.body.refreshToken || req.headers['x-refresh-token'];
+    if (!token) {
+      return res.status(401).json({ success: false, error: 'No refresh token provided.' });
+    }
+    const result = await refreshUserToken(token);
+
+    res.cookie('refreshToken', result.refreshToken, COOKIE_OPTIONS);
+
+    res.json({
+      success: true,
+      message: 'Token refreshed successfully',
+      token: result.accessToken,
+      accessToken: result.accessToken,
+      user: result.user
+    });
+  } catch (error) {
+    res.status(error.statusCode || 401).json({
+      success: false,
+      error: error.message || 'Failed to refresh token.'
+    });
   }
 };
 
 export const sendOtp = async (req, res) => {
   try {
-    const { email } = req.body;
-    const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(404).json({ error: 'Account not found. Please sign up.' });
-    }
-
-    // Generate 6-digit OTP
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    const otpExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 mins
-
-    user.otp = otp;
-    user.otpExpires = otpExpires;
-    await user.save();
-
-    console.log(`[OTP DEBUG] OTP for ${email}: ${otp}`);
+    const { phone } = req.body;
+    const result = await sendUserOtp(phone)
 
     res.status(200).json({
-      otp,
+     
       message: 'OTP sent successfully'
     });
   } catch (error) {
     console.error('Send OTP error:', error);
-    res.status(500).json({ error: 'Failed to send OTP.' });
+    res.status(error.statusCode || 500).json({ error: error.message || 'Failed to send OTP.' });
   }
 };
 
 export const verifyOtp = async (req, res) => {
   try {
-    const { email, otp } = req.body;
-    const user = await User.findOne({
-      email,
-      otp,
-      otpExpires: { $gt: Date.now() }
-    });
+    const result = await verifyUserOtp(req.body);
 
-    if (!user) {
-      return res.status(401).json({ error: 'Invalid or expired OTP.' });
-    }
-
-    // Clear OTP after successful verification
-    user.otp = null;
-    user.otpExpires = null;
-    await user.save();
-
-    const token = generateToken(user._id);
+    res.cookie('refreshToken', result.refreshToken, COOKIE_OPTIONS);
 
     res.json({
       message: 'OTP verified successfully',
-      token,
-      user: user
+      token: result.accessToken,
+      accessToken: result.accessToken,
+      user: result.user
     });
   } catch (error) {
     console.error('Verify OTP error:', error);
-    res.status(500).json({ error: 'Verification failed.' });
+    res.status(error.statusCode || 500).json({ error: error.message || 'Verification failed.' });
+  }
+};
+
+export const logout = async (req, res) => {
+  try {
+    const token = req.cookies?.refreshToken;
+    await logoutUser(token);
+    res.clearCookie('refreshToken', COOKIE_OPTIONS);
+    res.json({ success: true, message: 'Logged out successfully' });
+  } catch (error) {
+    console.error('Logout error:', error);
+    res.status(500).json({ error: 'Failed to logout' });
   }
 };
 
 export const getProfile = async (req, res) => {
   try {
-    const user = await User.findById(req.user._id)
-      .select('-password -chatHistory')
-      .populate('assignedZones')
-      .populate('zone');
+    const user = await getUserProfile(req.user._id);
     res.json({ user });
   } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch profile.' });
+    res.status(error.statusCode || 500).json({ error: error.message || 'Failed to fetch profile.' });
   }
 };
 
 export const updateProfile = async (req, res) => {
   try {
-    const { name, phone, addresses, sizeProfile, stylePreferences } = req.body;
-    const updates = {};
-    if (name) updates.name = name;
-    if (phone) updates.phone = phone;
-    if (addresses) updates.addresses = addresses;
-    if (sizeProfile) updates.sizeProfile = sizeProfile;
-    if (stylePreferences) updates.stylePreferences = stylePreferences;
-
-    const user = await User.findByIdAndUpdate(req.user._id, updates, { new: true }).select('-password');
+    const user = await updateUserProfile(req.user._id, req.body);
     res.json({ message: 'Profile updated', user });
   } catch (error) {
-    res.status(500).json({ error: 'Failed to update profile.' });
+    res.status(error.statusCode || 500).json({ error: error.message || 'Failed to update profile.' });
   }
 };
 
 export const updateSizeProfile = async (req, res) => {
   try {
-    const { topSize, bottomSize, shoeSize, preferredBrands } = req.body;
-    const user = await User.findByIdAndUpdate(
-      req.user._id,
-      { sizeProfile: { topSize, bottomSize, shoeSize, preferredBrands } },
-      { new: true }
-    ).select('-password');
+    const user = await updateUserSizeProfile(req.user._id, req.body);
     res.json({ message: 'Size profile updated', user });
   } catch (error) {
-    res.status(500).json({ error: 'Failed to update size profile.' });
+    res.status(error.statusCode || 500).json({ error: error.message || 'Failed to update size profile.' });
   }
 };
 
 export const getBankDetails = async (req, res) => {
   try {
-    const details = await BankDetail.findOne({ userId: req.user._id });
+    const details = await getUserBankDetails(req.user._id);
     res.json({ details });
   } catch (error) {
     console.error('Get bank details error:', error);
-    res.status(500).json({ error: 'Failed to fetch bank details.' });
+    res.status(error.statusCode || 500).json({ error: error.message || 'Failed to fetch bank details.' });
   }
 };
 
 export const updateBankDetails = async (req, res) => {
   try {
-    const { accountHolderName, accountNumber, bankName, ifscCode, branchName } = req.body;
-
-    let details = await BankDetail.findOne({ userId: req.user._id });
-    if (details) {
-      details.accountHolderName = accountHolderName;
-      details.accountNumber = accountNumber;
-      details.bankName = bankName;
-      details.ifscCode = ifscCode;
-      details.branchName = branchName;
-      await details.save();
-    } else {
-      details = await BankDetail.create({
-        userId: req.user._id,
-        accountHolderName,
-        accountNumber,
-        bankName,
-        ifscCode,
-        branchName
-      });
-    }
-
+    const details = await updateUserBankDetails(req.user._id, req.body);
     res.json({ message: 'Bank details updated successfully', details });
   } catch (error) {
     console.error('Update bank details error:', error);
-    res.status(500).json({ error: 'Failed to update bank details.' });
+    res.status(error.statusCode || 500).json({ error: error.message || 'Failed to update bank details.' });
   }
 };

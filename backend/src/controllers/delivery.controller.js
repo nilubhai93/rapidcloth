@@ -1,593 +1,174 @@
-import Order from '../models/Order.js';
-import User from '../models/User.js';
-import SupportTicket from '../models/SupportTicket.js';
-import DeliveryShift from '../models/DeliveryShift.js';
+import {
+  assignDriverToOrder,
+  getDeliveryDriverProfile,
+  updateDriverOnlineStatus,
+  getDriverCurrentOrders,
+  acceptAssignedOrder,
+  rejectAssignedOrder,
+  updateDeliveryOrderStatus,
+  getDriverDeliveryHistory,
+  markOrderReached,
+  verifyOrderDeliveryOTP,
+  getDriverEarningsDashboard,
+  payDriverCompanyRemittance,
+  createDriverSupportTicket,
+  getDriverSupportTickets,
+  getDriverBookedShifts,
+  saveDriverBookedShifts
+} from '../services/delivery.service.js';
 
-const CASH_LIMIT = 2500; // ₹2500 COD cash limit
-
-const getLocalDateStr = (date = new Date()) => {
-  const d = new Date(date);
-  const year = d.getFullYear();
-  const month = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
-};
+// Re-export assignDriverToOrder for external modules importing from delivery.controller.js
+export { assignDriverToOrder };
 
 export const getDeliveryProfile = async (req, res) => {
   try {
-    const user = await User.findById(req.user._id).select('-password');
-    if (user && user.deliveryProfile) {
-      const now = new Date();
-      const todayStr = getLocalDateStr(now);
-      let needsSave = false;
-
-      // Reset seconds if date changed past midnight (12:00 AM)
-      if (user.deliveryProfile.lastOnlineDate && user.deliveryProfile.lastOnlineDate !== todayStr) {
-        user.deliveryProfile.onlineSecondsToday = 0;
-        user.deliveryProfile.lastOnlineDate = todayStr;
-        if (user.deliveryProfile.isOnline) {
-          const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-          user.deliveryProfile.lastOnlineStartTime = startOfToday;
-        }
-        needsSave = true;
-      } else if (!user.deliveryProfile.lastOnlineDate) {
-        user.deliveryProfile.lastOnlineDate = todayStr;
-        needsSave = true;
-      }
-
-      if (needsSave) {
-        await user.save();
-      }
-    }
+    const user = await getDeliveryDriverProfile(req.user._id);
     res.json({ user });
   } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch profile' });
-  }
-};
-
-export const assignDriverToOrder = async (order) => {
-  try {
-    const availableDriver = await User.findOne({
-      role: 'delivery',
-      'deliveryProfile.isOnline': true,
-      'deliveryProfile.currentOrderId': null,
-      _id: { $nin: order.delivery.rejectedBy || [] }
-    });
-
-    if (availableDriver) {
-      order.delivery.deliveryBoyId = availableDriver._id;
-      order.delivery.status = 'assigned';
-      availableDriver.deliveryProfile.currentOrderId = order._id;
-      await availableDriver.save();
-      await order.save();
-      return true;
-    }
-    return false;
-  } catch (err) {
-    console.error('Assign driver helper error:', err);
-    return false;
+    console.error('Fetch delivery profile error:', error);
+    res.status(error.statusCode || 500).json({ error: error.message || 'Failed to fetch delivery profile' });
   }
 };
 
 export const updateDeliveryStatus = async (req, res) => {
   try {
     const { isOnline } = req.body;
-    const user = req.user;
-    const now = new Date();
-    const todayStr = getLocalDateStr(now);
-
-    if (!user.deliveryProfile) {
-      user.deliveryProfile = {};
-    }
-
-    // New day (midnight 12:00 AM) reset check
-    if (user.deliveryProfile.lastOnlineDate && user.deliveryProfile.lastOnlineDate !== todayStr) {
-      user.deliveryProfile.onlineSecondsToday = 0;
-      user.deliveryProfile.lastOnlineDate = todayStr;
-      if (user.deliveryProfile.isOnline) {
-        const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-        user.deliveryProfile.lastOnlineStartTime = startOfToday;
-      }
-    } else if (!user.deliveryProfile.lastOnlineDate) {
-      user.deliveryProfile.lastOnlineDate = todayStr;
-    }
-
-    const wasOnline = user.deliveryProfile.isOnline;
-
-    if (isOnline && !wasOnline) {
-      // Going online
-      user.deliveryProfile.isOnline = true;
-      user.deliveryProfile.lastOnlineStartTime = now;
-    } else if (!isOnline && wasOnline) {
-      // Going offline — accumulate elapsed seconds for today
-      if (user.deliveryProfile.lastOnlineStartTime) {
-        const startMs = new Date(user.deliveryProfile.lastOnlineStartTime).getTime();
-        const elapsedSec = Math.floor((now.getTime() - startMs) / 1000);
-        user.deliveryProfile.onlineSecondsToday = (user.deliveryProfile.onlineSecondsToday || 0) + Math.max(0, elapsedSec);
-      }
-      user.deliveryProfile.isOnline = false;
-      user.deliveryProfile.lastOnlineStartTime = null;
-    }
-
-    // If coming online, check if there are any orphaned/unassigned confirmed or return-requested orders
-    if (isOnline && !user.deliveryProfile.currentOrderId) {
-      const orphanOrder = await Order.findOne({
-        status: { $in: ['confirmed', 'return-requested'] },
-        'delivery.status': 'unassigned',
-        'delivery.rejectedBy': { $ne: user._id }
-      });
-
-      if (orphanOrder) {
-        await assignDriverToOrder(orphanOrder);
-      }
-    }
-
-    await user.save();
-    const cleanUser = user.toObject();
-    delete cleanUser.password;
-
-    res.json({ isOnline: user.deliveryProfile.isOnline, user: cleanUser });
+    const result = await updateDriverOnlineStatus(req.user, isOnline);
+    res.json(result);
   } catch (error) {
     console.error('Update status error', error);
-    res.status(500).json({ error: 'Failed to update status' });
+    res.status(error.statusCode || 500).json({ error: error.message || 'Failed to update status' });
   }
 };
 
 export const getCurrentOrders = async (req, res) => {
   try {
-    const orders = await Order.find({
-      'delivery.deliveryBoyId': req.user._id,
-      status: { $nin: ['delivered', 'returned', 'cancelled'] },
-      'delivery.status': { $in: ['assigned', 'accepted'] }
-    })
-    .populate({
-      path: 'items.productId',
-      populate: {
-        path: 'sellerId',
-        select: 'name phone sellerProfile'
-      }
-    })
-    .populate('userId', 'name phone email addresses');
-    
+    const orders = await getDriverCurrentOrders(req.user._id);
     res.json({ orders });
   } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch orders' });
+    res.status(error.statusCode || 500).json({ error: error.message || 'Failed to fetch orders' });
   }
 };
 
 export const acceptOrder = async (req, res) => {
   try {
     const { orderId } = req.params;
-    
-    const order = await Order.findOne({
-      _id: orderId,
-      'delivery.deliveryBoyId': req.user._id,
-      'delivery.status': 'assigned'
-    });
-
-    if (!order) return res.status(404).json({ error: 'Order not found or no longer assigned to you.' });
-
-    order.delivery.status = 'accepted';
-    if (order.status === 'return-requested') {
-      order.returnDetails.returnDeliveryBoyId = req.user._id;
-    }
-    await order.save();
-
+    const order = await acceptAssignedOrder(req.user._id, orderId);
     res.json({ message: 'Order accepted', order });
   } catch (error) {
-    res.status(500).json({ error: 'Failed to accept order' });
+    res.status(error.statusCode || 500).json({ error: error.message || 'Failed to accept order' });
   }
 };
 
 export const rejectOrder = async (req, res) => {
   try {
     const { orderId } = req.params;
-    
-    const order = await Order.findOne({
-      _id: orderId,
-      'delivery.deliveryBoyId': req.user._id,
-      'delivery.status': 'assigned'
-    });
-
-    if (!order) return res.status(404).json({ error: 'Order not found.' });
-
-    // Mark as rejected by this driver
-    order.delivery.rejectedBy.push(req.user._id);
-    
-    // Clear current driver from order
-    order.delivery.deliveryBoyId = null;
-    order.delivery.status = 'unassigned';
-    
-    // Clear current order from driver profile
-    req.user.deliveryProfile.currentOrderId = null;
-    await req.user.save();
-
-    // Reassign algorithm — find another online driver who hasn't rejected
-    const nextDriver = await User.findOne({
-      role: 'delivery',
-      'deliveryProfile.isOnline': true,
-      'deliveryProfile.currentOrderId': null,
-      _id: { $nin: order.delivery.rejectedBy }
-    });
-
-    if (nextDriver) {
-      order.delivery.deliveryBoyId = nextDriver._id;
-      order.delivery.status = 'assigned';
-      nextDriver.deliveryProfile.currentOrderId = order._id;
-      await nextDriver.save();
-    }
-
-    await order.save();
-
-    // If no other driver found, reassign back to the same driver after 10 seconds
-    if (!nextDriver) {
-      const rejectedDriverId = req.user._id;
-      const orderIdToReassign = order._id;
-
-      setTimeout(async () => {
-        try {
-          const freshOrder = await Order.findById(orderIdToReassign);
-          if (!freshOrder || freshOrder.delivery.status !== 'unassigned') return; // already handled
-          if (freshOrder.status === 'cancelled') return;
-
-          const sameDriver = await User.findById(rejectedDriverId);
-          if (!sameDriver || !sameDriver.deliveryProfile?.isOnline) return;
-          if (sameDriver.deliveryProfile.currentOrderId) return; // busy with another order
-
-          // Clear rejectedBy so the same driver can be reassigned
-          freshOrder.delivery.rejectedBy = [];
-          freshOrder.delivery.deliveryBoyId = sameDriver._id;
-          freshOrder.delivery.status = 'assigned';
-          sameDriver.deliveryProfile.currentOrderId = freshOrder._id;
-
-          await freshOrder.save();
-          await sameDriver.save();
-          console.log(`🔄 Reassigned order ${orderIdToReassign} back to driver ${sameDriver.name} — no other driver available`);
-        } catch (err) {
-          console.error('Auto-reassign to same driver error:', err);
-        }
-      }, 10000);
-    }
-
-    res.json({ message: 'Order rejected and reassigned.' });
+    const result = await rejectAssignedOrder(req.user._id, orderId);
+    res.json(result);
   } catch (error) {
-    res.status(500).json({ error: 'Failed to reject order' });
+    res.status(error.statusCode || 500).json({ error: error.message || 'Failed to reject order' });
   }
 };
 
 export const updateOrderStatus = async (req, res) => {
   try {
     const { orderId } = req.params;
-    const { status } = req.body; // 'picking', 'out-for-delivery', 'delivered'
-
-    const order = await Order.findOne({
-      _id: orderId,
-      'delivery.deliveryBoyId': req.user._id,
-      'delivery.status': 'accepted'
-    });
-
-    if (!order) return res.status(404).json({ error: 'Order not found.' });
-
-    const oldStatus = order.status;
-    order.status = status;
-    
-    if (status === 'delivered' && oldStatus !== 'delivered') {
-      order.deliveredAt = new Date();
-      // Track COD cash collected by delivery partner
-      if (order.paymentMethod === 'cod') {
-        order.paymentStatus = 'paid';
-        req.user.deliveryProfile.cashCollected = (req.user.deliveryProfile.cashCollected || 0) + order.totalAmount;
-      }
-      // Track delivery earnings
-      req.user.deliveryProfile.totalEarnings = (req.user.deliveryProfile.totalEarnings || 0) + (order.deliveryEarnings || 0);
-      req.user.deliveryProfile.currentOrderId = null;
-      await req.user.save();
-
-      // After 10 seconds, auto-assign next order (only if under cash limit)
-      const driverId = req.user._id;
-      setTimeout(async () => {
-        try {
-          const driver = await User.findById(driverId);
-          if (!driver || !driver.deliveryProfile?.isOnline || driver.deliveryProfile?.currentOrderId) return;
-          if ((driver.deliveryProfile.cashCollected || 0) >= CASH_LIMIT) return;
-
-          const nextOrder = await Order.findOne({
-            status: 'confirmed',
-            'delivery.status': 'unassigned',
-            'delivery.rejectedBy': { $ne: driverId }
-          });
-
-          if (nextOrder) {
-            nextOrder.delivery.deliveryBoyId = driverId;
-            nextOrder.delivery.status = 'assigned';
-            driver.deliveryProfile.currentOrderId = nextOrder._id;
-            await nextOrder.save();
-            await driver.save();
-          }
-        } catch (err) {
-          console.error('Auto-reassignment error:', err);
-        }
-      }, 10000);
-    }
-
-    if (status === 'returned' && oldStatus !== 'returned') {
-      req.user.deliveryProfile.currentOrderId = null;
-      req.user.deliveryProfile.totalEarnings = (req.user.deliveryProfile.totalEarnings || 0) + (order.deliveryEarnings || 0);
-      
-      // Auto-refund to user
-      order.paymentStatus = 'refunded';
-      await req.user.save();
-    }
-
-    await order.save();
+    const { status } = req.body;
+    const order = await updateDeliveryOrderStatus(req.user, orderId, status);
     res.json({ message: 'Order status updated', order });
   } catch (error) {
-    console.error('Update order status error:', error);
-    res.status(500).json({ error: 'Failed to update order status' });
+    res.status(error.statusCode || 500).json({ error: error.message || 'Failed to update order status' });
   }
 };
 
 export const getDeliveryHistory = async (req, res) => {
   try {
     const { date } = req.query;
-    let query = {
-      'delivery.deliveryBoyId': req.user._id,
-      status: { $in: ['delivered', 'returned', 'cancelled'] }
-    };
-
-    if (date) {
-      // Create a range that covers the entire day regardless of timezone shifts
-      const startOfDay = new Date(date);
-      startOfDay.setHours(0, 0, 0, 0);
-      
-      const endOfDay = new Date(date);
-      endOfDay.setHours(23, 59, 59, 999);
-      
-      query.updatedAt = { $gte: startOfDay, $lte: endOfDay };
-      console.log(`Filtering history for ${req.user.name} on date: ${date} [Range: ${startOfDay.toISOString()} - ${endOfDay.toISOString()}]`);
-    }
-
-    const orders = await Order.find(query)
-    .sort('-updatedAt')
-    .limit(date ? 200 : 50)
-    .populate('items.productId', 'name images price')
-    .populate('userId', 'name email');
-
+    const orders = await getDriverDeliveryHistory(req.user._id, date);
     res.json({ orders });
   } catch (error) {
     console.error('History fetch error:', error);
-    res.status(500).json({ error: 'Failed to fetch history' });
+    res.status(error.statusCode || 500).json({ error: error.message || 'Failed to fetch history' });
   }
 };
 
-// Mark as reached — generates OTP for user verification
 export const markReached = async (req, res) => {
   try {
     const { orderId } = req.params;
-
-    const order = await Order.findOne({
-      _id: orderId,
-      'delivery.deliveryBoyId': req.user._id,
-      'delivery.status': 'accepted',
-      status: { $in: ['out-for-delivery', 'returning'] }
-    });
-
-    if (!order) return res.status(404).json({ error: 'Order not found.' });
-
-    // Generate a 4-digit OTP
-    const otp = String(Math.floor(1000 + Math.random() * 9000));
-    order.deliveryOTP = otp;
-    order.status = 'reached';
-    await order.save();
-
+    const order = await markOrderReached(req.user._id, orderId);
     res.json({ message: 'Marked as reached. OTP sent to customer.', order });
   } catch (error) {
     console.error('Mark reached error:', error);
-    res.status(500).json({ error: 'Failed to mark as reached' });
+    res.status(error.statusCode || 500).json({ error: error.message || 'Failed to mark as reached' });
   }
 };
 
-// Verify OTP and complete delivery
 export const verifyDeliveryOTP = async (req, res) => {
   try {
     const { orderId } = req.params;
     const { otp } = req.body;
-
-    const order = await Order.findOne({
-      _id: orderId,
-      'delivery.deliveryBoyId': req.user._id,
-      status: 'reached'
-    });
-
-    if (!order) return res.status(404).json({ error: 'Order not found.' });
-
-    if (order.deliveryOTP !== otp) {
-      return res.status(400).json({ error: 'Invalid OTP. Please try again.' });
-    }
-
-    // OTP verified — mark as verified so UI knows, but don't complete delivery yet
-    order.deliveryOTP = 'verified';
-    await order.save();
-
+    const order = await verifyOrderDeliveryOTP(req.user._id, orderId, otp);
     res.json({ message: 'OTP verified successfully.', order });
   } catch (error) {
     console.error('Verify OTP error:', error);
-    res.status(500).json({ error: 'Failed to verify OTP' });
+    res.status(error.statusCode || 500).json({ error: error.message || 'Failed to verify OTP' });
   }
 };
 
-// ===== Earnings Dashboard =====
 export const getEarnings = async (req, res) => {
   try {
-    const user = await User.findById(req.user._id);
-    const cashCollected = user.deliveryProfile.cashCollected || 0;
-    const totalEarnings = user.deliveryProfile.totalEarnings || 0;
-    const isBlocked = cashCollected >= CASH_LIMIT;
-
-    // Get recent COD deliveries for history
-    const codOrders = await Order.find({
-      'delivery.deliveryBoyId': req.user._id,
-      status: 'delivered',
-      paymentMethod: 'cod'
-    })
-    .sort('-updatedAt')
-    .limit(20)
-    .select('_id totalAmount deliveryEarnings deliveryFee createdAt updatedAt paymentMethod items');
-
-    // Get all delivered orders for earnings breakdown
-    const allDelivered = await Order.find({
-      'delivery.deliveryBoyId': req.user._id,
-      status: 'delivered'
-    })
-    .sort('-updatedAt')
-    .limit(30)
-    .select('_id totalAmount deliveryEarnings deliveryFee deliveryDistanceKm createdAt updatedAt paymentMethod');
-
-    // Calculate today's, weekly and monthly stats
-    const now = new Date();
-    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const startOfWeek = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000); // Past 7 days
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-
-    const todayDeliveries = allDelivered.filter(o => new Date(o.updatedAt) >= startOfToday);
-    const weeklyDeliveries = allDelivered.filter(o => new Date(o.updatedAt) >= startOfWeek);
-    const monthlyDeliveries = allDelivered.filter(o => new Date(o.updatedAt) >= startOfMonth);
-
-    const todayEarnings = todayDeliveries.reduce((sum, o) => sum + (o.deliveryEarnings || 0), 0);
-    const todayOrdersCount = todayDeliveries.length;
-    
-    const weeklyEarnings = weeklyDeliveries.reduce((sum, o) => sum + (o.deliveryEarnings || 0), 0);
-    const weeklyOrdersCount = weeklyDeliveries.length;
-
-    const monthlyEarnings = monthlyDeliveries.reduce((sum, o) => sum + (o.deliveryEarnings || 0), 0);
-    const monthlyOrdersCount = monthlyDeliveries.length;
-
-    res.json({
-      cashCollected,
-      totalEarnings,
-      todayEarnings,
-      todayOrders: todayOrdersCount,
-      weeklyEarnings,
-      weeklyOrders: weeklyOrdersCount,
-      monthlyEarnings,
-      monthlyOrders: monthlyOrdersCount,
-      cashLimit: CASH_LIMIT,
-      isBlocked,
-      codOrders,
-      recentDeliveries: allDelivered,
-      remittanceHistory: user.deliveryProfile.remittanceHistory || []
-    });
+    const dashboard = await getDriverEarningsDashboard(req.user._id);
+    res.json(dashboard);
   } catch (error) {
-    console.error('Get earnings error:', error);
-    res.status(500).json({ error: 'Failed to fetch earnings' });
+    console.error('Earnings fetch error:', error);
+    res.status(error.statusCode || 500).json({ error: error.message || 'Failed to fetch earnings' });
   }
 };
 
-// ===== Pay Cash to Company =====
 export const payToCompany = async (req, res) => {
   try {
     const { amount } = req.body;
-    const user = await User.findById(req.user._id);
-    const currentCash = user.deliveryProfile.cashCollected || 0;
-
-    if (!amount || amount <= 0) {
-      return res.status(400).json({ error: 'Invalid payment amount.' });
-    }
-    if (amount > currentCash) {
-      return res.status(400).json({ error: 'Amount exceeds your cash balance.' });
-    }
-
-    user.deliveryProfile.cashCollected = Math.max(0, currentCash - amount);
-    user.deliveryProfile.remittanceHistory.push({ amount, date: new Date() });
-    await user.save();
-
-    res.json({
-      message: `₹${amount} paid to company successfully.`,
-      cashCollected: user.deliveryProfile.cashCollected,
-      isBlocked: user.deliveryProfile.cashCollected >= CASH_LIMIT
-    });
+    const result = await payDriverCompanyRemittance(req.user._id, amount);
+    res.json(result);
   } catch (error) {
-    console.error('Pay to company error:', error);
-    res.status(500).json({ error: 'Failed to process payment.' });
+    console.error('Payment error:', error);
+    res.status(error.statusCode || 500).json({ error: error.message || 'Payment processing failed' });
   }
 };
 
-// ===== Create Support Ticket =====
 export const createSupportTicket = async (req, res) => {
   try {
-    const { category, issueDescription } = req.body;
-    if (!category || !issueDescription) {
-      return res.status(400).json({ error: 'Category and issue description are required.' });
-    }
-
-    const ticket = await SupportTicket.create({
-      partnerId: req.user._id,
-      partnerName: req.user.name || 'Partner',
-      partnerPhone: req.user.phone || '',
-      zone: req.user.deliveryProfile?.operatingZone || req.user.city || 'General Zone',
-      category,
-      issueDescription
-    });
-
-    res.status(201).json({ message: 'Support ticket submitted successfully.', ticket });
+    const ticket = await createDriverSupportTicket(req.user._id, req.user, req.body);
+    res.status(201).json({ success: true, ticket });
   } catch (error) {
-    console.error('Create support ticket error:', error);
-    res.status(500).json({ error: 'Failed to submit support ticket' });
+    console.error('Create ticket error:', error);
+    res.status(error.statusCode || 500).json({ error: error.message || 'Failed to submit ticket' });
   }
 };
 
-// ===== Get Partner Support Tickets =====
 export const getPartnerSupportTickets = async (req, res) => {
   try {
-    const tickets = await SupportTicket.find({ partnerId: req.user._id }).sort({ createdAt: -1 });
+    const tickets = await getDriverSupportTickets(req.user._id);
     res.json({ tickets });
   } catch (error) {
-    console.error('Get support tickets error:', error);
-    res.status(500).json({ error: 'Failed to fetch tickets' });
+    res.status(error.statusCode || 500).json({ error: error.message || 'Failed to fetch tickets' });
   }
 };
 
-// ===== Get Booked Shifts =====
 export const getBookedShifts = async (req, res) => {
   try {
-    const targetDate = req.query.date || getLocalDateStr(new Date());
-    const shift = await DeliveryShift.findOne({
-      deliveryBoyId: req.user._id,
-      date: targetDate
-    });
-
-    res.json({
-      date: targetDate,
-      slotIds: shift ? shift.slotIds : []
-    });
+    const shifts = await getDriverBookedShifts(req.user._id, req.query?.date);
+    res.json({ shifts });
   } catch (error) {
-    console.error('Get booked shifts error:', error);
-    res.status(500).json({ error: 'Failed to fetch booked shifts' });
+    res.status(error.statusCode || 500).json({ error: error.message || 'Failed to load shifts' });
   }
 };
 
-// ===== Save / Update Booked Shifts =====
 export const saveBookedShifts = async (req, res) => {
   try {
-    const { date, slotIds } = req.body;
-    const targetDate = date || getLocalDateStr(new Date());
-    const validSlotIds = Array.isArray(slotIds) ? slotIds : [];
-
-    const shift = await DeliveryShift.findOneAndUpdate(
-      { deliveryBoyId: req.user._id, date: targetDate },
-      { slotIds: validSlotIds },
-      { upsert: true, new: true, setDefaultsOnInsert: true }
-    );
-
-    res.json({
-      success: true,
-      message: 'Booked shifts saved successfully.',
-      date: targetDate,
-      slotIds: shift.slotIds
-    });
+    const saved = await saveDriverBookedShifts(req.user._id, req.body);
+    res.json({ message: 'Shifts saved successfully', shifts: saved });
   } catch (error) {
-    console.error('Save booked shifts error:', error);
-    res.status(500).json({ error: 'Failed to save booked shifts' });
+    res.status(error.statusCode || 500).json({ error: error.message || 'Failed to save shifts' });
   }
 };
-
