@@ -80,16 +80,18 @@ export default function Footer() {
           <div id="bottom-nav-spacer" style={{ height: '80px' }} />
           <nav
             id="bottom-nav"
-            className="max-md:bg-[#1e3656] bg-[#feebe5]"
             style={{
               position: 'fixed',
               bottom: 0,
               left: 0,
               right: 0,
               zIndex: 999,
-              borderTop: '1px solid rgba(30, 54, 86, 0.1)',
-              borderTopLeftRadius: '28px',
-              borderTopRightRadius: '28px',
+              background: 'linear-gradient(180deg, rgba(10, 25, 55, 0.92) 0%, rgba(20, 48, 100, 0.96) 100%)',
+              backdropFilter: 'blur(24px) saturate(190%)',
+              WebkitBackdropFilter: 'blur(24px) saturate(190%)',
+              borderTop: '1px solid rgba(255, 255, 255, 0.22)',
+              boxShadow: '0 -8px 24px rgba(10, 25, 55, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.3)',
+              borderRadius: '0px',
               padding: '0 4px',
               paddingBottom: 'env(safe-area-inset-bottom, 0px)',
             }}
@@ -116,9 +118,12 @@ export default function Footer() {
                       alignItems: 'center',
                       justifyContent: 'center',
                       gap: '2px',
-                      padding: '8px 0',
-                      background: 'transparent',
-                      border: 'none',
+                      padding: '6px 10px',
+                      background: active ? 'linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.08) 100%)' : 'transparent',
+                      backdropFilter: active ? 'blur(10px)' : 'none',
+                      borderRadius: '24px',
+                      border: active ? '1px solid rgba(255, 255, 255, 0.25)' : '1px solid transparent',
+                      boxShadow: active ? '0 3px 10px rgba(0, 0, 0, 0.25), inset 0 1px 1px rgba(255, 255, 255, 0.3)' : 'none',
                       cursor: 'pointer',
                       position: 'relative',
                       minWidth: '64px',
@@ -127,8 +132,11 @@ export default function Footer() {
                   >
                     <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                       <IconComp
-                        sx={{ fontSize: '24px' }}
-                        className={active ? 'text-[#1e3656] max-md:text-white' : 'text-[#1e3656]/60 max-md:text-[rgba(255,255,255,0.6)]'}
+                        sx={{
+                          fontSize: '24px',
+                          color: active ? '#ffffff' : 'rgba(255, 255, 255, 0.55)',
+                          filter: active ? 'drop-shadow(0 0 8px rgba(56, 189, 248, 0.7))' : 'none'
+                        }}
                       />
 
                       {tab.badge > 0 && (
@@ -140,7 +148,7 @@ export default function Footer() {
                             minWidth: '16px',
                             height: '16px',
                             borderRadius: '50%',
-                            background: '#ff5722',
+                            background: 'linear-gradient(135deg, #ff5722 0%, #f43f5e 100%)',
                             color: 'white',
                             fontSize: '10px',
                             fontWeight: 900,
@@ -148,7 +156,8 @@ export default function Footer() {
                             alignItems: 'center',
                             justifyContent: 'center',
                             padding: '0 2px',
-                            border: '2px solid #0a0a0a'
+                            boxShadow: '0 2px 6px rgba(255, 87, 34, 0.5)',
+                            border: '1.5px solid rgba(255, 255, 255, 0.4)'
                           }}
                         >
                           {tab.badge > 99 ? '99+' : tab.badge}
@@ -159,16 +168,17 @@ export default function Footer() {
                         <span style={{
                           position: 'absolute',
                           top: '-12px',
-                          right: '-20px',
+                          right: '-22px',
                           padding: '2px 6px',
                           borderRadius: '4px',
-                          background: '#ff5722',
+                          background: 'linear-gradient(135deg, #ff5722 0%, #ea580c 100%)',
                           color: 'white',
                           fontSize: '9px',
                           fontWeight: 900,
                           textTransform: 'uppercase',
-                          boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
-                          border: '1px solid rgba(255,255,255,0.1)'
+                          boxShadow: '0 2px 8px rgba(255, 87, 34, 0.6)',
+                          border: '1px solid rgba(255, 255, 255, 0.4)',
+                          letterSpacing: '0.5px'
                         }}>
                           NEW
                         </span>
@@ -176,7 +186,14 @@ export default function Footer() {
                     </div>
 
                     <span
-                      className={`text-[10px] mt-[4px] tracking-[0.3px] ${active ? 'font-bold text-[#1e3656] max-md:text-white' : 'font-medium text-[#1e3656]/60 max-md:text-[rgba(255,255,255,0.6)]'}`}
+                      style={{
+                        fontSize: '10px',
+                        marginTop: '3px',
+                        letterSpacing: '0.4px',
+                        fontWeight: active ? 800 : 500,
+                        color: active ? '#ffffff' : 'rgba(255, 255, 255, 0.6)',
+                        textShadow: active ? '0 1px 3px rgba(0,0,0,0.5)' : 'none'
+                      }}
                     >
                       {tab.label}
                     </span>

@@ -80,23 +80,24 @@ export default function RentFooter() {
           left: 0,
           right: 0,
           zIndex: 9999,
-          background: '#070d1e',
-          borderTop: '1px solid rgba(212, 175, 55, 0.25)',
-          borderTopLeftRadius: '10px',
-          borderTopRightRadius: '10px',
+          background: 'linear-gradient(180deg, rgba(8, 20, 48, 0.92) 0%, rgba(16, 40, 88, 0.96) 100%)',
+          backdropFilter: 'blur(24px) saturate(190%)',
+          WebkitBackdropFilter: 'blur(24px) saturate(190%)',
+          borderTop: '1px solid rgba(245, 208, 97, 0.35)',
+          boxShadow: '0 -8px 24px rgba(8, 20, 48, 0.5), inset 0 1px 1px rgba(245, 208, 97, 0.4)',
+          borderRadius: '0px',
           padding: '0 4px',
           paddingBottom: 'env(safe-area-inset-bottom, 0px)',
           display: 'none',
-          boxShadow: '0 -4px 20px rgba(0, 0, 0, 0.4)'
         }}
       >
         <div style={{
           display: 'flex',
           justifyContent: 'space-around',
           alignItems: 'center',
-          maxWidth: '500px',
+          maxWidth: '520px',
           margin: '0 auto',
-          height: '60px'
+          height: '64px'
         }}>
           {tabs.map((tab) => {
             const active = isActive(tab);
@@ -112,9 +113,12 @@ export default function RentFooter() {
                   alignItems: 'center',
                   justifyContent: 'center',
                   gap: '2px',
-                  padding: '6px 0',
-                  background: 'transparent',
-                  border: 'none',
+                  padding: '6px 10px',
+                  background: active ? 'linear-gradient(135deg, rgba(245, 208, 97, 0.22) 0%, rgba(212, 175, 55, 0.1) 100%)' : 'transparent',
+                  backdropFilter: active ? 'blur(10px)' : 'none',
+                  borderRadius: '24px',
+                  border: active ? '1px solid rgba(245, 208, 97, 0.35)' : '1px solid transparent',
+                  boxShadow: active ? '0 3px 10px rgba(245, 208, 97, 0.2), inset 0 1px 1px rgba(245, 208, 97, 0.3)' : 'none',
                   cursor: 'pointer',
                   position: 'relative',
                   flex: 1,

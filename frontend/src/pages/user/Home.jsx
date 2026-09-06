@@ -236,6 +236,15 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [mainHeroIndex, setMainHeroIndex] = useState(0);
 
+  // Continue Shopping Section State
+  const [csStoryFilter, setCsStoryFilter] = useState('all');
+  const [csGenderFilter, setCsGenderFilter] = useState('all');
+  const [csCategoryFilter, setCsCategoryFilter] = useState('all');
+  const [csSortBy, setCsSortBy] = useState('popular');
+  const [genderDropdownOpen, setGenderDropdownOpen] = useState(false);
+  const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
+  const [sortDropdownOpen, setSortDropdownOpen] = useState(false);
+
   useEffect(() => {
     const mainHeroTimer = setInterval(() => {
       if (document.hidden) return;
@@ -268,32 +277,9 @@ export default function Home() {
   // Ad carousel state & video stylist state
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
-  const [stylistVideoIndex, setStylistVideoIndex] = useState(0);
-  const [policyIndex, setPolicyIndex] = useState(0);
   const [currentAiSentence, setCurrentAiSentence] = useState(0);
   const timerRef = useRef(null);
   const categoriesScrollRef = useRef(null);
-
-  const videoRefs = useRef([]);
-
-  useEffect(() => {
-    const videoTimer = setInterval(() => {
-      setStylistVideoIndex((prev) => (prev + 1) % 3);
-    }, 4000);
-    return () => clearInterval(videoTimer);
-  }, []);
-
-  useEffect(() => {
-    videoRefs.current.forEach((el, idx) => {
-      if (el) {
-        if (idx === stylistVideoIndex) {
-          el.play().catch(() => { });
-        } else {
-          el.pause();
-        }
-      }
-    });
-  }, [stylistVideoIndex]);
 
   const nextBanner = useCallback(() => {
     if (isResetting || isSwipingRef.current) return;
@@ -464,13 +450,7 @@ export default function Home() {
     return () => clearInterval(aiTimer);
   }, [aiData.length]);
 
-  useEffect(() => {
-    const policyTimer = setInterval(() => {
-      if (document.hidden) return;
-      setPolicyIndex((prev) => (prev + 1) % 3);
-    }, 5000);
-    return () => clearInterval(policyTimer);
-  }, []);
+
 
   // Automatic category scroll
   useEffect(() => {
@@ -528,6 +508,124 @@ export default function Home() {
 
   const allProducts = [...new Map([...latestProducts, ...deals, ...featured].map(p => [p._id, p])).values()];
 
+  const csDefaultProducts = useMemo(() => [
+    {
+      _id: 'cs-1',
+      name: "Men's Formal Trousers - Beige",
+      price: 1499,
+      discountPrice: 449,
+      category: 'trousers',
+      gender: 'men',
+      rating: 3.8,
+      reviewsCount: '5.9k',
+      isAd: true,
+      images: ['/images/trending_look_1.png'],
+      delivery: '10 Min'
+    },
+    {
+      _id: 'cs-2',
+      name: "Slim Fit Cotton Casual Shirt",
+      price: 1299,
+      discountPrice: 599,
+      category: 'shirt',
+      gender: 'men',
+      rating: 4.1,
+      reviewsCount: '266',
+      isAd: false,
+      images: ['/images/trending_look_1.png'],
+      delivery: '10 Min'
+    },
+    {
+      _id: 'cs-3',
+      name: "Floral Print Georgette Dress",
+      price: 1899,
+      discountPrice: 499,
+      category: 'dress',
+      gender: 'women',
+      rating: 4.3,
+      reviewsCount: '1.4k',
+      isAd: true,
+      images: ['/images/hero_banner_2.png'],
+      delivery: '15 Min'
+    },
+    {
+      _id: 'cs-4',
+      name: "Oversized Streetwear Hoodie",
+      price: 1999,
+      discountPrice: 699,
+      category: 'jacket',
+      gender: 'men',
+      rating: 4.5,
+      reviewsCount: '890',
+      isAd: false,
+      images: ['/images/trending_look_2.png'],
+      delivery: '10 Min'
+    },
+    {
+      _id: 'cs-5',
+      name: "Autumn Knit Fashion Cardigan",
+      price: 2499,
+      discountPrice: 899,
+      category: 'jacket',
+      gender: 'women',
+      rating: 4.6,
+      reviewsCount: '3.2k',
+      isAd: false,
+      images: ['/images/offer_banner.png'],
+      delivery: '20 Min'
+    },
+    {
+      _id: 'cs-6',
+      name: "Classic Indigo Denim Jeans",
+      price: 2199,
+      discountPrice: 799,
+      category: 'jeans',
+      gender: 'men',
+      rating: 4.4,
+      reviewsCount: '2.1k',
+      isAd: true,
+      images: ['/images/product_handbag.png'],
+      delivery: '10 Min'
+    }
+  ], []);
+
+  const csFilteredProducts = useMemo(() => {
+    let list = (allProducts && allProducts.length >= 4) ? [...allProducts] : [...csDefaultProducts];
+
+    // Apply Story Shortcut Filter
+    if (csStoryFilter === 'under499') {
+      list = list.filter(p => (p.discountPrice || p.price || 0) <= 499);
+    } else if (csStoryFilter === 'megadrop') {
+      list = list.filter(p => p.price && p.discountPrice && ((p.price - p.discountPrice) / p.price) >= 0.35);
+    } else if (csStoryFilter === 'new') {
+      list = [...list].reverse();
+    } else if (csStoryFilter === 'autumn') {
+      list = list.filter(p => (p.category || '').includes('jacket') || (p.category || '').includes('sweater') || (p.name || '').toLowerCase().includes('shirt') || (p.name || '').toLowerCase().includes('trouser'));
+    }
+
+    // Apply Gender Filter
+    if (csGenderFilter !== 'all') {
+      list = list.filter(p => !p.gender || p.gender === csGenderFilter || p.gender === 'unisex');
+    }
+
+    // Apply Category Filter
+    if (csCategoryFilter !== 'all') {
+      list = list.filter(p => (p.category || '').toLowerCase().includes(csCategoryFilter));
+    }
+
+    // Apply Sorting
+    if (csSortBy === 'price_low') {
+      list.sort((a, b) => (a.discountPrice || a.price || 0) - (b.discountPrice || b.price || 0));
+    } else if (csSortBy === 'price_high') {
+      list.sort((a, b) => (b.discountPrice || b.price || 0) - (a.discountPrice || a.price || 0));
+    } else if (csSortBy === 'rating') {
+      list.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+    }
+
+    if (list.length === 0) list = csDefaultProducts;
+    return list;
+  }, [allProducts, csDefaultProducts, csStoryFilter, csGenderFilter, csCategoryFilter, csSortBy]);
+
   const getCardProducts = (filterFn) => {
     let matches = allProducts.filter(filterFn);
     if (matches.length < 4) {
@@ -543,187 +641,25 @@ export default function Home() {
 
   return (
     <div style={{
-      '--bg-primary': '#feebe5',
-      '--bg-secondary': '#fedbd0',
+      '--bg-primary': '#f0f4f9',
+      '--bg-secondary': '#e2e8f0',
       '--bg-card': '#ffffff',
       '--bg-elevated': '#ffffff',
-      '--border': '#f5d6cc',
-      '--text-primary': '#1e3656',
-      '--text-secondary': '#4b6282',
-      '--text-muted': '#a8b5a0',
-      '--accent': '#1e4db7',
-      '--accent-light': '#3a6bc5',
-      '--accent-bg': 'rgba(30, 77, 183, 0.1)',
-      '--gradient-primary': 'linear-gradient(135deg, #14327a 0%, #c9a96e 50%, #14327a 100%)',
-      '--font-sans': '"Inter", sans-serif',
-      '--font-display': '"Inter", sans-serif',
+      '--border': '#cbd5e1',
+      '--text-primary': '#0f172a',
+      '--text-secondary': '#334155',
+      '--text-muted': '#64748b',
+      '--accent': '#2563eb',
+      '--accent-light': '#3b82f6',
+      '--accent-bg': 'rgba(37, 99, 235, 0.1)',
+      '--gradient-primary': 'linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #60a5fa 100%)',
       fontFamily: 'var(--font-sans)',
       minHeight: '100vh',
       paddingBottom: '40px',
       paddingTop: '0px'
     }}>
-
-      {/* ═══ Main Hero Banner Carousel ═══ */}
-      <div style={{ padding: '24px 0 0', backgroundColor: 'var(--bg-primary)' }}>
-        <div className="container" style={{
-          maxWidth: '1440px',
-          margin: '0 auto',
-          padding: '0 24px',
-        }}>
-          <div style={{
-            display: 'grid',
-            width: '100%',
-            minHeight: '400px',
-            borderRadius: '16px',
-            overflow: 'hidden',
-            boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
-          }}>
-            
-            {/* Red Summer Sale Banner */}
-            <div style={{
-              gridArea: '1/1',
-              display: 'flex', flexWrap: 'wrap',
-              background: 'linear-gradient(135deg, #B90039 0%, #E81A5D 100%)',
-              opacity: mainHeroIndex === 0 ? 1 : 0,
-              pointerEvents: mainHeroIndex === 0 ? 'auto' : 'none',
-              transition: 'opacity 0.8s ease-in-out',
-              zIndex: mainHeroIndex === 0 ? 2 : 1,
-              position: 'relative'
-            }}>
-              {/* Background curvy shapes */}
-              <div style={{
-                position: 'absolute', top: '-50%', right: '-10%', width: '60%', height: '200%',
-                background: 'radial-gradient(ellipse at center, rgba(168, 12, 45, 0.8) 0%, transparent 70%)',
-                transform: 'rotate(-20deg)',
-                pointerEvents: 'none', zIndex: 1
-              }} />
-              <div style={{
-                position: 'absolute', bottom: '-40%', left: '30%', width: '50%', height: '150%',
-                background: 'radial-gradient(ellipse at center, rgba(133, 4, 30, 0.9) 0%, transparent 60%)',
-                transform: 'rotate(30deg)',
-                pointerEvents: 'none', zIndex: 1
-              }} />
-              
-              {/* Left Image Section */}
-              <div style={{
-                flex: '1 1 50%', minWidth: '300px', position: 'relative', zIndex: 2
-              }}>
-                 <img src="/images/summer_sale_model.jpg" alt="Summer Sale Model" style={{
-                   width: '100%', height: '100%', minHeight: '400px', objectFit: 'cover', objectPosition: 'top center'
-                 }} />
-                 <div style={{
-                   position: 'absolute', top: 0, right: 0, bottom: 0, width: '120px',
-                   background: 'linear-gradient(to right, transparent, rgba(185, 0, 57, 1))',
-                 }}></div>
-              </div>
-
-              {/* Right Text Section */}
-              <div style={{
-                flex: '1 1 50%', minWidth: '300px', display: 'flex', flexDirection: 'column',
-                justifyContent: 'center', alignItems: 'center', textAlign: 'center',
-                padding: '40px 20px', color: '#ffffff', zIndex: 2
-              }}>
-                <div style={{ position: 'relative' }}>
-                  <h3 style={{ fontSize: '24px', letterSpacing: '6px', textTransform: 'uppercase', fontWeight: 800, marginBottom: '0px', color: '#1a1a1a', position: 'relative', zIndex: 1 }}>Summer</h3>
-                  <h1 style={{ fontSize: '96px', fontWeight: 800, lineHeight: '0.9', margin: '0', textShadow: '2px 2px 4px rgba(0,0,0,0.2)', letterSpacing: '2px', position: 'relative', zIndex: 1 }}>SALE</h1>
-                  <div style={{ fontFamily: '"Dancing Script", "Brush Script MT", cursive', fontSize: '64px', marginTop: '-30px', marginBottom: '20px', color: '#1a1a1a', transform: 'rotate(-5deg)', position: 'relative', zIndex: 1 }}>Fashion</div>
-                </div>
-                
-                <p style={{ fontSize: '24px', fontWeight: 700, marginBottom: '32px' }}>Up to 50% off</p>
-                
-                <button style={{
-                  backgroundColor: '#000000', color: '#ffffff', border: 'none', padding: '16px 48px',
-                  borderRadius: '30px', fontSize: '18px', fontWeight: 700, cursor: 'pointer',
-                  boxShadow: '0 4px 15px rgba(0,0,0,0.4)', transition: 'transform 0.2s, background 0.2s'
-                }}
-                onMouseOver={(e) => { e.currentTarget.style.transform = 'scale(1.05)'; e.currentTarget.style.backgroundColor = '#222'; }}
-                onMouseOut={(e) => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.backgroundColor = '#000'; }}
-                onClick={() => navigate('/products')}
-                >
-                  SHOP NOW
-                </button>
-                <p style={{ marginTop: '30px', fontSize: '14px', letterSpacing: '2px', opacity: 0.9 }}>www.summerspecial.com</p>
-              </div>
-            </div>
-
-            {/* Yellow Season Sale Banner */}
-            <div style={{
-              gridArea: '1/1',
-              display: 'flex', flexWrap: 'wrap',
-              background: '#f9d22d',
-              opacity: mainHeroIndex === 1 ? 1 : 0,
-              pointerEvents: mainHeroIndex === 1 ? 'auto' : 'none',
-              transition: 'opacity 0.8s ease-in-out',
-              zIndex: mainHeroIndex === 1 ? 2 : 1,
-              position: 'relative'
-            }}>
-              {/* The Black Border */}
-              <div style={{
-                position: 'absolute', inset: '24px', border: '8px solid #111',
-                zIndex: 1, pointerEvents: 'none'
-              }} className="max-md:inset-[12px] max-md:border-[4px]"></div>
-
-              {/* Left side text */}
-              <div style={{
-                flex: '1 1 30%', minWidth: '250px', display: 'flex', flexDirection: 'column',
-                justifyContent: 'center', alignItems: 'center', zIndex: 2, padding: '40px 20px'
-              }}>
-                <div style={{ textAlign: 'left', lineHeight: '1', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  <div style={{ fontSize: '56px', fontWeight: 900, color: '#111', letterSpacing: '2px', transform: 'scaleY(1.1)' }}>BEST</div>
-                  <div style={{ fontSize: '64px', fontWeight: 900, color: '#fff', textShadow: '4px 4px 0px rgba(0,0,0,0.15)', letterSpacing: '2px', transform: 'scaleY(1.1)' }}>SEASON</div>
-                  <div style={{ fontSize: '56px', fontWeight: 900, color: '#111', letterSpacing: '2px', transform: 'scaleY(1.1)' }}>SALE</div>
-                </div>
-              </div>
-
-              {/* Center image */}
-              <div style={{
-                flex: '1 1 40%', minWidth: '250px', position: 'relative', zIndex: 3,
-                display: 'flex', justifyContent: 'center', alignItems: 'flex-end',
-              }}>
-                 <img src="/images/yellow_sale_model.jpg" alt="Yellow Sale Model" style={{
-                   height: '100%', width: '100%', minHeight: '400px', objectFit: 'cover', objectPosition: 'center',
-                 }} />
-                 <div style={{ position: 'absolute', top: 0, bottom: 0, left: 0, width: '40px', background: 'linear-gradient(to right, #f9d22d, transparent)' }} />
-                 <div style={{ position: 'absolute', top: 0, bottom: 0, right: 0, width: '40px', background: 'linear-gradient(to left, #f9d22d, transparent)' }} />
-              </div>
-
-              {/* Right side text */}
-              <div style={{
-                flex: '1 1 30%', minWidth: '250px', display: 'flex', flexDirection: 'column',
-                justifyContent: 'center', alignItems: 'center', zIndex: 2, padding: '40px 20px'
-              }}>
-                 <div style={{ fontSize: '18px', fontWeight: 700, color: '#b45309', marginBottom: '16px', letterSpacing: '1px' }}>ONLY THIS WEEK</div>
-                 <div style={{ fontSize: '24px', fontWeight: 800, color: '#111' }}>UPTO</div>
-                 <div style={{ fontSize: '84px', fontWeight: 900, color: '#111', lineHeight: '1', transform: 'scaleY(1.1)', margin: '8px 0' }}>75%</div>
-                 <div style={{ fontSize: '24px', fontWeight: 800, color: '#111', marginBottom: '24px' }}>DISCOUNT</div>
-                 <button style={{
-                    backgroundColor: '#d97706', color: '#fff', border: 'none', padding: '14px 40px',
-                    fontSize: '18px', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s',
-                    boxShadow: '0 4px 15px rgba(217, 119, 6, 0.4)'
-                 }}
-                 onMouseOver={(e) => { e.currentTarget.style.backgroundColor = '#b45309'; e.currentTarget.style.transform = 'scale(1.05)' }}
-                 onMouseOut={(e) => { e.currentTarget.style.backgroundColor = '#d97706'; e.currentTarget.style.transform = 'scale(1)' }}
-                 onClick={() => navigate('/products')}
-                 >
-                   Shop Now
-                 </button>
-              </div>
-            </div>
-
-            {/* Carousel Dots */}
-            <div style={{
-              gridArea: '1/1', alignSelf: 'end',
-              display: 'flex', justifyContent: 'center', gap: '8px', zIndex: 10, paddingBottom: '20px'
-            }}>
-              <button onClick={() => setMainHeroIndex(0)} style={{ width: mainHeroIndex===0 ? '24px' : '12px', height: '12px', borderRadius: '6px', background: mainHeroIndex===0 ? '#fff' : 'rgba(255,255,255,0.5)', border: 'none', cursor: 'pointer', transition: 'all 0.3s', boxShadow: '0 2px 4px rgba(0,0,0,0.2)' }} aria-label="Go to slide 1"></button>
-              <button onClick={() => setMainHeroIndex(1)} style={{ width: mainHeroIndex===1 ? '24px' : '12px', height: '12px', borderRadius: '6px', background: mainHeroIndex===1 ? '#fff' : 'rgba(255,255,255,0.5)', border: 'none', cursor: 'pointer', transition: 'all 0.3s', boxShadow: '0 2px 4px rgba(0,0,0,0.2)' }} aria-label="Go to slide 2"></button>
-            </div>
-          </div>
-        </div>
-      </div>
-
       {/* ═══ Multi-Banner Slider (Rendered Direct on Root Page) ═══ */}
-      <div className="fk-hero-container" style={{ marginTop: '24px' }}>
+      <div className="fk-hero-container" style={{ marginTop: '20px' }}>
         <button
           className="fk-nav-btn fk-nav-prev"
           onClick={prevBanner}
@@ -831,6 +767,697 @@ export default function Home() {
         </div>
       </div>
 
+      {/* ═══ "Astik, still looking for these?" Personalized Recommendations Section (Flipkart Style) ═══ */}
+      <div style={{ padding: '16px 20px 0 20px', maxWidth: '1440px', margin: '0 auto' }}>
+        <div style={{
+          background: 'linear-gradient(135deg, #eef2ff 0%, #f0f7ff 100%)',
+          borderRadius: '20px',
+          padding: '16px 18px',
+          boxShadow: '0 4px 16px rgba(99, 102, 241, 0.08)',
+          border: '1px solid #e0e7ff'
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+            <h2 style={{
+              fontSize: '18px',
+              fontWeight: 800,
+              color: '#1e1b4b',
+              margin: 0,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px'
+            }}>
+              {user?.name || user?.firstName || 'Astik'}, still looking for these?
+            </h2>
+            <span onClick={() => navigate('/products')} style={{ fontSize: '12px', fontWeight: 700, color: '#2563eb', cursor: 'pointer' }}>
+              See All →
+            </span>
+          </div>
+
+          <div style={{
+            display: 'flex',
+            gap: '12px',
+            overflowX: 'auto',
+            paddingBottom: '6px',
+            scrollbarWidth: 'none'
+          }}>
+            {[
+              { title: "Men's T-shirts", cta: "View Store", discount: "60%", img: "/images/product_tshirt.png" },
+              { title: "Men's Trousers", cta: "Deals for you", discount: "55%", img: "/images/trending_look_1.png" },
+              { title: "Men's Kurtas", cta: "View Store", discount: "40%", img: "/kurta_pajama.png" },
+              { title: "Casual Shirts", cta: "Top Discount", discount: "50%", img: "/images/trending_look_2.png" },
+              { title: "Winter Jackets", cta: "View Store", discount: "65%", img: "/images/product_jacket.png" }
+            ].map((card, idx) => {
+              const product = (visitedProducts[idx] || latestProducts[idx] || {});
+              const hasValidProductImg = product.images?.[0] && !product.images[0].includes('placeholder');
+              const imageSrc = hasValidProductImg ? product.images[0] : card.img;
+
+              return (
+                <div
+                  key={idx}
+                  onClick={() => navigate('/products')}
+                  style={{
+                    flex: '0 0 145px',
+                    background: '#ffffff',
+                    borderRadius: '14px',
+                    padding: '8px',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
+                    cursor: 'pointer',
+                    position: 'relative',
+                    border: '1px solid #f1f5f9'
+                  }}
+                >
+                  {/* Discount Badge Pill top left */}
+                  <div style={{
+                    position: 'absolute',
+                    top: '6px',
+                    left: '6px',
+                    background: '#2563eb',
+                    color: '#ffffff',
+                    padding: '2px 6px',
+                    borderRadius: '6px',
+                    fontSize: '10px',
+                    fontWeight: 800,
+                    zIndex: 2,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '2px'
+                  }}>
+                    ↓ {card.discount}
+                  </div>
+
+                  <div style={{
+                    height: '115px',
+                    borderRadius: '10px',
+                    background: '#f8fafc',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    overflow: 'hidden',
+                    marginBottom: '8px'
+                  }}>
+                    <img
+                      src={imageSrc}
+                      alt={product.name || card.title}
+                      onError={(e) => { e.target.onerror = null; e.target.src = card.img; }}
+                      style={{ maxHeight: '100%', maxWidth: '100%', objectFit: 'contain' }}
+                    />
+                  </div>
+
+                  <div style={{ fontSize: '12px', fontWeight: 700, color: '#334155', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {product.name ? product.name.slice(0, 16) : card.title}
+                  </div>
+                  <div style={{ fontSize: '12px', fontWeight: 800, color: '#0f172a', marginTop: '2px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span>{card.cta}</span>
+                    <span style={{ color: '#2563eb', fontSize: '10px' }}>➔</span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      {/* ═══ FESTIVE COLLECTIONS (Ganesh Chaturthi & Navratri Garba Fits) ═══ */}
+      <section style={{ padding: '28px 20px 10px 20px', maxWidth: '1440px', margin: '0 auto' }}>
+        
+        {/* ─── SECTION 1: GANESH CHATURTHI ─── */}
+        <div style={{ marginBottom: '36px' }}>
+          
+          {/* Header Banner */}
+          <div style={{ textAlign: 'center', marginBottom: '20px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <span style={{ fontSize: '11px', fontWeight: 800, color: '#9a3412', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '4px' }}>
+              DESI #OOTDS FOR
+            </span>
+
+            {/* Pill Banner with Serif Title */}
+            <div
+              onClick={() => navigate('/products?occasion=festival')}
+              style={{
+                background: '#fffdfa',
+                border: '1.5px solid #fed7aa',
+                borderRadius: '30px',
+                padding: '8px 24px',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '12px',
+                boxShadow: '0 4px 14px rgba(234, 88, 12, 0.08)',
+                cursor: 'pointer'
+              }}>
+              <h2 style={{
+                fontFamily: 'serif',
+                fontSize: 'clamp(20px, 3.5vw, 28px)',
+                fontWeight: 900,
+                color: '#1c1917',
+                margin: 0,
+                letterSpacing: '1px',
+                textTransform: 'uppercase'
+              }}>
+                GANESH CHATURTHI
+              </h2>
+              <div style={{
+                width: '28px', height: '28px', borderRadius: '50%', background: '#1c1917', color: '#ffffff',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', fontWeight: 700
+              }}>
+                ➔
+              </div>
+            </div>
+          </div>
+
+          {/* Cards Row (Horizontal Scrollable Grid) */}
+          <div style={{
+            display: 'flex',
+            gap: '16px',
+            overflowX: 'auto',
+            scrollbarWidth: 'none',
+            paddingBottom: '10px'
+          }}>
+            {[
+              {
+                title: 'Ganesh Chaturthi',
+                subtitle: 'Festive faves',
+                isPill: true,
+                image: '/saree.png',
+                bgGradient: 'linear-gradient(145deg, #ea580c 0%, #c2410c 100%)',
+                garland: true
+              },
+              {
+                title: 'Temple necklace sets',
+                subtitle: 'Under ₹299',
+                isPill: false,
+                image: '/images/dress_ethnic_ad.png',
+                bgGradient: 'linear-gradient(145deg, #f97316 0%, #ea580c 100%)',
+                garland: true
+              },
+              {
+                title: 'Dhoti sets',
+                subtitle: 'Up to 70% Off',
+                isPill: false,
+                image: '/kurta_pajama.png',
+                bgGradient: 'linear-gradient(145deg, #ea580c 0%, #9a3412 100%)',
+                garland: true
+              },
+              {
+                title: 'Anarkali suits',
+                subtitle: 'Min. 50% Off',
+                isPill: false,
+                image: '/anarkali_suit.png',
+                bgGradient: 'linear-gradient(145deg, #f97316 0%, #c2410c 100%)',
+                garland: true
+              }
+            ].map((card, idx) => (
+              <div
+                key={idx}
+                onClick={() => navigate('/products?occasion=festival')}
+                style={{
+                  flex: '0 0 175px',
+                  width: '175px',
+                  borderRadius: '24px',
+                  background: card.bgGradient,
+                  padding: '12px 10px 14px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  position: 'relative',
+                  boxShadow: '0 6px 18px rgba(234, 88, 12, 0.25)',
+                  cursor: 'pointer',
+                  userSelect: 'none',
+                  overflow: 'hidden'
+                }}>
+
+                {/* Top Garland Graphics */}
+                {card.garland && (
+                  <div style={{ position: 'absolute', top: 0, left: 0, right: 0, display: 'flex', justifyContent: 'space-between', padding: '2px 10px', zIndex: 5, pointerEvents: 'none', fontSize: '13px' }}>
+                    <span>🌼</span>
+                    <span>🏵️</span>
+                    <span>🌼</span>
+                  </div>
+                )}
+
+                {/* Ornate Bracket Scalloped Window Frame */}
+                <div style={{
+                  position: 'relative',
+                  width: '100%',
+                  height: '200px',
+                  borderRadius: '20px',
+                  overflow: 'hidden',
+                  boxShadow: 'inset 0 0 0 2.5px #ffffff, 0 4px 12px rgba(0,0,0,0.18)',
+                  background: '#fff'
+                }}>
+                  <img
+                    src={card.image}
+                    alt={card.title}
+                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  />
+
+                  {/* Scalloped Bracket Window Cutout SVG */}
+                  <svg
+                    style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 3 }}
+                    viewBox="0 0 100 120"
+                    preserveAspectRatio="none"
+                  >
+                    <rect x="2" y="2" width="96" height="116" rx="14" fill="none" stroke="#ffffff" strokeWidth="3" />
+                    {/* Left & Right Bracket Curves matching user reference image */}
+                    <path d="M 0,40 Q 10,40 10,50 Q 10,60 0,60 Z" fill="rgba(0,0,0,0.06)" />
+                    <path d="M 100,40 Q 90,40 90,50 Q 90,60 100,60 Z" fill="rgba(0,0,0,0.06)" />
+                  </svg>
+                </div>
+
+                {/* Content Below Window Frame */}
+                <div style={{ marginTop: '10px', textAlign: 'center', width: '100%', zIndex: 4, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                  <div style={{ fontSize: '13.5px', fontWeight: 800, color: '#ffffff', textShadow: '0 1px 3px rgba(0,0,0,0.3)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '100%' }}>
+                    {card.title}
+                  </div>
+
+                  {card.isPill ? (
+                    <div style={{
+                      marginTop: '4px',
+                      background: '#ffffff',
+                      color: '#0f172a',
+                      fontSize: '10.5px',
+                      fontWeight: 800,
+                      padding: '3px 10px',
+                      borderRadius: '12px',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                      boxShadow: '0 2px 6px rgba(0,0,0,0.15)'
+                    }}>
+                      {card.subtitle} <span style={{ fontSize: '9px', background: '#0f172a', color: '#fff', borderRadius: '50%', width: '13px', height: '13px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>➔</span>
+                    </div>
+                  ) : (
+                    <div style={{ fontSize: '11.5px', fontWeight: 700, color: 'rgba(255,255,255,0.95)', textShadow: '0 1px 2px rgba(0,0,0,0.3)', marginTop: '2px' }}>
+                      {card.subtitle}
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+
+        {/* ─── SECTION 2: GARBA & DANDIYA FITS (FOR NAVRATRI) ─── */}
+        <div>
+          
+          {/* Header Banner */}
+          <div style={{ textAlign: 'center', marginBottom: '20px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <span style={{ fontSize: '11px', fontWeight: 800, color: '#a16207', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+              GARBA & DANDIYA FITS 🥢
+            </span>
+
+            {/* Pill Banner with Serif Title */}
+            <div
+              onClick={() => navigate('/products?occasion=festival')}
+              style={{
+                background: '#fffdfa',
+                border: '1.5px solid #fde047',
+                borderRadius: '30px',
+                padding: '8px 24px',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '12px',
+                boxShadow: '0 4px 14px rgba(234, 179, 8, 0.12)',
+                cursor: 'pointer'
+              }}>
+              <h2 style={{
+                fontFamily: 'serif',
+                fontSize: 'clamp(20px, 3.5vw, 28px)',
+                fontWeight: 900,
+                color: '#1c1917',
+                margin: 0,
+                letterSpacing: '1px',
+                textTransform: 'uppercase'
+              }}>
+                FOR NAVRATRI
+              </h2>
+              <div style={{
+                width: '28px', height: '28px', borderRadius: '50%', background: '#1c1917', color: '#ffffff',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', fontWeight: 700
+              }}>
+                ➔
+              </div>
+            </div>
+          </div>
+
+          {/* Cards Row (Horizontal Scrollable Grid) */}
+          <div style={{
+            display: 'flex',
+            gap: '16px',
+            overflowX: 'auto',
+            scrollbarWidth: 'none',
+            paddingBottom: '10px'
+          }}>
+            {[
+              {
+                title: 'Navratri',
+                subtitle: 'Festive faves',
+                isPill: true,
+                image: '/lehenga_choli.png',
+                bgGradient: 'linear-gradient(145deg, #fde047 0%, #eab308 100%)',
+                lotus: true
+              },
+              {
+                title: "Men's kurtas",
+                subtitle: 'Min. 65% Off',
+                isPill: false,
+                image: '/kurta_pajama.png',
+                bgGradient: 'linear-gradient(145deg, #facc15 0%, #ca8a04 100%)',
+                lotus: true
+              },
+              {
+                title: 'Wide pant sets',
+                subtitle: 'Up to 70% Off',
+                isPill: false,
+                image: '/bandhgala.png',
+                bgGradient: 'linear-gradient(145deg, #fde047 0%, #d97706 100%)',
+                lotus: true
+              },
+              {
+                title: 'Nehru jackets',
+                subtitle: 'Special Deals',
+                isPill: false,
+                image: '/nehru_jacket.png',
+                bgGradient: 'linear-gradient(145deg, #facc15 0%, #b45309 100%)',
+                lotus: true
+              }
+            ].map((card, idx) => (
+              <div
+                key={idx}
+                onClick={() => navigate('/products?occasion=festival')}
+                style={{
+                  flex: '0 0 175px',
+                  width: '175px',
+                  borderRadius: '24px',
+                  background: card.bgGradient,
+                  padding: '12px 10px 14px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  position: 'relative',
+                  boxShadow: '0 6px 18px rgba(234, 179, 8, 0.25)',
+                  cursor: 'pointer',
+                  userSelect: 'none',
+                  overflow: 'hidden'
+                }}>
+
+                {/* Ornate Bracket Scalloped Window Frame */}
+                <div style={{
+                  position: 'relative',
+                  width: '100%',
+                  height: '200px',
+                  borderRadius: '20px',
+                  overflow: 'hidden',
+                  boxShadow: 'inset 0 0 0 2.5px #ffffff, 0 4px 12px rgba(0,0,0,0.18)',
+                  background: '#fff'
+                }}>
+                  <img
+                    src={card.image}
+                    alt={card.title}
+                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  />
+
+                  {/* Scalloped Bracket Window Cutout SVG */}
+                  <svg
+                    style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 3 }}
+                    viewBox="0 0 100 120"
+                    preserveAspectRatio="none"
+                  >
+                    <rect x="2" y="2" width="96" height="116" rx="14" fill="none" stroke="#ffffff" strokeWidth="3" />
+                    <path d="M 0,40 Q 10,40 10,50 Q 10,60 0,60 Z" fill="rgba(0,0,0,0.06)" />
+                    <path d="M 100,40 Q 90,40 90,50 Q 90,60 100,60 Z" fill="rgba(0,0,0,0.06)" />
+                  </svg>
+                </div>
+
+                {/* Lotus Flower at bottom left */}
+                {card.lotus && (
+                  <div style={{ position: 'absolute', bottom: '6px', left: '8px', fontSize: '18px', zIndex: 5, pointerEvents: 'none', filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.2))' }}>
+                    🪷
+                  </div>
+                )}
+
+                {/* Content Below Window Frame */}
+                <div style={{ marginTop: '10px', textAlign: 'center', width: '100%', zIndex: 4, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                  <div style={{ fontSize: '13.5px', fontWeight: 800, color: '#1c1917', textShadow: '0 1px 2px rgba(255,255,255,0.4)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '100%' }}>
+                    {card.title}
+                  </div>
+
+                  {card.isPill ? (
+                    <div style={{
+                      marginTop: '4px',
+                      background: '#1c1917',
+                      color: '#ffffff',
+                      fontSize: '10.5px',
+                      fontWeight: 800,
+                      padding: '3px 10px',
+                      borderRadius: '12px',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                      boxShadow: '0 2px 6px rgba(0,0,0,0.2)'
+                    }}>
+                      {card.subtitle} <span style={{ fontSize: '9px', background: '#ffffff', color: '#1c1917', borderRadius: '50%', width: '13px', height: '13px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>➔</span>
+                    </div>
+                  ) : (
+                    <div style={{ fontSize: '11.5px', fontWeight: 800, color: '#78350f', marginTop: '2px' }}>
+                      {card.subtitle}
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+      </section>
+
+      {/* ═══ Main Hero Banner Ad Section (Flipkart Style) ═══ */}
+      <div style={{ padding: '20px 0 0', backgroundColor: 'transparent' }}>
+        <div className="container" style={{
+          maxWidth: '1440px',
+          margin: '0 auto',
+          padding: '0 20px',
+        }}>
+          <div style={{
+            display: 'grid',
+            width: '100%',
+            minHeight: '210px',
+            maxHeight: '230px',
+            borderRadius: '24px',
+            overflow: 'hidden',
+            boxShadow: '0 8px 24px rgba(0,0,0,0.06)',
+            position: 'relative'
+          }}>
+            
+            {/* Mint Green / Cyan Flipkart-Style Ad Banner */}
+            <div style={{
+              gridArea: '1/1',
+              display: 'flex',
+              flexDirection: 'row',
+              justify: 'space-between',
+              alignItems: 'center',
+              background: 'linear-gradient(135deg, #a7f3d0 0%, #6ee7b7 40%, #7dd3fc 100%)',
+              opacity: mainHeroIndex === 0 ? 1 : 0,
+              pointerEvents: mainHeroIndex === 0 ? 'auto' : 'none',
+              transition: 'opacity 0.8s ease-in-out',
+              zIndex: mainHeroIndex === 0 ? 2 : 1,
+              position: 'relative',
+              padding: '24px 28px',
+              overflow: 'hidden'
+            }}>
+              {/* Left Content */}
+              <div style={{ zIndex: 2, flex: '1 1 55%', display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+                {/* Badge Pill */}
+                <div style={{
+                  background: '#0f172a',
+                  color: '#ffffff',
+                  fontSize: '11px',
+                  fontWeight: 800,
+                  padding: '4px 10px',
+                  borderRadius: '12px',
+                  letterSpacing: '0.5px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  marginBottom: '10px'
+                }}>
+                  ⚡ GEAR UP
+                </div>
+
+                <h2 style={{
+                  fontSize: '22px',
+                  fontWeight: 800,
+                  color: '#0f172a',
+                  margin: 0,
+                  lineHeight: '1.2'
+                }}>
+                  For fashion enthusiasts
+                </h2>
+
+                <h3 style={{
+                  fontSize: '24px',
+                  fontWeight: 900,
+                  color: '#0f172a',
+                  margin: '4px 0 6px 0',
+                  lineHeight: '1.1'
+                }}>
+                  Min. 50% Off
+                </h3>
+
+                <p style={{
+                  fontSize: '13px',
+                  fontWeight: 600,
+                  color: '#334155',
+                  margin: 0
+                }}>
+                  Jackets, Shirts, & more
+                </p>
+              </div>
+
+              {/* Right Image Cutout */}
+              <div style={{ zIndex: 2, flex: '0 0 40%', height: '100%', display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
+                <img
+                  src="/images/summer_sale_model.jpg"
+                  alt="Fashion Model"
+                  style={{
+                    maxHeight: '200px',
+                    maxWidth: '100%',
+                    objectFit: 'cover',
+                    borderRadius: '16px',
+                    boxShadow: '0 6px 20px rgba(0,0,0,0.12)'
+                  }}
+                />
+              </div>
+
+              {/* "AD" Badge Tag in Bottom Right */}
+              <div style={{
+                position: 'absolute',
+                bottom: '12px',
+                right: '16px',
+                background: 'rgba(15, 23, 42, 0.35)',
+                color: '#ffffff',
+                fontSize: '10px',
+                fontWeight: 700,
+                padding: '2px 6px',
+                borderRadius: '4px',
+                letterSpacing: '0.5px',
+                zIndex: 3
+              }}>
+                AD
+              </div>
+            </div>
+
+            {/* Slide 2: Yellow Season Sale Ad Banner */}
+            <div style={{
+              gridArea: '1/1',
+              display: 'flex',
+              flexDirection: 'row',
+              justify: 'space-between',
+              alignItems: 'center',
+              background: 'linear-gradient(135deg, #fef08a 0%, #fde047 50%, #facc15 100%)',
+              opacity: mainHeroIndex === 1 ? 1 : 0,
+              pointerEvents: mainHeroIndex === 1 ? 'auto' : 'none',
+              transition: 'opacity 0.8s ease-in-out',
+              zIndex: mainHeroIndex === 1 ? 2 : 1,
+              position: 'relative',
+              padding: '24px 28px',
+              overflow: 'hidden'
+            }}>
+              {/* Left Content */}
+              <div style={{ zIndex: 2, flex: '1 1 55%', display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+                <div style={{
+                  background: '#b45309',
+                  color: '#ffffff',
+                  fontSize: '11px',
+                  fontWeight: 800,
+                  padding: '4px 10px',
+                  borderRadius: '12px',
+                  marginBottom: '10px'
+                }}>
+                  🔥 HOT DEAL
+                </div>
+
+                <h2 style={{ fontSize: '22px', fontWeight: 800, color: '#111827', margin: 0 }}>
+                  Best Season Sale
+                </h2>
+
+                <h3 style={{ fontSize: '24px', fontWeight: 900, color: '#111827', margin: '4px 0 6px 0' }}>
+                  Up to 75% Discount
+                </h3>
+
+                <p style={{ fontSize: '13px', fontWeight: 600, color: '#78350f', margin: 0 }}>
+                  Only This Week
+                </p>
+              </div>
+
+              {/* Right Image Cutout */}
+              <div style={{ zIndex: 2, flex: '0 0 40%', height: '100%', display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
+                <img
+                  src="/images/yellow_sale_model.jpg"
+                  alt="Season Sale Model"
+                  style={{
+                    maxHeight: '200px',
+                    maxWidth: '100%',
+                    objectFit: 'cover',
+                    borderRadius: '16px',
+                    boxShadow: '0 6px 20px rgba(0,0,0,0.12)'
+                  }}
+                />
+              </div>
+
+              <div style={{
+                position: 'absolute',
+                bottom: '12px',
+                right: '16px',
+                background: 'rgba(15, 23, 42, 0.35)',
+                color: '#ffffff',
+                fontSize: '10px',
+                fontWeight: 700,
+                padding: '2px 6px',
+                borderRadius: '4px',
+                zIndex: 3
+              }}>
+                AD
+              </div>
+            </div>
+
+            {/* Flipkart-Style Carousel Indicators (Dashed Pill Indicators) */}
+            <div style={{
+              gridArea: '1/1',
+              alignSelf: 'end',
+              justifySelf: 'center',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              zIndex: 10,
+              paddingBottom: '12px'
+            }}>
+              <div
+                onClick={() => setMainHeroIndex(0)}
+                style={{
+                  width: mainHeroIndex === 0 ? '28px' : '14px',
+                  height: '5px',
+                  borderRadius: '3px',
+                  background: mainHeroIndex === 0 ? '#0f172a' : 'rgba(15, 23, 42, 0.2)',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s'
+                }}
+              />
+              <div
+                onClick={() => setMainHeroIndex(1)}
+                style={{
+                  width: mainHeroIndex === 1 ? '28px' : '14px',
+                  height: '5px',
+                  borderRadius: '3px',
+                  background: mainHeroIndex === 1 ? '#0f172a' : 'rgba(15, 23, 42, 0.2)',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s'
+                }}
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+
 
       {/* Promo Cards Section */}
       <section style={{ padding: '40px 0 0', backgroundColor: 'var(--bg-primary)', overflowX: 'hidden' }}>
@@ -843,143 +1470,7 @@ export default function Home() {
           padding: '0 24px',
           overflowX: 'hidden'
         }}>
-          {/* Card 1: Our Stylist (Video Carousel) */}
-          <div className="promo-card" style={{
-            background: 'var(--bg-elevated)', borderRadius: '12px', padding: '24px',
-            position: 'relative', overflow: 'hidden', minHeight: '380px',
-            display: 'flex', flexDirection: 'column', justifyContent: 'flex-end',
-            boxShadow: '0 4px 20px rgba(0,0,0,0.05)', border: '1px solid var(--border)'
-          }}>
-            {/* Video Carousel Background */}
-            {[
-              { src: `${BACKEND_URL}/uploads/videos/men_model.mp4`, poster: `${BACKEND_URL}/uploads/videos/men_model.png`, label: "Men's Styling" },
-              { src: `${BACKEND_URL}/uploads/videos/women_model.mp4`, poster: `${BACKEND_URL}/uploads/videos/women_model.png`, label: "Women's Styling" },
-              { src: `${BACKEND_URL}/uploads/videos/kids_model.mp4`, poster: `${BACKEND_URL}/uploads/videos/kids_model.png`, label: "Kids' Styling" }
-            ].map((media, vIdx) => {
-              const isActive = vIdx === stylistVideoIndex;
-              return (
-                <video
-                  key={vIdx}
-                  src={media.src}
-                  poster={media.poster}
-                  title={media.label}
-                  autoPlay={isActive}
-                  muted
-                  loop
-                  playsInline
-                  preload={isActive ? 'auto' : 'metadata'}
-                  ref={(el) => { videoRefs.current[vIdx] = el; }}
-                  style={{
-                    position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover',
-                    opacity: isActive ? 1 : 0,
-                    transition: 'opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1)',
-                    zIndex: isActive ? 1 : 0,
-                    backgroundColor: '#1a1a1a'
-                  }}
-                />
-              );
-            })}
 
-            <div style={{
-              position: 'absolute', inset: 0,
-              background: 'linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.3) 50%, transparent 100%)',
-              zIndex: 2
-            }} />
-
-            {/* Video Controls */}
-            <div className="promo-card-controls">
-              <button
-                onClick={(e) => { e.preventDefault(); setStylistVideoIndex(prev => (prev === 0 ? 2 : prev - 1)); }}
-                style={{
-                  width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(255,255,255,0.2)',
-                  border: 'none', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  backdropFilter: 'blur(4px)'
-                }}
-              >
-                <ChevronLeftIcon sx={{ fontSize: 20 }} />
-              </button>
-              <button
-                onClick={(e) => { e.preventDefault(); setStylistVideoIndex(prev => (prev + 1) % 3); }}
-                style={{
-                  width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(255,255,255,0.2)',
-                  border: 'none', color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  backdropFilter: 'blur(4px)'
-                }}
-              >
-                <ChevronRightIcon sx={{ fontSize: 20 }} />
-              </button>
-            </div>
-
-            <div style={{ position: 'relative', zIndex: 10 }}>
-              <h3 style={{ color: '#fff', fontSize: '20px', fontWeight: 700, marginBottom: '8px', fontFamily: 'var(--font-display)' }}>Rental Collection</h3>
-              <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: '13px', marginBottom: '16px' }}>Premium designer outfits for rent.</p>
-              <Link to="/rent" style={{ color: '#c9a96e', fontWeight: 700, fontSize: '13px', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>Browse Now →</Link>
-            </div>
-          </div>
-
-          {/* Card 2: Store Policies (Carousel) */}
-          <div className="promo-card" style={{
-            background: 'var(--bg-elevated)', borderRadius: '12px', padding: 0,
-            position: 'relative', overflow: 'hidden', minHeight: '380px',
-            display: 'flex', flexDirection: 'column', justifyContent: 'flex-end',
-            boxShadow: '0 4px 20px rgba(0,0,0,0.05)', border: '1px solid var(--border)'
-          }}>
-            {[
-              {
-                src: '/images/policy_delivery.png',
-                title: '30-Min Delivery',
-                desc: 'From our hub to your door, fast.',
-                link: '/orders',
-                linkText: 'Track Now →',
-                accent: 'var(--accent-light)'
-              },
-              {
-                src: '/images/policy_returns.png',
-                title: 'Easy Returns',
-                desc: '7-day hassle-free return policy.',
-                link: '/returns',
-                linkText: 'Learn More →',
-                accent: 'var(--info)'
-              },
-              {
-                src: '/images/policy_authentic.png',
-                title: '100% Authentic',
-                desc: 'Guaranteed premium quality products.',
-                link: '/about',
-                linkText: 'Our Guarantee →',
-                accent: 'var(--success)'
-              }
-            ].map((policy, idx) => (
-              <div key={idx} style={{
-                position: 'absolute', inset: 0, width: '100%', height: '100%',
-                opacity: idx === policyIndex ? 1 : 0,
-                transition: 'opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1)',
-                zIndex: idx === policyIndex ? 1 : 0,
-                display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', padding: '24px'
-              }}>
-                <img src={policy.src} alt={policy.title} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: -2 }} />
-                <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 60%)', zIndex: -1 }} />
-                <div style={{ position: 'relative', zIndex: 2 }}>
-                  <h3 style={{ color: '#fff', fontSize: '20px', fontWeight: 700, marginBottom: '8px', fontFamily: 'var(--font-display)' }}>{policy.title}</h3>
-                  <p style={{ color: 'rgba(255,255,255,0.8)', fontSize: '13px', marginBottom: '16px' }}>{policy.desc}</p>
-                  <Link to={policy.link} style={{ color: policy.accent, fontWeight: 600, fontSize: '13px', textDecoration: 'none' }}>{policy.linkText}</Link>
-                </div>
-              </div>
-            ))}
-
-            {/* Pagination Dots */}
-            <div style={{ position: 'absolute', right: '24px', bottom: '24px', display: 'flex', gap: '6px', zIndex: 10 }}>
-              {[0, 1, 2].map((i) => (
-                <div key={i} style={{
-                  width: i === policyIndex ? '20px' : '6px',
-                  height: '6px',
-                  borderRadius: '3px',
-                  background: i === policyIndex ? 'var(--accent)' : 'rgba(255,255,255,0.4)',
-                  transition: 'all 0.3s ease'
-                }} />
-              ))}
-            </div>
-          </div>
 
           {/* Card 3: 50% Off  */}
           <div className="promo-card bg-[var(--bg-elevated)] max-md:!bg-gradient-to-b max-md:!from-[olive] max-md:!to-[var(--bg-elevated)]" style={{
@@ -1056,6 +1547,471 @@ export default function Home() {
             </div>
             <Link to="/offers?sort=-createdAt" style={{ color: '#007185', fontWeight: 500, fontSize: '13px', marginTop: '16px', textDecoration: 'none' }}>See all offers</Link>
           </div>
+        </div>
+      </section>
+
+      {/* ═══ CONTINUE SHOPPING SECTION ═══ */}
+      <section style={{ padding: '36px 0 24px 0', backgroundColor: '#ffffff', borderTop: '1px solid #e2e8f0', borderBottom: '1px solid #e2e8f0', marginTop: '24px' }}>
+        <div style={{ maxWidth: '1440px', margin: '0 auto', padding: '0 24px' }}>
+
+          {/* Header Title */}
+          <div style={{ textAlign: 'center', marginBottom: '22px' }}>
+            <h2 style={{
+              fontSize: '24px',
+              fontWeight: 900,
+              color: '#0f172a',
+              letterSpacing: '1.5px',
+              textTransform: 'uppercase',
+              fontFamily: 'var(--font-sans)',
+              margin: 0
+            }}>
+              CONTINUE SHOPPING
+            </h2>
+          </div>
+
+          {/* Row 1: Horizontal Story Shortcut Cards */}
+          <div style={{
+            display: 'flex',
+            gap: '14px',
+            overflowX: 'auto',
+            scrollbarWidth: 'none',
+            paddingBottom: '10px',
+            marginBottom: '22px'
+          }}>
+            {/* Story 1: UNDER ₹499 */}
+            <div
+              onClick={() => setCsStoryFilter(csStoryFilter === 'under499' ? 'all' : 'under499')}
+              style={{
+                flex: '0 0 115px',
+                height: '115px',
+                borderRadius: '20px',
+                background: csStoryFilter === 'under499'
+                  ? 'linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%)'
+                  : 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)',
+                border: csStoryFilter === 'under499' ? '2.5px solid #2563eb' : '1px solid #bbf7d0',
+                boxShadow: csStoryFilter === 'under499' ? '0 6px 16px rgba(37,99,235,0.22)' : '0 2px 8px rgba(0,0,0,0.04)',
+                padding: '12px 8px',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justify: 'space-between',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                userSelect: 'none'
+              }}>
+              <div style={{ fontSize: '11px', fontWeight: 800, color: '#166534', textAlign: 'center', lineHeight: '1.1' }}>
+                UNDER<br/><span style={{ fontSize: '15px', fontWeight: 900, color: '#14532d' }}>₹499</span>
+              </div>
+              <div style={{
+                width: '38px', height: '38px', borderRadius: '50%', background: '#fef08a',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                boxShadow: 'inset 0 -2px 4px rgba(0,0,0,0.15)', fontSize: '20px', fontWeight: 900, color: '#854d0e'
+              }}>
+                ₹
+              </div>
+            </div>
+
+            {/* Story 2: MEGA PRICE DROP */}
+            <div
+              onClick={() => setCsStoryFilter(csStoryFilter === 'megadrop' ? 'all' : 'megadrop')}
+              style={{
+                flex: '0 0 115px',
+                height: '115px',
+                borderRadius: '20px',
+                background: csStoryFilter === 'megadrop'
+                  ? 'linear-gradient(135deg, #fecdd3 0%, #fda4af 100%)'
+                  : 'linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%)',
+                border: csStoryFilter === 'megadrop' ? '2.5px solid #e11d48' : '1px solid #7dd3fc',
+                boxShadow: csStoryFilter === 'megadrop' ? '0 6px 16px rgba(225,29,72,0.22)' : '0 2px 8px rgba(0,0,0,0.04)',
+                padding: '12px 8px',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justify: 'space-between',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                userSelect: 'none'
+              }}>
+              <div style={{ fontSize: '10.5px', fontWeight: 800, color: '#0369a1', textAlign: 'center', lineHeight: '1.15' }}>
+                MEGA<br/>PRICE DROP
+              </div>
+              <div style={{ fontSize: '26px' }}>
+                📉⚡
+              </div>
+            </div>
+
+            {/* Story 3: WHAT'S NEW */}
+            <div
+              onClick={() => setCsStoryFilter(csStoryFilter === 'new' ? 'all' : 'new')}
+              style={{
+                flex: '0 0 115px',
+                height: '115px',
+                borderRadius: '20px',
+                background: csStoryFilter === 'new'
+                  ? 'linear-gradient(135deg, #fed7aa 0%, #fdba74 100%)'
+                  : 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)',
+                border: csStoryFilter === 'new' ? '2.5px solid #ea580c' : '1px solid #bae6fd',
+                boxShadow: csStoryFilter === 'new' ? '0 6px 16px rgba(234,88,12,0.22)' : '0 2px 8px rgba(0,0,0,0.04)',
+                padding: '12px 8px',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justify: 'space-between',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                userSelect: 'none'
+              }}>
+              <div style={{ fontSize: '11px', fontWeight: 800, color: '#0284c7', textAlign: 'center', lineHeight: '1.1' }}>
+                WHAT'S<br/>NEW
+              </div>
+              <div style={{ fontSize: '26px' }}>
+                🛍️✨
+              </div>
+            </div>
+
+            {/* Story 4: AUTUMN-WINTER */}
+            <div
+              onClick={() => setCsStoryFilter(csStoryFilter === 'autumn' ? 'all' : 'autumn')}
+              style={{
+                flex: '0 0 115px',
+                height: '115px',
+                borderRadius: '20px',
+                background: csStoryFilter === 'autumn'
+                  ? 'linear-gradient(135deg, #cbd5e1 0%, #94a3b8 100%)'
+                  : 'linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%)',
+                border: csStoryFilter === 'autumn' ? '2.5px solid #334155' : '1px solid #cbd5e1',
+                boxShadow: csStoryFilter === 'autumn' ? '0 6px 16px rgba(51,65,85,0.22)' : '0 2px 8px rgba(0,0,0,0.04)',
+                padding: '12px 8px',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justify: 'space-between',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                userSelect: 'none'
+              }}>
+              <div style={{ fontSize: '10px', fontWeight: 800, color: '#1e293b', textAlign: 'center', lineHeight: '1.1' }}>
+                AUTUMN-<br/>WINTER
+              </div>
+              <div style={{ fontSize: '26px' }}>
+                🧥🍁
+              </div>
+            </div>
+
+            {/* Story 5: EXPRESS */}
+            <div
+              onClick={() => setCsStoryFilter(csStoryFilter === 'express' ? 'all' : 'express')}
+              style={{
+                flex: '0 0 115px',
+                height: '115px',
+                borderRadius: '20px',
+                background: csStoryFilter === 'express'
+                  ? 'linear-gradient(135deg, #fef08a 0%, #fde047 100%)'
+                  : 'linear-gradient(135deg, #fefce8 0%, #fef9c3 100%)',
+                border: csStoryFilter === 'express' ? '2.5px solid #ca8a04' : '1px solid #fef08a',
+                boxShadow: csStoryFilter === 'express' ? '0 6px 16px rgba(202,138,4,0.22)' : '0 2px 8px rgba(0,0,0,0.04)',
+                padding: '12px 8px',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justify: 'space-between',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                userSelect: 'none'
+              }}>
+              <div style={{ fontSize: '11px', fontWeight: 800, color: '#854d0e', textAlign: 'center', lineHeight: '1.1', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                <span style={{ fontSize: '9px', fontWeight: 900, background: '#eab308', color: '#fff', padding: '1px 5px', borderRadius: '4px', marginBottom: '2px' }}>EXPRESS</span>
+                10 MIN
+              </div>
+              <div style={{ fontSize: '26px' }}>
+                🚚💨
+              </div>
+            </div>
+          </div>
+
+          {/* Row 2: Filter Chips Bar */}
+          <div style={{
+            display: 'flex',
+            gap: '10px',
+            overflowX: 'auto',
+            scrollbarWidth: 'none',
+            paddingBottom: '12px',
+            marginBottom: '20px',
+            alignItems: 'center'
+          }}>
+            {/* Gender Filter Chip */}
+            <div style={{ position: 'relative' }}>
+              <button
+                onClick={() => { setGenderDropdownOpen(!genderDropdownOpen); setCategoryDropdownOpen(false); setSortDropdownOpen(false); }}
+                style={{
+                  background: csGenderFilter !== 'all' ? '#0f172a' : '#ffffff',
+                  color: csGenderFilter !== 'all' ? '#ffffff' : '#334155',
+                  border: '1.5px solid #cbd5e1',
+                  borderRadius: '24px',
+                  padding: '9px 18px',
+                  fontSize: '13.5px',
+                  fontWeight: 700,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  cursor: 'pointer',
+                  whiteSpace: 'nowrap'
+                }}>
+                Gender {csGenderFilter !== 'all' ? `: ${csGenderFilter.toUpperCase()}` : ''} <span style={{ fontSize: '10px', marginLeft: '2px' }}>∨</span>
+              </button>
+              {genderDropdownOpen && (
+                <div style={{
+                  position: 'absolute', top: '100%', left: 0, marginTop: '6px',
+                  background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '14px',
+                  boxShadow: '0 10px 25px rgba(0,0,0,0.12)', zIndex: 50, minWidth: '140px', padding: '6px 0'
+                }}>
+                  {['all', 'men', 'women', 'kids'].map(g => (
+                    <div
+                      key={g}
+                      onClick={() => { setCsGenderFilter(g); setGenderDropdownOpen(false); }}
+                      style={{
+                        padding: '9px 18px', fontSize: '13px', fontWeight: csGenderFilter === g ? 800 : 500,
+                        color: csGenderFilter === g ? '#2563eb' : '#334155', cursor: 'pointer',
+                        background: csGenderFilter === g ? '#f0f6ff' : 'transparent'
+                      }}>
+                      {g === 'all' ? 'All Genders' : g.charAt(0).toUpperCase() + g.slice(1)}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Categories Filter Chip */}
+            <div style={{ position: 'relative' }}>
+              <button
+                onClick={() => { setCategoryDropdownOpen(!categoryDropdownOpen); setGenderDropdownOpen(false); setSortDropdownOpen(false); }}
+                style={{
+                  background: csCategoryFilter !== 'all' ? '#0f172a' : '#ffffff',
+                  color: csCategoryFilter !== 'all' ? '#ffffff' : '#334155',
+                  border: '1.5px solid #cbd5e1',
+                  borderRadius: '24px',
+                  padding: '9px 18px',
+                  fontSize: '13.5px',
+                  fontWeight: 700,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  cursor: 'pointer',
+                  whiteSpace: 'nowrap'
+                }}>
+                Categories {csCategoryFilter !== 'all' ? `: ${csCategoryFilter.toUpperCase()}` : ''} <span style={{ fontSize: '10px', marginLeft: '2px' }}>∨</span>
+              </button>
+              {categoryDropdownOpen && (
+                <div style={{
+                  position: 'absolute', top: '100%', left: 0, marginTop: '6px',
+                  background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '14px',
+                  boxShadow: '0 10px 25px rgba(0,0,0,0.12)', zIndex: 50, minWidth: '160px', padding: '6px 0'
+                }}>
+                  {['all', 'shirt', 'tshirt', 'jeans', 'dress', 'jacket', 'trousers'].map(cat => (
+                    <div
+                      key={cat}
+                      onClick={() => { setCsCategoryFilter(cat); setCategoryDropdownOpen(false); }}
+                      style={{
+                        padding: '9px 18px', fontSize: '13px', fontWeight: csCategoryFilter === cat ? 800 : 500,
+                        color: csCategoryFilter === cat ? '#2563eb' : '#334155', cursor: 'pointer',
+                        background: csCategoryFilter === cat ? '#f0f6ff' : 'transparent'
+                      }}>
+                      {cat === 'all' ? 'All Categories' : cat.charAt(0).toUpperCase() + cat.slice(1)}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Sort Chip */}
+            <div style={{ position: 'relative' }}>
+              <button
+                onClick={() => { setSortDropdownOpen(!sortDropdownOpen); setGenderDropdownOpen(false); setCategoryDropdownOpen(false); }}
+                style={{
+                  background: csSortBy !== 'popular' ? '#0f172a' : '#ffffff',
+                  color: csSortBy !== 'popular' ? '#ffffff' : '#334155',
+                  border: '1.5px solid #cbd5e1',
+                  borderRadius: '24px',
+                  padding: '9px 18px',
+                  fontSize: '13.5px',
+                  fontWeight: 700,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  cursor: 'pointer',
+                  whiteSpace: 'nowrap'
+                }}>
+                <span style={{ fontSize: '14px' }}>🎛️</span> Sort <span style={{ fontSize: '10px' }}>∨</span>
+              </button>
+              {sortDropdownOpen && (
+                <div style={{
+                  position: 'absolute', top: '100%', left: 0, marginTop: '6px',
+                  background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '14px',
+                  boxShadow: '0 10px 25px rgba(0,0,0,0.12)', zIndex: 50, minWidth: '170px', padding: '6px 0'
+                }}>
+                  {[
+                    { id: 'popular', label: 'Most Popular' },
+                    { id: 'price_low', label: 'Price: Low to High' },
+                    { id: 'price_high', label: 'Price: High to Low' },
+                    { id: 'rating', label: 'Top Rated' }
+                  ].map(s => (
+                    <div
+                      key={s.id}
+                      onClick={() => { setCsSortBy(s.id); setSortDropdownOpen(false); }}
+                      style={{
+                        padding: '9px 18px', fontSize: '13px', fontWeight: csSortBy === s.id ? 800 : 500,
+                        color: csSortBy === s.id ? '#2563eb' : '#334155', cursor: 'pointer',
+                        background: csSortBy === s.id ? '#f0f6ff' : 'transparent'
+                      }}>
+                      {s.label}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Quick Under ₹499 Chip */}
+            <button
+              onClick={() => setCsStoryFilter(csStoryFilter === 'under499' ? 'all' : 'under499')}
+              style={{
+                background: csStoryFilter === 'under499' ? '#2563eb' : '#ffffff',
+                color: csStoryFilter === 'under499' ? '#ffffff' : '#334155',
+                border: '1.5px solid #cbd5e1',
+                borderRadius: '24px',
+                padding: '9px 18px',
+                fontSize: '13.5px',
+                fontWeight: 700,
+                cursor: 'pointer',
+                whiteSpace: 'nowrap'
+              }}>
+              Under ₹499
+            </button>
+          </div>
+
+          {/* Row 3: Product Feed Grid */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
+            gap: '18px',
+            marginTop: '10px'
+          }}>
+            {csFilteredProducts.map((p, idx) => {
+              const isAd = p.isAd || idx % 3 === 0;
+              const price = p.discountPrice || p.price || 499;
+              const mrp = p.price || (price * 2);
+              const discount = mrp > price ? Math.round(((mrp - price) / mrp) * 100) : 0;
+              const rating = p.rating || '4.1';
+              const reviews = p.reviewsCount || (p.numReviews ? `${p.numReviews}` : '1.2k');
+
+              return (
+                <div
+                  key={p._id || idx}
+                  onClick={() => navigate(p._id && !p._id.startsWith('cs-') ? `/products/${p._id}` : '/products')}
+                  style={{
+                    background: '#ffffff',
+                    borderRadius: '20px',
+                    overflow: 'hidden',
+                    border: '1px solid #e2e8f0',
+                    boxShadow: '0 4px 14px rgba(0,0,0,0.04)',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    transition: 'transform 0.2s ease, boxShadow 0.2s ease'
+                  }}>
+                  {/* Image Container */}
+                  <div style={{
+                    position: 'relative',
+                    height: '270px',
+                    background: '#f8fafc',
+                    overflow: 'hidden',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justify: 'center'
+                  }}>
+                    <img
+                      src={p.images?.[0] || '/images/placeholder.png'}
+                      alt={p.name}
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    />
+
+                    {/* AD badge top right */}
+                    {isAd && (
+                      <div style={{
+                        position: 'absolute',
+                        top: '10px',
+                        right: '10px',
+                        background: 'rgba(0, 0, 0, 0.45)',
+                        color: '#ffffff',
+                        fontSize: '10px',
+                        fontWeight: 800,
+                        padding: '3px 7px',
+                        borderRadius: '6px',
+                        letterSpacing: '0.5px',
+                        backdropFilter: 'blur(4px)'
+                      }}>
+                        AD
+                      </div>
+                    )}
+
+                    {/* Rating Pill overlay bottom left (matching reference image) */}
+                    <div style={{
+                      position: 'absolute',
+                      bottom: '10px',
+                      left: '10px',
+                      background: 'rgba(255, 255, 255, 0.95)',
+                      borderRadius: '20px',
+                      padding: '4px 10px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '5px',
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
+                      backdropFilter: 'blur(6px)'
+                    }}>
+                      <span style={{ fontSize: '12.5px', fontWeight: 800, color: '#0f172a' }}>
+                        {rating}
+                      </span>
+                      <span style={{ color: '#16a34a', fontSize: '12px' }}>★</span>
+                      <span style={{ color: '#cbd5e1', fontSize: '12px' }}>|</span>
+                      <span style={{ fontSize: '11px', fontWeight: 700, color: '#475569' }}>
+                        {reviews}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Details Below Image */}
+                  <div style={{ padding: '14px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                    <div style={{
+                      fontSize: '14px', fontWeight: 700, color: '#1e293b',
+                      whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'
+                    }}>
+                      {p.name}
+                    </div>
+
+                    <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px', marginTop: '2px' }}>
+                      <span style={{ fontSize: '16px', fontWeight: 800, color: '#0f172a' }}>
+                        ₹{price.toLocaleString()}
+                      </span>
+                      {discount > 0 && (
+                        <>
+                          <span style={{ fontSize: '12px', color: '#94a3b8', textDecoration: 'line-through' }}>
+                            ₹{mrp.toLocaleString()}
+                          </span>
+                          <span style={{ fontSize: '12px', color: '#16a34a', fontWeight: 800 }}>
+                            {discount}% OFF
+                          </span>
+                        </>
+                      )}
+                    </div>
+
+                    <div style={{ fontSize: '11px', fontWeight: 700, color: '#2563eb', display: 'flex', alignItems: 'center', gap: '4px', marginTop: '4px' }}>
+                      <span>⚡ Express 10 Min Delivery</span>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
         </div>
       </section>
 
@@ -2847,6 +3803,60 @@ export default function Home() {
           }
         }
       `}</style>
+
+      {/* ═══ Fixed Mobile Bottom Navigation Bar (Flipkart Style) ═══ */}
+      <div style={{
+        position: 'fixed',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        background: '#ffffff',
+        borderTop: '1px solid #e2e8f0',
+        display: 'flex',
+        justify: 'space-around',
+        alignItems: 'center',
+        padding: '8px 0 6px 0',
+        zIndex: 1000,
+        boxShadow: '0 -4px 16px rgba(0,0,0,0.06)'
+      }}>
+        <div onClick={() => navigate('/')} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer' }}>
+          <span style={{ fontSize: '18px', color: '#2563eb' }}>🏠</span>
+          <span style={{ fontSize: '10px', fontWeight: 800, color: '#2563eb', marginTop: '2px' }}>Home</span>
+        </div>
+        <div onClick={() => navigate('/rent')} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer' }}>
+          <span style={{ fontSize: '18px', color: '#64748b' }}>▶️</span>
+          <span style={{ fontSize: '10px', fontWeight: 600, color: '#64748b', marginTop: '2px' }}>Try-On</span>
+        </div>
+        <div onClick={() => navigate('/deals')} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer' }}>
+          <span style={{ fontSize: '18px', color: '#64748b' }}>🏷️</span>
+          <span style={{ fontSize: '10px', fontWeight: 600, color: '#64748b', marginTop: '2px' }}>Top Deals</span>
+        </div>
+        <div onClick={() => navigate('/profile')} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer' }}>
+          <span style={{ fontSize: '18px', color: '#64748b' }}>👤</span>
+          <span style={{ fontSize: '10px', fontWeight: 600, color: '#64748b', marginTop: '2px' }}>Account</span>
+        </div>
+        <div onClick={() => navigate('/cart')} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', cursor: 'pointer', position: 'relative' }}>
+          <span style={{ fontSize: '18px', color: '#64748b' }}>🛒</span>
+          <span style={{ fontSize: '10px', fontWeight: 600, color: '#64748b', marginTop: '2px' }}>Cart</span>
+          <div style={{
+            position: 'absolute',
+            top: '-2px',
+            right: '4px',
+            background: '#ef4444',
+            color: '#ffffff',
+            borderRadius: '50%',
+            width: '15px',
+            height: '15px',
+            fontSize: '9px',
+            fontWeight: 800,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}>
+            5
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
