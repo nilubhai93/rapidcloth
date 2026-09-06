@@ -11,6 +11,11 @@
     "superadmin"
   ],
   "scripts": {
+    "build": "npm --prefix frontend run build",
+    "build:frontend": "npm --prefix frontend run build",
+    "build:admin": "npm --prefix adminfrontend run build",
+    "build:partner": "npm --prefix partnerFrontend run build",
+    "build:superadmin": "npm --prefix superadmin run build",
     "dev": "npm --prefix backend run dev",
     "dev:backend": "npm --prefix backend run dev",
     "dev:partner": "npm --prefix partnerFrontend run dev",

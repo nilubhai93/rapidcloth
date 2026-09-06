@@ -40,3 +40,11 @@ pnpm-debug.log*
 scratch/
 backend/src/scripts/check_db.js
 backend/src/scripts/test_sellers_output.js
+
+rapidcloth/backend/node_modules
+rapidcloth/frontend/node_modules
+
+rapidcloth/backend/uploads
+rapidCloth_backend.md
+rapidCloth_frontend.md
+rapidCloth_planning.md
