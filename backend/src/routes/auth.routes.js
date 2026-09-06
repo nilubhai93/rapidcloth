@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { register, login, getProfile, updateProfile, updateSizeProfile, sendOtp, verifyOtp, getBankDetails, updateBankDetails } from '../controllers/auth.controller.js';
+import { register, login, refreshToken, getProfile, updateProfile, updateSizeProfile, sendOtp, verifyOtp, getBankDetails, updateBankDetails, logout } from '../controllers/auth.controller.js';
 import { getPublicZones } from '../controllers/seller.controller.js';
 import { authenticate } from '../middleware/auth.js';
 import { registerValidation, loginValidation } from '../middleware/validate.js';
@@ -80,6 +80,50 @@ router.post('/register', registerValidation, register);
  *         $ref: '#/components/responses/InternalServerError'
  */
 router.post('/login', loginValidation, login);
+/**
+ * @swagger
+ * /api/auth/refresh-token:
+ *   post:
+ *     summary: Refresh access token
+ *     description: Generates a new access token using a valid refresh token (expected in httpOnly cookie or request body).
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: false
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               refreshToken:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Token refreshed successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/AuthResponse'
+ *       401:
+ *         $ref: '#/components/responses/Unauthorized'
+ *       500:
+ *         $ref: '#/components/responses/InternalServerError'
+ */
+router.post('/refresh-token', refreshToken);
+
+/**
+ * @swagger
+ * /api/auth/logout:
+ *   post:
+ *     summary: Logout a user
+ *     description: Clears the refresh token cookie.
+ *     tags: [Auth]
+ *     responses:
+ *       200:
+ *         description: Logged out successfully
+ *       500:
+ *         $ref: '#/components/responses/InternalServerError'
+ */
+router.post('/logout', logout);
 
 /**
  * @swagger

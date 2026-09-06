@@ -16,19 +16,11 @@ import {
   getBookedShifts,
   saveBookedShifts
 } from '../controllers/delivery.controller.js';
-import { authenticate } from '../middleware/auth.js';
+import { authenticate, authorize } from '../middleware/auth.js';
 
 const router = express.Router();
 
-router.use(authenticate);
-
-// Middleware to Ensure Delivery Role
-router.use((req, res, next) => {
-  if (req.user?.role !== 'delivery' && req.user?.role !== 'admin') {
-    return res.status(403).json({ error: 'Delivery access required.' });
-  }
-  next();
-});
+router.use(authenticate, authorize('delivery', 'admin'));
 
 /**
  * @swagger

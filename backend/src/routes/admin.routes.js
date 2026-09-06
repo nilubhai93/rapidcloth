@@ -11,12 +11,12 @@ import {
   updateSupportTicketStatus
 } from '../controllers/admin.controller.js';
 import { updateSellerZone, updateFullSellerDetails } from '../controllers/superadmin.controller.js';
-import { authenticate, adminOnly } from '../middleware/auth.js';
+import { authenticate, authorize } from '../middleware/auth.js';
 
 const router = express.Router();
 
-// Put all admin routes behind authenticate + adminOnly
-router.use(authenticate, adminOnly);
+// Put all admin routes behind authenticate + authorize('admin', 'superadmin')
+router.use(authenticate, authorize('admin', 'superadmin'));
 
 /**
  * @swagger

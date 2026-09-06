@@ -1,11 +1,10 @@
 import express from 'express';
 import { getSellerOrders, updateOrderStatus } from '../controllers/sellerOrder.controller.js';
-import { authenticate, sellerOrAdmin } from '../middleware/auth.js';
+import { authenticate, authorize } from '../middleware/auth.js';
 
 const router = express.Router();
 
-router.use(authenticate);
-router.use(sellerOrAdmin);
+router.use(authenticate, authorize('seller', 'admin', 'superadmin'));
 
 /**
  * @swagger

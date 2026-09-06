@@ -1,5 +1,5 @@
 import express from 'express';
-import { authenticate, sellerOrAdmin } from '../middleware/auth.js';
+import { authenticate, authorize } from '../middleware/auth.js';
 import { productUpload } from '../middleware/productUpload.js';
 import {
   getSellerDashboardStats,
@@ -17,8 +17,8 @@ import {
 
 const router = express.Router();
 
-// All routes require authentication and the 'seller' or 'admin' role
-router.use(authenticate, sellerOrAdmin);
+// All routes require authentication and seller/admin/superadmin role
+router.use(authenticate, authorize('seller', 'admin', 'superadmin'));
 
 /**
  * @swagger
